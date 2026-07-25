@@ -1,0 +1,20 @@
+{
+  "strict_case": true,
+  "max_undo_steps": 100,
+  "text_width": 729,
+  "sidebar_width": 260,
+  "excluded_words": [
+    "S",
+    "V",
+    "O",
+    "n",
+    "adj",
+    "prep",
+    "adv"
+  ],
+  "dictionary_format_enabled": false,
+  "dictionary_format_separators": [
+    ":",
+    "："
+  ]
+}
