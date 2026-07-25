@@ -31,10 +31,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -214,9 +212,25 @@ private fun EditableTokenList(
     result: TranslationResult,
     alicianFont: FontFamily,
 ) {
-    var tokens by remember(result) { mutableStateOf(result.tokens) }
-    var customized by remember(result) { mutableStateOf(false) }
-    val customizedText = if (customized) tokens.joinToString("") { it.target } else result.resultText
+    var tokenOrder by rememberSaveable(result) {
+        mutableStateOf(
+            ArrayList(
+                result.tokens.indices.filter { result.tokens[it].status != "space" },
+            ),
+        )
+    }
+    var selectedTargets by rememberSaveable(result) {
+        mutableStateOf(ArrayList(result.tokens.map { it.target }))
+    }
+    var customized by rememberSaveable(result) { mutableStateOf(false) }
+    val tokens = tokenOrder.map { originalIndex ->
+        result.tokens[originalIndex].copy(target = selectedTargets[originalIndex])
+    }
+    val customizedText = if (customized) {
+        formatCustomizedTranslation(tokens, result.direction)
+    } else {
+        result.resultText
+    }
 
     if (customized) {
         Card(
@@ -247,28 +261,55 @@ private fun EditableTokenList(
                 canMoveUp = index > 0,
                 canMoveDown = index < tokens.lastIndex,
                 onMoveUp = {
-                    tokens = tokens.toMutableList().also {
+                    tokenOrder = ArrayList(tokenOrder).also {
                         val moved = it.removeAt(index)
                         it.add(index - 1, moved)
                     }
                     customized = true
                 },
                 onMoveDown = {
-                    tokens = tokens.toMutableList().also {
+                    tokenOrder = ArrayList(tokenOrder).also {
                         val moved = it.removeAt(index)
                         it.add(index + 1, moved)
                     }
                     customized = true
                 },
                 onAlternative = { target ->
-                    tokens = tokens.toMutableList().also {
-                        it[index] = it[index].copy(target = target)
+                    val originalIndex = tokenOrder[index]
+                    selectedTargets = ArrayList(selectedTargets).also {
+                        it[originalIndex] = target
                     }
                     customized = true
                 },
             )
         }
     }
+}
+
+internal fun formatCustomizedTranslation(
+    tokens: List<TranslationToken>,
+    direction: String,
+): String {
+    val semanticTokens = tokens.filterNot { it.status == "space" }
+    if (direction == "alician_to_zh") {
+        return semanticTokens.joinToString("") { it.target }.trim()
+    }
+
+    val result = StringBuilder()
+    semanticTokens.forEach { token ->
+        if (token.status == "punct") {
+            while (result.isNotEmpty() && result.last().isWhitespace()) {
+                result.deleteCharAt(result.lastIndex)
+            }
+            result.append(token.target)
+        } else {
+            if (result.isNotEmpty() && !result.last().isWhitespace()) {
+                result.append(' ')
+            }
+            result.append(token.target)
+        }
+    }
+    return result.toString().trim()
 }
 
 @Composable

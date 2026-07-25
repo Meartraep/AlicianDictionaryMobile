@@ -67,7 +67,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
-fun WritingScreen(viewModel: MainViewModel, padding: PaddingValues) {
+fun WritingScreen(
+    viewModel: MainViewModel,
+    padding: PaddingValues,
+    isActive: Boolean = true,
+) {
     var text by rememberSaveable { mutableStateOf("") }
     var showSettings by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -103,9 +107,11 @@ fun WritingScreen(viewModel: MainViewModel, padding: PaddingValues) {
         }
     }
 
-    LaunchedEffect(text, viewModel.writingSettings) {
-        delay(550)
-        viewModel.checkWritingSilently(text)
+    LaunchedEffect(text, viewModel.writingSettings, isActive) {
+        if (isActive) {
+            delay(550)
+            viewModel.checkWritingSilently(text)
+        }
     }
 
     LazyColumn(

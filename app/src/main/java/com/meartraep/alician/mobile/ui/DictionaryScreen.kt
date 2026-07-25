@@ -18,6 +18,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.LibraryBooks
@@ -289,6 +291,7 @@ private fun ExamplesSheet(
     onDismiss: () -> Unit,
     onUpdateLyric: (String, String, String) -> Unit,
 ) {
+    var viewing by remember { mutableStateOf<LyricExample?>(null) }
     var editing by remember { mutableStateOf<LyricExample?>(null) }
     ModalBottomSheet(onDismissRequest = onDismiss) {
         LazyColumn(
@@ -331,8 +334,8 @@ private fun ExamplesSheet(
                             style = MaterialTheme.typography.bodyLarge,
                         )
                         Spacer(Modifier.height(8.dp))
-                        TextButton(onClick = { editing = example }) {
-                            Text("查看并编辑整首歌词")
+                        TextButton(onClick = { viewing = example }) {
+                            Text("查看整首歌词")
                         }
                     }
                 }
@@ -347,6 +350,44 @@ private fun ExamplesSheet(
                 }
             }
         }
+    }
+
+    viewing?.let { example ->
+        AlertDialog(
+            onDismissRequest = { viewing = null },
+            title = { Text(example.title) },
+            text = {
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                    ),
+                ) {
+                    SelectionContainer {
+                        Text(
+                            text = example.lyric,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(420.dp)
+                                .verticalScroll(rememberScrollState())
+                                .padding(16.dp),
+                            fontFamily = alicianFont,
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        viewing = null
+                        editing = example
+                    },
+                ) { Text("编辑") }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { viewing = null }) { Text("关闭") }
+            },
+        )
     }
 
     editing?.let { example ->
@@ -379,4 +420,3 @@ private fun ExamplesSheet(
         )
     }
 }
-

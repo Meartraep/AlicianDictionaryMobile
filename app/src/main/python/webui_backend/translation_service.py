@@ -331,7 +331,10 @@ class TranslationService:
             if not part:
                 continue
             if part.isspace():
-                tokens.append(self._space_token(part))
+                # Whitespace separates source words; it is formatting, not a
+                # translatable/reorderable token. Output spacing is composed
+                # from the semantic tokens below.
+                continue
             elif _CJK_RUN_RE.fullmatch(part):
                 tokens.extend(self._translate_chinese_run(part))
             elif re.fullmatch(r"[^\sA-Za-z\d\u3400-\u9fff]+", part):
@@ -965,7 +968,6 @@ class TranslationService:
         while i < len(parts):
             part = parts[i]
             if part.isspace():
-                tokens.append(self._space_token(part))
                 i += 1
                 continue
             if not re.fullmatch(r"[A-Za-z][A-Za-z'-]*", part):
@@ -1382,9 +1384,6 @@ class TranslationService:
             "alternatives": alternatives or [],
             "note": note,
         }
-
-    def _space_token(self, source: str) -> Dict[str, Any]:
-        return self._token(source, source, "space", "space", 1.0)
 
     def _punct_token(self, source: str) -> Dict[str, Any]:
         return self._token(source, source, "punct", "punct", 1.0)

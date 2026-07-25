@@ -69,10 +69,14 @@ import kotlinx.coroutines.launch
 import java.io.File
 
 @Composable
-fun DatabaseScreen(viewModel: MainViewModel, padding: PaddingValues) {
+fun DatabaseScreen(
+    viewModel: MainViewModel,
+    padding: PaddingValues,
+    isActive: Boolean = true,
+) {
     var query by rememberSaveable { mutableStateOf("") }
     var exact by rememberSaveable { mutableStateOf(false) }
-    var showGlobal by remember { mutableStateOf(false) }
+    var showGlobal by rememberSaveable { mutableStateOf(false) }
     var globalQuery by rememberSaveable { mutableStateOf("") }
     var globalExact by rememberSaveable { mutableStateOf(false) }
     var editingRow by remember { mutableStateOf<Map<String, String>?>(null) }
@@ -98,8 +102,8 @@ fun DatabaseScreen(viewModel: MainViewModel, padding: PaddingValues) {
         if (uri != null) viewModel.exportDatabase(uri)
     }
 
-    LaunchedEffect(Unit) {
-        if (viewModel.dbTables.isEmpty()) viewModel.loadDatabase()
+    LaunchedEffect(isActive) {
+        if (isActive && viewModel.dbTables.isEmpty()) viewModel.loadDatabase()
     }
 
     LazyColumn(
@@ -633,4 +637,3 @@ private fun Map<String, String>.recordId(): Long? =
     (get("id") ?: get("rowid"))?.toLongOrNull()
 
 private fun GlobalMatch.selectionKey(): String = "$table:$id:$field"
-

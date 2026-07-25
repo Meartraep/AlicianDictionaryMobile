@@ -5,6 +5,7 @@ import sqlite3
 import logging
 import os
 import sys
+import threading
 
 def _get_default_db_path():
     env_db = os.environ.get("ALICIAN_DB_PATH")
@@ -22,6 +23,7 @@ class DatabaseManager:
     """数据库连接管理器 - 单例模式"""
     _instance = None
     _connection = None
+    _lock = threading.RLock()
     
     def __new__(cls):
         if cls._instance is None:
@@ -30,23 +32,30 @@ class DatabaseManager:
     
     def get_connection(self):
         """获取数据库连接，如果连接不存在则创建新连接"""
-        if self._connection is None:
-            try:
-                # 使用绝对路径，确保从任何目录运行都能找到数据库文件
-                db_path = _get_default_db_path()
-                self._connection = sqlite3.connect(db_path)
-                # 启用外键约束
-                self._connection.execute("PRAGMA foreign_keys = ON")
-            except sqlite3.Error as e:
-                logger.error(f"创建数据库连接时出错: {e}")
-                raise
-        return self._connection
+        with self._lock:
+            if self._connection is None:
+                try:
+                    # PythonRepository dispatches calls on a coroutine IO pool,
+                    # so consecutive calls are not guaranteed to use the same
+                    # OS thread. The service-level RLock serializes access.
+                    db_path = _get_default_db_path()
+                    self._connection = sqlite3.connect(
+                        db_path,
+                        check_same_thread=False,
+                    )
+                    # 启用外键约束
+                    self._connection.execute("PRAGMA foreign_keys = ON")
+                except sqlite3.Error as e:
+                    logger.error(f"创建数据库连接时出错: {e}")
+                    raise
+            return self._connection
     
     def close_connection(self):
         """关闭数据库连接"""
-        if self._connection is not None:
-            try:
-                self._connection.close()
-                self._connection = None
-            except sqlite3.Error as e:
-                logger.error(f"关闭数据库连接时出错: {e}")
+        with self._lock:
+            if self._connection is not None:
+                try:
+                    self._connection.close()
+                    self._connection = None
+                except sqlite3.Error as e:
+                    logger.error(f"关闭数据库连接时出错: {e}")

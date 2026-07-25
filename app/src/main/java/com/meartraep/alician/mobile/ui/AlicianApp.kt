@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -38,6 +39,7 @@ private enum class AppDestination(
 fun AlicianApp(viewModel: MainViewModel) {
     var destination by remember { mutableStateOf(AppDestination.Dictionary) }
     val snackbarState = remember { SnackbarHostState() }
+    val stateHolder = rememberSaveableStateHolder()
 
     Scaffold(
         bottomBar = {
@@ -45,12 +47,7 @@ fun AlicianApp(viewModel: MainViewModel) {
                 AppDestination.entries.forEach { item ->
                     NavigationBarItem(
                         selected = destination == item,
-                        onClick = {
-                            destination = item
-                            if (item == AppDestination.Database && viewModel.dbTables.isEmpty()) {
-                                viewModel.loadDatabase()
-                            }
-                        },
+                        onClick = { destination = item },
                         icon = { Icon(item.icon, contentDescription = item.label) },
                         label = { Text(item.label) },
                     )
@@ -67,12 +64,14 @@ fun AlicianApp(viewModel: MainViewModel) {
         },
     ) { padding ->
         Box(Modifier.fillMaxSize()) {
-            when (destination) {
-                AppDestination.Dictionary -> DictionaryScreen(viewModel, padding)
-                AppDestination.Writing -> WritingScreen(viewModel, padding)
-                AppDestination.Translator -> TranslatorScreen(viewModel, padding)
-                AppDestination.Database -> DatabaseScreen(viewModel, padding)
-                AppDestination.Settings -> SettingsScreen(viewModel, padding)
+            stateHolder.SaveableStateProvider(destination.name) {
+                when (destination) {
+                    AppDestination.Dictionary -> DictionaryScreen(viewModel, padding)
+                    AppDestination.Writing -> WritingScreen(viewModel, padding)
+                    AppDestination.Translator -> TranslatorScreen(viewModel, padding)
+                    AppDestination.Database -> DatabaseScreen(viewModel, padding)
+                    AppDestination.Settings -> SettingsScreen(viewModel, padding)
+                }
             }
             BusyOverlay(viewModel.busyMessage)
         }
