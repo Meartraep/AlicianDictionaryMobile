@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.meartraep.alician.mobile.data.AppUpdateInfo
 import com.meartraep.alician.mobile.data.DatabaseInfo
 import com.meartraep.alician.mobile.data.DbTablePage
 import com.meartraep.alician.mobile.data.DictionaryResult
@@ -16,6 +17,7 @@ import com.meartraep.alician.mobile.data.LookupResult
 import com.meartraep.alician.mobile.data.PythonRepository
 import com.meartraep.alician.mobile.data.RemoteComparison
 import com.meartraep.alician.mobile.data.TranslationResult
+import com.meartraep.alician.mobile.data.UiSettings
 import com.meartraep.alician.mobile.data.WritingResult
 import com.meartraep.alician.mobile.data.WritingSettings
 import kotlinx.coroutines.launch
@@ -34,9 +36,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var noticeMessage by mutableStateOf<String?>(null)
         private set
 
-    var alicianFontEnabled by mutableStateOf(repository.alicianFontEnabled)
+    var uiSettings by mutableStateOf(repository.uiSettings)
         private set
-    var dynamicColorsEnabled by mutableStateOf(repository.dynamicColorsEnabled)
+    var alicianFontEnabled by mutableStateOf(uiSettings.alicianFont)
+        private set
+    var dynamicColorsEnabled by mutableStateOf(uiSettings.dynamicColors)
         private set
 
     var dictionaryResult by mutableStateOf<DictionaryResult?>(null)
@@ -67,12 +71,21 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         private set
     var remoteComparison by mutableStateOf<RemoteComparison?>(null)
         private set
+    var appUpdateInfo by mutableStateOf<AppUpdateInfo?>(null)
+        private set
+    var checkingAppUpdate by mutableStateOf(false)
+        private set
+    var appUpdateError by mutableStateOf<String?>(null)
+        private set
 
     init {
         launchTask("正在初始化词典…") {
             val bootstrap = repository.initialize()
             applyBootstrap(bootstrap)
             ready = true
+            viewModelScope.launch {
+                refreshAppUpdate(showFeedback = false)
+            }
         }
     }
 
@@ -309,14 +322,50 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         remoteComparison = null
     }
 
+    fun checkAppUpdate() {
+        if (checkingAppUpdate) return
+        viewModelScope.launch {
+            refreshAppUpdate(showFeedback = true)
+        }
+    }
+
+    private suspend fun refreshAppUpdate(showFeedback: Boolean) {
+        if (checkingAppUpdate) return
+        checkingAppUpdate = true
+        appUpdateError = null
+        try {
+            appUpdateInfo = repository.checkAppUpdate()
+            if (showFeedback) {
+                noticeMessage = appUpdateInfo?.message
+            }
+        } catch (throwable: Throwable) {
+            appUpdateError = throwable.message ?: "程序更新检查失败"
+            if (showFeedback) {
+                errorMessage = appUpdateError
+            }
+        } finally {
+            checkingAppUpdate = false
+        }
+    }
+
     fun setAlicianFont(enabled: Boolean) {
-        alicianFontEnabled = enabled
-        repository.setAlicianFontEnabled(enabled)
+        updateUiSettings(uiSettings.copy(alicianFont = enabled))
     }
 
     fun setDynamicColors(enabled: Boolean) {
-        dynamicColorsEnabled = enabled
-        repository.setDynamicColorsEnabled(enabled)
+        updateUiSettings(uiSettings.copy(dynamicColors = enabled))
+    }
+
+    fun updateUiSettings(settings: UiSettings) {
+        uiSettings = settings
+        alicianFontEnabled = settings.alicianFont
+        dynamicColorsEnabled = settings.dynamicColors
+        repository.saveUiSettings(settings)
+    }
+
+    fun resetUiSettings() {
+        updateUiSettings(UiSettings())
+        noticeMessage = "UI 设置已恢复默认。"
     }
 
     private suspend fun refreshDatabaseInfo() {

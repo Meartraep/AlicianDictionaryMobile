@@ -29,6 +29,7 @@ _writing = None
 _translator = None
 _dbmanager = None
 _remote_candidate = ""
+_MAX_DIFF_DETAILS = 2000
 
 
 def _json_default(value: Any) -> Any:
@@ -233,7 +234,7 @@ def _validate_database(path: Path) -> None:
         conn.execute("PRAGMA integrity_check").fetchone()
 
 
-def _compare_database(remote_path: Path) -> Dict[str, Any]:
+def _compare_database_counts(remote_path: Path) -> Dict[str, Any]:
     summary = {}
     for label, path in (("local", Path(_db_path)), ("remote", remote_path)):
         with sqlite3.connect(path) as conn:
@@ -244,6 +245,180 @@ def _compare_database(remote_path: Path) -> Dict[str, Any]:
                 "phrases": conn.execute("SELECT COUNT(*) FROM phrase").fetchone()[0],
             }
     return summary
+
+
+def _quoted_identifier(value: str) -> str:
+    return '"' + value.replace('"', '""') + '"'
+
+
+def _database_tables(conn: sqlite3.Connection) -> set[str]:
+    return {
+        str(row[0])
+        for row in conn.execute(
+            "SELECT name FROM sqlite_master "
+            "WHERE type='table' AND name NOT LIKE 'sqlite_%' ORDER BY name"
+        )
+    }
+
+
+def _database_columns(conn: sqlite3.Connection, table: str) -> list[str]:
+    return [
+        str(row[1])
+        for row in conn.execute(f"PRAGMA table_info({_quoted_identifier(table)})")
+    ]
+
+
+def _diff_value(value: Any, max_len: int = 240) -> str:
+    text = "" if value is None else str(value)
+    return text if len(text) <= max_len else text[:max_len] + "..."
+
+
+def _read_diff_rows(
+    conn: sqlite3.Connection,
+    table: str,
+    columns: list[str],
+    identity: str,
+) -> Dict[Any, Dict[str, Any]]:
+    selected = ", ".join(_quoted_identifier(column) for column in columns)
+    identity_sql = _quoted_identifier(identity) if identity != "rowid" else "rowid"
+    sql = (
+        f"SELECT {identity_sql} AS __diff_id__"
+        + (f", {selected}" if selected else "")
+        + f" FROM {_quoted_identifier(table)}"
+    )
+    result: Dict[Any, Dict[str, Any]] = {}
+    for row in conn.execute(sql):
+        result[row[0]] = dict(zip(columns, row[1:]))
+    return result
+
+
+def _row_diff_payload(
+    row_id: Any,
+    values: Dict[str, Any],
+    identity: str,
+) -> Dict[str, Any]:
+    return {
+        "id": str(row_id),
+        "values": {
+            key: _diff_value(value)
+            for key, value in values.items()
+            if key not in {identity, "rowid"}
+        },
+    }
+
+
+def _build_database_diff(local_path: Path, remote_path: Path) -> Dict[str, Any]:
+    result: Dict[str, Any] = {
+        "total_added": 0,
+        "total_removed": 0,
+        "total_modified": 0,
+        "total_field_changes": 0,
+        "tables": [],
+    }
+    with sqlite3.connect(local_path) as local_conn, sqlite3.connect(remote_path) as remote_conn:
+        local_tables = _database_tables(local_conn)
+        remote_tables = _database_tables(remote_conn)
+        for table in sorted(local_tables | remote_tables):
+            local_columns = (
+                _database_columns(local_conn, table) if table in local_tables else []
+            )
+            remote_columns = (
+                _database_columns(remote_conn, table) if table in remote_tables else []
+            )
+            local_count = (
+                local_conn.execute(
+                    f"SELECT COUNT(*) FROM {_quoted_identifier(table)}"
+                ).fetchone()[0]
+                if table in local_tables else 0
+            )
+            remote_count = (
+                remote_conn.execute(
+                    f"SELECT COUNT(*) FROM {_quoted_identifier(table)}"
+                ).fetchone()[0]
+                if table in remote_tables else 0
+            )
+            common_columns = [
+                column for column in remote_columns if column in local_columns
+            ]
+            identity = "id" if "id" in common_columns else "rowid"
+            local_read_columns = common_columns
+            remote_read_columns = common_columns
+            if table not in remote_tables:
+                identity = "id" if "id" in local_columns else "rowid"
+                local_read_columns = local_columns
+            elif table not in local_tables:
+                identity = "id" if "id" in remote_columns else "rowid"
+                remote_read_columns = remote_columns
+            elif not common_columns:
+                local_read_columns = local_columns
+                remote_read_columns = remote_columns
+
+            local_rows = (
+                _read_diff_rows(local_conn, table, local_read_columns, identity)
+                if table in local_tables else {}
+            )
+            remote_rows = (
+                _read_diff_rows(remote_conn, table, remote_read_columns, identity)
+                if table in remote_tables else {}
+            )
+            local_ids = set(local_rows)
+            remote_ids = set(remote_rows)
+            added_ids = sorted(remote_ids - local_ids, key=str)
+            removed_ids = sorted(local_ids - remote_ids, key=str)
+            common_ids = sorted(local_ids & remote_ids, key=str)
+
+            added_rows = [
+                _row_diff_payload(row_id, remote_rows[row_id], identity)
+                for row_id in added_ids[:_MAX_DIFF_DETAILS]
+            ]
+            removed_rows = [
+                _row_diff_payload(row_id, local_rows[row_id], identity)
+                for row_id in removed_ids[:_MAX_DIFF_DETAILS]
+            ]
+            field_diffs = []
+            modified = 0
+            field_changes = 0
+            for row_id in common_ids:
+                row_changed = False
+                for column in common_columns:
+                    local_value = local_rows[row_id].get(column)
+                    remote_value = remote_rows[row_id].get(column)
+                    if str(local_value) == str(remote_value):
+                        continue
+                    row_changed = True
+                    field_changes += 1
+                    if len(field_diffs) < _MAX_DIFF_DETAILS:
+                        field_diffs.append({
+                            "row_id": str(row_id),
+                            "column": column,
+                            "local_value": _diff_value(local_value, 120),
+                            "remote_value": _diff_value(remote_value, 120),
+                        })
+                if row_changed:
+                    modified += 1
+
+            table_diff = {
+                "table": table,
+                "local_rows": local_count,
+                "remote_rows": remote_count,
+                "added": len(added_ids),
+                "removed": len(removed_ids),
+                "modified": modified,
+                "field_changes": field_changes,
+                "added_rows": added_rows,
+                "removed_rows": removed_rows,
+                "field_diffs": field_diffs,
+                "truncated_added": len(added_ids) > len(added_rows),
+                "truncated_removed": len(removed_ids) > len(removed_rows),
+                "truncated_modified": field_changes > len(field_diffs),
+            }
+            if len(added_ids) or len(removed_ids) or modified:
+                result["tables"].append(table_diff)
+            result["total_added"] += len(added_ids)
+            result["total_removed"] += len(removed_ids)
+            result["total_modified"] += modified
+            result["total_field_changes"] += field_changes
+    return result
 
 
 def _check_remote_update() -> Dict[str, Any]:
@@ -259,13 +434,24 @@ def _check_remote_update() -> Dict[str, Any]:
     _validate_database(remote)
     local_sha = hashlib.sha1(Path(_db_path).read_bytes()).hexdigest()
     remote_sha = hashlib.sha1(remote.read_bytes()).hexdigest()
+    up_to_date = local_sha == remote_sha
     _remote_candidate = str(remote)
     return _ok(
-        up_to_date=local_sha == remote_sha,
+        up_to_date=up_to_date,
         local_sha1=local_sha,
         remote_sha1=remote_sha,
-        comparison=_compare_database(remote),
-        message="已是最新数据库。" if local_sha == remote_sha else "发现新的云端数据库。",
+        comparison=_compare_database_counts(remote),
+        diff=(
+            {
+                "total_added": 0,
+                "total_removed": 0,
+                "total_modified": 0,
+                "total_field_changes": 0,
+                "tables": [],
+            }
+            if up_to_date else _build_database_diff(Path(_db_path), remote)
+        ),
+        message="已是最新数据库。" if up_to_date else "发现新的云端数据库。",
     )
 
 
@@ -412,4 +598,3 @@ def invoke(method: str, payload_json: str = "{}") -> str:
             "error_type": exc.__class__.__name__,
             "traceback": traceback.format_exc(),
         })
-

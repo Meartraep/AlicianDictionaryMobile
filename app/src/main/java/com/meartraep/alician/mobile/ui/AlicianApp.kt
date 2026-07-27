@@ -8,7 +8,11 @@ import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Storage
 import androidx.compose.material.icons.outlined.Translate
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -45,11 +49,35 @@ fun AlicianApp(viewModel: MainViewModel) {
         bottomBar = {
             NavigationBar {
                 AppDestination.entries.forEach { item ->
+                    val hasAppUpdate =
+                        item == AppDestination.Settings &&
+                            viewModel.appUpdateInfo?.updateAvailable == true
                     NavigationBarItem(
                         selected = destination == item,
                         onClick = { destination = item },
-                        icon = { Icon(item.icon, contentDescription = item.label) },
-                        label = { Text(item.label) },
+                        icon = {
+                            if (hasAppUpdate) {
+                                BadgedBox(badge = { Badge { Text("新") } }) {
+                                    Icon(
+                                        item.icon,
+                                        contentDescription = item.label,
+                                        tint = MaterialTheme.colorScheme.error,
+                                    )
+                                }
+                            } else {
+                                Icon(item.icon, contentDescription = item.label)
+                            }
+                        },
+                        label = {
+                            Text(
+                                item.label,
+                                color = if (hasAppUpdate) {
+                                    MaterialTheme.colorScheme.error
+                                } else {
+                                    LocalContentColor.current
+                                },
+                            )
+                        },
                     )
                 }
             }

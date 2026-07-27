@@ -2,6 +2,7 @@ package com.meartraep.alician.mobile.data
 
 import android.app.Application
 import android.net.Uri
+import androidx.core.content.edit
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
 import com.meartraep.alician.mobile.BuildConfig
@@ -10,6 +11,8 @@ import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
+import java.net.HttpURLConnection
+import java.net.URL
 
 class PythonRepository(private val application: Application) {
     private val dataDirectory = application.filesDir
@@ -23,6 +26,17 @@ class PythonRepository(private val application: Application) {
         get() = preferences.getBoolean("alician_font", false)
     val dynamicColorsEnabled: Boolean
         get() = preferences.getBoolean("dynamic_colors", true)
+    val uiSettings: UiSettings
+        get() = UiSettings(
+            themeMode = preferenceEnum("theme_mode", ThemeMode.SYSTEM),
+            dynamicColors = dynamicColorsEnabled,
+            colorPalette = preferenceEnum("color_palette", ColorPalette.ALICIAN),
+            contrastLevel = preferenceEnum("contrast_level", ContrastLevel.STANDARD),
+            shapeStyle = preferenceEnum("shape_style", ShapeStyle.ROUNDED),
+            typographySize = preferenceEnum("typography_size", TypographySize.STANDARD),
+            amoledBlack = preferences.getBoolean("amoled_black", false),
+            alicianFont = alicianFontEnabled,
+        )
 
     suspend fun initialize(): JSONObject = withContext(Dispatchers.IO) {
         ensureBundledFiles()
@@ -44,9 +58,9 @@ class PythonRepository(private val application: Application) {
             application.assets.open("translated.db").use { input ->
                 databaseFile.outputStream().use(input::copyTo)
             }
-            preferences.edit()
-                .putString("database_asset_version", BuildConfig.DATABASE_ASSET_VERSION)
-                .apply()
+            preferences.edit {
+                putString("database_asset_version", BuildConfig.DATABASE_ASSET_VERSION)
+            }
         }
         val config = File(dataDirectory, "word_checker_config.json")
         if (!config.exists()) {
@@ -242,26 +256,121 @@ class PythonRepository(private val application: Application) {
 
     suspend fun checkRemoteUpdate(): RemoteComparison {
         val json = invoke("check_remote_update")
-        val comparison = json.optJSONObject("comparison") ?: JSONObject()
-        return RemoteComparison(
-            upToDate = json.optBoolean("up_to_date"),
-            message = json.optString("message"),
-            localSha1 = json.optString("local_sha1"),
-            remoteSha1 = json.optString("remote_sha1"),
-            localCounts = comparison.optJSONObject("local").toIntMap(),
-            remoteCounts = comparison.optJSONObject("remote").toIntMap(),
-        )
+        return withContext(Dispatchers.Default) {
+            val comparison = json.optJSONObject("comparison") ?: JSONObject()
+            val diff = json.optJSONObject("diff") ?: JSONObject()
+            val tableDiffs = diff.optJSONArray("tables") ?: JSONArray()
+            RemoteComparison(
+                upToDate = json.optBoolean("up_to_date"),
+                message = json.optString("message"),
+                localSha1 = json.optString("local_sha1"),
+                remoteSha1 = json.optString("remote_sha1"),
+                localCounts = comparison.optJSONObject("local").toIntMap(),
+                remoteCounts = comparison.optJSONObject("remote").toIntMap(),
+                diff = DatabaseDiff(
+                    totalAdded = diff.optInt("total_added"),
+                    totalRemoved = diff.optInt("total_removed"),
+                    totalModified = diff.optInt("total_modified"),
+                    totalFieldChanges = diff.optInt("total_field_changes"),
+                    tables = List(tableDiffs.length()) { index ->
+                        tableDiffs.getJSONObject(index).toDatabaseTableDiff()
+                    },
+                ),
+            )
+        }
     }
 
     suspend fun applyRemoteUpdate(): String =
         invoke("apply_remote_update").optString("message")
 
+    suspend fun checkAppUpdate(): AppUpdateInfo = withContext(Dispatchers.IO) {
+        val currentVersion = BuildConfig.VERSION_NAME
+        val connection = URL(APP_RELEASE_API_URL).openConnection() as HttpURLConnection
+        connection.requestMethod = "GET"
+        connection.connectTimeout = 15_000
+        connection.readTimeout = 15_000
+        connection.setRequestProperty("Accept", "application/vnd.github+json")
+        connection.setRequestProperty("X-GitHub-Api-Version", "2022-11-28")
+        connection.setRequestProperty("User-Agent", "AlicianDictionaryMobile/$currentVersion")
+        try {
+            when (val responseCode = connection.responseCode) {
+                HttpURLConnection.HTTP_OK -> {
+                    val json = connection.inputStream.bufferedReader().use {
+                        JSONObject(it.readText())
+                    }
+                    val latestVersion = json.optString("tag_name").trim()
+                    val updateAvailable = isVersionNewer(latestVersion, currentVersion)
+                    AppUpdateInfo(
+                        currentVersion = currentVersion,
+                        latestVersion = latestVersion,
+                        releaseName = json.optString("name").ifBlank { latestVersion },
+                        releaseUrl = json.optString("html_url").ifBlank { APP_RELEASES_URL },
+                        publishedAt = json.optString("published_at"),
+                        updateAvailable = updateAvailable,
+                        hasRelease = latestVersion.isNotBlank(),
+                        message = if (updateAvailable) {
+                            "发现新版本 $latestVersion"
+                        } else {
+                            "当前已是最新版本"
+                        },
+                    )
+                }
+                HttpURLConnection.HTTP_NOT_FOUND -> AppUpdateInfo(
+                    currentVersion = currentVersion,
+                    latestVersion = "",
+                    releaseName = "",
+                    releaseUrl = APP_RELEASES_URL,
+                    publishedAt = "",
+                    updateAvailable = false,
+                    hasRelease = false,
+                    message = "GitHub 仓库尚未公开，或尚未发布正式 Release。",
+                )
+                else -> {
+                    val detail = connection.errorStream?.bufferedReader()?.use {
+                        runCatching { JSONObject(it.readText()).optString("message") }.getOrNull()
+                    }.orEmpty()
+                    throw IllegalStateException(
+                        "GitHub 更新检查失败（HTTP $responseCode）" +
+                            if (detail.isBlank()) "" else "：$detail",
+                    )
+                }
+            }
+        } finally {
+            connection.disconnect()
+        }
+    }
+
     fun setAlicianFontEnabled(enabled: Boolean) {
-        preferences.edit().putBoolean("alician_font", enabled).apply()
+        preferences.edit { putBoolean("alician_font", enabled) }
     }
 
     fun setDynamicColorsEnabled(enabled: Boolean) {
-        preferences.edit().putBoolean("dynamic_colors", enabled).apply()
+        preferences.edit { putBoolean("dynamic_colors", enabled) }
+    }
+
+    fun saveUiSettings(settings: UiSettings) {
+        preferences.edit {
+            putString("theme_mode", settings.themeMode.name)
+            putBoolean("dynamic_colors", settings.dynamicColors)
+            putString("color_palette", settings.colorPalette.name)
+            putString("contrast_level", settings.contrastLevel.name)
+            putString("shape_style", settings.shapeStyle.name)
+            putString("typography_size", settings.typographySize.name)
+            putBoolean("amoled_black", settings.amoledBlack)
+            putBoolean("alician_font", settings.alicianFont)
+        }
+    }
+
+    private inline fun <reified T : Enum<T>> preferenceEnum(key: String, fallback: T): T {
+        val stored = preferences.getString(key, fallback.name).orEmpty()
+        return enumValues<T>().firstOrNull { it.name == stored } ?: fallback
+    }
+
+    private companion object {
+        const val APP_RELEASE_API_URL =
+            "https://api.github.com/repos/Meartraep/AlicianDictionaryMobile/releases/latest"
+        const val APP_RELEASES_URL =
+            "https://github.com/Meartraep/AlicianDictionaryMobile/releases"
     }
 }
 
@@ -343,6 +452,7 @@ private fun JSONObject.toDictionaryResult(): DictionaryResult {
 
 private fun JSONObject.toExampleResult(): ExampleResult {
     val array = optJSONArray("examples") ?: JSONArray()
+    val stats = optJSONArray("song_stats") ?: JSONArray()
     return ExampleResult(
         word = optString("word"),
         examples = List(array.length()) { index ->
@@ -359,7 +469,16 @@ private fun JSONObject.toExampleResult(): ExampleResult {
             }
         },
         positionFilter = optString("position_filter", "any"),
-            songStats = optJSONArray("song_stats")?.length() ?: optInt("song_stats"),
+        songStats = List(stats.length()) { index ->
+            stats.getJSONObject(index).let {
+                SongExampleStats(
+                    album = it.optString("album"),
+                    title = it.optString("title"),
+                    before = it.optInt("before"),
+                    after = it.optInt("after"),
+                )
+            }
+        },
         totalBefore = optInt("total_before"),
         totalAfter = optInt("total_after"),
         deduplicationRate = optDouble("deduplication_rate"),
@@ -484,3 +603,63 @@ private fun JSONObject.toDbTablePage(): DbTablePage {
         limit = optInt("limit", 50),
     )
 }
+
+private fun JSONObject.toDatabaseTableDiff(): DatabaseTableDiff {
+    val addedJson = optJSONArray("added_rows") ?: JSONArray()
+    val removedJson = optJSONArray("removed_rows") ?: JSONArray()
+    val fieldsJson = optJSONArray("field_diffs") ?: JSONArray()
+    return DatabaseTableDiff(
+        table = optString("table"),
+        localRows = optInt("local_rows"),
+        remoteRows = optInt("remote_rows"),
+        added = optInt("added"),
+        removed = optInt("removed"),
+        modified = optInt("modified"),
+        fieldChanges = optInt("field_changes"),
+        addedRows = List(addedJson.length()) { index ->
+            addedJson.getJSONObject(index).toDatabaseRowDiff()
+        },
+        removedRows = List(removedJson.length()) { index ->
+            removedJson.getJSONObject(index).toDatabaseRowDiff()
+        },
+        fieldDiffs = List(fieldsJson.length()) { index ->
+            fieldsJson.getJSONObject(index).let {
+                DatabaseFieldDiff(
+                    rowId = it.optString("row_id"),
+                    column = it.optString("column"),
+                    localValue = it.optValue("local_value"),
+                    remoteValue = it.optValue("remote_value"),
+                )
+            }
+        },
+        truncatedAdded = optBoolean("truncated_added"),
+        truncatedRemoved = optBoolean("truncated_removed"),
+        truncatedModified = optBoolean("truncated_modified"),
+    )
+}
+
+private fun JSONObject.toDatabaseRowDiff(): DatabaseRowDiff {
+    val values = optJSONObject("values") ?: JSONObject()
+    return DatabaseRowDiff(
+        id = optString("id"),
+        values = values.keys().asSequence().associateWith { values.optValue(it) },
+    )
+}
+
+internal fun isVersionNewer(candidate: String, current: String): Boolean {
+    val candidateParts = numericVersionParts(candidate)
+    val currentParts = numericVersionParts(current)
+    if (candidateParts.isEmpty()) return false
+    val size = maxOf(candidateParts.size, currentParts.size)
+    repeat(size) { index ->
+        val candidatePart = candidateParts.getOrElse(index) { 0 }
+        val currentPart = currentParts.getOrElse(index) { 0 }
+        if (candidatePart != currentPart) return candidatePart > currentPart
+    }
+    return false
+}
+
+private fun numericVersionParts(value: String): List<Int> =
+    Regex("""\d+""").findAll(value)
+        .mapNotNull { it.value.toIntOrNull() }
+        .toList()

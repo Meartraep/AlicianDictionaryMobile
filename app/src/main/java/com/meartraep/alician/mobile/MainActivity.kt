@@ -15,10 +15,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            AlicianTheme(dynamicColors = viewModel.dynamicColorsEnabled) {
+            AlicianTheme(settings = viewModel.uiSettings) {
                 AlicianApp(viewModel)
             }
         }
     }
 }
-

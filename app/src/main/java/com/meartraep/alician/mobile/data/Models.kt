@@ -10,6 +10,59 @@ data class DatabaseInfo(
     val songCount: Int = 0,
 )
 
+data class AppUpdateInfo(
+    val currentVersion: String,
+    val latestVersion: String,
+    val releaseName: String,
+    val releaseUrl: String,
+    val publishedAt: String,
+    val updateAvailable: Boolean,
+    val hasRelease: Boolean,
+    val message: String,
+)
+
+enum class ThemeMode {
+    SYSTEM,
+    LIGHT,
+    DARK,
+}
+
+enum class ColorPalette {
+    ALICIAN,
+    OCEAN,
+    FOREST,
+    ROSE,
+}
+
+enum class ContrastLevel {
+    STANDARD,
+    MEDIUM,
+    HIGH,
+}
+
+enum class ShapeStyle {
+    COMPACT,
+    ROUNDED,
+    EXPRESSIVE,
+}
+
+enum class TypographySize {
+    COMPACT,
+    STANDARD,
+    LARGE,
+}
+
+data class UiSettings(
+    val themeMode: ThemeMode = ThemeMode.SYSTEM,
+    val dynamicColors: Boolean = true,
+    val colorPalette: ColorPalette = ColorPalette.ALICIAN,
+    val contrastLevel: ContrastLevel = ContrastLevel.STANDARD,
+    val shapeStyle: ShapeStyle = ShapeStyle.ROUNDED,
+    val typographySize: TypographySize = TypographySize.STANDARD,
+    val amoledBlack: Boolean = false,
+    val alicianFont: Boolean = false,
+)
+
 data class DictionaryEntry(
     val word: String,
     val explanation: String,
@@ -51,11 +104,18 @@ data class LyricExample(
     val end: Int,
 )
 
+data class SongExampleStats(
+    val album: String,
+    val title: String,
+    val before: Int,
+    val after: Int,
+)
+
 data class ExampleResult(
     val word: String,
     val examples: List<LyricExample>,
     val positionFilter: String,
-    val songStats: Int,
+    val songStats: List<SongExampleStats>,
     val totalBefore: Int,
     val totalAfter: Int,
     val deduplicationRate: Double,
@@ -165,5 +225,41 @@ data class RemoteComparison(
     val remoteSha1: String,
     val localCounts: Map<String, Int>,
     val remoteCounts: Map<String, Int>,
+    val diff: DatabaseDiff = DatabaseDiff(),
 )
 
+data class DatabaseDiff(
+    val totalAdded: Int = 0,
+    val totalRemoved: Int = 0,
+    val totalModified: Int = 0,
+    val totalFieldChanges: Int = 0,
+    val tables: List<DatabaseTableDiff> = emptyList(),
+)
+
+data class DatabaseTableDiff(
+    val table: String,
+    val localRows: Int,
+    val remoteRows: Int,
+    val added: Int,
+    val removed: Int,
+    val modified: Int,
+    val fieldChanges: Int,
+    val addedRows: List<DatabaseRowDiff>,
+    val removedRows: List<DatabaseRowDiff>,
+    val fieldDiffs: List<DatabaseFieldDiff>,
+    val truncatedAdded: Boolean,
+    val truncatedRemoved: Boolean,
+    val truncatedModified: Boolean,
+)
+
+data class DatabaseRowDiff(
+    val id: String,
+    val values: Map<String, String>,
+)
+
+data class DatabaseFieldDiff(
+    val rowId: String,
+    val column: String,
+    val localValue: String,
+    val remoteValue: String,
+)
