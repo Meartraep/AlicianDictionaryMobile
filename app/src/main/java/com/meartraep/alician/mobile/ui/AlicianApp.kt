@@ -6,7 +6,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.EditNote
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.outlined.Storage
 import androidx.compose.material.icons.outlined.Translate
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
@@ -35,7 +34,6 @@ private enum class AppDestination(
     Dictionary("词典", Icons.Outlined.Search),
     Writing("写作", Icons.Outlined.EditNote),
     Translator("翻译", Icons.Outlined.Translate),
-    Database("数据库", Icons.Outlined.Storage),
     Settings("设置", Icons.Outlined.Settings),
 }
 
@@ -97,7 +95,6 @@ fun AlicianApp(viewModel: MainViewModel) {
                     AppDestination.Dictionary -> DictionaryScreen(viewModel, padding)
                     AppDestination.Writing -> WritingScreen(viewModel, padding)
                     AppDestination.Translator -> TranslatorScreen(viewModel, padding)
-                    AppDestination.Database -> DatabaseScreen(viewModel, padding)
                     AppDestination.Settings -> SettingsScreen(viewModel, padding)
                 }
             }

@@ -539,6 +539,7 @@ def invoke(method: str, payload_json: str = "{}") -> str:
                 result = _translator.translate(
                     str(payload.get("text") or ""),
                     str(payload.get("direction") or "auto"),
+                    bool(payload.get("use_semantic_expansions", False)),
                 )
             elif method == "db_tables":
                 result = _ok(tables=_dbmanager.get_tables())

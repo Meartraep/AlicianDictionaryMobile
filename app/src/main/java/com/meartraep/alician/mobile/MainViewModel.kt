@@ -42,6 +42,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         private set
     var dynamicColorsEnabled by mutableStateOf(uiSettings.dynamicColors)
         private set
+    var semanticExpansionsEnabled by mutableStateOf(repository.semanticExpansionsEnabled)
+        private set
 
     var dictionaryResult by mutableStateOf<DictionaryResult?>(null)
         private set
@@ -202,7 +204,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun translate(text: String, direction: String) {
         launchTask("正在翻译…") {
-            translationResult = repository.translate(text, direction)
+            translationResult = repository.translate(
+                text,
+                direction,
+                semanticExpansionsEnabled,
+            )
         }
     }
 
@@ -354,6 +360,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setDynamicColors(enabled: Boolean) {
         updateUiSettings(uiSettings.copy(dynamicColors = enabled))
+    }
+
+    fun updateSemanticExpansionsEnabled(enabled: Boolean) {
+        if (semanticExpansionsEnabled == enabled) return
+        semanticExpansionsEnabled = enabled
+        translationResult = null
+        repository.setSemanticExpansionsEnabled(enabled)
     }
 
     fun updateUiSettings(settings: UiSettings) {

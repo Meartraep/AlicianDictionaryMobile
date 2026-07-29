@@ -28,6 +28,7 @@ import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.RestartAlt
 import androidx.compose.material.icons.outlined.Save
+import androidx.compose.material.icons.outlined.Storage
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -68,6 +69,7 @@ import java.util.Locale
 @Composable
 fun SettingsScreen(viewModel: MainViewModel, padding: PaddingValues) {
     var showUiSettings by rememberSaveable { mutableStateOf(false) }
+    var showDatabaseManager by rememberSaveable { mutableStateOf(false) }
     if (showUiSettings) {
         UiSettingsScreen(
             settings = viewModel.uiSettings,
@@ -75,6 +77,14 @@ fun SettingsScreen(viewModel: MainViewModel, padding: PaddingValues) {
             onBack = { showUiSettings = false },
             onSettingsChanged = viewModel::updateUiSettings,
             onReset = viewModel::resetUiSettings,
+        )
+        return
+    }
+    if (showDatabaseManager) {
+        DatabaseScreen(
+            viewModel = viewModel,
+            padding = padding,
+            onBack = { showDatabaseManager = false },
         )
         return
     }
@@ -139,6 +149,33 @@ fun SettingsScreen(viewModel: MainViewModel, padding: PaddingValues) {
             }
         }
         item { SectionHeader("词典数据库", "更新或导入前均会自动创建本地备份") }
+        item {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { showDatabaseManager = true },
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                ),
+            ) {
+                Row(
+                    modifier = Modifier.padding(18.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(Icons.Outlined.Storage, contentDescription = null)
+                    Spacer(Modifier.width(14.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text("数据库管理", style = MaterialTheme.typography.titleMedium)
+                        Text(
+                            "浏览、搜索和编辑数据库中的数据表",
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                    Icon(Icons.Outlined.ChevronRight, contentDescription = "进入数据库管理")
+                }
+            }
+        }
         item {
             SettingsCard {
                 DatabaseMetricLine("词头", viewModel.databaseInfo.wordCount.toString())

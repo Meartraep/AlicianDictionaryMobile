@@ -25,15 +25,15 @@ android {
         applicationId = "com.meartraep.alician.mobile"
         minSdk = 24
         targetSdk = 36
-        versionCode = 2
-        versionName = "1.1.0"
+        versionCode = 3
+        versionName = "1.2.0"
 
         ndk {
             abiFilters += listOf("arm64-v8a", "x86_64")
         }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
-        buildConfigField("String", "DATABASE_ASSET_VERSION", "\"2026-07-25\"")
+        buildConfigField("String", "DATABASE_ASSET_VERSION", "\"2026-07-28-semantic-expansions\"")
     }
 
     signingConfigs {

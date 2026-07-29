@@ -199,6 +199,9 @@ data class TranslationResult(
     val exact: Int,
     val approximate: Int,
     val unknown: Int,
+    val semanticExpansionsEnabled: Boolean = false,
+    val semanticExpansionsAvailable: Boolean = false,
+    val semanticExpansionCount: Int = 0,
     val message: String,
 )
 

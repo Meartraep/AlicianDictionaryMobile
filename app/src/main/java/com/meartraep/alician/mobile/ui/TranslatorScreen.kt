@@ -112,6 +112,23 @@ fun TranslatorScreen(viewModel: MainViewModel, padding: PaddingValues) {
             }
         }
         item {
+            Card {
+                Column(Modifier.padding(16.dp)) {
+                    SettingSwitchRow(
+                        title = "使用 AI 扩充词义",
+                        detail = "使用数据库中由 text2vec 预计算的近义词义进行模糊匹配",
+                        checked = viewModel.semanticExpansionsEnabled,
+                        onCheckedChange = viewModel::updateSemanticExpansionsEnabled,
+                    )
+                    Text(
+                        "仅影响中文 → 爱丽丝语；精确词典释义仍会优先匹配。",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
+        item {
             OutlinedTextField(
                 value = input,
                 onValueChange = { input = it },
@@ -203,6 +220,18 @@ private fun TranslatorResultCard(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onPrimaryContainer,
             )
+            if (result.semanticExpansionsEnabled) {
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    if (result.semanticExpansionsAvailable) {
+                        "AI 扩充词义已启用 · ${result.semanticExpansionCount} 条"
+                    } else {
+                        "AI 扩充词义已启用，但当前数据库未提供扩充数据"
+                    },
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                )
+            }
         }
     }
 }

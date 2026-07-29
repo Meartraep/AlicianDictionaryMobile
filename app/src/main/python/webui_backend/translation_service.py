@@ -64,6 +64,7 @@ class TranslationService:
         self._entries: List[Dict[str, Any]] = []
         self._word_entries: List[Dict[str, Any]] = []
         self._word_by_lower: Dict[str, List[Dict[str, Any]]] = {}
+        self._word_by_sense_id: Dict[int, Dict[str, Any]] = {}
         self._phrases: List[Dict[str, Any]] = []
         self._term_candidates: Dict[str, List[Dict[str, Any]]] = {}
         self._max_term_len = 1
@@ -75,13 +76,18 @@ class TranslationService:
         ] = defaultdict(Counter)
         self._sentence_pattern_examples: Dict[Tuple[str, ...], str] = {}
         self._adverb_position_stats: Dict[str, Dict[str, Any]] = {}
+        self._semantic_expansions: List[Dict[str, Any]] = []
+        self._semantic_expansion_pairs: set[Tuple[str, str]] = set()
+        self._use_semantic_expansions = False
         self._similarity_matcher = (
             self._create_similarity_matcher()
             if self._enable_fallback_matching else None
         )
         self._similarity_index_built = False
+        self._similarity_index_uses_expansions = False
         self._jieba: Any = None
         self._load_entries()
+        self._load_semantic_expansions()
         self._load_adverb_position_stats()
         self._load_sentence_patterns()
         self._try_load_jieba()
@@ -104,8 +110,14 @@ class TranslationService:
         with self._lock:
             self._conn.close()
 
-    def translate(self, text: str, direction: str = "auto") -> Dict[str, Any]:
+    def translate(
+        self,
+        text: str,
+        direction: str = "auto",
+        use_semantic_expansions: bool = False,
+    ) -> Dict[str, Any]:
         source = str(text or "").strip()
+        expansions_enabled = bool(use_semantic_expansions)
         if not source:
             return {
                 "ok": False,
@@ -114,14 +126,23 @@ class TranslationService:
                 "result_text": "",
                 "tokens": [],
                 "stats": {"exact": 0, "approximate": 0, "unknown": 0},
+                "semantic_expansions_enabled": expansions_enabled,
+                "semantic_expansions_available": bool(self._semantic_expansions),
+                "semantic_expansion_count": len(self._semantic_expansions),
                 "message": "请输入要翻译的内容。",
             }
 
         normalized_direction = self._normalize_direction(direction, source)
         with self._lock:
+            self._use_semantic_expansions = expansions_enabled
             if normalized_direction == "alician_to_zh":
-                return self._translate_alician_to_zh(source, normalized_direction)
-            return self._translate_zh_to_alician(source, normalized_direction)
+                result = self._translate_alician_to_zh(source, normalized_direction)
+            else:
+                result = self._translate_zh_to_alician(source, normalized_direction)
+            result["semantic_expansions_enabled"] = expansions_enabled
+            result["semantic_expansions_available"] = bool(self._semantic_expansions)
+            result["semantic_expansion_count"] = len(self._semantic_expansions)
+            return result
 
     def _normalize_direction(self, direction: str, text: str) -> str:
         value = str(direction or "auto").strip()
@@ -132,7 +153,7 @@ class TranslationService:
     def _load_entries(self) -> None:
         cur = self._conn.cursor()
         cur.execute(
-            "SELECT words, explanation, class, count, variety, sense_order FROM dictionary "
+            "SELECT id, words, explanation, class, count, variety, sense_order FROM dictionary "
             "WHERE words IS NOT NULL AND TRIM(words) <> '' ORDER BY headword_id, sense_order"
         )
         for row in cur.fetchall():
@@ -144,10 +165,12 @@ class TranslationService:
                 count=row["count"],
                 variety=row["variety"],
                 sense_order=row["sense_order"],
+                sense_id=row["id"],
             )
             self._entries.append(entry)
             self._word_entries.append(entry)
             self._word_by_lower.setdefault(entry["target"].lower(), []).append(entry)
+            self._word_by_sense_id[entry["sense_id"]] = entry
             self._index_chinese_terms(entry)
 
         cur.execute(
@@ -171,6 +194,37 @@ class TranslationService:
             self._entries.append(entry)
             self._index_chinese_terms(entry)
         self._phrases.sort(key=lambda item: len(item.get("phrase_words", [])), reverse=True)
+
+    def _load_semantic_expansions(self) -> None:
+        try:
+            rows = self._conn.execute(
+                "SELECT sense_id, expansion, similarity, rank "
+                "FROM dictionary_sense_expansions ORDER BY sense_id, rank"
+            ).fetchall()
+        except sqlite3.Error:
+            return
+
+        for row in rows:
+            entry = self._word_by_sense_id.get(_as_int(row["sense_id"]))
+            expansion = str(row["expansion"] or "").strip()
+            if entry is None or not expansion:
+                continue
+            compact = re.sub(r"\s+", "", expansion)
+            terms = self._extract_terms(expansion)
+            if compact and compact not in terms:
+                terms.insert(0, compact)
+            self._semantic_expansions.append(
+                {
+                    "entry": entry,
+                    "expansion": expansion,
+                    "terms": terms,
+                    "similarity": max(-1.0, min(1.0, float(row["similarity"] or 0.0))),
+                    "rank": max(1, _as_int(row["rank"])),
+                }
+            )
+            self._semantic_expansion_pairs.add(
+                (entry["target"].casefold(), expansion)
+            )
 
     @staticmethod
     def _pattern_signature(families: List[str]) -> Tuple[Tuple[str, int], ...]:
@@ -247,6 +301,7 @@ class TranslationService:
         count: Any,
         variety: Any,
         sense_order: Any = 1,
+        sense_id: Any = 0,
     ) -> Dict[str, Any]:
         return {
             "kind": kind,
@@ -256,6 +311,7 @@ class TranslationService:
             "count": _as_int(count),
             "variety": _as_int(variety),
             "sense_order": max(1, _as_int(sense_order)),
+            "sense_id": _as_int(sense_id),
             "terms": set(),
         }
 
@@ -834,7 +890,11 @@ class TranslationService:
             token["method"] = method
             token["confidence"] = round(confidence, 4)
             token["alternatives"] = alternatives
-            token["note"] = "爱丽丝语没有直接词条，已用词义近似匹配。"
+            token["note"] = (
+                "爱丽丝语没有直接词条，已用预计算扩充词义进行模糊匹配。"
+                if method == "semantic_expansion"
+                else "爱丽丝语没有直接词条，已用词义近似匹配。"
+            )
             return [token]
 
         return [
@@ -851,59 +911,143 @@ class TranslationService:
     def _find_chinese_candidate(
         self, query: str,
     ) -> Tuple[Optional[Dict[str, Any]], str, float, List[Dict[str, Any]]]:
-        if not self._enable_fallback_matching:
-            return None, "missing", 0.0, []
         scored: List[Tuple[float, Dict[str, Any]]] = []
-        query_set = set(query)
-        for entry in self._entries:
-            score = 0.0
-            explanation = entry["explanation"]
-            terms = entry.get("terms", set())
-            if query in terms:
-                score = max(score, 95.0)
-            if explanation == query:
-                score = max(score, 92.0)
-            elif query and query in explanation:
-                score = max(score, 64.0 - min(len(explanation), 40) * 0.3)
-            for term in terms:
-                if len(term) < 2 and len(query) > 1:
-                    continue
-                if term and term in query:
-                    coverage = len(term) / max(len(query), 1)
-                    score = max(score, 34.0 + coverage * 30.0)
-                elif query in term:
-                    coverage = len(query) / max(len(term), 1)
-                    score = max(score, 28.0 + coverage * 28.0)
-            if score <= 0 and len(query) >= 2 and query_set:
-                exp_chars = {ch for ch in explanation if _CJK_RE.match(ch)}
-                if exp_chars:
-                    overlap = len(query_set & exp_chars) / max(len(query_set), 1)
-                    if overlap >= 0.6:
-                        score = 22.0 + overlap * 18.0
-            if score > 0:
-                score += min(entry["count"], 20) * 0.08 + min(entry["variety"], 10) * 0.12
-                if entry["kind"] == "phrase" and len(query) >= 2:
-                    score += 3.0
-                scored.append((score, entry))
-        scored.sort(key=lambda item: item[0], reverse=True)
-        threshold = 50.0 if len(query) == 1 else 36.0
-        if scored and scored[0][0] >= threshold:
-            alternatives = [self._alternative(item[1], item[0] / 100.0) for item in scored[:5]]
-            if len(alternatives) < 5:
-                seen = {item.get("target") for item in alternatives}
-                for item in self._collect_semantic_alternatives(query, 5):
-                    if item.get("target") in seen:
+        if self._enable_fallback_matching:
+            query_set = set(query)
+            for entry in self._entries:
+                score = 0.0
+                explanation = entry["explanation"]
+                terms = entry.get("terms", set())
+                if query in terms:
+                    score = max(score, 95.0)
+                if explanation == query:
+                    score = max(score, 92.0)
+                elif query and query in explanation:
+                    score = max(score, 64.0 - min(len(explanation), 40) * 0.3)
+                for term in terms:
+                    if len(term) < 2 and len(query) > 1:
                         continue
-                    alternatives.append(item)
-                    seen.add(item.get("target"))
-                    if len(alternatives) >= 5:
-                        break
-            return scored[0][1], "meaning_overlap", min(0.88, scored[0][0] / 100.0), alternatives
+                    if term and term in query:
+                        coverage = len(term) / max(len(query), 1)
+                        score = max(score, 34.0 + coverage * 30.0)
+                    elif query in term:
+                        coverage = len(query) / max(len(term), 1)
+                        score = max(score, 28.0 + coverage * 28.0)
+                if score <= 0 and len(query) >= 2 and query_set:
+                    exp_chars = {ch for ch in explanation if _CJK_RE.match(ch)}
+                    if exp_chars:
+                        overlap = len(query_set & exp_chars) / max(len(query_set), 1)
+                        if overlap >= 0.6:
+                            score = 22.0 + overlap * 18.0
+                if score > 0:
+                    score += min(entry["count"], 20) * 0.08 + min(entry["variety"], 10) * 0.12
+                    if entry["kind"] == "phrase" and len(query) >= 2:
+                        score += 3.0
+                    scored.append((score, entry))
+            scored.sort(key=lambda item: item[0], reverse=True)
+            threshold = 50.0 if len(query) == 1 else 36.0
+            if scored and scored[0][0] >= threshold:
+                alternatives = [
+                    self._alternative(item[1], item[0] / 100.0)
+                    for item in scored[:5]
+                ]
+                if len(alternatives) < 5:
+                    seen = {item.get("target") for item in alternatives}
+                    for item in self._collect_semantic_alternatives(query, 5):
+                        if item.get("target") in seen:
+                            continue
+                        alternatives.append(item)
+                        seen.add(item.get("target"))
+                        if len(alternatives) >= 5:
+                            break
+                return (
+                    scored[0][1],
+                    "meaning_overlap",
+                    min(0.88, scored[0][0] / 100.0),
+                    alternatives,
+                )
 
-        semantic = self._find_semantic_candidate(query)
-        if semantic[0] is not None:
-            return semantic
+        if self._use_semantic_expansions:
+            expanded = self._find_semantic_expansion_candidate(query)
+            if expanded[0] is not None:
+                return expanded
+
+        if self._enable_fallback_matching:
+            semantic = self._find_semantic_candidate(query)
+            if semantic[0] is not None:
+                return semantic
         return None, "missing", 0.0, []
+
+    def _find_semantic_expansion_candidate(
+        self, query: str,
+    ) -> Tuple[Optional[Dict[str, Any]], str, float, List[Dict[str, Any]]]:
+        normalized_query = re.sub(r"\s+", "", str(query or "").strip())
+        if not normalized_query or not self._semantic_expansions:
+            return None, "missing", 0.0, []
+
+        scored: List[Tuple[float, float, Dict[str, Any]]] = []
+        for item in self._semantic_expansions:
+            lexical_score = 0.0
+            for term in item["terms"]:
+                normalized_term = re.sub(r"\s+", "", str(term or "").strip())
+                if not normalized_term:
+                    continue
+                if normalized_term == normalized_query:
+                    lexical_score = 1.0
+                    break
+                if len(normalized_query) > 1 and len(normalized_term) > 1:
+                    if normalized_term in normalized_query:
+                        lexical_score = max(
+                            lexical_score,
+                            len(normalized_term) / len(normalized_query),
+                        )
+                    elif normalized_query in normalized_term:
+                        lexical_score = max(
+                            lexical_score,
+                            len(normalized_query) / len(normalized_term),
+                        )
+                    lexical_score = max(
+                        lexical_score,
+                        float(_lev_ratio(normalized_query, normalized_term)),
+                    )
+            if lexical_score < 0.72:
+                continue
+            semantic_score = max(0.0, float(item["similarity"]))
+            combined = lexical_score * 0.72 + semantic_score * 0.28
+            entry = item["entry"]
+            combined += min(entry["count"], 20) * 0.0008
+            combined += min(entry["variety"], 10) * 0.0012
+            scored.append((combined, lexical_score, entry))
+
+        scored.sort(
+            key=lambda row: (
+                row[0],
+                row[1],
+                row[2]["count"],
+                row[2]["variety"],
+                -row[2]["sense_order"],
+            ),
+            reverse=True,
+        )
+        if not scored:
+            return None, "missing", 0.0, []
+
+        alternatives: List[Dict[str, Any]] = []
+        seen = set()
+        for combined, _lexical, entry in scored:
+            key = (entry["target"].casefold(), entry["sense_id"])
+            if key in seen:
+                continue
+            seen.add(key)
+            alternatives.append(self._alternative(entry, min(1.0, combined)))
+            if len(alternatives) >= 5:
+                break
+        return (
+            scored[0][2],
+            "semantic_expansion",
+            min(0.9, max(0.5, scored[0][0])),
+            alternatives,
+        )
 
     def _find_semantic_candidate(
         self, query: str,
@@ -914,7 +1058,8 @@ class TranslationService:
             if entry is not None:
                 score = float(alternatives[0].get("score") or 0.0)
                 confidence = min(0.78, max(0.45, score if score <= 1 else 0.62))
-                return entry, "text2vec", confidence, alternatives
+                method = str(alternatives[0].get("method") or "text2vec")
+                return entry, method, confidence, alternatives
         return None, "missing", 0.0, alternatives
 
     def _collect_semantic_alternatives(self, query: str, limit: int) -> List[Dict[str, Any]]:
@@ -931,7 +1076,19 @@ class TranslationService:
                     continue
                 if any(item.get("target") == entry["target"] for item in alternatives):
                     continue
-                alternatives.append(self._alternative(entry, score))
+                alternative = self._alternative(entry, score)
+                if (
+                    self._use_semantic_expansions
+                    and (
+                        entry["target"].casefold(),
+                        str(suggestion.get("explanation") or ""),
+                    ) in self._semantic_expansion_pairs
+                ):
+                    alternative["method"] = "semantic_expansion"
+                    alternative["matched_expansion"] = str(
+                        suggestion.get("explanation") or ""
+                    )
+                alternatives.append(alternative)
                 if len(alternatives) >= limit:
                     break
             if len(alternatives) >= limit:
@@ -939,11 +1096,25 @@ class TranslationService:
         return alternatives
 
     def _ensure_similarity_index(self) -> None:
-        if self._similarity_index_built or self._similarity_matcher is None:
+        use_expansions = bool(
+            self._use_semantic_expansions and self._semantic_expansions
+        )
+        if (
+            self._similarity_index_built
+            and self._similarity_index_uses_expansions == use_expansions
+        ):
+            return
+        if self._similarity_matcher is None:
             return
         pairs = [(entry["target"], entry["explanation"]) for entry in self._word_entries]
+        if use_expansions:
+            pairs.extend(
+                (item["entry"]["target"], item["expansion"])
+                for item in self._semantic_expansions
+            )
         self._similarity_matcher.build_index(pairs)
         self._similarity_index_built = True
+        self._similarity_index_uses_expansions = use_expansions
 
     def _choose_candidate(self, candidates: List[Dict[str, Any]], query: str) -> Dict[str, Any]:
         ranked = sorted(

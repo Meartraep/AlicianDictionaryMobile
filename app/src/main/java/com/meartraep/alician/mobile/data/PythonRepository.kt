@@ -1,7 +1,9 @@
 package com.meartraep.alician.mobile.data
 
 import android.app.Application
+import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
+import android.util.Log
 import androidx.core.content.edit
 import com.chaquo.python.Python
 import com.chaquo.python.android.AndroidPlatform
@@ -26,6 +28,8 @@ class PythonRepository(private val application: Application) {
         get() = preferences.getBoolean("alician_font", false)
     val dynamicColorsEnabled: Boolean
         get() = preferences.getBoolean("dynamic_colors", true)
+    val semanticExpansionsEnabled: Boolean
+        get() = preferences.getBoolean("semantic_expansions_enabled", false)
     val uiSettings: UiSettings
         get() = UiSettings(
             themeMode = preferenceEnum("theme_mode", ThemeMode.SYSTEM),
@@ -61,6 +65,8 @@ class PythonRepository(private val application: Application) {
             preferences.edit {
                 putString("database_asset_version", BuildConfig.DATABASE_ASSET_VERSION)
             }
+        } else {
+            updateBundledSemanticExpansions()
         }
         val config = File(dataDirectory, "word_checker_config.json")
         if (!config.exists()) {
@@ -68,6 +74,136 @@ class PythonRepository(private val application: Application) {
                 config.outputStream().use(input::copyTo)
             }
         }
+    }
+
+    private fun updateBundledSemanticExpansions() {
+        val installedVersion = preferences.getString("database_asset_version", null)
+        if (installedVersion == BuildConfig.DATABASE_ASSET_VERSION) return
+
+        try {
+            val bundledDatabase = File(application.cacheDir, "bundled_semantic_expansions.db")
+            application.assets.open("translated.db").use { input ->
+                bundledDatabase.outputStream().use(input::copyTo)
+            }
+            try {
+                copySemanticExpansionsWhenDictionaryMatches(bundledDatabase)
+            } finally {
+                bundledDatabase.delete()
+            }
+            preferences.edit {
+                putString("database_asset_version", BuildConfig.DATABASE_ASSET_VERSION)
+            }
+        } catch (error: Exception) {
+            Log.w(
+                "AlicianRepository",
+                "Unable to update bundled semantic expansions; keeping the user's database.",
+                error,
+            )
+        }
+    }
+
+    private fun copySemanticExpansionsWhenDictionaryMatches(bundledDatabase: File) {
+        SQLiteDatabase.openDatabase(
+            databaseFile.absolutePath,
+            null,
+            SQLiteDatabase.OPEN_READWRITE,
+        ).use { database ->
+            var attached = false
+            try {
+                database.execSQL(
+                    "ATTACH DATABASE ? AS bundled",
+                    arrayOf(bundledDatabase.absolutePath),
+                )
+                attached = true
+                if (!database.hasTable("bundled", "dictionary_sense_expansions")) return
+                if (!database.dictionariesMatch()) return
+
+                database.beginTransaction()
+                try {
+                    database.execSQL(
+                        """
+                        CREATE TABLE IF NOT EXISTS dictionary_sense_expansions (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            sense_id INTEGER NOT NULL,
+                            related_sense_id INTEGER NOT NULL,
+                            expansion TEXT NOT NULL,
+                            similarity REAL NOT NULL,
+                            rank INTEGER NOT NULL,
+                            model_name TEXT NOT NULL,
+                            model_revision TEXT NOT NULL,
+                            generated_at TEXT NOT NULL,
+                            UNIQUE (sense_id, rank),
+                            UNIQUE (sense_id, expansion),
+                            FOREIGN KEY (sense_id) REFERENCES dictionary(id) ON DELETE CASCADE,
+                            FOREIGN KEY (related_sense_id) REFERENCES dictionary(id) ON DELETE CASCADE
+                        )
+                        """.trimIndent(),
+                    )
+                    database.execSQL("DELETE FROM dictionary_sense_expansions")
+                    database.execSQL(
+                        """
+                        INSERT INTO dictionary_sense_expansions
+                        SELECT * FROM bundled.dictionary_sense_expansions
+                        """.trimIndent(),
+                    )
+                    database.execSQL(
+                        """
+                        CREATE INDEX IF NOT EXISTS idx_sense_expansions_sense
+                        ON dictionary_sense_expansions(sense_id, rank)
+                        """.trimIndent(),
+                    )
+                    database.execSQL(
+                        """
+                        CREATE INDEX IF NOT EXISTS idx_sense_expansions_text
+                        ON dictionary_sense_expansions(expansion)
+                        """.trimIndent(),
+                    )
+                    database.execSQL(
+                        """
+                        CREATE TABLE IF NOT EXISTS semantic_expansion_metadata (
+                            key TEXT PRIMARY KEY,
+                            value TEXT NOT NULL
+                        )
+                        """.trimIndent(),
+                    )
+                    database.execSQL("DELETE FROM semantic_expansion_metadata")
+                    database.execSQL(
+                        """
+                        INSERT INTO semantic_expansion_metadata
+                        SELECT * FROM bundled.semantic_expansion_metadata
+                        """.trimIndent(),
+                    )
+                    database.setTransactionSuccessful()
+                } finally {
+                    database.endTransaction()
+                }
+            } finally {
+                if (attached) {
+                    database.execSQL("DETACH DATABASE bundled")
+                }
+            }
+        }
+    }
+
+    private fun SQLiteDatabase.hasTable(schema: String, table: String): Boolean =
+        rawQuery(
+            "SELECT 1 FROM $schema.sqlite_master WHERE type = 'table' AND name = ? LIMIT 1",
+            arrayOf(table),
+        ).use { it.moveToFirst() }
+
+    private fun SQLiteDatabase.dictionariesMatch(): Boolean {
+        val fields = "id, headword_id, words, explanation, \"class\", sense_order, count, variety, time"
+        val mainOnly = rawQuery(
+            "SELECT EXISTS(SELECT $fields FROM main.dictionary " +
+                "EXCEPT SELECT $fields FROM bundled.dictionary)",
+            null,
+        ).use { cursor -> cursor.moveToFirst() && cursor.getInt(0) != 0 }
+        if (mainOnly) return false
+        return rawQuery(
+            "SELECT EXISTS(SELECT $fields FROM bundled.dictionary " +
+                "EXCEPT SELECT $fields FROM main.dictionary)",
+            null,
+        ).use { cursor -> cursor.moveToFirst() && cursor.getInt(0) == 0 }
     }
 
     private suspend fun invoke(method: String, payload: JSONObject = JSONObject()): JSONObject =
@@ -125,10 +261,17 @@ class PythonRepository(private val application: Application) {
             .toWritingSettings()
     }
 
-    suspend fun translate(text: String, direction: String): TranslationResult =
+    suspend fun translate(
+        text: String,
+        direction: String,
+        useSemanticExpansions: Boolean,
+    ): TranslationResult =
         invoke(
             "translate",
-            JSONObject().put("text", text).put("direction", direction),
+            JSONObject()
+                .put("text", text)
+                .put("direction", direction)
+                .put("use_semantic_expansions", useSemanticExpansions),
         ).toTranslationResult()
 
     suspend fun getTables(): List<String> =
@@ -346,6 +489,10 @@ class PythonRepository(private val application: Application) {
 
     fun setDynamicColorsEnabled(enabled: Boolean) {
         preferences.edit { putBoolean("dynamic_colors", enabled) }
+    }
+
+    fun setSemanticExpansionsEnabled(enabled: Boolean) {
+        preferences.edit { putBoolean("semantic_expansions_enabled", enabled) }
     }
 
     fun saveUiSettings(settings: UiSettings) {
@@ -583,6 +730,9 @@ private fun JSONObject.toTranslationResult(): TranslationResult {
         exact = stats.optInt("exact"),
         approximate = stats.optInt("approximate"),
         unknown = stats.optInt("unknown"),
+        semanticExpansionsEnabled = optBoolean("semantic_expansions_enabled"),
+        semanticExpansionsAvailable = optBoolean("semantic_expansions_available"),
+        semanticExpansionCount = optInt("semantic_expansion_count"),
         message = optString("message"),
     )
 }

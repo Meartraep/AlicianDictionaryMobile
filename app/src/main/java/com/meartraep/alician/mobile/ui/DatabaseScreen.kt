@@ -1,5 +1,6 @@
 package com.meartraep.alician.mobile.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.horizontalScroll
@@ -18,6 +19,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.ArrowForward
@@ -72,8 +74,9 @@ import java.io.File
 fun DatabaseScreen(
     viewModel: MainViewModel,
     padding: PaddingValues,
-    isActive: Boolean = true,
+    onBack: () -> Unit,
 ) {
+    BackHandler(onBack = onBack)
     var query by rememberSaveable { mutableStateOf("") }
     var exact by rememberSaveable { mutableStateOf(false) }
     var showGlobal by rememberSaveable { mutableStateOf(false) }
@@ -102,8 +105,8 @@ fun DatabaseScreen(
         if (uri != null) viewModel.exportDatabase(uri)
     }
 
-    LaunchedEffect(isActive) {
-        if (isActive && viewModel.dbTables.isEmpty()) viewModel.loadDatabase()
+    LaunchedEffect(Unit) {
+        if (viewModel.dbTables.isEmpty()) viewModel.loadDatabase()
     }
 
     LazyColumn(
@@ -118,6 +121,13 @@ fun DatabaseScreen(
     ) {
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = onBack) {
+                    Icon(
+                        Icons.AutoMirrored.Outlined.ArrowBack,
+                        contentDescription = "返回设置",
+                    )
+                }
+                Spacer(Modifier.width(4.dp))
                 Column(Modifier.weight(1f)) {
                     Text("数据库管理", style = MaterialTheme.typography.headlineMedium)
                     Text(
