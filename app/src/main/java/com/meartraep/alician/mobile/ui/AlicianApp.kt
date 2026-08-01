@@ -1,6 +1,7 @@
 package com.meartraep.alician.mobile.ui
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.EditNote
@@ -15,6 +16,8 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -45,42 +48,16 @@ fun AlicianApp(viewModel: MainViewModel) {
     var destination by rememberSaveable { mutableStateOf(AppDestination.Dictionary) }
     val snackbarState = remember { SnackbarHostState() }
     val stateHolder = rememberSaveableStateHolder()
+    val landscape = isLandscapeLayout()
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
-                AppDestination.entries.forEach { item ->
-                    val hasAppUpdate =
-                        item == AppDestination.Settings &&
-                            viewModel.appUpdateInfo?.updateAvailable == true
-                    NavigationBarItem(
-                        selected = destination == item,
-                        onClick = { destination = item },
-                        icon = {
-                            if (hasAppUpdate) {
-                                BadgedBox(badge = { Badge { Text("新") } }) {
-                                    Icon(
-                                        item.icon,
-                                        contentDescription = item.label,
-                                        tint = MaterialTheme.colorScheme.error,
-                                    )
-                                }
-                            } else {
-                                Icon(item.icon, contentDescription = item.label)
-                            }
-                        },
-                        label = {
-                            Text(
-                                item.label,
-                                color = if (hasAppUpdate) {
-                                    MaterialTheme.colorScheme.error
-                                } else {
-                                    LocalContentColor.current
-                                },
-                            )
-                        },
-                    )
-                }
+            if (!landscape) {
+                AppNavigationBar(
+                    selected = destination,
+                    appUpdateAvailable = viewModel.appUpdateInfo?.updateAvailable == true,
+                    onSelected = { destination = it },
+                )
             }
         },
         snackbarHost = {
@@ -92,17 +69,93 @@ fun AlicianApp(viewModel: MainViewModel) {
             )
         },
     ) { padding ->
-        Box(Modifier.fillMaxSize()) {
-            stateHolder.SaveableStateProvider(destination.name) {
-                when (destination) {
-                    AppDestination.Dictionary -> DictionaryScreen(viewModel, padding)
-                    AppDestination.Writing -> WritingScreen(viewModel, padding)
-                    AppDestination.Translator -> TranslatorScreen(viewModel, padding)
-                    AppDestination.Study -> StudyScreen(viewModel, padding)
-                    AppDestination.Settings -> SettingsScreen(viewModel, padding)
-                }
+        Row(Modifier.fillMaxSize()) {
+            if (landscape) {
+                AppNavigationRail(
+                    selected = destination,
+                    appUpdateAvailable = viewModel.appUpdateInfo?.updateAvailable == true,
+                    onSelected = { destination = it },
+                )
             }
-            BusyOverlay(viewModel.busyMessage)
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxSize(),
+            ) {
+                stateHolder.SaveableStateProvider(destination.name) {
+                    when (destination) {
+                        AppDestination.Dictionary -> DictionaryScreen(viewModel, padding)
+                        AppDestination.Writing -> WritingScreen(viewModel, padding)
+                        AppDestination.Translator -> TranslatorScreen(viewModel, padding)
+                        AppDestination.Study -> StudyScreen(viewModel, padding)
+                        AppDestination.Settings -> SettingsScreen(viewModel, padding)
+                    }
+                }
+                BusyOverlay(viewModel.busyMessage)
+            }
         }
     }
+}
+
+@Composable
+private fun AppNavigationBar(
+    selected: AppDestination,
+    appUpdateAvailable: Boolean,
+    onSelected: (AppDestination) -> Unit,
+) {
+    NavigationBar {
+        AppDestination.entries.forEach { item ->
+            NavigationBarItem(
+                selected = selected == item,
+                onClick = { onSelected(item) },
+                icon = { DestinationIcon(item, appUpdateAvailable) },
+                label = { DestinationLabel(item, appUpdateAvailable) },
+            )
+        }
+    }
+}
+
+@Composable
+private fun AppNavigationRail(
+    selected: AppDestination,
+    appUpdateAvailable: Boolean,
+    onSelected: (AppDestination) -> Unit,
+) {
+    NavigationRail {
+        AppDestination.entries.forEach { item ->
+            NavigationRailItem(
+                selected = selected == item,
+                onClick = { onSelected(item) },
+                icon = { DestinationIcon(item, appUpdateAvailable) },
+            )
+        }
+    }
+}
+
+@Composable
+private fun DestinationIcon(item: AppDestination, appUpdateAvailable: Boolean) {
+    val hasAppUpdate = item == AppDestination.Settings && appUpdateAvailable
+    if (hasAppUpdate) {
+        BadgedBox(badge = { Badge { Text("新") } }) {
+            Icon(
+                item.icon,
+                contentDescription = item.label,
+                tint = MaterialTheme.colorScheme.error,
+            )
+        }
+    } else {
+        Icon(item.icon, contentDescription = item.label)
+    }
+}
+
+@Composable
+private fun DestinationLabel(item: AppDestination, appUpdateAvailable: Boolean) {
+    Text(
+        item.label,
+        color = if (item == AppDestination.Settings && appUpdateAvailable) {
+            MaterialTheme.colorScheme.error
+        } else {
+            LocalContentColor.current
+        },
+    )
 }

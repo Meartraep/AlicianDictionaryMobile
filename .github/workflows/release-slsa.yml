@@ -1,0 +1,139 @@
+name: Release attested APK
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-attest-release:
+    name: Build, attest, and release APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+
+    steps:
+      - name: Check out the tagged source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: Validate the Gradle wrapper
+        uses: gradle/actions/wrapper-validation@4c125117fe7c5aed11272ec4213f602f012f89f2 # v5
+
+      - name: Set up Java 17
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Python 3.10 for Chaquopy
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.10"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@4c125117fe7c5aed11272ec4213f602f012f89f2 # v5
+
+      - name: Test and build the signed release APK
+        shell: bash
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/alician-release.keystore
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          for variable in \
+            ANDROID_KEYSTORE_BASE64 \
+            ANDROID_KEYSTORE_PASSWORD \
+            ANDROID_KEY_ALIAS \
+            ANDROID_KEY_PASSWORD
+          do
+            if [[ -z "${!variable:-}" ]]; then
+              echo "::error::Required GitHub Actions secret is missing: ${variable}"
+              exit 1
+            fi
+          done
+
+          printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$ANDROID_KEYSTORE_PATH"
+          chmod 600 "$ANDROID_KEYSTORE_PATH"
+          trap 'rm -f "$ANDROID_KEYSTORE_PATH"' EXIT
+          ./gradlew --no-daemon clean testDebugUnitTest lintRelease assembleRelease
+
+      - name: Verify and package the signed APK
+        id: package
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_apk="app/build/outputs/apk/release/app-release.apk"
+          test -f "$source_apk"
+
+          safe_tag="${GITHUB_REF_NAME//[^A-Za-z0-9._-]/_}"
+          apk_name="AlicianDictionary-${safe_tag}.apk"
+          mkdir -p dist
+          cp "$source_apk" "dist/$apk_name"
+
+          apksigner="$({ find "$ANDROID_HOME/build-tools" -type f -name apksigner -print0 || true; } | xargs -0 -r ls -1v | tail -n 1)"
+          if [[ -z "$apksigner" ]]; then
+            echo "::error::apksigner was not found in the Android SDK"
+            exit 1
+          fi
+          "$apksigner" verify --verbose --print-certs "dist/$apk_name"
+
+          (
+            cd dist
+            sha256sum "$apk_name" > SHA256SUMS.txt
+          )
+          echo "apk-path=${GITHUB_WORKSPACE}/dist/${apk_name}" >> "$GITHUB_OUTPUT"
+          echo "apk-name=${apk_name}" >> "$GITHUB_OUTPUT"
+          echo "safe-tag=${safe_tag}" >> "$GITHUB_OUTPUT"
+
+      - name: Generate signed SLSA build provenance
+        id: attest
+        uses: actions/attest@508db95dd578ae2727ebd6217d5ba78e4fbda05d # v4
+        with:
+          subject-path: ${{ steps.package.outputs.apk-path }}
+
+      - name: Package the provenance bundle
+        shell: bash
+        env:
+          ATTESTATION_BUNDLE: ${{ steps.attest.outputs.bundle-path }}
+        run: |
+          set -euo pipefail
+          cp "$ATTESTATION_BUNDLE" \
+            "dist/${{ steps.package.outputs.apk-name }}.intoto.jsonl"
+
+      - name: Retain the attested release files in the workflow run
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: attested-apk-${{ steps.package.outputs.safe-tag }}
+          path: dist/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish the GitHub release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" dist/* --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" dist/* \
+              --verify-tag \
+              --generate-notes \
+              --title "Alician Dictionary ${GITHUB_REF_NAME}"
+          fi

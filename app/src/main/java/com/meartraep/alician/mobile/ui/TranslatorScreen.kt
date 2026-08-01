@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
@@ -63,17 +64,73 @@ fun TranslatorScreen(viewModel: MainViewModel, padding: PaddingValues) {
     } else {
         FontFamily.Default
     }
+    val landscape = isLandscapeLayout()
+    val panePadding = PaddingValues(
+        start = 16.dp,
+        end = 16.dp,
+        top = padding.calculateTopPadding() + if (landscape) 12.dp else 18.dp,
+        bottom = padding.calculateBottomPadding() + if (landscape) 16.dp else 24.dp,
+    )
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(
-            start = 16.dp,
-            end = 16.dp,
-            top = padding.calculateTopPadding() + 18.dp,
-            bottom = padding.calculateBottomPadding() + 24.dp,
-        ),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
+    val inputPane: @Composable () -> Unit = {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = panePadding,
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            translatorInputItems(
+                input = input,
+                onInputChanged = { input = it },
+                direction = direction,
+                onDirectionChanged = { direction = it },
+                viewModel = viewModel,
+                alicianFont = alicianFont,
+            )
+        }
+    }
+    val resultPane: @Composable () -> Unit = {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = panePadding,
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            translatorResultItems(viewModel, alicianFont, includePageHeader = landscape)
+        }
+    }
+
+    if (landscape) {
+        LandscapeTwoPane(
+            primary = inputPane,
+            secondary = resultPane,
+            primaryWeight = 0.46f,
+        )
+    } else {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = panePadding,
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            translatorInputItems(
+                input = input,
+                onInputChanged = { input = it },
+                direction = direction,
+                onDirectionChanged = { direction = it },
+                viewModel = viewModel,
+                alicianFont = alicianFont,
+            )
+            translatorResultItems(viewModel, alicianFont, includePageHeader = false)
+        }
+    }
+}
+
+private fun LazyListScope.translatorInputItems(
+    input: String,
+    onInputChanged: (String) -> Unit,
+    direction: String,
+    onDirectionChanged: (String) -> Unit,
+    viewModel: MainViewModel,
+    alicianFont: FontFamily,
+) {
         item {
             Text("双向翻译器", style = MaterialTheme.typography.headlineMedium)
             Text(
@@ -92,7 +149,7 @@ fun TranslatorScreen(viewModel: MainViewModel, padding: PaddingValues) {
                 directionOptions.forEach { option ->
                     FilterChip(
                         selected = direction == option.first,
-                        onClick = { direction = option.first },
+                        onClick = { onDirectionChanged(option.first) },
                         label = { Text(option.second) },
                     )
                 }
@@ -100,11 +157,11 @@ fun TranslatorScreen(viewModel: MainViewModel, padding: PaddingValues) {
                     FilterChip(
                         selected = false,
                         onClick = {
-                            direction = if (direction == "zh_to_alician") {
+                            onDirectionChanged(if (direction == "zh_to_alician") {
                                 "alician_to_zh"
                             } else {
                                 "zh_to_alician"
-                            }
+                            })
                         },
                         label = { Text("切换") },
                         leadingIcon = { Icon(Icons.Outlined.SwapVert, contentDescription = null) },
@@ -132,7 +189,7 @@ fun TranslatorScreen(viewModel: MainViewModel, padding: PaddingValues) {
         item {
             OutlinedTextField(
                 value = input,
-                onValueChange = { input = it },
+                onValueChange = onInputChanged,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(180.dp),
@@ -152,7 +209,18 @@ fun TranslatorScreen(viewModel: MainViewModel, padding: PaddingValues) {
                 Text("翻译")
             }
         }
+}
 
+private fun LazyListScope.translatorResultItems(
+    viewModel: MainViewModel,
+    alicianFont: FontFamily,
+    includePageHeader: Boolean,
+) {
+        if (includePageHeader) {
+            item {
+                SectionHeader("翻译结果", "结果与词元明细可独立滚动")
+            }
+        }
         viewModel.translationResult?.let { result ->
             val resultRevision = viewModel.translationResultRevision
             item {
@@ -180,7 +248,6 @@ fun TranslatorScreen(viewModel: MainViewModel, padding: PaddingValues) {
                 detail = "自动模式会根据是否包含中文字符判断方向。",
             )
         }
-    }
 }
 
 @Composable

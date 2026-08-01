@@ -1,3 +1,4 @@
+import java.io.File
 import java.util.Properties
 
 plugins {
@@ -12,6 +13,29 @@ val signingProperties = Properties().apply {
         signingPropertiesFile.inputStream().use(::load)
     }
 }
+val ciSigningStoreFile = System.getenv("ANDROID_KEYSTORE_PATH")?.let(::File)
+val ciSigningStorePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
+val ciSigningKeyAlias = System.getenv("ANDROID_KEY_ALIAS")
+val ciSigningKeyPassword = System.getenv("ANDROID_KEY_PASSWORD")
+val hasCiSigningConfig = ciSigningStoreFile?.isFile == true &&
+    !ciSigningStorePassword.isNullOrBlank() &&
+    !ciSigningKeyAlias.isNullOrBlank() &&
+    !ciSigningKeyPassword.isNullOrBlank()
+val hasLocalSigningConfig = signingPropertiesFile.isFile
+
+val chaquopyPythonVersion = "3.10"
+val githubRunnerPython = System.getenv("RUNNER_TOOL_CACHE")
+    ?.let(::File)
+    ?.resolve("Python")
+    ?.listFiles()
+    ?.asSequence()
+    ?.filter { it.isDirectory && it.name.startsWith("$chaquopyPythonVersion.") }
+    ?.flatMap { versionDirectory ->
+        sequenceOf("x64", "arm64").map { architecture ->
+            versionDirectory.resolve("$architecture/bin/python")
+        }
+    }
+    ?.firstOrNull { it.isFile }
 
 android {
     namespace = "com.meartraep.alician.mobile"
@@ -25,8 +49,8 @@ android {
         applicationId = "com.meartraep.alician.mobile"
         minSdk = 24
         targetSdk = 36
-        versionCode = 4
-        versionName = "1.3.0"
+        versionCode = 5
+        versionName = "1.4.0"
 
         ndk {
             abiFilters += listOf("arm64-v8a", "x86_64")
@@ -37,7 +61,14 @@ android {
     }
 
     signingConfigs {
-        if (signingPropertiesFile.exists()) {
+        if (hasCiSigningConfig) {
+            create("release") {
+                storeFile = ciSigningStoreFile
+                storePassword = ciSigningStorePassword
+                keyAlias = ciSigningKeyAlias
+                keyPassword = ciSigningKeyPassword
+            }
+        } else if (hasLocalSigningConfig) {
             create("release") {
                 storeFile = rootProject.file(signingProperties.getProperty("storeFile"))
                 storePassword = signingProperties.getProperty("storePassword")
@@ -59,7 +90,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
-            if (signingPropertiesFile.exists()) {
+            if (hasCiSigningConfig || hasLocalSigningConfig) {
                 signingConfig = signingConfigs.getByName("release")
             }
         }
@@ -83,8 +114,10 @@ android {
 
 chaquopy {
     defaultConfig {
-        version = "3.10"
-        buildPython("python")
+        version = chaquopyPythonVersion
+        // GitHub-hosted runners keep non-default Python versions outside PATH.
+        // Locally, let Chaquopy use its platform-specific Python auto-detection.
+        githubRunnerPython?.let { buildPython(it.absolutePath) }
         pip {
             install(
                 "https://files.pythonhosted.org/packages/c6/cb/" +

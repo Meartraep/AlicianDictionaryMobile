@@ -22,6 +22,13 @@ Set `sdk.dir` in `local.properties`, then run:
 For a signed release, create `keystore.properties` using the keys referenced in
 `app/build.gradle.kts`, then run `.\gradlew.bat assembleRelease`.
 
+## Verifiable releases
+
+Pushing a `v*` tag builds the signed APK on a GitHub-hosted runner and publishes
+Sigstore-signed SLSA build provenance for the final APK. Repository secret setup,
+the release procedure, and strict consumer verification are documented in
+[`docs/SUPPLY_CHAIN.md`](docs/SUPPLY_CHAIN.md).
+
 ## Semantic alias data
 
 The optional translation enhancement uses reviewed Chinese aliases generated

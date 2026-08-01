@@ -14,6 +14,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.AutoStories
@@ -170,7 +173,9 @@ private fun StudyOverview(
         (overview.newSeenToday.toFloat() / settings.dailyNewLimit).coerceIn(0f, 1f)
     }
 
-    LazyColumn(
+    val landscape = isLandscapeLayout()
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(if (landscape) 2 else 1),
         modifier = Modifier
             .fillMaxSize()
             .testTag("study_overview_list"),
@@ -180,9 +185,10 @@ private fun StudyOverview(
             top = padding.calculateTopPadding() + 18.dp,
             bottom = padding.calculateBottomPadding() + 24.dp,
         ),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        item {
+        item(span = { GridItemSpan(maxLineSpan) }) {
             Text("爱丽丝语背诵", style = MaterialTheme.typography.headlineMedium)
             Text(
                 "字符识读 · 主动回忆 · 间隔重复",
@@ -253,7 +259,7 @@ private fun StudyOverview(
             )
         }
 
-        item {
+        item(span = { GridItemSpan(maxLineSpan) }) {
             Card(
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
@@ -426,7 +432,9 @@ private fun StudySession(
     }
     val alicianFont = FontFamily(Font(R.font.alician_regular))
 
-    LazyColumn(
+    val landscape = isLandscapeLayout()
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(if (landscape) 2 else 1),
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(
             start = 16.dp,
@@ -434,9 +442,10 @@ private fun StudySession(
             top = padding.calculateTopPadding() + 8.dp,
             bottom = padding.calculateBottomPadding() + 24.dp,
         ),
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        item {
+        item(span = { GridItemSpan(maxLineSpan) }) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onClose) {
                     Icon(
@@ -455,13 +464,19 @@ private fun StudySession(
                 }
             }
         }
-        item {
+        item(span = { GridItemSpan(maxLineSpan) }) {
             LinearProgressIndicator(
                 progress = { completedFraction },
                 modifier = Modifier.fillMaxWidth(),
             )
         }
-        item {
+        item(
+            span = {
+                GridItemSpan(
+                    if (landscape && session.answerRevealed) 1 else maxLineSpan,
+                )
+            },
+        ) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
@@ -551,22 +566,22 @@ private fun StudySession(
 
         if (session.answerRevealed) {
             item {
-                Text(
-                    "你的回忆有多稳？",
-                    style = MaterialTheme.typography.titleMedium,
-                )
-                Text(
-                    "按真实感受评分，按钮下方是预计下次出现时间。",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            item {
-                RatingButtons(
-                    previews = previews,
-                    enabled = !reviewing,
-                    onRate = onRate,
-                )
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(
+                        "你的回忆有多稳？",
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    Text(
+                        "按真实感受评分，按钮下方是预计下次出现时间。",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    RatingButtons(
+                        previews = previews,
+                        enabled = !reviewing,
+                        onRate = onRate,
+                    )
+                }
             }
         }
     }
@@ -675,7 +690,9 @@ private fun StudySessionComplete(
     val rememberedRate = if (session.answerCount == 0) 0 else {
         session.rememberedCount * 100 / session.answerCount
     }
-    LazyColumn(
+    val landscape = isLandscapeLayout()
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(if (landscape) 2 else 1),
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(
             start = 16.dp,
@@ -683,47 +700,49 @@ private fun StudySessionComplete(
             top = padding.calculateTopPadding() + 28.dp,
             bottom = padding.calculateBottomPadding() + 28.dp,
         ),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalArrangement = Arrangement.spacedBy(18.dp),
         verticalArrangement = Arrangement.spacedBy(18.dp),
     ) {
         item {
-            Icon(
-                Icons.Outlined.CheckCircle,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-            )
-        }
-        item {
-            Text(
-                if (session.answerCount == 0) "今天的任务已清空" else "本轮完成",
-                style = MaterialTheme.typography.headlineMedium,
-                textAlign = TextAlign.Center,
-            )
-        }
-        item {
-            Text(
-                if (session.answerCount == 0) {
-                    nextDueMessage(overview)
-                } else {
-                    "大脑在将主动回忆转为长期记忆。下一次按计划回来即可。"
-                },
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-            )
-        }
-        if (session.answerCount > 0) {
-            item {
-                MetricRow(
-                    "评分次数" to session.answerCount.toString(),
-                    "记住率" to "$rememberedRate%",
-                    "再次学习" to session.againCount.toString(),
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                Icon(
+                    Icons.Outlined.CheckCircle,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                )
+                Text(
+                    if (session.answerCount == 0) "今天的任务已清空" else "本轮完成",
+                    style = MaterialTheme.typography.headlineMedium,
+                    textAlign = TextAlign.Center,
+                )
+                Text(
+                    if (session.answerCount == 0) {
+                        nextDueMessage(overview)
+                    } else {
+                        "大脑在将主动回忆转为长期记忆。下一次按计划回来即可。"
+                    },
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
                 )
             }
         }
         item {
-            Button(onClick = onClose, modifier = Modifier.fillMaxWidth()) {
-                Text("返回学习总览")
+            Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
+                if (session.answerCount > 0) {
+                    MetricRow(
+                        "评分次数" to session.answerCount.toString(),
+                        "记住率" to "$rememberedRate%",
+                        "再次学习" to session.againCount.toString(),
+                    )
+                }
+                Button(onClick = onClose, modifier = Modifier.fillMaxWidth()) {
+                    Text("返回学习总览")
+                }
             }
         }
     }
@@ -795,7 +814,9 @@ private fun AlphabetLesson(
     }
 
     val alicianFont = FontFamily(Font(R.font.alician_regular))
-    LazyColumn(
+    val landscape = isLandscapeLayout()
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(if (landscape) 2 else 1),
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(
             start = 16.dp,
@@ -803,9 +824,10 @@ private fun AlphabetLesson(
             top = padding.calculateTopPadding() + 8.dp,
             bottom = padding.calculateBottomPadding() + 24.dp,
         ),
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        item {
+        item(span = { GridItemSpan(maxLineSpan) }) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 if (canGoBack) {
                     IconButton(onClick = onBack) {
@@ -861,7 +883,9 @@ private fun AlphabetLesson(
             }
         }
 
-        item { SectionHeader("字符对照", "上方是键盘字母，下方是爱丽丝语字形") }
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            SectionHeader("字符对照", "上方是键盘字母，下方是爱丽丝语字形")
+        }
         item { AlphabetGrid(alicianFont) }
 
         item {

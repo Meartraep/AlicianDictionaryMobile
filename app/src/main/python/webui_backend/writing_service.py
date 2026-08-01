@@ -177,7 +177,8 @@ class WritingAssistantService:
                 f"{len(self.highlight_manager.known_words)} 个已知词（{strict_label}）"
             )
             return {
-                "ok": True, "unknown_count": int(unknown_count),
+                "ok": True, "source_text": text or "",
+                "unknown_count": int(unknown_count),
                 "unknown_ranges": unknown_ranges, "lowstat_ranges": lowstat_ranges,
                 "sidebar_items": sidebar_items, "status": status_text,
             }

@@ -1,5 +1,6 @@
 package com.meartraep.alician.mobile.ui
 
+import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -7,10 +8,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ErrorOutline
@@ -43,7 +46,48 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
+
+/** True when a phone has more useful horizontal than vertical space. */
+@Composable
+fun isLandscapeLayout(): Boolean =
+    LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+/**
+ * Shared master/detail frame for landscape phones. Each pane owns its scrolling,
+ * which keeps controls visible while the result pane moves independently.
+ */
+@Composable
+fun LandscapeTwoPane(
+    primary: @Composable () -> Unit,
+    secondary: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    primaryWeight: Float = 0.44f,
+) {
+    Row(modifier = modifier.fillMaxSize()) {
+        Box(
+            modifier = Modifier
+                .weight(primaryWeight)
+                .fillMaxSize(),
+        ) {
+            primary()
+        }
+        VerticalDivider(
+            modifier = Modifier
+                .fillMaxHeight()
+                .width(1.dp),
+            color = MaterialTheme.colorScheme.outlineVariant,
+        )
+        Box(
+            modifier = Modifier
+                .weight(1f - primaryWeight)
+                .fillMaxSize(),
+        ) {
+            secondary()
+        }
+    }
+}
 
 @Composable
 fun BusyOverlay(message: String?) {
@@ -261,4 +305,3 @@ fun SectionHeader(title: String, detail: String? = null) {
         HorizontalDivider()
     }
 }
-

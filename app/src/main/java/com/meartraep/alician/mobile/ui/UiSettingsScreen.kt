@@ -16,6 +16,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -61,7 +64,9 @@ fun UiSettingsScreen(
     BackHandler(onBack = onBack)
     val dynamicColorSupported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 
-    LazyColumn(
+    val landscape = isLandscapeLayout()
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(if (landscape) 2 else 1),
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(
             start = 16.dp,
@@ -69,9 +74,10 @@ fun UiSettingsScreen(
             top = padding.calculateTopPadding() + 8.dp,
             bottom = padding.calculateBottomPadding() + 28.dp,
         ),
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
-        item {
+        item(span = { GridItemSpan(maxLineSpan) }) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onBack) {
                     Icon(
@@ -91,7 +97,7 @@ fun UiSettingsScreen(
             }
         }
 
-        item { MaterialPreviewCard() }
+        item(span = { GridItemSpan(maxLineSpan) }) { MaterialPreviewCard() }
 
         item { SectionHeader("主题模式", "可覆盖系统的浅色/深色外观") }
         item {
@@ -222,7 +228,7 @@ fun UiSettingsScreen(
             }
         }
 
-        item {
+        item(span = { GridItemSpan(maxLineSpan) }) {
             OutlinedButton(
                 onClick = onReset,
                 modifier = Modifier.fillMaxWidth(),

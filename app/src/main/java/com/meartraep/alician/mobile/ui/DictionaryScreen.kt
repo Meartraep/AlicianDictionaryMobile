@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.relocation.BringIntoViewRequester
@@ -91,17 +92,111 @@ fun DictionaryScreen(viewModel: MainViewModel, padding: PaddingValues) {
     } else {
         FontFamily.Default
     }
+    val landscape = isLandscapeLayout()
+    val panePadding = PaddingValues(
+        start = 16.dp,
+        end = 16.dp,
+        top = padding.calculateTopPadding() + if (landscape) 12.dp else 18.dp,
+        bottom = padding.calculateBottomPadding() + if (landscape) 16.dp else 24.dp,
+    )
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(
-            start = 16.dp,
-            end = 16.dp,
-            top = padding.calculateTopPadding() + 18.dp,
-            bottom = padding.calculateBottomPadding() + 24.dp,
-        ),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
+    val searchPane: @Composable () -> Unit = {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = panePadding,
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            dictionarySearchItems(
+                query = query,
+                onQueryChanged = { query = it },
+                exact = exact,
+                onExactChanged = { exact = it },
+                position = position,
+                onPositionChanged = { position = it },
+                viewModel = viewModel,
+                alicianFont = alicianFont,
+                onSearch = {
+                    focusManager.clearFocus()
+                    viewModel.searchDictionary(it, exact, position)
+                },
+            )
+        }
+    }
+    val resultPane: @Composable () -> Unit = {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = panePadding,
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            dictionaryResultItems(
+                viewModel = viewModel,
+                alicianFont = alicianFont,
+                includePageHeader = landscape,
+                onQueryChanged = { query = it },
+                exact = exact,
+                position = position,
+            )
+        }
+    }
+
+    if (landscape) {
+        LandscapeTwoPane(
+            primary = searchPane,
+            secondary = resultPane,
+            primaryWeight = 0.44f,
+        )
+    } else {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = panePadding,
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            dictionarySearchItems(
+                query = query,
+                onQueryChanged = { query = it },
+                exact = exact,
+                onExactChanged = { exact = it },
+                position = position,
+                onPositionChanged = { position = it },
+                viewModel = viewModel,
+                alicianFont = alicianFont,
+                onSearch = {
+                    focusManager.clearFocus()
+                    viewModel.searchDictionary(it, exact, position)
+                },
+            )
+            dictionaryResultItems(
+                viewModel = viewModel,
+                alicianFont = alicianFont,
+                includePageHeader = false,
+                onQueryChanged = { query = it },
+                exact = exact,
+                position = position,
+            )
+        }
+    }
+
+    viewModel.dictionaryExamples?.let { examples ->
+        ExamplesSheet(
+            result = examples,
+            alicianFont = alicianFont,
+            onDismiss = viewModel::closeExamples,
+            onUpdateLyric = viewModel::updateLyric,
+        )
+    }
+}
+
+private fun LazyListScope.dictionarySearchItems(
+    query: String,
+    onQueryChanged: (String) -> Unit,
+    exact: Boolean,
+    onExactChanged: (Boolean) -> Unit,
+    position: String,
+    onPositionChanged: (String) -> Unit,
+    viewModel: MainViewModel,
+    alicianFont: FontFamily,
+    onSearch: (String) -> Unit,
+) {
         item {
             Text("爱丽丝语词典", style = MaterialTheme.typography.headlineMedium)
             Text(
@@ -113,7 +208,7 @@ fun DictionaryScreen(viewModel: MainViewModel, padding: PaddingValues) {
         item {
             OutlinedTextField(
                 value = query,
-                onValueChange = { query = it },
+                onValueChange = onQueryChanged,
                 modifier = Modifier.fillMaxWidth(),
                 label = { Text("爱丽丝语或中文") },
                 placeholder = { Text("例如 Xia、爱、世界") },
@@ -121,8 +216,7 @@ fun DictionaryScreen(viewModel: MainViewModel, padding: PaddingValues) {
                 trailingIcon = {
                     IconButton(
                         onClick = {
-                            focusManager.clearFocus()
-                            viewModel.searchDictionary(query, exact, position)
+                            onSearch(query)
                         },
                     ) {
                         Icon(Icons.Outlined.Search, contentDescription = "查询")
@@ -132,8 +226,7 @@ fun DictionaryScreen(viewModel: MainViewModel, padding: PaddingValues) {
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(
                     onSearch = {
-                        focusManager.clearFocus()
-                        viewModel.searchDictionary(query, exact, position)
+                        onSearch(query)
                     },
                 ),
             )
@@ -147,14 +240,14 @@ fun DictionaryScreen(viewModel: MainViewModel, padding: PaddingValues) {
             ) {
                 FilterChip(
                     selected = exact,
-                    onClick = { exact = !exact },
+                    onClick = { onExactChanged(!exact) },
                     label = { Text("精确匹配") },
                     leadingIcon = { Icon(Icons.Outlined.Tune, contentDescription = null) },
                 )
                 positionOptions.forEach { option ->
                     FilterChip(
                         selected = position == option.first,
-                        onClick = { position = option.first },
+                        onClick = { onPositionChanged(option.first) },
                         label = { Text(option.second) },
                     )
                 }
@@ -173,7 +266,7 @@ fun DictionaryScreen(viewModel: MainViewModel, padding: PaddingValues) {
                     items(viewModel.history, key = { it }) { historyItem ->
                         AssistChip(
                             onClick = {
-                                query = historyItem
+                                onQueryChanged(historyItem)
                                 viewModel.searchDictionary(historyItem, exact, position)
                             },
                             label = { Text(historyItem, fontFamily = alicianFont) },
@@ -182,7 +275,19 @@ fun DictionaryScreen(viewModel: MainViewModel, padding: PaddingValues) {
                 }
             }
         }
+}
 
+private fun LazyListScope.dictionaryResultItems(
+    viewModel: MainViewModel,
+    alicianFont: FontFamily,
+    includePageHeader: Boolean,
+    onQueryChanged: (String) -> Unit,
+    exact: Boolean,
+    position: String,
+) {
+        if (includePageHeader) {
+            item { SectionHeader("查询结果", "筛选区与结果区可独立滚动") }
+        }
         val result = viewModel.dictionaryResult
         if (result == null) {
             item {
@@ -205,7 +310,7 @@ fun DictionaryScreen(viewModel: MainViewModel, padding: PaddingValues) {
                         items(result.suggestions, key = { it.word }) { suggestion ->
                             AssistChip(
                                 onClick = {
-                                    query = suggestion.word
+                                    onQueryChanged(suggestion.word)
                                     viewModel.searchDictionary(suggestion.word, exact, position)
                                 },
                                 label = { Text(suggestion.word, fontFamily = alicianFont) },
@@ -226,7 +331,7 @@ fun DictionaryScreen(viewModel: MainViewModel, padding: PaddingValues) {
                         entry = entry,
                         alicianFont = alicianFont,
                         onClick = {
-                            query = entry.word
+                            onQueryChanged(entry.word)
                             viewModel.loadExamples(entry.word, position)
                         },
                     )
@@ -242,16 +347,6 @@ fun DictionaryScreen(viewModel: MainViewModel, padding: PaddingValues) {
                 }
             }
         }
-    }
-
-    viewModel.dictionaryExamples?.let { examples ->
-        ExamplesSheet(
-            result = examples,
-            alicianFont = alicianFont,
-            onDismiss = viewModel::closeExamples,
-            onUpdateLyric = viewModel::updateLyric,
-        )
-    }
 }
 
 @Composable

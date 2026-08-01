@@ -681,6 +681,7 @@ private fun JSONObject.toExampleResult(): ExampleResult {
 private fun JSONObject.toWritingResult(): WritingResult {
     val issuesJson = optJSONArray("sidebar_items") ?: JSONArray()
     return WritingResult(
+        sourceText = optString("source_text"),
         unknownCount = optInt("unknown_count"),
         unknownRanges = (optJSONArray("unknown_ranges") ?: JSONArray()).ranges(),
         lowStatRanges = (optJSONArray("lowstat_ranges") ?: JSONArray()).ranges(),

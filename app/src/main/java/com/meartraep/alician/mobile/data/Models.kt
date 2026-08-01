@@ -135,6 +135,7 @@ data class WritingIssue(
 data class TextRange(val start: Int, val end: Int)
 
 data class WritingResult(
+    val sourceText: String,
     val unknownCount: Int,
     val unknownRanges: List<TextRange>,
     val lowStatRanges: List<TextRange>,

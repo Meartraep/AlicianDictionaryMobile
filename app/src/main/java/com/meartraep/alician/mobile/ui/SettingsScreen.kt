@@ -15,6 +15,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
@@ -102,7 +105,9 @@ fun SettingsScreen(viewModel: MainViewModel, padding: PaddingValues) {
         if (uri != null) viewModel.exportDatabase(uri)
     }
 
-    LazyColumn(
+    val landscape = isLandscapeLayout()
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(if (landscape) 2 else 1),
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(
             start = 16.dp,
@@ -110,9 +115,10 @@ fun SettingsScreen(viewModel: MainViewModel, padding: PaddingValues) {
             top = padding.calculateTopPadding() + 18.dp,
             bottom = padding.calculateBottomPadding() + 24.dp,
         ),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        item {
+        item(span = { GridItemSpan(maxLineSpan) }) {
             Text("设置", style = MaterialTheme.typography.headlineMedium)
             Text(
                 "显示、数据维护与版本信息",
@@ -277,7 +283,7 @@ fun SettingsScreen(viewModel: MainViewModel, padding: PaddingValues) {
                 }
             }
         }
-        item {
+        item(span = { GridItemSpan(maxLineSpan) }) {
             InfoBanner(
                 "本应用基于 Meartraep/Alician_dictionary 的 Lite 版开发，遵循 " +
                     "CC BY-NC-SA 4.0，限非商业用途。移动端保留词典、歌词上下文、" +

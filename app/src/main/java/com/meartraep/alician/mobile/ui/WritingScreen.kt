@@ -15,9 +15,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CheckCircle
@@ -49,7 +49,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.Font
@@ -80,6 +85,28 @@ fun WritingScreen(
         FontFamily(Font(R.font.alician_regular))
     } else {
         FontFamily.Default
+    }
+    val currentWritingResult = viewModel.writingResult?.takeIf {
+        it.sourceText == text
+    }
+    val unknownTextColor = MaterialTheme.colorScheme.error
+    val lowStatTextColor = if (MaterialTheme.colorScheme.surface.luminance() < 0.5f) {
+        Color(0xFF64B5F6)
+    } else {
+        Color(0xFF1565C0)
+    }
+    val highlightTransformation = remember(
+        currentWritingResult,
+        unknownTextColor,
+        lowStatTextColor,
+    ) {
+        currentWritingResult?.let {
+            WritingHighlightVisualTransformation(
+                result = it,
+                unknownColor = unknownTextColor,
+                lowStatColor = lowStatTextColor,
+            )
+        } ?: VisualTransformation.None
     }
 
     val importLauncher = rememberLauncherForActivityResult(
@@ -113,123 +140,76 @@ fun WritingScreen(
             viewModel.checkWritingSilently(text)
         }
     }
+    val landscape = isLandscapeLayout()
+    val panePadding = PaddingValues(
+        start = 16.dp,
+        end = 16.dp,
+        top = padding.calculateTopPadding() + if (landscape) 12.dp else 18.dp,
+        bottom = padding.calculateBottomPadding() + if (landscape) 16.dp else 24.dp,
+    )
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(
-            start = 16.dp,
-            end = 16.dp,
-            top = padding.calculateTopPadding() + 18.dp,
-            bottom = padding.calculateBottomPadding() + 24.dp,
-        ),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        item {
-            Text("写作助手", style = MaterialTheme.typography.headlineMedium)
-            Text(
-                "自动识别拼写错误与低频词，点按问题项可查询释义",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+    val editorPane: @Composable () -> Unit = {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = panePadding,
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            writingEditorItems(
+                text = text,
+                onTextChanged = { text = it },
+                alicianFont = alicianFont,
+                highlightTransformation = highlightTransformation,
+                onImport = { importLauncher.launch(arrayOf("text/plain", "text/*")) },
+                onExport = { exportLauncher.launch("alician-writing.txt") },
+                onSettings = { showSettings = true },
+                onCheck = { viewModel.checkWriting(text) },
             )
         }
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                OutlinedButton(
-                    onClick = { importLauncher.launch(arrayOf("text/plain", "text/*")) },
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Icon(Icons.Outlined.UploadFile, contentDescription = null)
-                    Spacer(Modifier.width(6.dp))
-                    Text("导入")
-                }
-                OutlinedButton(
-                    onClick = { exportLauncher.launch("alician-writing.txt") },
-                    modifier = Modifier.weight(1f),
-                    enabled = text.isNotEmpty(),
-                ) {
-                    Icon(Icons.Outlined.Download, contentDescription = null)
-                    Spacer(Modifier.width(6.dp))
-                    Text("导出")
-                }
-                OutlinedButton(
-                    onClick = { showSettings = true },
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Icon(Icons.Outlined.Settings, contentDescription = null)
-                    Spacer(Modifier.width(6.dp))
-                    Text("设置")
-                }
-            }
-        }
-        item {
-            OutlinedTextField(
-                value = text,
-                onValueChange = { text = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(250.dp),
-                label = { Text("爱丽丝语文本") },
-                placeholder = { Text("输入或导入文本；停顿片刻后自动检查…") },
-                textStyle = MaterialTheme.typography.bodyLarge.copy(fontFamily = alicianFont),
+    }
+    val resultPane: @Composable () -> Unit = {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = panePadding,
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            writingResultItems(
+                result = viewModel.writingResult,
+                text = text,
+                alicianFont = alicianFont,
+                includePageHeader = landscape,
+                onIssueClick = { viewModel.lookupWriting(it.display) },
             )
         }
-        item {
-            Button(
-                onClick = { viewModel.checkWriting(text) },
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Icon(Icons.Outlined.CheckCircle, contentDescription = null)
-                Spacer(Modifier.width(8.dp))
-                Text("立即检查")
-            }
-        }
+    }
 
-        viewModel.writingResult?.let { result ->
-            item {
-                MetricRow(
-                    "未知词" to result.unknownCount.toString(),
-                    "低频词" to result.issues.count { it.type == "lowstat" }.toString(),
-                    "问题项" to result.issues.size.toString(),
-                )
-            }
-            item {
-                Text(
-                    result.status,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            if (text.isNotEmpty()) {
-                item {
-                    HighlightPreview(text, result, alicianFont)
-                }
-            }
-            if (result.issues.isNotEmpty()) {
-                item { SectionHeader("检查结果", "红色为未知词，蓝色为低频或低泛度词") }
-                items(result.issues, key = { it.key }) { issue ->
-                    WritingIssueCard(
-                        issue = issue,
-                        alicianFont = alicianFont,
-                        onClick = { viewModel.lookupWriting(issue.display) },
-                    )
-                }
-            } else if (text.isNotBlank()) {
-                item {
-                    EmptyState(
-                        icon = Icons.Outlined.CheckCircle,
-                        title = "未发现问题",
-                        detail = "当前大小写规则与排除词设置下，文本检查通过。",
-                    )
-                }
-            }
-        } ?: item {
-            EmptyState(
-                icon = Icons.Outlined.Description,
-                title = "输入文本开始检查",
-                detail = "写作检查同样完全在设备本地运行。",
+    if (landscape) {
+        LandscapeTwoPane(
+            primary = editorPane,
+            secondary = resultPane,
+            primaryWeight = 0.5f,
+        )
+    } else {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = panePadding,
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            writingEditorItems(
+                text = text,
+                onTextChanged = { text = it },
+                alicianFont = alicianFont,
+                highlightTransformation = highlightTransformation,
+                onImport = { importLauncher.launch(arrayOf("text/plain", "text/*")) },
+                onExport = { exportLauncher.launch("alician-writing.txt") },
+                onSettings = { showSettings = true },
+                onCheck = { viewModel.checkWriting(text) },
+            )
+            writingResultItems(
+                result = viewModel.writingResult,
+                text = text,
+                alicianFont = alicianFont,
+                includePageHeader = false,
+                onIssueClick = { viewModel.lookupWriting(it.display) },
             )
         }
     }
@@ -249,54 +229,166 @@ fun WritingScreen(
     }
 }
 
-@Composable
-private fun HighlightPreview(
+private fun LazyListScope.writingEditorItems(
     text: String,
-    result: WritingResult,
+    onTextChanged: (String) -> Unit,
     alicianFont: FontFamily,
+    highlightTransformation: VisualTransformation,
+    onImport: () -> Unit,
+    onExport: () -> Unit,
+    onSettings: () -> Unit,
+    onCheck: () -> Unit,
 ) {
-    val unknownBackground = MaterialTheme.colorScheme.errorContainer
-    val unknownForeground = MaterialTheme.colorScheme.onErrorContainer
-    val lowBackground = MaterialTheme.colorScheme.primaryContainer
-    val lowForeground = MaterialTheme.colorScheme.onPrimaryContainer
-    val annotated = remember(text, result, unknownBackground, lowBackground) {
-        buildAnnotatedString {
-            append(text)
-            result.lowStatRanges.forEach { range ->
-                if (range.start in 0..text.length && range.end in range.start..text.length) {
-                    addStyle(
-                        SpanStyle(background = lowBackground, color = lowForeground),
-                        range.start,
-                        range.end,
-                    )
+        item {
+            Text("写作助手", style = MaterialTheme.typography.headlineMedium)
+            Text(
+                "未知词直接标红，低频或低泛度词直接标蓝",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                OutlinedButton(
+                    onClick = onImport,
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Icon(Icons.Outlined.UploadFile, contentDescription = null)
+                    Spacer(Modifier.width(6.dp))
+                    Text("导入")
                 }
-            }
-            result.unknownRanges.forEach { range ->
-                if (range.start in 0..text.length && range.end in range.start..text.length) {
-                    addStyle(
-                        SpanStyle(background = unknownBackground, color = unknownForeground),
-                        range.start,
-                        range.end,
-                    )
+                OutlinedButton(
+                    onClick = onExport,
+                    modifier = Modifier.weight(1f),
+                    enabled = text.isNotEmpty(),
+                ) {
+                    Icon(Icons.Outlined.Download, contentDescription = null)
+                    Spacer(Modifier.width(6.dp))
+                    Text("导出")
+                }
+                OutlinedButton(
+                    onClick = onSettings,
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Icon(Icons.Outlined.Settings, contentDescription = null)
+                    Spacer(Modifier.width(6.dp))
+                    Text("设置")
                 }
             }
         }
-    }
-    Card(
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-        ),
-    ) {
-        Column(Modifier.padding(16.dp)) {
-            Text("高亮预览", style = MaterialTheme.typography.titleSmall)
-            Spacer(Modifier.height(8.dp))
-            SelectionContainer {
-                Text(
-                    annotated,
-                    fontFamily = alicianFont,
-                    style = MaterialTheme.typography.bodyLarge,
+        item {
+            OutlinedTextField(
+                value = text,
+                onValueChange = onTextChanged,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(250.dp),
+                label = { Text("爱丽丝语文本") },
+                placeholder = { Text("输入或导入文本；停顿片刻后自动检查…") },
+                textStyle = MaterialTheme.typography.bodyLarge.copy(fontFamily = alicianFont),
+                visualTransformation = highlightTransformation,
+            )
+        }
+        item {
+            Button(
+                onClick = onCheck,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Icon(Icons.Outlined.CheckCircle, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
+                Text("立即检查")
+            }
+        }
+}
+
+private fun LazyListScope.writingResultItems(
+    result: WritingResult?,
+    text: String,
+    alicianFont: FontFamily,
+    includePageHeader: Boolean,
+    onIssueClick: (WritingIssue) -> Unit,
+) {
+        if (includePageHeader) {
+            item { SectionHeader("检查结果", "问题列表与编辑区可独立滚动") }
+        }
+        result?.let { result ->
+            item {
+                MetricRow(
+                    "未知词" to result.unknownCount.toString(),
+                    "低频词" to result.issues.count { it.type == "lowstat" }.toString(),
+                    "问题项" to result.issues.size.toString(),
                 )
             }
+            item {
+                Text(
+                    result.status,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            if (result.issues.isNotEmpty()) {
+                item { SectionHeader("检查结果", "红色为未知词，蓝色为低频或低泛度词") }
+                items(result.issues, key = { it.key }) { issue ->
+                    WritingIssueCard(
+                        issue = issue,
+                        alicianFont = alicianFont,
+                        onClick = { onIssueClick(issue) },
+                    )
+                }
+            } else if (text.isNotBlank()) {
+                item {
+                    EmptyState(
+                        icon = Icons.Outlined.CheckCircle,
+                        title = "未发现问题",
+                        detail = "当前大小写规则与排除词设置下，文本检查通过。",
+                    )
+                }
+            }
+        } ?: item {
+            EmptyState(
+                icon = Icons.Outlined.Description,
+                title = "输入文本开始检查",
+                detail = "写作检查同样完全在设备本地运行。",
+            )
+        }
+}
+
+internal class WritingHighlightVisualTransformation(
+    private val result: WritingResult,
+    private val unknownColor: Color,
+    private val lowStatColor: Color,
+) : VisualTransformation {
+    override fun filter(text: AnnotatedString): TransformedText = TransformedText(
+        buildWritingHighlightedText(
+            text = text.text,
+            result = result,
+            unknownColor = unknownColor,
+            lowStatColor = lowStatColor,
+        ),
+        OffsetMapping.Identity,
+    )
+}
+
+internal fun buildWritingHighlightedText(
+    text: String,
+    result: WritingResult,
+    unknownColor: Color,
+    lowStatColor: Color,
+): AnnotatedString = buildAnnotatedString {
+    append(text)
+    result.lowStatRanges.forEach { range ->
+        if (range.start in 0..text.length && range.end in range.start..text.length) {
+            addStyle(SpanStyle(color = lowStatColor), range.start, range.end)
+        }
+    }
+    // Unknown ranges are applied last, so red remains authoritative if the
+    // backend ever reports overlapping categories.
+    result.unknownRanges.forEach { range ->
+        if (range.start in 0..text.length && range.end in range.start..text.length) {
+            addStyle(SpanStyle(color = unknownColor), range.start, range.end)
         }
     }
 }

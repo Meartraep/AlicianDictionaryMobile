@@ -16,6 +16,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items as gridItems
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
@@ -109,7 +113,9 @@ fun DatabaseScreen(
         if (viewModel.dbTables.isEmpty()) viewModel.loadDatabase()
     }
 
-    LazyColumn(
+    val landscape = isLandscapeLayout()
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(if (landscape) 2 else 1),
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(
             start = 16.dp,
@@ -117,9 +123,10 @@ fun DatabaseScreen(
             top = padding.calculateTopPadding() + 18.dp,
             bottom = padding.calculateBottomPadding() + 24.dp,
         ),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        item {
+        item(span = { GridItemSpan(maxLineSpan) }) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onBack) {
                     Icon(
@@ -168,7 +175,7 @@ fun DatabaseScreen(
                     },
                 )
             }
-            item {
+            item(span = { GridItemSpan(maxLineSpan) }) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -232,14 +239,14 @@ fun DatabaseScreen(
                 )
             }
         } else {
-            item {
+            item(span = { GridItemSpan(maxLineSpan) }) {
                 MetricRow(
                     "记录" to page.total.toString(),
                     "字段" to page.fields.size.toString(),
                     "本页" to page.rows.size.toString(),
                 )
             }
-            items(
+            gridItems(
                 page.rows,
                 key = { row ->
                     "${page.table}:${row["id"] ?: row["rowid"] ?: row.hashCode()}"
@@ -254,7 +261,7 @@ fun DatabaseScreen(
                 )
             }
             if (page.rows.isEmpty()) {
-                item {
+                item(span = { GridItemSpan(maxLineSpan) }) {
                     EmptyState(
                         icon = Icons.Outlined.FindInPage,
                         title = "当前页没有记录",
@@ -262,7 +269,7 @@ fun DatabaseScreen(
                     )
                 }
             }
-            item {
+            item(span = { GridItemSpan(maxLineSpan) }) {
                 PaginationControls(
                     page = page,
                     onPrevious = {

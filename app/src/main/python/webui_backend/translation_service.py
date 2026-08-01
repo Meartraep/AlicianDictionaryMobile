@@ -28,6 +28,21 @@ _CHINESE_NEGATION_FORMS = tuple(sorted({
     "没有", "没能", "未能", "未曾", "从未", "并不", "并非", "绝不", "毫不",
     "不是", "不", "没", "未", "无", "非",
 }, key=len, reverse=True))
+# These words contain a character which can independently mark negation, but
+# the complete word is lexicalized and must not be rewritten with Nai.  Exact
+# dictionary terms are protected separately; this small list covers common
+# out-of-dictionary words which tokenizers frequently return as one unit.
+_CHINESE_LEXICALIZED_NEGATION_PREFIXES = (
+    "非常", "非凡", "无论如何", "无论", "未免", "不妨", "不禁", "不错",
+)
+# “儿” is also an ordinary morpheme in these lexicalized words, not an erhua
+# suffix.  Exact dictionary entries always take priority; this guard prevents
+# an absent full entry from silently changing the meaning to its truncated
+# prefix (for example “这儿” must not become the demonstrative “这”).
+_CHINESE_NON_ERHUA_WORDS = frozenset({
+    "儿", "女儿", "男儿", "婴儿", "幼儿", "孤儿",
+    "这儿", "那儿", "哪儿", "哪会儿", "一会儿",
+})
 _CHINESE_FALLBACK_BOUNDARIES = frozenset({
     "我", "你", "他", "她", "它", "这", "那", "谁",
     "是", "有", "在", "和", "与", "或", "但", "而",
@@ -874,8 +889,35 @@ class TranslationService:
             except Exception:
                 parts = []
             if parts and "".join(parts) == text:
-                return parts
+                # Jieba correctly finds most ordinary word boundaries, but it
+                # may keep productive negative constructions (for example
+                # “不喜欢” or “非你不可”) in a single token.  Run every piece
+                # through the dictionary-aware fallback so negation is found
+                # independently of the optional tokenizer.
+                refined: List[str] = []
+                for part in parts:
+                    if self._contains_productive_negation(part):
+                        refined.extend(self._fallback_segment_chinese_run(part))
+                    else:
+                        refined.append(part)
+                return refined
         return self._fallback_segment_chinese_run(text)
+
+    def _is_lexicalized_negation_at(self, text: str, start: int) -> bool:
+        """Return whether a negation-looking character belongs to a fixed word."""
+        suffix = text[start:]
+        return any(
+            suffix.startswith(word)
+            for word in _CHINESE_LEXICALIZED_NEGATION_PREFIXES
+        )
+
+    def _contains_productive_negation(self, text: str) -> bool:
+        return any(
+            text.startswith(negative, start)
+            and not self._is_lexicalized_negation_at(text, start)
+            for start in range(len(text))
+            for negative in _CHINESE_NEGATION_FORMS
+        )
 
     def _fallback_segment_chinese_run(self, text: str) -> List[str]:
         """Keep unknown spans intact while finding high-confidence word islands."""
@@ -907,7 +949,7 @@ class TranslationService:
             for negative in _CHINESE_NEGATION_FORMS:
                 if (
                     text.startswith(negative, start)
-                    and (len(negative) > 1 or start + 1 == len(text))
+                    and not self._is_lexicalized_negation_at(text, start)
                 ):
                     candidates_at[start].append(
                         (start + len(negative), negative, 9.0 + len(negative))
@@ -966,6 +1008,36 @@ class TranslationService:
             token["method"] = "dictionary_term"
             return token
 
+        erhua_base = self._erhua_base_form(word)
+        if erhua_base:
+            base_exact = self._term_candidates.get(erhua_base)
+            if base_exact:
+                token = self._entry_to_token(
+                    word,
+                    self._choose_candidate(base_exact, erhua_base),
+                    "exact",
+                )
+                token["method"] = "erhua_normalization"
+                token["normalized_source"] = erhua_base
+                token["note"] = (
+                    f"已识别儿化后缀，并按词根“{erhua_base}”匹配词典。"
+                )
+                return token
+
+            base_candidate, base_method, confidence, alternatives = (
+                self._find_chinese_candidate(erhua_base)
+            )
+            if base_candidate:
+                token = self._entry_to_token(word, base_candidate, "approximate")
+                token["method"] = f"erhua_{base_method}"
+                token["confidence"] = round(confidence, 4)
+                token["alternatives"] = alternatives
+                token["normalized_source"] = erhua_base
+                token["note"] = (
+                    f"已去除儿化后缀，并按词根“{erhua_base}”完成近似匹配。"
+                )
+                return token
+
         candidate, method, confidence, alternatives = self._find_chinese_candidate(word)
         if candidate:
             token = self._entry_to_token(word, candidate, "approximate")
@@ -987,6 +1059,18 @@ class TranslationService:
             confidence=0.0,
             note="该中文词未找到可用的爱丽丝语对应词。",
         )
+
+    @staticmethod
+    def _erhua_base_form(word: str) -> str:
+        """Return the lexical stem of a safe, productive 儿化 form."""
+        source = str(word or "").strip()
+        if (
+            len(source) < 2
+            or not source.endswith("儿")
+            or source in _CHINESE_NON_ERHUA_WORDS
+        ):
+            return ""
+        return source[:-1]
 
     def _find_chinese_candidate(
         self, query: str,
@@ -1201,6 +1285,15 @@ class TranslationService:
                 i += 1
                 continue
 
+            # Nai is a productive grammar particle, not the literal Chinese
+            # phrase “表否定” stored as its dictionary explanation.  Recognize
+            # it before phrase and sense lookup so its interpretation remains
+            # available to sentence-level context.
+            if part.casefold() == "nai":
+                tokens.append(self._alician_negation_token(part))
+                i += 1
+                continue
+
             phrase, end_index = self._match_phrase(parts, i)
             if phrase:
                 tokens.append(self._entry_to_chinese_token(phrase, phrase["target"], "exact", "phrase"))
@@ -1249,6 +1342,7 @@ class TranslationService:
             )
             i += 1
 
+        tokens = self._resolve_alician_negations(tokens)
         ordered_tokens = self._reorder_alician_clauses(tokens)
         result_text = self._compose_chinese_result(ordered_tokens, resolve_templates=True)
         stats = self._stats(tokens)
@@ -1267,6 +1361,11 @@ class TranslationService:
     ) -> Tuple[Optional[Dict[str, Any]], int]:
         for phrase in self._phrases:
             words = phrase.get("phrase_words") or []
+            # Phrases containing Nai encode only one possible Chinese reading
+            # and hide the productive negation particle from context (for
+            # example “Nai Drone” can mean “不再孤独”, not only “没有一个人”).
+            if "nai" in words:
+                continue
             pos = start
             matched = True
             for expected in words:
@@ -1279,6 +1378,144 @@ class TranslationService:
             if matched:
                 return phrase, pos
         return None, start
+
+    def _alician_negation_token(self, source: str) -> Dict[str, Any]:
+        """Create a grammatical Nai token with a safe standalone rendering."""
+        entry = self._best_word_entry("Nai")
+        token = self._token(
+            source=source,
+            target="不",
+            status="exact",
+            method="grammar_function",
+            confidence=1.0,
+            explanation=str((entry or {}).get("explanation") or "表否定"),
+            word_class="adv.",
+            count=int((entry or {}).get("count") or 0),
+            variety=int((entry or {}).get("variety") or 0),
+            note="已将 Nai 识别为通用否定功能词，并等待上下文确定中文形式。",
+        )
+        token["syntax_role"] = "negation_marker"
+        return token
+
+    @staticmethod
+    def _negative_modal_form(target: str) -> str:
+        """Return the idiomatic negative form for a preceding Chinese modal."""
+        compact = re.sub(r"[，,；;].*$", "", str(target or "").strip())
+        forms = {
+            "能": "不能", "能够": "不能", "可以": "不可以",
+            "会": "不会", "将会": "不会", "将": "将不",
+            "是": "不是", "有": "没有", "存在": "不存在",
+        }
+        return forms.get(compact, "")
+
+    def _resolve_alician_negations(
+        self, tokens: List[Dict[str, Any]],
+    ) -> List[Dict[str, Any]]:
+        """Resolve Nai from local predicate context before general reordering."""
+        resolved = list(tokens)
+        index = 0
+        while index < len(resolved):
+            token = resolved[index]
+            if str(token.get("source") or "").casefold() != "nai":
+                index += 1
+                continue
+
+            previous = resolved[index - 1] if index > 0 else None
+            following = resolved[index + 1] if index + 1 < len(resolved) else None
+            if previous and previous.get("status") == "punct":
+                previous = None
+            if following and following.get("status") == "punct":
+                following = None
+
+            previous_source = str((previous or {}).get("source") or "").casefold()
+            previous_target = str(
+                (previous or {}).get("resolved_target")
+                or (previous or {}).get("target")
+                or ""
+            )
+            following_source = str((following or {}).get("source") or "").casefold()
+            following_target = str((following or {}).get("target") or "")
+            following_family = self._syntax_family(following) if following else ""
+            previous_family = self._syntax_family(previous) if previous else ""
+
+            clause_start = index
+            while clause_start > 0 and resolved[clause_start - 1].get("status") != "punct":
+                clause_start -= 1
+            clause_end = index + 1
+            while clause_end < len(resolved) and resolved[clause_end].get("status") != "punct":
+                clause_end += 1
+            emphatics = [
+                item for item in resolved[clause_start:clause_end]
+                if str(item.get("target") or "").startswith("一定")
+                and str(item.get("source") or "").casefold() != "nai"
+            ]
+
+            # Chinese imperatives conventionally use “别”.
+            if previous_source == "poet" or previous_target.startswith("请"):
+                token["resolved_target"] = "别"
+                token["negation_form_reason"] = "imperative"
+            elif emphatics:
+                token["resolved_target"] = "绝不"
+                token["negation_form_reason"] = "emphatic_negation"
+                for emphatic in emphatics:
+                    emphatic["omit_from_result"] = True
+            else:
+                modal = self._negative_modal_form(previous_target)
+                if previous and previous_family == "v" and modal:
+                    previous["resolved_target"] = modal
+                    token["omit_from_result"] = True
+                    token["negation_form_reason"] = "preceding_modal_or_copula"
+                    if modal == "不是" and following:
+                        nominal_candidates = [
+                            entry
+                            for entry in self._word_by_lower.get(following_source, [])
+                            if self._pos_family(entry.get("word_class", "")) == "n"
+                        ]
+                        if nominal_candidates:
+                            nominal = min(
+                                nominal_candidates,
+                                key=lambda entry: (
+                                    entry.get("sense_order", 1),
+                                    -entry.get("count", 0),
+                                ),
+                            )
+                            replacement = self._entry_to_chinese_token(
+                                nominal,
+                                str(following.get("source") or ""),
+                                "exact",
+                                "negation_context_sense",
+                            )
+                            replacement["note"] = "已按否定系词结构选择名词义项。"
+                            resolved[index + 1] = replacement
+                elif (
+                    following_source in {"aihel", "dilem"}
+                    or following_target.startswith(("有", "存在"))
+                ):
+                    token["resolved_target"] = (
+                        "不" if following_target.startswith("存在") else "没"
+                    )
+                    token["negation_form_reason"] = "existence_or_possession"
+                elif following_family in {"v", "adj", "adv"}:
+                    token["resolved_target"] = "不"
+                    token["negation_form_reason"] = "predicate"
+                elif following and following_family in {"n", "pron"}:
+                    token["resolved_target"] = "无"
+                    token["negation_form_reason"] = "nominal_absence"
+                elif previous and previous_family in {"n", "pron"}:
+                    # Post-nominal Nai expresses absence (“Ween Nai” = no
+                    # end).  Chinese places the existential negative first.
+                    token["resolved_target"] = "没有"
+                    token["negation_form_reason"] = "post_nominal_absence"
+                    resolved[index - 1:index + 1] = [token, previous]
+                else:
+                    token["resolved_target"] = "不"
+                    token["negation_form_reason"] = "generic"
+
+            token["note"] = (
+                "已按相邻谓词和句法位置解析 Nai 的中文否定形式。"
+            )
+            index += 1
+        return resolved
 
     def _best_word_entry(self, word: str) -> Optional[Dict[str, Any]]:
         candidates = self._word_by_lower.get(str(word or "").lower()) or []
@@ -1373,7 +1610,8 @@ class TranslationService:
                     previous_candidates = segment[position - 1][1]
                     options = [
                         scores[position - 1][j] + self._pos_transition_score(
-                            previous["word_class"], candidate["word_class"]
+                            "adv." if previous["target"].casefold() == "nai" else previous["word_class"],
+                            "adv." if candidate["target"].casefold() == "nai" else candidate["word_class"],
                         )
                         for j, previous in enumerate(previous_candidates)
                     ]
@@ -1545,7 +1783,10 @@ class TranslationService:
                 source = str(token.get("source") or "").lower()
                 if role == "modifier" and source == "laiz":
                     token["resolved_target"] = "将"
-                elif role == "modifier" and source == "nai":
+                elif (
+                    role == "modifier" and source == "nai"
+                    and not token.get("resolved_target")
+                ):
                     token["resolved_target"] = "不"
                 reordered.append(token)
         return reordered
@@ -1682,6 +1923,8 @@ class TranslationService:
         for index, token in enumerate(tokens):
             if index in consumed:
                 continue
+            if token.get("omit_from_result"):
+                continue
             status = token.get("status")
             target = str(token.get("resolved_target") or token.get("target") or "")
             if status == "space":
@@ -1695,7 +1938,11 @@ class TranslationService:
                         next_status = tokens[next_index].get("status")
                         if next_status == "punct":
                             break
-                        if next_status == "space" or next_index in consumed:
+                        if (
+                            next_status == "space"
+                            or next_index in consumed
+                            or tokens[next_index].get("omit_from_result")
+                        ):
                             continue
                         argument_indexes.append(next_index)
                         if len(argument_indexes) >= arity:
