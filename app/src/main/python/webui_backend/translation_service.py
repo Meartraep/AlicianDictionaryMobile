@@ -28,6 +28,14 @@ _CHINESE_NEGATION_FORMS = tuple(sorted({
     "没有", "没能", "未能", "未曾", "从未", "并不", "并非", "绝不", "毫不",
     "不是", "不", "没", "未", "无", "非",
 }, key=len, reverse=True))
+_CHINESE_FALLBACK_BOUNDARIES = frozenset({
+    "我", "你", "他", "她", "它", "这", "那", "谁",
+    "是", "有", "在", "和", "与", "或", "但", "而",
+    "也", "都", "很", "更", "最", "就", "才", "又", "再", "已",
+    "将", "把", "被", "从", "向", "到", "为", "给", "让",
+    "要", "能", "会", "可", "的", "地", "得", "了", "着", "过",
+    "吗", "呢", "吧", "啊", "呀", "哦",
+})
 
 
 def _default_db_path() -> str:
@@ -78,6 +86,9 @@ class TranslationService:
         self._adverb_position_stats: Dict[str, Dict[str, Any]] = {}
         self._semantic_expansions: List[Dict[str, Any]] = []
         self._semantic_expansion_pairs: set[Tuple[str, str]] = set()
+        self._semantic_term_candidates: Dict[str, List[Dict[str, Any]]] = {}
+        self._max_semantic_term_len = 1
+        self._semantic_dataset_kind = ""
         self._use_semantic_expansions = False
         self._similarity_matcher = (
             self._create_similarity_matcher()
@@ -127,8 +138,8 @@ class TranslationService:
                 "tokens": [],
                 "stats": {"exact": 0, "approximate": 0, "unknown": 0},
                 "semantic_expansions_enabled": expansions_enabled,
-                "semantic_expansions_available": bool(self._semantic_expansions),
-                "semantic_expansion_count": len(self._semantic_expansions),
+                "semantic_expansions_available": bool(self._semantic_term_candidates),
+                "semantic_expansion_count": len(self._semantic_term_candidates),
                 "message": "请输入要翻译的内容。",
             }
 
@@ -140,8 +151,8 @@ class TranslationService:
             else:
                 result = self._translate_zh_to_alician(source, normalized_direction)
             result["semantic_expansions_enabled"] = expansions_enabled
-            result["semantic_expansions_available"] = bool(self._semantic_expansions)
-            result["semantic_expansion_count"] = len(self._semantic_expansions)
+            result["semantic_expansions_available"] = bool(self._semantic_term_candidates)
+            result["semantic_expansion_count"] = len(self._semantic_term_candidates)
             return result
 
     def _normalize_direction(self, direction: str, text: str) -> str:
@@ -198,8 +209,8 @@ class TranslationService:
     def _load_semantic_expansions(self) -> None:
         try:
             rows = self._conn.execute(
-                "SELECT sense_id, expansion, similarity, rank "
-                "FROM dictionary_sense_expansions ORDER BY sense_id, rank"
+                "SELECT sense_id, alias AS expansion, similarity, rank "
+                "FROM dictionary_semantic_aliases ORDER BY alias, rank, sense_id"
             ).fetchall()
         except sqlite3.Error:
             return
@@ -209,22 +220,42 @@ class TranslationService:
             expansion = str(row["expansion"] or "").strip()
             if entry is None or not expansion:
                 continue
+            try:
+                similarity = float(row["similarity"])
+            except (TypeError, ValueError):
+                continue
+            if not math.isfinite(similarity):
+                continue
             compact = re.sub(r"\s+", "", expansion)
             terms = self._extract_terms(expansion)
             if compact and compact not in terms:
                 terms.insert(0, compact)
-            self._semantic_expansions.append(
-                {
-                    "entry": entry,
-                    "expansion": expansion,
-                    "terms": terms,
-                    "similarity": max(-1.0, min(1.0, float(row["similarity"] or 0.0))),
-                    "rank": max(1, _as_int(row["rank"])),
-                }
-            )
+            usable_terms = [
+                term for term in terms
+                if term and term not in self._term_candidates
+            ]
+            if not usable_terms:
+                continue
+            item = {
+                "entry": entry,
+                "expansion": expansion,
+                "terms": usable_terms,
+                "similarity": max(-1.0, min(1.0, similarity)),
+                "rank": max(1, _as_int(row["rank"])),
+            }
+            self._semantic_expansions.append(item)
+            for term in usable_terms:
+                bucket = self._semantic_term_candidates.setdefault(term, [])
+                bucket.append(item)
+                self._max_semantic_term_len = max(
+                    self._max_semantic_term_len,
+                    len(term),
+                )
             self._semantic_expansion_pairs.add(
                 (entry["target"].casefold(), expansion)
             )
+        if self._semantic_term_candidates:
+            self._semantic_dataset_kind = "semantic_alias"
 
     @staticmethod
     def _pattern_signature(families: List[str]) -> Tuple[Tuple[str, int], ...]:
@@ -324,13 +355,15 @@ class TranslationService:
             jieba.setLogLevel(logging.ERROR)
         except Exception:
             pass
-        self._jieba = jieba
-        for term in self._term_candidates.keys():
-            if len(term) >= 2:
-                try:
-                    jieba.add_word(term, freq=200000)
-                except Exception:
-                    pass
+        try:
+            # Use an isolated general-purpose tokenizer. Dictionary
+            # explanations must not modify its word boundaries: segmentation
+            # is completed before Alician lookup begins.
+            tokenizer = jieba.Tokenizer()
+            tokenizer.initialize()
+            self._jieba = tokenizer
+        except Exception:
+            self._jieba = None
 
     def _index_chinese_terms(self, entry: Dict[str, Any]) -> None:
         for term in self._extract_terms(entry["explanation"]):
@@ -825,92 +858,144 @@ class TranslationService:
 
     def _translate_chinese_run(self, text: str) -> List[Dict[str, Any]]:
         tokens: List[Dict[str, Any]] = []
-        i = 0
-        while i < len(text):
-            match = self._find_longest_term(text, i)
-            negative = self._negative_form_at(text, i)
-            # Preserve longer complete lexical entries such as “无数”; otherwise
-            # consume the whole negative phrase before character-level matching.
-            matched_term = match[0] if match else ""
-            if negative and len(negative) >= len(matched_term):
-                tokens.append(self._grammar_function_token(negative, "Nai"))
-                i += len(negative)
-                continue
-            if match:
-                term, candidates = match
-                tokens.append(self._entry_to_token(term, self._choose_candidate(candidates, term), "exact"))
-                i += len(term)
-                continue
-
-            start = i
-            i += 1
-            while i < len(text) and self._find_longest_term(text, i) is None:
-                i += 1
-            tokens.extend(self._translate_unknown_chinese_segment(text[start:i], allow_jieba=True))
+        for word in self._segment_chinese_run(text):
+            tokens.append(self._translate_segmented_chinese_word(word))
         return tokens
 
-    def _find_longest_term(self, text: str, start: int) -> Optional[Tuple[str, List[Dict[str, Any]]]]:
-        max_len = min(self._max_term_len, len(text) - start)
-        for size in range(max_len, 0, -1):
-            term = text[start:start + size]
-            # Keep an explicit Chinese possessive marker visible to the syntax
-            # pass.  Otherwise entries such as “我的” consume it as part of one
-            # lexical token and A-的-B can never become B-ou-A.
-            if "的" in term and term != "的":
-                continue
-            candidates = self._term_candidates.get(term)
-            if candidates:
-                return term, candidates
-        return None
-
-    def _translate_unknown_chinese_segment(
-        self, segment: str, allow_jieba: bool,
-    ) -> List[Dict[str, Any]]:
-        if not segment:
-            return []
-
-        if allow_jieba and self._jieba is not None and len(segment) > 1:
+    def _segment_chinese_run(self, text: str) -> List[str]:
+        """Split a complete Chinese run before consulting Alician entries."""
+        if self._jieba is not None and len(text) > 1:
             try:
-                parts = [part for part in self._jieba.cut(segment) if part.strip()]
+                parts = [
+                    str(part)
+                    for part in self._jieba.cut(text, cut_all=False, HMM=True)
+                    if str(part).strip()
+                ]
             except Exception:
                 parts = []
-            if len(parts) > 1 and "".join(parts) == segment:
-                split_tokens: List[Dict[str, Any]] = []
-                for part in parts:
-                    exact = self._term_candidates.get(part)
-                    if exact:
-                        split_tokens.append(self._entry_to_token(part, self._choose_candidate(exact, part), "exact"))
-                    else:
-                        split_tokens.extend(self._translate_unknown_chinese_segment(part, allow_jieba=False))
-                return split_tokens
+            if parts and "".join(parts) == text:
+                return parts
+        return self._fallback_segment_chinese_run(text)
 
-        candidate, method, confidence, alternatives = self._find_chinese_candidate(segment)
+    def _fallback_segment_chinese_run(self, text: str) -> List[str]:
+        """Keep unknown spans intact while finding high-confidence word islands."""
+        if not text:
+            return []
+
+        candidates_at: DefaultDict[int, List[Tuple[int, str, float]]] = defaultdict(list)
+        for start in range(len(text)):
+            max_exact_len = min(self._max_term_len, len(text) - start)
+            for size in range(2, max_exact_len + 1):
+                term = text[start:start + size]
+                if term in self._term_candidates:
+                    candidates_at[start].append((start + size, term, 12.0 + size * 2.0))
+
+            if self._use_semantic_expansions:
+                max_semantic_len = min(self._max_semantic_term_len, len(text) - start)
+                for size in range(2, max_semantic_len + 1):
+                    term = text[start:start + size]
+                    if term in self._semantic_term_candidates:
+                        candidates_at[start].append((start + size, term, 10.0 + size * 2.0))
+
+            one_character = text[start:start + 1]
+            if (
+                one_character in _CHINESE_FALLBACK_BOUNDARIES
+                and one_character in self._term_candidates
+            ):
+                candidates_at[start].append((start + 1, one_character, 7.0))
+
+            for negative in _CHINESE_NEGATION_FORMS:
+                if (
+                    text.startswith(negative, start)
+                    and (len(negative) > 1 or start + 1 == len(text))
+                ):
+                    candidates_at[start].append(
+                        (start + len(negative), negative, 9.0 + len(negative))
+                    )
+
+        # State values are (score, known characters, negative piece count,
+        # segmented words). Longer coherent unknown spans win equal scores.
+        best: List[Optional[Tuple[float, int, int, List[str]]]] = [
+            None for _ in range(len(text) + 1)
+        ]
+        best[0] = (0.0, 0, 0, [])
+        for start in range(len(text)):
+            state = best[start]
+            if state is None:
+                continue
+            score, known_characters, negative_pieces, words = state
+
+            for end, term, reward in candidates_at.get(start, []):
+                proposal = (
+                    score + reward,
+                    known_characters + len(term),
+                    negative_pieces - 1,
+                    words + [term],
+                )
+                current = best[end]
+                if current is None or proposal[:3] > current[:3]:
+                    best[end] = proposal
+
+            for end in range(start + 1, len(text) + 1):
+                unknown = text[start:end]
+                proposal = (
+                    score - 4.0 - len(unknown) * 0.05,
+                    known_characters,
+                    negative_pieces - 1,
+                    words + [unknown],
+                )
+                current = best[end]
+                if current is None or proposal[:3] > current[:3]:
+                    best[end] = proposal
+
+        final = best[len(text)]
+        return final[3] if final is not None else [text]
+
+    def _translate_segmented_chinese_word(self, word: str) -> Dict[str, Any]:
+        exact = self._term_candidates.get(word)
+        negative = self._negative_form_at(word, 0)
+        if negative == word:
+            return self._grammar_function_token(word, "Nai")
+
+        if exact:
+            token = self._entry_to_token(
+                word,
+                self._choose_candidate(exact, word),
+                "exact",
+            )
+            token["method"] = "dictionary_term"
+            return token
+
+        candidate, method, confidence, alternatives = self._find_chinese_candidate(word)
         if candidate:
-            token = self._entry_to_token(segment, candidate, "approximate")
+            token = self._entry_to_token(word, candidate, "approximate")
             token["method"] = method
             token["confidence"] = round(confidence, 4)
             token["alternatives"] = alternatives
             token["note"] = (
-                "爱丽丝语没有直接词条，已用预计算扩充词义进行模糊匹配。"
+                "爱丽丝语没有直接词条，已用预计算语义别名匹配。"
                 if method == "semantic_expansion"
                 else "爱丽丝语没有直接词条，已用词义近似匹配。"
             )
-            return [token]
+            return token
 
-        return [
-            self._token(
-                source=segment,
-                target=f"〔{segment}〕",
-                status="unknown",
-                method="missing",
-                confidence=0.0,
-                note="未找到可用的爱丽丝语对应词。",
-            )
-        ]
+        return self._token(
+            source=word,
+            target=f"〔{word}〕",
+            status="unknown",
+            method="missing",
+            confidence=0.0,
+            note="该中文词未找到可用的爱丽丝语对应词。",
+        )
 
     def _find_chinese_candidate(
         self, query: str,
     ) -> Tuple[Optional[Dict[str, Any]], str, float, List[Dict[str, Any]]]:
+        if self._use_semantic_expansions:
+            expanded = self._find_semantic_expansion_candidate(query)
+            if expanded[0] is not None:
+                return expanded
+
         scored: List[Tuple[float, Dict[str, Any]]] = []
         if self._enable_fallback_matching:
             query_set = set(query)
@@ -967,11 +1052,6 @@ class TranslationService:
                     alternatives,
                 )
 
-        if self._use_semantic_expansions:
-            expanded = self._find_semantic_expansion_candidate(query)
-            if expanded[0] is not None:
-                return expanded
-
         if self._enable_fallback_matching:
             semantic = self._find_semantic_candidate(query)
             if semantic[0] is not None:
@@ -982,50 +1062,25 @@ class TranslationService:
         self, query: str,
     ) -> Tuple[Optional[Dict[str, Any]], str, float, List[Dict[str, Any]]]:
         normalized_query = re.sub(r"\s+", "", str(query or "").strip())
-        if not normalized_query or not self._semantic_expansions:
+        if not normalized_query or not self._semantic_term_candidates:
             return None, "missing", 0.0, []
 
-        scored: List[Tuple[float, float, Dict[str, Any]]] = []
-        for item in self._semantic_expansions:
-            lexical_score = 0.0
-            for term in item["terms"]:
-                normalized_term = re.sub(r"\s+", "", str(term or "").strip())
-                if not normalized_term:
-                    continue
-                if normalized_term == normalized_query:
-                    lexical_score = 1.0
-                    break
-                if len(normalized_query) > 1 and len(normalized_term) > 1:
-                    if normalized_term in normalized_query:
-                        lexical_score = max(
-                            lexical_score,
-                            len(normalized_term) / len(normalized_query),
-                        )
-                    elif normalized_query in normalized_term:
-                        lexical_score = max(
-                            lexical_score,
-                            len(normalized_query) / len(normalized_term),
-                        )
-                    lexical_score = max(
-                        lexical_score,
-                        float(_lev_ratio(normalized_query, normalized_term)),
-                    )
-            if lexical_score < 0.72:
-                continue
+        scored: List[Tuple[float, Dict[str, Any]]] = []
+        for item in self._semantic_term_candidates.get(normalized_query, []):
             semantic_score = max(0.0, float(item["similarity"]))
-            combined = lexical_score * 0.72 + semantic_score * 0.28
             entry = item["entry"]
-            combined += min(entry["count"], 20) * 0.0008
-            combined += min(entry["variety"], 10) * 0.0012
-            scored.append((combined, lexical_score, entry))
+            score = semantic_score
+            score += min(entry["count"], 20) * 0.0008
+            score += min(entry["variety"], 10) * 0.0012
+            score -= max(0, int(item["rank"]) - 1) * 0.001
+            scored.append((score, entry))
 
         scored.sort(
             key=lambda row: (
                 row[0],
-                row[1],
-                row[2]["count"],
-                row[2]["variety"],
-                -row[2]["sense_order"],
+                row[1]["count"],
+                row[1]["variety"],
+                -row[1]["sense_order"],
             ),
             reverse=True,
         )
@@ -1034,18 +1089,18 @@ class TranslationService:
 
         alternatives: List[Dict[str, Any]] = []
         seen = set()
-        for combined, _lexical, entry in scored:
+        for score, entry in scored:
             key = (entry["target"].casefold(), entry["sense_id"])
             if key in seen:
                 continue
             seen.add(key)
-            alternatives.append(self._alternative(entry, min(1.0, combined)))
+            alternatives.append(self._alternative(entry, min(1.0, score)))
             if len(alternatives) >= 5:
                 break
         return (
-            scored[0][2],
+            scored[0][1],
             "semantic_expansion",
-            min(0.9, max(0.5, scored[0][0])),
+            min(0.95, max(0.55, scored[0][0])),
             alternatives,
         )
 

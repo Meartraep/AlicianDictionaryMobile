@@ -25,15 +25,15 @@ android {
         applicationId = "com.meartraep.alician.mobile"
         minSdk = 24
         targetSdk = 36
-        versionCode = 3
-        versionName = "1.2.0"
+        versionCode = 4
+        versionName = "1.3.0"
 
         ndk {
             abiFilters += listOf("arm64-v8a", "x86_64")
         }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
-        buildConfigField("String", "DATABASE_ASSET_VERSION", "\"2026-07-28-semantic-expansions\"")
+        buildConfigField("String", "DATABASE_ASSET_VERSION", "\"2026-07-29-semantic-aliases-v2\"")
     }
 
     signingConfigs {
@@ -85,6 +85,14 @@ chaquopy {
     defaultConfig {
         version = "3.10"
         buildPython("python")
+        pip {
+            install(
+                "https://files.pythonhosted.org/packages/c6/cb/" +
+                    "18eeb235f833b726522d7ebed54f2278ce28ba9438e3135ab0278d9792a2/" +
+                    "jieba-0.42.1.tar.gz#sha256=" +
+                    "055ca12f62674fafed09427f176506079bc135638a14e23e25be909131928db2"
+            )
+        }
     }
 }
 

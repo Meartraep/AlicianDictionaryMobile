@@ -30,6 +30,14 @@ _translator = None
 _dbmanager = None
 _remote_candidate = ""
 _MAX_DIFF_DETAILS = 2000
+_TRANSLATOR_TABLES = {
+    "dictionary",
+    "phrase",
+    "dictionary_semantic_aliases",
+    "dictionary_sense_expansions",
+    "adverb_position_stats",
+    "songs",
+}
 
 
 def _json_default(value: Any) -> Any:
@@ -75,6 +83,20 @@ def _open_services() -> None:
     _writing = WritingAssistantService()
     _translator = TranslationService(_db_path, enable_fallback_matching=False)
     _dbmanager = DatabaseManagerService(_db_path)
+
+
+def _reload_translator_if_needed(table_names: Any) -> None:
+    global _translator
+    normalized = {str(name or "") for name in (table_names or [])}
+    if not normalized.intersection(_TRANSLATOR_TABLES):
+        return
+    from webui_backend.translation_service import TranslationService
+
+    replacement = TranslationService(_db_path, enable_fallback_matching=False)
+    previous = _translator
+    _translator = replacement
+    if previous is not None:
+        previous.close()
 
 
 def initialize(db_path: str, data_dir: str) -> str:
@@ -527,6 +549,8 @@ def invoke(method: str, payload_json: str = "{}") -> str:
                     str(payload.get("album") or ""),
                     str(payload.get("lyric") or ""),
                 )
+                if result.get("ok"):
+                    _reload_translator_if_needed(["songs"])
             elif method == "writing_check":
                 result = _writing.check_text(str(payload.get("text") or ""))
             elif method == "writing_lookup":
@@ -546,30 +570,44 @@ def invoke(method: str, payload_json: str = "{}") -> str:
             elif method == "db_table_page":
                 result = _table_page(payload)
             elif method == "db_add":
+                table = str(payload.get("table") or "")
                 result = _dbmanager.add_record(
-                    str(payload.get("table") or ""), payload.get("values") or {}
+                    table, payload.get("values") or {}
                 )
+                if result.get("ok"):
+                    _reload_translator_if_needed([table])
             elif method == "db_update":
+                table = str(payload.get("table") or "")
                 result = _dbmanager.update_record(
-                    str(payload.get("table") or ""),
+                    table,
                     int(payload.get("id") or 0),
                     payload.get("values") or {},
                 )
+                if result.get("ok"):
+                    _reload_translator_if_needed([table])
             elif method == "db_delete":
+                table = str(payload.get("table") or "")
                 result = _dbmanager.delete_records(
-                    str(payload.get("table") or ""), payload.get("ids") or []
+                    table, payload.get("ids") or []
                 )
+                if result.get("ok"):
+                    _reload_translator_if_needed([table])
             elif method == "db_global_search":
                 result = _dbmanager.global_search(
                     str(payload.get("keyword") or ""),
                     bool(payload.get("exact", False)),
                 )
             elif method == "db_global_replace":
+                records = payload.get("records") or []
                 result = _dbmanager.global_replace(
                     str(payload.get("keyword") or ""),
                     str(payload.get("replacement") or ""),
-                    payload.get("records") or [],
+                    records,
                 )
+                if result.get("ok"):
+                    _reload_translator_if_needed(
+                        [record.get("table") for record in records]
+                    )
             elif method == "update_word_count":
                 result = _run_maintenance("word_count")
             elif method == "classify_words":

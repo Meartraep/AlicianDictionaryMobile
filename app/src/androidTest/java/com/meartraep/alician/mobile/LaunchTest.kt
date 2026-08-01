@@ -1,6 +1,8 @@
 package com.meartraep.alician.mobile
 
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -26,6 +28,8 @@ class LaunchTest {
         composeRule.onNodeWithText("双向翻译器").assertIsDisplayed()
         composeRule.onNodeWithText("写作").performClick()
 
-        composeRule.onNodeWithText("Xia persistence").assertIsDisplayed()
+        composeRule.onNode(
+            hasSetTextAction() and hasText("Xia persistence"),
+        ).assertIsDisplayed()
     }
 }

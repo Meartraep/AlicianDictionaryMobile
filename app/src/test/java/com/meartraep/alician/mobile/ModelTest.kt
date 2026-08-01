@@ -9,6 +9,7 @@ import com.meartraep.alician.mobile.data.isVersionNewer
 import com.meartraep.alician.mobile.ui.formatCustomizedTranslation
 import com.meartraep.alician.mobile.ui.wordMatchRanges
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -47,6 +48,19 @@ class ModelTest {
         assertTrue(isVersionNewer("v1.1.0", "1.0.9-debug"))
         assertEquals(false, isVersionNewer("v1.0.0", "1.0.0-debug"))
         assertEquals(false, isVersionNewer("not-a-version", "1.0.0"))
+    }
+
+    @Test
+    fun onlyLatestTranslationRequestCanPublishResults() {
+        val requests = LatestTranslationRequestGate()
+        val first = requests.next()
+        val second = requests.next()
+
+        assertFalse(requests.isCurrent(first))
+        assertTrue(requests.isCurrent(second))
+
+        requests.invalidate()
+        assertFalse(requests.isCurrent(second))
     }
 
     @Test

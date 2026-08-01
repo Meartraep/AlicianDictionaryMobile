@@ -66,7 +66,7 @@ class PythonRepository(private val application: Application) {
                 putString("database_asset_version", BuildConfig.DATABASE_ASSET_VERSION)
             }
         } else {
-            updateBundledSemanticExpansions()
+            updateBundledSemanticAliases()
         }
         val config = File(dataDirectory, "word_checker_config.json")
         if (!config.exists()) {
@@ -76,33 +76,40 @@ class PythonRepository(private val application: Application) {
         }
     }
 
-    private fun updateBundledSemanticExpansions() {
+    private fun updateBundledSemanticAliases() {
         val installedVersion = preferences.getString("database_asset_version", null)
         if (installedVersion == BuildConfig.DATABASE_ASSET_VERSION) return
 
         try {
-            val bundledDatabase = File(application.cacheDir, "bundled_semantic_expansions.db")
+            val bundledDatabase = File(application.cacheDir, "bundled_semantic_aliases.db")
             application.assets.open("translated.db").use { input ->
                 bundledDatabase.outputStream().use(input::copyTo)
             }
-            try {
-                copySemanticExpansionsWhenDictionaryMatches(bundledDatabase)
+            val updated = try {
+                copySemanticAliasesWhenDictionaryMatches(bundledDatabase)
             } finally {
                 bundledDatabase.delete()
             }
-            preferences.edit {
-                putString("database_asset_version", BuildConfig.DATABASE_ASSET_VERSION)
+            if (updated) {
+                preferences.edit {
+                    putString("database_asset_version", BuildConfig.DATABASE_ASSET_VERSION)
+                }
+            } else {
+                Log.w(
+                    "AlicianRepository",
+                    "Bundled semantic aliases were not applied because the dictionary data differs.",
+                )
             }
         } catch (error: Exception) {
             Log.w(
                 "AlicianRepository",
-                "Unable to update bundled semantic expansions; keeping the user's database.",
+                "Unable to update bundled semantic aliases; keeping the user's database.",
                 error,
             )
         }
     }
 
-    private fun copySemanticExpansionsWhenDictionaryMatches(bundledDatabase: File) {
+    private fun copySemanticAliasesWhenDictionaryMatches(bundledDatabase: File): Boolean {
         SQLiteDatabase.openDatabase(
             databaseFile.absolutePath,
             null,
@@ -115,68 +122,99 @@ class PythonRepository(private val application: Application) {
                     arrayOf(bundledDatabase.absolutePath),
                 )
                 attached = true
-                if (!database.hasTable("bundled", "dictionary_sense_expansions")) return
-                if (!database.dictionariesMatch()) return
+                if (!database.hasTable("bundled", "dictionary_semantic_aliases")) return false
+                if (!database.hasTable("bundled", "semantic_alias_metadata")) return false
+                if (!database.semanticAliasSensesMatch()) return false
 
                 database.beginTransaction()
                 try {
+                    database.execSQL("DROP TABLE IF EXISTS dictionary_semantic_aliases")
                     database.execSQL(
                         """
-                        CREATE TABLE IF NOT EXISTS dictionary_sense_expansions (
+                        CREATE TABLE dictionary_semantic_aliases (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
                             sense_id INTEGER NOT NULL,
-                            related_sense_id INTEGER NOT NULL,
-                            expansion TEXT NOT NULL,
+                            alias TEXT NOT NULL,
                             similarity REAL NOT NULL,
                             rank INTEGER NOT NULL,
+                            source_frequency INTEGER NOT NULL,
+                            source_pos TEXT NOT NULL,
                             model_name TEXT NOT NULL,
                             model_revision TEXT NOT NULL,
                             generated_at TEXT NOT NULL,
-                            UNIQUE (sense_id, rank),
-                            UNIQUE (sense_id, expansion),
-                            FOREIGN KEY (sense_id) REFERENCES dictionary(id) ON DELETE CASCADE,
-                            FOREIGN KEY (related_sense_id) REFERENCES dictionary(id) ON DELETE CASCADE
+                            generation_method TEXT NOT NULL,
+                            UNIQUE (alias, sense_id),
+                            FOREIGN KEY (sense_id) REFERENCES dictionary(id) ON DELETE CASCADE
                         )
                         """.trimIndent(),
                     )
-                    database.execSQL("DELETE FROM dictionary_sense_expansions")
                     database.execSQL(
                         """
-                        INSERT INTO dictionary_sense_expansions
-                        SELECT * FROM bundled.dictionary_sense_expansions
+                        INSERT INTO dictionary_semantic_aliases (
+                            id,
+                            sense_id,
+                            alias,
+                            similarity,
+                            rank,
+                            source_frequency,
+                            source_pos,
+                            model_name,
+                            model_revision,
+                            generated_at,
+                            generation_method
+                        )
+                        SELECT
+                            id,
+                            sense_id,
+                            alias,
+                            similarity,
+                            rank,
+                            source_frequency,
+                            source_pos,
+                            model_name,
+                            model_revision,
+                            generated_at,
+                            generation_method
+                        FROM bundled.dictionary_semantic_aliases
                         """.trimIndent(),
                     )
                     database.execSQL(
                         """
-                        CREATE INDEX IF NOT EXISTS idx_sense_expansions_sense
-                        ON dictionary_sense_expansions(sense_id, rank)
+                        CREATE INDEX IF NOT EXISTS idx_semantic_aliases_alias
+                        ON dictionary_semantic_aliases(alias)
                         """.trimIndent(),
                     )
                     database.execSQL(
                         """
-                        CREATE INDEX IF NOT EXISTS idx_sense_expansions_text
-                        ON dictionary_sense_expansions(expansion)
+                        CREATE INDEX IF NOT EXISTS idx_semantic_aliases_sense
+                        ON dictionary_semantic_aliases(sense_id, rank)
                         """.trimIndent(),
                     )
+                    database.execSQL("DROP TABLE IF EXISTS semantic_alias_metadata")
                     database.execSQL(
                         """
-                        CREATE TABLE IF NOT EXISTS semantic_expansion_metadata (
+                        CREATE TABLE semantic_alias_metadata (
                             key TEXT PRIMARY KEY,
                             value TEXT NOT NULL
                         )
                         """.trimIndent(),
                     )
-                    database.execSQL("DELETE FROM semantic_expansion_metadata")
                     database.execSQL(
                         """
-                        INSERT INTO semantic_expansion_metadata
-                        SELECT * FROM bundled.semantic_expansion_metadata
+                        INSERT INTO semantic_alias_metadata (key, value)
+                        SELECT key, value FROM bundled.semantic_alias_metadata
                         """.trimIndent(),
                     )
+                    // The previous release stored nearest existing definitions,
+                    // not actual aliases. Keeping those tables would be both
+                    // misleading in the database manager and wasted space.
+                    database.execSQL("DROP TABLE IF EXISTS dictionary_sense_expansions")
+                    database.execSQL("DROP TABLE IF EXISTS semantic_expansion_metadata")
                     database.setTransactionSuccessful()
                 } finally {
                     database.endTransaction()
                 }
+                return true
             } finally {
                 if (attached) {
                     database.execSQL("DETACH DATABASE bundled")
@@ -191,19 +229,26 @@ class PythonRepository(private val application: Application) {
             arrayOf(table),
         ).use { it.moveToFirst() }
 
-    private fun SQLiteDatabase.dictionariesMatch(): Boolean {
-        val fields = "id, headword_id, words, explanation, \"class\", sense_order, count, variety, time"
-        val mainOnly = rawQuery(
-            "SELECT EXISTS(SELECT $fields FROM main.dictionary " +
-                "EXCEPT SELECT $fields FROM bundled.dictionary)",
+    private fun SQLiteDatabase.semanticAliasSensesMatch(): Boolean {
+        return rawQuery(
+            """
+            SELECT NOT EXISTS(
+                SELECT 1
+                FROM bundled.dictionary_semantic_aliases AS alias
+                JOIN bundled.dictionary AS bundled_sense
+                    ON bundled_sense.id = alias.sense_id
+                LEFT JOIN main.dictionary AS installed_sense
+                    ON installed_sense.id = bundled_sense.id
+                WHERE installed_sense.id IS NULL
+                   OR installed_sense.headword_id IS NOT bundled_sense.headword_id
+                   OR installed_sense.words IS NOT bundled_sense.words
+                   OR installed_sense.explanation IS NOT bundled_sense.explanation
+                   OR installed_sense."class" IS NOT bundled_sense."class"
+                   OR installed_sense.sense_order IS NOT bundled_sense.sense_order
+            )
+            """.trimIndent(),
             null,
         ).use { cursor -> cursor.moveToFirst() && cursor.getInt(0) != 0 }
-        if (mainOnly) return false
-        return rawQuery(
-            "SELECT EXISTS(SELECT $fields FROM bundled.dictionary " +
-                "EXCEPT SELECT $fields FROM main.dictionary)",
-            null,
-        ).use { cursor -> cursor.moveToFirst() && cursor.getInt(0) == 0 }
     }
 
     private suspend fun invoke(method: String, payload: JSONObject = JSONObject()): JSONObject =

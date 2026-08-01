@@ -32,6 +32,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -115,8 +116,8 @@ fun TranslatorScreen(viewModel: MainViewModel, padding: PaddingValues) {
             Card {
                 Column(Modifier.padding(16.dp)) {
                     SettingSwitchRow(
-                        title = "使用 AI 扩充词义",
-                        detail = "使用数据库中由 text2vec 预计算的近义词义进行模糊匹配",
+                        title = "使用 AI 语义别名",
+                        detail = "使用 text2vec 离线筛选的常用中文近义表达增强匹配",
                         checked = viewModel.semanticExpansionsEnabled,
                         onCheckedChange = viewModel::updateSemanticExpansionsEnabled,
                     )
@@ -153,6 +154,7 @@ fun TranslatorScreen(viewModel: MainViewModel, padding: PaddingValues) {
         }
 
         viewModel.translationResult?.let { result ->
+            val resultRevision = viewModel.translationResultRevision
             item {
                 TranslatorResultCard(result, alicianFont)
             }
@@ -167,7 +169,9 @@ fun TranslatorScreen(viewModel: MainViewModel, padding: PaddingValues) {
                 SectionHeader("单词明细与语序", "选择候选释义；用上下箭头调整语义词顺序")
             }
             item {
-                EditableTokenList(result, alicianFont)
+                key(resultRevision) {
+                    EditableTokenList(result, resultRevision, alicianFont)
+                }
             }
         } ?: item {
             EmptyState(
@@ -224,9 +228,9 @@ private fun TranslatorResultCard(
                 Spacer(Modifier.height(4.dp))
                 Text(
                     if (result.semanticExpansionsAvailable) {
-                        "AI 扩充词义已启用 · ${result.semanticExpansionCount} 条"
+                        "AI 语义别名已启用 · ${result.semanticExpansionCount} 条"
                     } else {
-                        "AI 扩充词义已启用，但当前数据库未提供扩充数据"
+                        "AI 语义别名已启用，但当前数据库未提供可用别名"
                     },
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -239,19 +243,20 @@ private fun TranslatorResultCard(
 @Composable
 private fun EditableTokenList(
     result: TranslationResult,
+    resultRevision: Long,
     alicianFont: FontFamily,
 ) {
-    var tokenOrder by rememberSaveable(result) {
+    var tokenOrder by rememberSaveable(resultRevision) {
         mutableStateOf(
             ArrayList(
                 result.tokens.indices.filter { result.tokens[it].status != "space" },
             ),
         )
     }
-    var selectedTargets by rememberSaveable(result) {
+    var selectedTargets by rememberSaveable(resultRevision) {
         mutableStateOf(ArrayList(result.tokens.map { it.target }))
     }
-    var customized by rememberSaveable(result) { mutableStateOf(false) }
+    var customized by rememberSaveable(resultRevision) { mutableStateOf(false) }
     val tokens = tokenOrder.map { originalIndex ->
         result.tokens[originalIndex].copy(target = selectedTargets[originalIndex])
     }

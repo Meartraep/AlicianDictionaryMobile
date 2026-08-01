@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.EditNote
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.School
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.Translate
 import androidx.compose.material3.Badge
@@ -22,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -34,12 +36,13 @@ private enum class AppDestination(
     Dictionary("词典", Icons.Outlined.Search),
     Writing("写作", Icons.Outlined.EditNote),
     Translator("翻译", Icons.Outlined.Translate),
+    Study("背诵", Icons.Outlined.School),
     Settings("设置", Icons.Outlined.Settings),
 }
 
 @Composable
 fun AlicianApp(viewModel: MainViewModel) {
-    var destination by remember { mutableStateOf(AppDestination.Dictionary) }
+    var destination by rememberSaveable { mutableStateOf(AppDestination.Dictionary) }
     val snackbarState = remember { SnackbarHostState() }
     val stateHolder = rememberSaveableStateHolder()
 
@@ -95,6 +98,7 @@ fun AlicianApp(viewModel: MainViewModel) {
                     AppDestination.Dictionary -> DictionaryScreen(viewModel, padding)
                     AppDestination.Writing -> WritingScreen(viewModel, padding)
                     AppDestination.Translator -> TranslatorScreen(viewModel, padding)
+                    AppDestination.Study -> StudyScreen(viewModel, padding)
                     AppDestination.Settings -> SettingsScreen(viewModel, padding)
                 }
             }

@@ -16,16 +16,61 @@ import com.meartraep.alician.mobile.data.GlobalMatch
 import com.meartraep.alician.mobile.data.LookupResult
 import com.meartraep.alician.mobile.data.PythonRepository
 import com.meartraep.alician.mobile.data.RemoteComparison
+import com.meartraep.alician.mobile.data.StudyCard
+import com.meartraep.alician.mobile.data.StudyOverview
+import com.meartraep.alician.mobile.data.StudyRating
+import com.meartraep.alician.mobile.data.StudyRatingPreview
+import com.meartraep.alician.mobile.data.StudyRepository
+import com.meartraep.alician.mobile.data.StudySettings
 import com.meartraep.alician.mobile.data.TranslationResult
 import com.meartraep.alician.mobile.data.UiSettings
 import com.meartraep.alician.mobile.data.WritingResult
 import com.meartraep.alician.mobile.data.WritingSettings
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.io.File
 
+internal class LatestTranslationRequestGate {
+    private var serial = 0L
+
+    fun next(): Long {
+        serial += 1
+        return serial
+    }
+
+    fun invalidate() {
+        serial += 1
+    }
+
+    fun isCurrent(requestSerial: Long): Boolean = requestSerial == serial
+}
+
+data class StudySessionState(
+    val queue: List<StudyCard> = emptyList(),
+    val plannedDue: Int = 0,
+    val plannedNew: Int = 0,
+    val answerRevealed: Boolean = false,
+    val answerCount: Int = 0,
+    val rememberedCount: Int = 0,
+    val againCount: Int = 0,
+) {
+    val currentCard: StudyCard? get() = queue.firstOrNull()
+    val isComplete: Boolean get() = queue.isEmpty()
+}
+
 class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val repository = PythonRepository(application)
+    private val studyRepository = StudyRepository(application, repository.databasePath)
+    private var translationJob: Job? = null
+    private var studyRefreshJob: Job? = null
+    private var studySessionJob: Job? = null
+    private var studyReviewJob: Job? = null
+    private var studyRefreshSerial = 0L
+    private var studyDeckRevision = 0L
+    private val translationRequests = LatestTranslationRequestGate()
 
     var ready by mutableStateOf(false)
         private set
@@ -61,6 +106,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     var translationResult by mutableStateOf<TranslationResult?>(null)
         private set
+    var translationResultRevision by mutableStateOf(0L)
+        private set
 
     var dbTables by mutableStateOf<List<String>>(emptyList())
         private set
@@ -80,10 +127,22 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var appUpdateError by mutableStateOf<String?>(null)
         private set
 
+    var studySettings by mutableStateOf(studyRepository.settings)
+        private set
+    var studyOverview by mutableStateOf(StudyOverview())
+        private set
+    var studySession by mutableStateOf<StudySessionState?>(null)
+        private set
+    var studyLoading by mutableStateOf(false)
+        private set
+    var studyReviewing by mutableStateOf(false)
+        private set
+
     init {
         launchTask("正在初始化词典…") {
             val bootstrap = repository.initialize()
             applyBootstrap(bootstrap)
+            studyOverview = studyRepository.loadOverview(studySettings)
             ready = true
             viewModelScope.launch {
                 refreshAppUpdate(showFeedback = false)
@@ -139,6 +198,145 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun clearMessages() {
         errorMessage = null
         noticeMessage = null
+    }
+
+    fun refreshStudyOverview() {
+        if (!ready) return
+        val requestSerial = ++studyRefreshSerial
+        studyRefreshJob?.cancel()
+        studyRefreshJob = viewModelScope.launch {
+            if (requestSerial == studyRefreshSerial) studyLoading = true
+            try {
+                val overview = studyRepository.loadOverview(studySettings)
+                if (requestSerial == studyRefreshSerial) {
+                    studyOverview = overview
+                }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (throwable: Throwable) {
+                if (requestSerial == studyRefreshSerial) {
+                    errorMessage = throwable.message ?: "学习数据读取失败"
+                }
+            } finally {
+                if (requestSerial == studyRefreshSerial) {
+                    studyLoading = false
+                    studyRefreshJob = null
+                }
+            }
+        }
+    }
+
+    fun updateStudySettings(settings: StudySettings) {
+        val normalized = settings.copy(dailyNewLimit = settings.dailyNewLimit.coerceIn(5, 30))
+        if (studySettings == normalized) return
+        invalidatePendingStudyDeckWork()
+        studySettings = normalized
+        studyRepository.saveSettings(normalized)
+        refreshStudyOverview()
+    }
+
+    fun completeAlphabetLesson() {
+        updateStudySettings(studySettings.copy(alphabetCompleted = true))
+        noticeMessage = "字符入门已完成，可以开始主动回忆词卡了。"
+    }
+
+    fun startStudySession() {
+        if (!ready || studyLoading || studyReviewing) return
+        val deckRevision = studyDeckRevision
+        studySessionJob?.cancel()
+        studySessionJob = viewModelScope.launch {
+            studyLoading = true
+            errorMessage = null
+            try {
+                val plan = studyRepository.buildSession(studySettings)
+                if (deckRevision == studyDeckRevision) {
+                    studySession = StudySessionState(
+                        queue = plan.cards,
+                        plannedDue = plan.dueCount,
+                        plannedNew = plan.newCount,
+                    )
+                }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (throwable: Throwable) {
+                if (deckRevision == studyDeckRevision) {
+                    errorMessage = throwable.message ?: "学习牌组读取失败"
+                }
+            } finally {
+                if (deckRevision == studyDeckRevision) studyLoading = false
+            }
+        }
+    }
+
+    fun revealStudyAnswer() {
+        studySession = studySession?.copy(answerRevealed = true)
+    }
+
+    fun previewStudyRatings(card: StudyCard): List<StudyRatingPreview> =
+        studyRepository.ratingPreview(card)
+
+    fun rateStudyCard(rating: StudyRating) {
+        if (studyReviewing) return
+        val previousState = studySession ?: return
+        val card = previousState.currentCard ?: return
+        if (!previousState.answerRevealed) return
+        val deckRevision = studyDeckRevision
+        studyReviewJob?.cancel()
+        studyReviewJob = viewModelScope.launch {
+            studyReviewing = true
+            errorMessage = null
+            try {
+                studyRepository.review(card, rating)
+                if (deckRevision != studyDeckRevision) return@launch
+                val remaining = previousState.queue.drop(1)
+                val nextState = previousState.copy(
+                    queue = remaining,
+                    answerRevealed = false,
+                    answerCount = previousState.answerCount + 1,
+                    rememberedCount = previousState.rememberedCount +
+                        if (rating == StudyRating.AGAIN) 0 else 1,
+                    againCount = previousState.againCount +
+                        if (rating == StudyRating.AGAIN) 1 else 0,
+                )
+                studySession = nextState
+                if (nextState.isComplete) {
+                    studyOverview = studyRepository.loadOverview(studySettings)
+                }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (throwable: Throwable) {
+                if (deckRevision == studyDeckRevision) {
+                    errorMessage = throwable.message ?: "复习记录保存失败"
+                }
+            } finally {
+                if (deckRevision == studyDeckRevision) studyReviewing = false
+            }
+        }
+    }
+
+    fun closeStudySession() {
+        if (studyReviewing) return
+        studySession = null
+        refreshStudyOverview()
+    }
+
+    fun resetStudyProgress() {
+        if (studyLoading || studyReviewing) return
+        invalidateStudyRefresh()
+        viewModelScope.launch {
+            studyLoading = true
+            errorMessage = null
+            try {
+                studyRepository.resetProgress()
+                studySession = null
+                studyOverview = studyRepository.loadOverview(studySettings)
+                noticeMessage = "学习进度已清空，字符入门记录已保留。"
+            } catch (throwable: Throwable) {
+                errorMessage = throwable.message ?: "学习进度重置失败"
+            } finally {
+                studyLoading = false
+            }
+        }
     }
 
     fun searchDictionary(query: String, exact: Boolean, position: String) {
@@ -203,13 +401,41 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun translate(text: String, direction: String) {
-        launchTask("正在翻译…") {
-            translationResult = repository.translate(
-                text,
-                direction,
-                semanticExpansionsEnabled,
-            )
+        val requestSerial = translationRequests.next()
+        translationJob?.cancel()
+        translationResult = null
+        translationJob = viewModelScope.launch {
+            busyMessage = "正在翻译…"
+            errorMessage = null
+            try {
+                val result = repository.translate(
+                    text,
+                    direction,
+                    semanticExpansionsEnabled,
+                )
+                if (translationRequests.isCurrent(requestSerial)) {
+                    translationResult = result
+                    translationResultRevision = requestSerial
+                }
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (throwable: Throwable) {
+                if (translationRequests.isCurrent(requestSerial)) {
+                    errorMessage = throwable.message ?: "翻译失败"
+                }
+            } finally {
+                if (translationRequests.isCurrent(requestSerial)) {
+                    busyMessage = null
+                }
+            }
         }
+    }
+
+    private fun invalidateTranslation() {
+        translationRequests.invalidate()
+        translationJob?.cancel()
+        translationJob = null
+        translationResult = null
     }
 
     fun loadDatabase(table: String? = null, keyword: String = "", exact: Boolean = false, offset: Int = 0) {
@@ -225,6 +451,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun addRecord(table: String, values: Map<String, String>) {
         launchTask("正在新增记录…") {
             noticeMessage = repository.addRecord(table, values)
+            if (affectsStudyDeck(table)) refreshStudyAfterDeckChanged()
             dbPage = repository.getTablePage(table, "", false, dbPage?.offset ?: 0)
             refreshDatabaseInfo()
         }
@@ -233,6 +460,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun updateRecord(table: String, id: Long, values: Map<String, String>) {
         launchTask("正在保存记录…") {
             noticeMessage = repository.updateRecord(table, id, values)
+            if (affectsStudyDeck(table)) refreshStudyAfterDeckChanged()
             dbPage = repository.getTablePage(table, "", false, dbPage?.offset ?: 0)
             refreshDatabaseInfo()
         }
@@ -241,6 +469,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun deleteRecord(table: String, id: Long) {
         launchTask("正在删除记录…") {
             noticeMessage = repository.deleteRecord(table, id)
+            if (affectsStudyDeck(table)) refreshStudyAfterDeckChanged()
             dbPage = repository.getTablePage(table, "", false, dbPage?.offset ?: 0)
             refreshDatabaseInfo()
         }
@@ -255,7 +484,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun globalReplace(keyword: String, replacement: String, selected: List<GlobalMatch>) {
         launchTask("正在批量替换…") {
+            val studyDeckChanged = selected.any { affectsStudyDeck(it.table) }
             noticeMessage = repository.globalReplace(keyword, replacement, selected)
+            if (studyDeckChanged) refreshStudyAfterDeckChanged()
             globalMatches = repository.globalSearch(keyword, false)
             loadDatabase()
         }
@@ -264,6 +495,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun updateWordCount() {
         launchTask("正在更新词频与泛度，可能需要片刻…") {
             noticeMessage = repository.updateWordCount()
+            refreshStudyAfterDeckChanged()
             refreshDatabaseInfo()
         }
     }
@@ -365,7 +597,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun updateSemanticExpansionsEnabled(enabled: Boolean) {
         if (semanticExpansionsEnabled == enabled) return
         semanticExpansionsEnabled = enabled
-        translationResult = null
+        invalidateTranslation()
         repository.setSemanticExpansionsEnabled(enabled)
     }
 
@@ -385,11 +617,47 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         databaseInfo = repository.databaseInfo()
     }
 
+    private fun affectsStudyDeck(table: String): Boolean =
+        table.equals("dictionary_headwords", ignoreCase = true) ||
+            table.equals("phrase", ignoreCase = true)
+
+    private fun invalidateStudyRefresh() {
+        studyRefreshSerial += 1
+        studyRefreshJob?.cancel()
+        studyRefreshJob = null
+    }
+
+    private fun invalidatePendingStudyDeckWork(): List<Job> {
+        studyDeckRevision += 1
+        invalidateStudyRefresh()
+        val pendingJobs = listOfNotNull(studySessionJob, studyReviewJob)
+        pendingJobs.forEach { it.cancel() }
+        studySessionJob = null
+        studyReviewJob = null
+        studySession = null
+        studyLoading = false
+        studyReviewing = false
+        return pendingJobs
+    }
+
+    private suspend fun refreshStudyAfterDeckChanged() {
+        val pendingJobs = invalidatePendingStudyDeckWork()
+        pendingJobs.forEach { it.cancelAndJoin() }
+        studyLoading = true
+        try {
+            studyRepository.pruneOrphanedProgress()
+            studyOverview = studyRepository.loadOverview(studySettings)
+        } finally {
+            studyLoading = false
+        }
+    }
+
     private suspend fun afterDatabaseChanged() {
+        refreshStudyAfterDeckChanged()
         dictionaryResult = null
         dictionaryExamples = null
         writingResult = null
-        translationResult = null
+        invalidateTranslation()
         globalMatches = emptyList()
         dbTables = repository.getTables()
         dbPage = null

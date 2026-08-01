@@ -3,6 +3,6 @@
     <include domain="file" path="translated.db" />
     <include domain="file" path="search_history.json" />
     <include domain="file" path="word_checker_config.json" />
+    <include domain="database" path="study_progress.db" />
     <include domain="sharedpref" path="." />
 </full-backup-content>
-
