@@ -49,8 +49,8 @@ android {
         applicationId = "com.meartraep.alician.mobile"
         minSdk = 24
         targetSdk = 36
-        versionCode = 6
-        versionName = "1.4.1"
+        versionCode = 7
+        versionName = "1.5.0"
 
         ndk {
             abiFilters += listOf("arm64-v8a", "x86_64")
