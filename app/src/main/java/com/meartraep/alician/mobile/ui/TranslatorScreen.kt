@@ -325,7 +325,16 @@ private fun EditableTokenList(
     }
     var customized by rememberSaveable(resultRevision) { mutableStateOf(false) }
     val tokens = tokenOrder.map { originalIndex ->
-        result.tokens[originalIndex].copy(target = selectedTargets[originalIndex])
+        val original = result.tokens[originalIndex]
+        val selectedTarget = selectedTargets[originalIndex]
+        original.copy(
+            target = selectedTarget,
+            resolvedTarget = if (selectedTarget == original.target) {
+                original.resolvedTarget
+            } else {
+                selectedTarget
+            },
+        )
     }
     val customizedText = if (customized) {
         formatCustomizedTranslation(tokens, result.direction)
@@ -391,23 +400,28 @@ internal fun formatCustomizedTranslation(
     tokens: List<TranslationToken>,
     direction: String,
 ): String {
-    val semanticTokens = tokens.filterNot { it.status == "space" }
+    val semanticTokens = tokens.filterNot {
+        it.status == "space" || it.omitFromResult
+    }
+    fun TranslationToken.resultTarget(): String = resolvedTarget.ifEmpty { target }
     if (direction == "alician_to_zh") {
-        return semanticTokens.joinToString("") { it.target }.trim()
+        return semanticTokens.joinToString("") { it.resultTarget() }.trim()
     }
 
     val result = StringBuilder()
     semanticTokens.forEach { token ->
+        val target = token.resultTarget()
+        if (target.isEmpty()) return@forEach
         if (token.status == "punct") {
             while (result.isNotEmpty() && result.last().isWhitespace()) {
                 result.deleteCharAt(result.lastIndex)
             }
-            result.append(token.target)
+            result.append(target)
         } else {
             if (result.isNotEmpty() && !result.last().isWhitespace()) {
                 result.append(' ')
             }
-            result.append(token.target)
+            result.append(target)
         }
     }
     return result.toString().trim()

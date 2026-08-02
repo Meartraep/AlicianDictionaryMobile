@@ -190,6 +190,9 @@ data class TranslationToken(
     val variety: Int,
     val alternatives: List<TranslationAlternative>,
     val note: String,
+    val resolvedTarget: String = "",
+    val omitFromResult: Boolean = false,
+    val templateArguments: List<String> = emptyList(),
 )
 
 data class TranslationResult(

@@ -89,4 +89,62 @@ class ModelTest {
             ),
         )
     }
+
+    @Test
+    fun customizedTranslationPreservesResolvedSyntaxAndOmittedTokens() {
+        val token = TranslationToken(
+            source = "laiz",
+            target = "将会",
+            status = "exact",
+            method = "attested_syntax",
+            confidence = 1.0,
+            explanation = "语法标记",
+            wordClass = "part.",
+            count = 1,
+            variety = 1,
+            alternatives = emptyList(),
+            note = "",
+            resolvedTarget = "将",
+            templateArguments = listOf("我", "你"),
+        )
+        val omitted = token.copy(
+            source = "ord",
+            target = "由",
+            resolvedTarget = "",
+            omitFromResult = true,
+        )
+        val noun = token.copy(
+            source = "xia",
+            target = "爱",
+            resolvedTarget = "",
+            templateArguments = emptyList(),
+        )
+
+        assertEquals(
+            "将爱",
+            formatCustomizedTranslation(listOf(token, omitted, noun), "alician_to_zh"),
+        )
+        assertEquals(listOf("我", "你"), token.templateArguments)
+    }
+
+    @Test
+    fun translationTokenSyntaxMetadataDefaultsKeepExistingConstructionCompatible() {
+        val token = TranslationToken(
+            source = "Xia",
+            target = "爱",
+            status = "exact",
+            method = "dictionary",
+            confidence = 1.0,
+            explanation = "爱",
+            wordClass = "n.",
+            count = 1,
+            variety = 1,
+            alternatives = emptyList(),
+            note = "",
+        )
+
+        assertEquals("", token.resolvedTarget)
+        assertFalse(token.omitFromResult)
+        assertEquals(emptyList<String>(), token.templateArguments)
+    }
 }

@@ -265,12 +265,19 @@ class TranslationDataMixin:
         """Index fully recognized POS patterns attested in the song corpus."""
         try:
             rows = self._conn.execute(
-                "SELECT lyric FROM songs WHERE lyric IS NOT NULL AND TRIM(lyric) <> ''"
+                "SELECT title, lyric FROM songs "
+                "WHERE lyric IS NOT NULL AND TRIM(lyric) <> ''"
             ).fetchall()
         except sqlite3.Error:
             return
 
         for row in rows:
+            # Repeated choruses are not independent grammatical evidence.  A
+            # POS pattern contributes at most once per song, so the count used
+            # by _dominant_sentence_pattern represents cross-song variety
+            # instead of raw lyric repetition.
+            seen_patterns: set[Tuple[str, ...]] = set()
+            seen_core_patterns: set[Tuple[str, ...]] = set()
             for raw_line in str(row["lyric"] or "").splitlines():
                 line = raw_line.strip()
                 if not line or re.search(r"[：:]", line):
@@ -291,13 +298,19 @@ class TranslationDataMixin:
                 if sum(family in {"n", "pron"} for family in families) < 1:
                     continue
                 pattern = tuple(families)
-                self._sentence_patterns[self._pattern_signature(families)][pattern] += 1
+                if pattern not in seen_patterns:
+                    self._sentence_patterns[
+                        self._pattern_signature(families)
+                    ][pattern] += 1
+                    seen_patterns.add(pattern)
                 core_pattern = tuple(
                     family for family in families if family in {"n", "pron", "v"}
                 )
-                self._core_sentence_patterns[
-                    self._pattern_signature(list(core_pattern))
-                ][core_pattern] += 1
+                if core_pattern not in seen_core_patterns:
+                    self._core_sentence_patterns[
+                        self._pattern_signature(list(core_pattern))
+                    ][core_pattern] += 1
+                    seen_core_patterns.add(core_pattern)
                 self._sentence_pattern_examples.setdefault(pattern, line)
 
     def _load_adverb_position_stats(self) -> None:

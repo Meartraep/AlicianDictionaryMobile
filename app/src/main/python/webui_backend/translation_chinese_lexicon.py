@@ -32,6 +32,68 @@ class ChineseLexiconMixin:
         template_tokens = self._translate_chinese_sentence_template(text)
         if template_tokens is not None:
             return template_tokens
+        reciprocal_phrase = "彼此相爱"
+        reciprocal_index = text.find(reciprocal_phrase)
+        if reciprocal_index >= 0:
+            tokens: List[Dict[str, Any]] = []
+            prefix = text[:reciprocal_index]
+            suffix = text[reciprocal_index + len(reciprocal_phrase):]
+            if prefix:
+                tokens.extend(self._translate_chinese_run(prefix))
+            tokens.extend([
+                self._token(
+                    source="彼此",
+                    target="Og",
+                    status="exact",
+                    method="attested_reciprocal_phrase",
+                    confidence=1.0,
+                    explanation="Og Amiy：彼此相爱",
+                    word_class="adv.",
+                    note="仅在有独立对齐证据的 Og Amiy 构式中生成 Og。",
+                ),
+                self._token(
+                    source="相爱",
+                    target="Amiy",
+                    status="exact",
+                    method="attested_reciprocal_phrase",
+                    confidence=1.0,
+                    explanation="Og Amiy：彼此相爱",
+                    word_class="v.",
+                    note="仅在有独立对齐证据的 Og Amiy 构式中生成 Amiy。",
+                ),
+            ])
+            if suffix:
+                tokens.extend(self._translate_chinese_run(suffix))
+            return tokens
+        # Exact aligned row 3306 supplies the otherwise unsupported Chinese
+        # classifier phrase 三只眼睛 for Alician Tri Ran qls.  Keep this rule
+        # deliberately narrow: a single lyric does not justify treating every
+        # Chinese numeral/classifier phrase as obligatorily plural in Alician.
+        quantity_phrase = "三只眼睛"
+        quantity_index = text.find(quantity_phrase)
+        if quantity_index >= 0:
+            tokens: List[Dict[str, Any]] = []
+            prefix = text[:quantity_index]
+            suffix = text[quantity_index + len(quantity_phrase):]
+            if prefix:
+                tokens.extend(self._translate_chinese_run(prefix))
+            number = self._translate_segmented_chinese_word("三")
+            number.update({
+                "source": "三只",
+                "method": "attested_classifier_phrase",
+                "note": "已按 Tri Ran qls 对齐句省略中文量词“只”。",
+            })
+            eye = self._translate_segmented_chinese_word("眼睛们")
+            eye.update({
+                "source": "眼睛",
+                "target": "Ran qls",
+                "method": "attested_classifier_phrase",
+                "note": "已按唯一明确对齐的“三只眼睛”生成数词后的 qls。",
+            })
+            tokens.extend([number, eye])
+            if suffix:
+                tokens.extend(self._translate_chinese_run(suffix))
+            return tokens
         tokens: List[Dict[str, Any]] = []
         for word in self._segment_chinese_run(text):
             tokens.append(self._translate_segmented_chinese_word(word))
@@ -76,9 +138,19 @@ class ChineseLexiconMixin:
         suffix = text[match.end():]
         if prefix:
             tokens.extend(self._translate_chinese_run(prefix))
-        tokens.append(marker)
-        for argument in arguments:
-            tokens.extend(self._translate_chinese_run(argument))
+        if str(entry.get("target") or "").casefold() == "lqll":
+            # Every exact aligned Lqll example is postposed.  Accepting the
+            # legacy prefix on input remains an Alician-side compatibility
+            # feature, but Chinese generation follows the attested order.
+            for argument in arguments:
+                tokens.extend(self._translate_chinese_run(argument))
+            marker["syntax_role"] = "postposed_similative_marker"
+            marker["note"] = "已按对齐语料中的后置 Lqll 语序生成。"
+            tokens.append(marker)
+        else:
+            tokens.append(marker)
+            for argument in arguments:
+                tokens.extend(self._translate_chinese_run(argument))
         if suffix:
             tokens.extend(self._translate_chinese_run(suffix))
         return tokens
@@ -95,19 +167,75 @@ class ChineseLexiconMixin:
             except Exception:
                 parts = []
             if parts and "".join(parts) == text:
-                # Jieba correctly finds most ordinary word boundaries, but it
-                # may keep productive negative constructions (for example
-                # “不喜欢” or “非你不可”) in a single token.  Run every piece
-                # through the dictionary-aware fallback so negation is found
-                # independently of the optional tokenizer.
+                # Preserve a complete attested term before looking for
+                # productive grammar inside it.  Otherwise forms such as
+                # “不自然地” and “不得不” are incorrectly split into negation
+                # markers even though the dictionary supplies an exact sense.
+                # Productive negation is the only reason to refine a tokenizer
+                # piece here; ordinary Jieba boundaries remain authoritative.
+                parts = self._merge_attested_chinese_terms(parts)
                 refined: List[str] = []
                 for part in parts:
+                    if part in self._term_candidates:
+                        refined.append(part)
+                        continue
                     if self._contains_productive_negation(part):
                         refined.extend(self._fallback_segment_chinese_run(part))
                     else:
                         refined.append(part)
-                return refined
-        return self._fallback_segment_chinese_run(text)
+                return self._merge_chinese_productive_suffixes(refined)
+        return self._merge_chinese_productive_suffixes(
+            self._fallback_segment_chinese_run(text)
+        )
+
+    def _merge_attested_chinese_terms(self, parts: List[str]) -> List[str]:
+        """Rejoin the longest exact dictionary term split by the tokenizer."""
+        merged: List[str] = []
+        index = 0
+        while index < len(parts):
+            best_end = index + 1
+            candidate = ""
+            for end in range(index + 1, len(parts) + 1):
+                candidate += parts[end - 1]
+                if len(candidate) > self._max_term_len:
+                    break
+                if candidate in self._term_candidates:
+                    best_end = end
+            if best_end > index + 1:
+                merged.append("".join(parts[index:best_end]))
+                index = best_end
+            else:
+                merged.append(parts[index])
+                index += 1
+        return merged
+
+    def _merge_chinese_productive_suffixes(self, parts: List[str]) -> List[str]:
+        """Attach Chinese suffixes only to an attested compatible stem.
+
+        Jieba normally emits “们” and sometimes “地” as separate pieces.  The
+        Alician dictionary explicitly records qls as a nominal plural suffix
+        and lait as an adjective-to-adverb suffix, so keeping the Chinese
+        suffix with its stem lets the lexical stage apply those rules without
+        treating the suffix as an unknown word.
+        """
+        merged: List[str] = []
+        expected_families = {
+            "们": {"n", "pron"},
+            "地": {"adj"},
+        }
+        for part in parts:
+            families = expected_families.get(part)
+            if families and merged:
+                stem = merged[-1]
+                candidates = self._term_candidates.get(stem) or []
+                if any(
+                    self._pos_family(entry.get("word_class", "")) in families
+                    for entry in candidates
+                ):
+                    merged[-1] = stem + part
+                    continue
+            merged.append(part)
+        return merged
 
     def _is_lexicalized_negation_at(self, text: str, start: int) -> bool:
         """Return whether a negation-looking character belongs to a fixed word."""
@@ -200,6 +328,53 @@ class ChineseLexiconMixin:
         return final[3] if final is not None else [text]
 
     def _translate_segmented_chinese_word(self, word: str) -> Dict[str, Any]:
+        attested_aliases = {
+            "睁开": ("Brait", "v.", "对齐句 Tri Ran qls 将 Brait 译作“睁开”。"),
+        }
+        attested_alias = attested_aliases.get(word)
+        if attested_alias is not None:
+            canonical, word_class, note = attested_alias
+            entry = self._best_word_entry(canonical)
+            token = self._entry_to_token(word, entry, "exact") if entry else self._token(
+                source=word,
+                target=canonical,
+                status="exact",
+                method="attested_lexical_alias",
+                confidence=1.0,
+                word_class=word_class,
+                note=note,
+            )
+            token["target"] = canonical
+            token["word_class"] = word_class
+            token["method"] = "attested_lexical_alias"
+            token["note"] = note
+            return token
+        if word == "爱丽丝":
+            return self._token(
+                source=word,
+                target="Alice",
+                status="exact",
+                method="attested_proper_name",
+                confidence=1.0,
+                explanation="人名：爱丽丝",
+                word_class="n.",
+                note="两首歌中的独立对齐句均将 Alice 用作人名“爱丽丝”。",
+            )
+        closed_possessives = {
+            "我的": "Myte",
+            "你的": "Crait",
+            "他的": "Fiete",
+            "我们的": "Zillyte",
+            "谁的": "Blemyte",
+        }
+        possessive_word = closed_possessives.get(word)
+        if possessive_word:
+            entry = self._best_word_entry(possessive_word)
+            if entry is not None:
+                token = self._entry_to_token(word, entry, "exact")
+                token["method"] = "closed_possessive_adjective"
+                token["note"] = "优先使用语料中已证的封闭所有格形容词。"
+                return token
         exact = self._term_candidates.get(word)
         negative = self._negative_form_at(word, 0)
         if negative == word:
@@ -213,6 +388,10 @@ class ChineseLexiconMixin:
             )
             token["method"] = "dictionary_term"
             return token
+
+        productive = self._translate_chinese_productive_morphology(word)
+        if productive is not None:
+            return productive
 
         erhua_base = self._erhua_base_form(word)
         if erhua_base:
@@ -265,6 +444,50 @@ class ChineseLexiconMixin:
             confidence=0.0,
             note="该中文词未找到可用的爱丽丝语对应词。",
         )
+
+    def _translate_chinese_productive_morphology(
+        self, word: str,
+    ) -> Optional[Dict[str, Any]]:
+        """Generate qls/lait from a known Chinese nominal/adjectival stem."""
+        rules = (
+            ("们", {"n", "pron"}, "qls", "productive_plural", "n."),
+            ("地", {"adj"}, "lait", "productive_adverb", "adv."),
+        )
+        for chinese_suffix, families, alician_suffix, method, result_class in rules:
+            if len(word) <= len(chinese_suffix) or not word.endswith(chinese_suffix):
+                continue
+            stem = word[:-len(chinese_suffix)]
+            candidates = [
+                entry for entry in (self._term_candidates.get(stem) or [])
+                if self._pos_family(entry.get("word_class", "")) in families
+            ]
+            if not candidates:
+                continue
+            base = self._choose_candidate(candidates, stem)
+            generated = f"{base['target']}{alician_suffix}"
+            attested = self._word_by_lower.get(generated.casefold()) or []
+            canonical = self._best_word_entry(generated) if attested else None
+            target = str((canonical or {}).get("target") or generated)
+            token = self._entry_to_token(word, base, "exact")
+            token.update({
+                "target": target,
+                "word_class": result_class,
+                "method": method,
+                "normalized_source": stem,
+                "morphology": {
+                    "stem": base["target"],
+                    "suffix": alician_suffix,
+                    "rule": "plural" if alician_suffix == "qls" else "adjective_to_adverb",
+                    "attested_form": bool(canonical),
+                },
+                "note": (
+                    "已按词典明示的 qls 复数规则从名词词根生成。"
+                    if alician_suffix == "qls"
+                    else "已按词典明示的 lait 形容词转副词规则从词根生成。"
+                ),
+            })
+            return token
+        return None
 
     @staticmethod
 

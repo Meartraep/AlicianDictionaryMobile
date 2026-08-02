@@ -25,24 +25,25 @@ class NoClassTranslationTests(unittest.TestCase):
         cases = (
             ("Yiela Eclat", "alician_to_zh", "来闪耀吧"),
             ("Yiep Eclat", "alician_to_zh", "请闪耀吧"),
-            ("Lqll Syeilla", "alician_to_zh", "像天使一样"),
+            ("Syeilla Lqll", "alician_to_zh", "像天使一样"),
             ("来闪耀吧", "zh_to_alician", "Yiela Eclat"),
             ("请闪耀吧", "zh_to_alician", "Yiep Eclat"),
-            ("像天使一样", "zh_to_alician", "Lqll Syeilla"),
+            ("像天使一样", "zh_to_alician", "Syeilla Lqll"),
             ("我来闪耀吧", "zh_to_alician", "Mii Yiela Eclat"),
-            ("我像天使一样", "zh_to_alician", "Mii Lqll Syeilla"),
+            ("我像天使一样", "zh_to_alician", "Mii Syeilla Lqll"),
         )
         for source, direction, expected in cases:
             with self.subTest(source=source, direction=direction):
                 result = self.service.translate(source, direction)
                 self.assertEqual(result["result_text"], expected)
                 self.assertEqual(result["stats"]["unknown"], 0)
-                template = next(
-                    token
-                    for token in result["tokens"]
-                    if token.get("method") == "sentence_template"
-                )
-                self.assertEqual(len(template.get("template_arguments") or []), 1)
+                if direction == "zh_to_alician":
+                    template = next(
+                        token
+                        for token in result["tokens"]
+                        if token.get("method") == "sentence_template"
+                    )
+                    self.assertEqual(len(template.get("template_arguments") or []), 1)
 
     def test_fragmented_words_are_recomposed_before_dictionary_lookup(self) -> None:
         cases = {

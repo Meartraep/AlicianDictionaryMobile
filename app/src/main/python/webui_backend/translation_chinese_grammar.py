@@ -92,6 +92,7 @@ class ChineseGrammarMixin:
             "不": "Nai", "没": "Nai", "没有": "Nai",
             "将": "Laiz", "将要": "Laiz",
             "被": "Yien",
+            "请": "Phier",
         }
         for token in tokens:
             source = str(token.get("source") or "")
@@ -104,9 +105,18 @@ class ChineseGrammarMixin:
             token["target"] = entry["target"]
             token["explanation"] = entry["explanation"]
             token["word_class"] = "adv."
+            token["status"] = "exact"
             token["method"] = "grammar_function"
-            if source == "被":
+            if source in {"将", "将要"}:
+                # The dictionary states “动词 + a Laiz 变为将来时”.  Keep the
+                # pair as one generated marker so output composition cannot
+                # separate the required a from Laiz.
+                token["target"] = "a Laiz"
+                token["syntax_role"] = "future_marker"
+            elif source == "被":
                 token["syntax_role"] = "passive_marker"
+            elif source == "请":
+                token["syntax_role"] = "imperative_marker"
             token["confidence"] = 1.0
             token["note"] = "按爱丽丝语语法功能词生成。"
         return tokens
@@ -132,23 +142,208 @@ class ChineseGrammarMixin:
     def _arrange_chinese_possessives(
         self, tokens: List[Dict[str, Any]],
     ) -> List[Dict[str, Any]]:
-        """Convert Chinese possessor-的-head into Alician head-ou-possessor."""
+        """Resolve Chinese 的 by the modifier's grammatical family.
+
+        Alician distinguishes three constructions which Chinese writes with
+        the same particle: nominal possession is head-ou-possessor,
+        adjectives remain before their noun without a particle, and verbal
+        relative clauses use head-end-predicate.  Restricting ou to nominal
+        operands also prevents adjective phrases such as “美好的梦” from being
+        reversed as if “美好” were an owner.
+        """
         arranged = list(tokens)
         index = 1
         while index < len(arranged) - 1:
-            token = arranged[index]
-            if str(token.get("target") or "").lower() != "ou":
+            marker = arranged[index]
+            if str(marker.get("target") or "").casefold() != "ou":
                 index += 1
                 continue
             left, right = arranged[index - 1], arranged[index + 1]
-            # “的” explicitly marks the Chinese A-的-B construction.  Do not
-            # gate its Alician order on dictionary POS data: short or
-            # approximate matches are frequently classified as another sense
-            # (for example a noun used here may have a verb as its top entry).
-            arranged[index - 1:index + 2] = [right, token, left]
-            token["syntax_role"] = "possessive_marker"
-            token["note"] = "中文领属结构已转换为爱丽丝语 head-ou-possessor 语序。"
-            index += 3
+            left_family = self._pos_family(str(left.get("word_class") or ""))
+            right_family = self._pos_family(str(right.get("word_class") or ""))
+            if right_family not in {"n", "pron"}:
+                index += 1
+                continue
+            possessive_adjectives = {
+                "我": "Myte",
+                "你": "Crait",
+                "他": "Fiete",
+                "我们": "Zillyte",
+                "谁": "Blemyte",
+            }
+            possessive_word = possessive_adjectives.get(str(left.get("source") or ""))
+            if left_family == "pron" and possessive_word:
+                entry = self._best_word_entry(possessive_word)
+                left.update({
+                    "target": str((entry or {}).get("target") or possessive_word),
+                    "explanation": str((entry or {}).get("explanation") or "领属代词"),
+                    "word_class": "adj.",
+                    "method": "closed_possessive_adjective",
+                    "normalized_source": str(left.get("source") or ""),
+                    "note": "代词领属优先使用语料中已证的封闭所有格形容词。",
+                })
+                del arranged[index]
+                continue
+            if left_family in {"adj", "art", "num"}:
+                marker["syntax_role"] = "attributive_marker"
+                marker["omit_from_result"] = True
+                marker["note"] = "形容词定语在爱丽丝语中直接前置，中文“的”不另译。"
+                del arranged[index]
+                continue
+            if left_family == "v":
+                marker["target"] = "end"
+                marker["word_class"] = "conj."
+                marker["syntax_role"] = "relative_clause_marker"
+                marker["note"] = "中文谓词定语已转换为爱丽丝语 head-end-predicate 结构。"
+                preceding_verbs = [
+                    position for position in range(index - 1)
+                    if self._pos_family(
+                        str(arranged[position].get("word_class") or "")
+                    ) == "v"
+                    and arranged[position].get("syntax_role") not in {
+                        "passive_marker", "future_marker",
+                    }
+                ]
+                modifier_start = preceding_verbs[-1] + 1 if preceding_verbs else 0
+                modifier = arranged[modifier_start:index]
+                arranged[modifier_start:index + 2] = [right, marker, *modifier]
+                index = modifier_start + 2 + len(modifier)
+                continue
+            index += 1
+
+        # Reverse maximal nominal A-ou-B(-ou-C...) chains in one operation.
+        # This handles nested “我的梦的尽头” as Ween ou Hellm ou Mii instead
+        # of applying one local swap and leaving the outer possessive wrong.
+        index = 0
+        while index + 2 < len(arranged):
+            # A closed possessive adjective plus its noun forms one possessor
+            # phrase for an outer nominal 的: “我的梦的尽头” becomes
+            # Ween ou Myte Hellm rather than Myte Ween ou Hellm.
+            if index + 3 < len(arranged):
+                first_family = self._pos_family(
+                    str(arranged[index].get("word_class") or "")
+                )
+                noun_family = self._pos_family(
+                    str(arranged[index + 1].get("word_class") or "")
+                )
+                head_family = self._pos_family(
+                    str(arranged[index + 3].get("word_class") or "")
+                )
+                if (
+                    first_family == "adj"
+                    and noun_family in {"n", "pron"}
+                    and str(arranged[index + 2].get("target") or "").casefold() == "ou"
+                    and head_family in {"n", "pron"}
+                ):
+                    marker = arranged[index + 2]
+                    marker["syntax_role"] = "possessive_marker"
+                    marker["note"] = "嵌套领属已按 head-ou-possessor 语序转换。"
+                    arranged[index:index + 4] = [
+                        arranged[index + 3], marker,
+                        arranged[index], arranged[index + 1],
+                    ]
+                    index += 4
+                    continue
+            operands = [index]
+            markers: List[int] = []
+            cursor = index + 1
+            while cursor + 1 < len(arranged):
+                marker = arranged[cursor]
+                if str(marker.get("target") or "").casefold() != "ou":
+                    break
+                left_family = self._pos_family(
+                    str(arranged[operands[-1]].get("word_class") or "")
+                )
+                right_family = self._pos_family(
+                    str(arranged[cursor + 1].get("word_class") or "")
+                )
+                if left_family not in {"n", "pron"} or right_family not in {"n", "pron"}:
+                    break
+                markers.append(cursor)
+                operands.append(cursor + 1)
+                cursor += 2
+            if not markers:
+                index += 1
+                continue
+            replacement: List[Dict[str, Any]] = []
+            reversed_operands = [arranged[position] for position in reversed(operands)]
+            marker_tokens = [arranged[position] for position in reversed(markers)]
+            for offset, operand in enumerate(reversed_operands):
+                replacement.append(operand)
+                if offset < len(marker_tokens):
+                    marker = marker_tokens[offset]
+                    marker["syntax_role"] = "possessive_marker"
+                    marker["note"] = (
+                        "中文领属结构已转换为爱丽丝语 head-ou-possessor 语序。"
+                    )
+                    replacement.append(marker)
+            arranged[index:cursor] = replacement
+            index += len(replacement)
+        return arranged
+
+    def _arrange_chinese_passive(
+        self, tokens: List[Dict[str, Any]],
+    ) -> Optional[List[Dict[str, Any]]]:
+        """Convert Chinese 被-agent-verb into Yien-verb-Ord-agent."""
+        markers = [
+            index for index, token in enumerate(tokens)
+            if token.get("syntax_role") == "passive_marker"
+        ]
+        if len(markers) != 1:
+            return None
+        marker_index = markers[0]
+        predicate_index = next(
+            (
+                index for index in range(marker_index + 1, len(tokens))
+                if self._pos_family(str(tokens[index].get("word_class") or "")) == "v"
+                and tokens[index].get("syntax_role") not in {
+                    "future_marker", "passive_marker",
+                }
+            ),
+            -1,
+        )
+        if predicate_index < 0:
+            return None
+
+        future = [
+            token for token in tokens
+            if token.get("syntax_role") == "future_marker"
+        ]
+        prefix = [
+            token for index, token in enumerate(tokens[:marker_index])
+            if token.get("syntax_role") != "future_marker"
+        ]
+        agents = [
+            token for token in tokens[marker_index + 1:predicate_index]
+            if token.get("syntax_role") != "future_marker"
+        ]
+        trailing = [
+            token for token in tokens[predicate_index + 1:]
+            if token.get("syntax_role") != "future_marker"
+        ]
+        marker = tokens[marker_index]
+        predicate = tokens[predicate_index]
+        arranged = prefix + [marker, predicate] + future
+        if agents:
+            ord_marker = self._token(
+                source="",
+                target="Ord",
+                status="exact",
+                method="grammar_function",
+                confidence=1.0,
+                explanation="被动结构中的施事者标记",
+                word_class="prep.",
+                note="根据 Yien-动词-Ord-施事者范式生成。",
+            )
+            ord_marker["syntax_role"] = "passive_agent_marker"
+            arranged.extend([ord_marker, *agents])
+        arranged.extend(trailing)
+        if len(arranged) != len(tokens) + (1 if agents else 0):
+            return None
+        for position, token in enumerate(arranged):
+            token["reordered_position"] = position
+            token["alician_order_pattern"] = "Yien-V-Ord-agent"
+            token["order_method"] = "attested_passive_grammar"
         return arranged
 
     def _arrange_by_attested_pattern(
@@ -165,6 +360,25 @@ class ChineseGrammarMixin:
         if match is None:
             return None
         pattern, count, confidence = match
+        # A POS signature cannot tell two nouns (or two pronouns) apart.  A
+        # pattern which moves repeated families would therefore guess which
+        # one is subject/object merely from FIFO order.  Keep such clauses in
+        # the deterministic grammar path unless the corpus pattern is already
+        # identical to the input order.
+        repeated = any(value > 1 for value in Counter(families).values())
+        if repeated and tuple(families) != pattern:
+            return None
+        source_core = [
+            family for family in families if family in {"n", "pron", "v"}
+        ]
+        target_core = [
+            family for family in pattern if family in {"n", "pron", "v"}
+        ]
+        if source_core != target_core:
+            # POS-only evidence cannot identify semantic subject/object roles.
+            # It may move modifiers around a stable core, but it must never
+            # turn Chinese SVO into VOS/SOV by guessing from noun vs pronoun.
+            return None
 
         available: DefaultDict[str, List[int]] = defaultdict(list)
         for index, family in enumerate(families):
@@ -317,6 +531,9 @@ class ChineseGrammarMixin:
             return semantic
         semantic = self._apply_chinese_pattern_senses(semantic)
         semantic = self._arrange_chinese_possessives(semantic)
+        passive = self._arrange_chinese_passive(semantic)
+        if passive is not None:
+            return passive
         families = [self._pos_family(str(token.get("word_class") or "")) for token in semantic]
         attested = self._arrange_by_attested_pattern(semantic, families)
         if attested is not None:
@@ -364,37 +581,30 @@ class ChineseGrammarMixin:
             if i not in core and families[i] == "adv"
             and str(token.get("source") or "").endswith("地")
         ]
-        modal = [
+        # Foul is attested at clause-initial, medial, and final positions; it
+        # is an emphatic adverb, not a fixed trigger for an SOV template.
+        modal: List[int] = []
+        future = [
             i for i, token in enumerate(semantic)
-            if i not in core and str(token.get("target") or "") == "Foul"
+            if i not in core and token.get("syntax_role") == "future_marker"
         ]
-        prefixes = [
-            i for i, family in enumerate(families)
-            if i not in core and i not in manner and i not in modal
-            and family in {"conj", "interj"}
-        ]
+        prefixes: List[int] = []
+        for i, family in enumerate(families):
+            if i in core or i in manner or i in future or family not in {"conj", "interj"}:
+                break
+            prefixes.append(i)
         remaining = [
             i for i in range(len(semantic))
-            if i not in core and i not in manner and i not in modal and i not in prefixes
+            if i not in core and i not in manner and i not in modal
+            and i not in future and i not in prefixes
         ]
 
-        # Attested emphatic pattern: Foul + S + O + V.
-        if modal and obj is not None:
-            order = prefixes + modal + phrase(subject) + phrase(obj) + remaining + [verb_index] + manner
-            pattern = "SOV-emphatic"
-        # A nominal subject with a pronominal/demonstrative object commonly permits VOS.
-        elif obj is not None and families[subject] == "n" and (
-            families[obj] == "pron" or str(semantic[obj].get("target") or "") == "Xia"
-        ):
-            order = prefixes + remaining + [verb_index] + phrase(obj) + phrase(subject) + manner
-            pattern = "VOS-focus"
-        else:
-            order = prefixes + modal + phrase(subject) + remaining + [verb_index]
-            if obj is not None:
-                order += phrase(obj)
-            order += manner
-            pattern = "SVO"
-        if len(set(order)) != len(semantic):
+        order = prefixes + modal + phrase(subject) + remaining + [verb_index] + future
+        if obj is not None:
+            order += phrase(obj)
+        order += manner
+        pattern = "SVO"
+        if len(order) != len(semantic) or len(set(order)) != len(semantic):
             return self._apply_adverb_position_preferences(semantic)
         arranged = []
         for output_position, source_index in enumerate(order):

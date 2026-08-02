@@ -749,6 +749,8 @@ private fun JSONObject.toTranslationResult(): TranslationResult {
         tokens = List(tokensJson.length()) { index ->
             tokensJson.getJSONObject(index).let { token ->
                 val alternativesJson = token.optJSONArray("alternatives") ?: JSONArray()
+                val templateArgumentsJson =
+                    token.optJSONArray("template_arguments") ?: JSONArray()
                 TranslationToken(
                     source = token.optString("source"),
                     target = token.optString("target"),
@@ -770,6 +772,9 @@ private fun JSONObject.toTranslationResult(): TranslationResult {
                         }
                     },
                     note = token.optString("note"),
+                    resolvedTarget = token.optString("resolved_target"),
+                    omitFromResult = token.optBoolean("omit_from_result"),
+                    templateArguments = templateArgumentsJson.stringList(),
                 )
             }
         },

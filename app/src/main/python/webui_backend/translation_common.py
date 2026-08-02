@@ -210,19 +210,71 @@ class TranslationCore:
     def _entry_to_chinese_token(
         self, entry: Dict[str, Any], source: str, status: str, method: str,
     ) -> Dict[str, Any]:
+        surface = self._clean_surface_gloss(entry["explanation"])
+        unresolved = not surface
         return self._token(
             source=source,
-            target=entry["explanation"] or f"〔{source}〕",
-            status=status,
-            method=method,
-            confidence=1.0 if status == "exact" else 0.7,
+            target=surface or f"〔{source}〕",
+            status="unknown" if unresolved else status,
+            method="unresolved_dictionary_gloss" if unresolved else method,
+            confidence=0.0 if unresolved else (1.0 if status == "exact" else 0.7),
             explanation=entry["explanation"],
             word_class=entry["word_class"],
             count=entry["count"],
             variety=entry["variety"],
             alternatives=[self._alternative(entry, 1.0)],
-            note="词典词条命中。" if status == "exact" else "",
+            note=(
+                "词典仅有未知占位或未绑定句式，未把它计作精确译文。"
+                if unresolved
+                else "词典词条命中。" if status == "exact" else ""
+            ),
         )
+
+    @staticmethod
+    def _clean_surface_gloss(value: Any) -> str:
+        """Keep lexical meaning while removing dictionary/editorial labels.
+
+        The original explanation remains on the token for inspection.  Only
+        the surface target is normalized, so labels such as ``(pl.)`` and
+        ``(后加名词)`` cannot appear as if they were translation text.
+        """
+        surface = str(value or "").strip()
+        editorial = re.compile(
+            r"^(?:\?+|pl\.?|程度|位置|祈使语气|作主语|与动词并列|"
+            r"后加名词|贱称|敬称|也可.*|不与.*|疑为.*|好像是.*|表厌恶)$",
+            flags=re.IGNORECASE,
+        )
+        inline_supplements = {"事物", "故事", "手", "目光", "我", "声音", "衣服"}
+
+        def replace_parenthetical(match: re.Match[str]) -> str:
+            content = str(match.group(1) or "").strip()
+            if editorial.fullmatch(content):
+                return ""
+            # Leading semantic supplements belong to the gloss; a small
+            # whitelist also preserves verb arguments such as 拍(手).  Other
+            # trailing parentheses are alternative names or editor notes.
+            if match.start() == 0 or content in inline_supplements:
+                return content
+            return ""
+
+        previous = None
+        while previous != surface:
+            previous = surface
+            surface = re.sub(r"[（(]([^（）()]*)[）)]", replace_parenthetical, surface)
+        surface = re.sub(r"\s+", "", surface).strip()
+        if re.search(r"(?:\.{2,}|…+)", surface):
+            # Unbound dictionary slots must never leak literally.  Attested
+            # templates are handled explicitly by the parser; unsupported
+            # ones remain visibly unresolved instead of emitting “……”.
+            return ""
+        if re.match(
+            r"^(?:引导|提示一个动作|用于(?:过去|完成)|常置于|表示施事者|"
+            r"(?:用)?在动词后|动词前表|助动词|语气词|后缀|同[A-Za-z])",
+            surface,
+            flags=re.IGNORECASE,
+        ):
+            return ""
+        return surface
 
     def _token(
         self,
@@ -265,7 +317,11 @@ class TranslationCore:
 
     def _compose_alician_result(self, tokens: List[Dict[str, Any]]) -> str:
         out: List[str] = []
+        tight_after_opening = False
+        opening_punctuation = set("（([《【〈“‘")
         for token in tokens:
+            if token.get("omit_from_result"):
+                continue
             status = token.get("status")
             target = str(token.get("resolved_target") or token.get("target") or "")
             if not target:
@@ -278,11 +334,14 @@ class TranslationCore:
                 while out and out[-1] == " ":
                     out.pop()
                 out.append(target)
-                out.append(" ")
+                tight_after_opening = target[-1:] in opening_punctuation
+                if not tight_after_opening:
+                    out.append(" ")
                 continue
-            if out and out[-1] not in {" ", "\n"}:
+            if out and out[-1] not in {" ", "\n"} and not tight_after_opening:
                 out.append(" ")
             out.append(target)
+            tight_after_opening = False
         return "".join(out).strip()
 
     @staticmethod
@@ -296,6 +355,8 @@ class TranslationCore:
     def _template_argument_target(
         self, token: Dict[str, Any], template: str,
     ) -> str:
+        if token.get("method") == "grammar_function":
+            return str(token.get("resolved_target") or token.get("target") or "")
         source = str(token.get("source") or "")
         candidates = self._word_by_lower.get(source.lower()) or []
         if not candidates:
@@ -312,9 +373,10 @@ class TranslationCore:
             preferred or candidates,
             key=lambda entry: (entry.get("sense_order", 1), -entry.get("count", 0)),
         )
-        token["template_resolved_target"] = chosen["explanation"]
+        surface = self._clean_surface_gloss(chosen["explanation"])
+        token["template_resolved_target"] = surface
         token["template_resolved_class"] = chosen["word_class"]
-        return str(chosen["explanation"] or token.get("target") or "")
+        return str(surface or token.get("target") or "")
 
     def _compose_chinese_result(
         self, tokens: List[Dict[str, Any]], resolve_templates: bool = False,
@@ -330,7 +392,11 @@ class TranslationCore:
             target = str(token.get("resolved_target") or token.get("target") or "")
             if status == "space":
                 continue
-            if resolve_templates and status not in {"space", "punct"}:
+            if (
+                resolve_templates
+                and token.get("allow_template_resolution")
+                and status not in {"space", "punct"}
+            ):
                 explanation = str(token.get("explanation") or "")
                 arity = self._template_arity(explanation)
                 if arity:
