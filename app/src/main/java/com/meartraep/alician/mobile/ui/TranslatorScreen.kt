@@ -440,8 +440,10 @@ private fun TranslationTokenCard(
     val container = when (token.status) {
         "exact" -> MaterialTheme.colorScheme.primaryContainer
         "approximate" -> MaterialTheme.colorScheme.tertiaryContainer
+        "punct" -> MaterialTheme.colorScheme.surfaceVariant
         else -> MaterialTheme.colorScheme.errorContainer
     }
+    val isPunct = token.status == "punct"
     Card(colors = CardDefaults.cardColors(containerColor = container)) {
         Column(Modifier.padding(14.dp)) {
             Row(Modifier.fillMaxWidth()) {
@@ -458,10 +460,10 @@ private fun TranslationTokenCard(
                         style = MaterialTheme.typography.labelMedium,
                     )
                 }
-                IconButton(onClick = onMoveUp, enabled = canMoveUp) {
+                IconButton(onClick = onMoveUp, enabled = canMoveUp && !isPunct) {
                     Icon(Icons.Outlined.ArrowUpward, contentDescription = "上移")
                 }
-                IconButton(onClick = onMoveDown, enabled = canMoveDown) {
+                IconButton(onClick = onMoveDown, enabled = canMoveDown && !isPunct) {
                     Icon(Icons.Outlined.ArrowDownward, contentDescription = "下移")
                 }
             }
