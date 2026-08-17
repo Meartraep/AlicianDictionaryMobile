@@ -179,10 +179,11 @@ class ChineseLexiconMixin:
                     if part in self._term_candidates:
                         refined.append(part)
                         continue
-                    if self._contains_productive_negation(part):
-                        refined.extend(self._fallback_segment_chinese_run(part))
-                    else:
-                        refined.append(part)
+                    # A tokenizer piece that is absent from the dictionary may
+                    # still contain one or more exact terms.  Refine it with
+                    # the best-path segmenter so only the genuinely unmatched
+                    # sub-chunks stay unknown, e.g. “讲故事” -> “讲” + “故事”.
+                    refined.extend(self._fallback_segment_chinese_run(part))
                 return self._merge_chinese_productive_suffixes(refined)
         return self._merge_chinese_productive_suffixes(
             self._fallback_segment_chinese_run(text)
@@ -243,14 +244,6 @@ class ChineseLexiconMixin:
         return any(
             suffix.startswith(word)
             for word in _CHINESE_LEXICALIZED_NEGATION_PREFIXES
-        )
-
-    def _contains_productive_negation(self, text: str) -> bool:
-        return any(
-            text.startswith(negative, start)
-            and not self._is_lexicalized_negation_at(text, start)
-            for start in range(len(text))
-            for negative in _CHINESE_NEGATION_FORMS
         )
 
     def _fallback_segment_chinese_run(self, text: str) -> List[str]:
