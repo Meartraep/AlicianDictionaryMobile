@@ -168,10 +168,17 @@ class SemanticExpansionTests(unittest.TestCase):
 
             self.assertEqual(
                 [token["source"] for token in tokens],
-                ["今天", "早上", "我", "在", "学校", "认真学习"],
+                ["今天", "早上", "我", "在", "学校", "认真", "学习"],
             )
-            self.assertEqual(tokens[-1]["status"], "unknown")
-            self.assertEqual(tokens[-1]["target"], "〔认真学习〕")
+            # An out-of-dictionary tokenizer piece is refined so an exact term
+            # it contains (学习 -> Study) is matched, leaving only the
+            # genuinely unmatched sub-chunk 认真 unknown.
+            study = next(token for token in tokens if token["source"] == "学习")
+            self.assertEqual(study["status"], "exact")
+            self.assertEqual(study["target"], "Study")
+            serious = next(token for token in tokens if token["source"] == "认真")
+            self.assertEqual(serious["status"], "unknown")
+            self.assertEqual(serious["target"], "〔认真〕")
 
     def test_equal_length_dictionary_term_wins_over_alias(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

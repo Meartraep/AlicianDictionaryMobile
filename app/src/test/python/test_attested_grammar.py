@@ -668,6 +668,22 @@ class AttestedGrammarTests(unittest.TestCase):
         self.assertTranslation("不自然地", "zh_to_alician", "Fouzanoalait")
         self.assertTranslation("不得不", "zh_to_alician", "Oudiq")
 
+    def test_out_of_dictionary_chunks_are_refined_to_matchable_terms(self) -> None:
+        # 讲故事 is not itself a dictionary term, but it contains the exact
+        # term 故事.  It must be split so only the unmatched 讲 is unknown.
+        result = self.service.translate("让我们讲故事", "zh_to_alician")
+        self.assertEqual(result["stats"]["unknown"], 1)
+        sources = [token["source"] for token in result["tokens"]]
+        self.assertNotIn("讲故事", sources)
+        self.assertIn("讲", sources)
+        self.assertIn("故事", sources)
+        story = next(token for token in result["tokens"] if token["source"] == "故事")
+        self.assertEqual(story["status"], "exact")
+        self.assertEqual(story["target"], "Story")
+        speak = next(token for token in result["tokens"] if token["source"] == "讲")
+        self.assertEqual(speak["status"], "unknown")
+        self.assertEqual(speak["target"], "〔讲〕")
+
 
 if __name__ == "__main__":
     unittest.main()
