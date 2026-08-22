@@ -70,6 +70,8 @@ data class DictionaryEntry(
     val kind: String,
     val count: Int,
     val variety: Int,
+    val englishGloss: String = "",
+    val japaneseGloss: String = "",
 )
 
 data class DictionarySection(
@@ -94,6 +96,15 @@ data class DictionaryResult(
     val message: String,
 )
 
+data class LyricLineTranslation(
+    val line: String,
+    val poetic: String,
+    val literal: String,
+    val english: String = "",
+    val japanese: String = "",
+    val korean: String = "",
+)
+
 data class LyricExample(
     val id: Int,
     val paragraph: String,
@@ -102,6 +113,12 @@ data class LyricExample(
     val lyric: String,
     val start: Int,
     val end: Int,
+    val poeticTranslation: String = "",
+    val literalTranslation: String = "",
+    val englishTranslation: String = "",
+    val japaneseTranslation: String = "",
+    val koreanTranslation: String = "",
+    val lyricTranslations: List<LyricLineTranslation> = emptyList(),
 )
 
 data class SongExampleStats(

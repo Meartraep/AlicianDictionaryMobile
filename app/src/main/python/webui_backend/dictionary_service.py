@@ -151,16 +151,20 @@ class DictionaryService:
                 alice_entries = []
                 for word, explanation, word_class in alice_rows:
                     stats = self.db_handler.get_word_stats(word, effective_exact) or (0, 0)
+                    en_gloss, jp_gloss = self.db_handler.get_word_glosses(word)
                     alice_entries.append({
                         "word": word, "explanation": explanation, "word_class": word_class,
                         "kind": "alice", "count": stats[0], "variety": stats[1],
+                        "english_gloss": en_gloss, "japanese_gloss": jp_gloss,
                     })
                 chinese_entries = []
                 for word, explanation, word_class in chinese_rows:
                     stats = self.db_handler.get_word_stats(word, effective_exact) or (0, 0)
+                    en_gloss, jp_gloss = self.db_handler.get_word_glosses(word)
                     chinese_entries.append({
                         "word": word, "explanation": explanation, "word_class": word_class,
                         "kind": "chinese", "count": stats[0], "variety": stats[1],
+                        "english_gloss": en_gloss, "japanese_gloss": jp_gloss,
                     })
                 if alice_entries:
                     sections.append({"title": "爱丽丝语 -> 中文", "kind": "alice", "entries": alice_entries})
@@ -221,6 +225,32 @@ class DictionaryService:
             self._ensure_connection()
             return self._get_examples_payload(normalized_word, position_filter)
 
+    def get_lyric_translations(self, title: str, album: str) -> Dict[str, Any]:
+        """Return per-line poetic and literal translations for one song."""
+        with self._lock:
+            self._ensure_connection()
+            lines = self._load_song_translations(title, album)
+            return {
+                "ok": True,
+                "title": (title or "").strip(),
+                "album": (album or "").strip(),
+                "lines": lines,
+            }
+
+    def _load_song_translations(self, title: str, album: str) -> List[Dict[str, str]]:
+        rows = self.db_handler.find_song_alignments(title, album)
+        return [
+            {
+                "line": line,
+                "poetic": poetic,
+                "literal": literal,
+                "english": english,
+                "japanese": japanese,
+                "korean": korean,
+            }
+            for line, poetic, literal, english, japanese, korean in rows
+        ]
+
     def _get_examples_payload(self, word: str, position_filter: str = "any") -> Dict[str, Any]:
         position_filter = position_filter if position_filter in {"start", "end"} else "any"
         songs = self.db_handler.find_songs_with_word(word)
@@ -229,14 +259,29 @@ class DictionaryService:
         total_before = sum(v["before"] for v in valid_stats.values())
         total_after = len(examples)
         dedup_rate = ((total_before - total_after) / total_before * 100) if total_before > 0 else 0
+        song_translations: Dict[Tuple[str, str], List[Dict[str, str]]] = {}
         payload_examples = []
         for index, example in enumerate(examples):
             lyric = example["lyric"]
             paragraph = example["paragraph"]
             start_pos, end_pos = TextProcessor.find_paragraph_positions(lyric, paragraph)
+            song_key = (example["album"], example["title"])
+            translations = song_translations.get(song_key)
+            if translations is None:
+                translations = self._load_song_translations(example["title"], example["album"])
+                song_translations[song_key] = translations
+            by_line = {entry["line"]: entry for entry in translations}
+            sentence = paragraph.splitlines()[0].strip() if paragraph else ""
+            matched = by_line.get(sentence, {})
             payload_examples.append({
                 "id": index, "paragraph": paragraph, "title": example["title"],
                 "album": example["album"], "lyric": lyric, "start": start_pos, "end": end_pos,
+                "poetic_translation": matched.get("poetic", ""),
+                "literal_translation": matched.get("literal", ""),
+                "english_translation": matched.get("english", ""),
+                "japanese_translation": matched.get("japanese", ""),
+                "korean_translation": matched.get("korean", ""),
+                "lyric_translations": translations,
             })
         payload_stats = [
             {"album": album, "title": title, "before": stats["before"], "after": stats["after"]}

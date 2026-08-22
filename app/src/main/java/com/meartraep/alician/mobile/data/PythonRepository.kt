@@ -617,6 +617,8 @@ private fun JSONObject.toDictionaryResult(): DictionaryResult {
                         kind = it.optString("kind"),
                         count = it.optInt("count"),
                         variety = it.optInt("variety"),
+                        englishGloss = it.optString("english_gloss"),
+                        japaneseGloss = it.optString("japanese_gloss"),
                     )
                 }
             },
@@ -648,17 +650,7 @@ private fun JSONObject.toExampleResult(): ExampleResult {
     return ExampleResult(
         word = optString("word"),
         examples = List(array.length()) { index ->
-            array.getJSONObject(index).let {
-                LyricExample(
-                    id = it.optInt("id"),
-                    paragraph = it.optString("paragraph"),
-                    title = it.optString("title"),
-                    album = it.optString("album"),
-                    lyric = it.optString("lyric"),
-                    start = it.optInt("start"),
-                    end = it.optInt("end"),
-                )
-            }
+            array.getJSONObject(index).let { it.toLyricExample() }
         },
         positionFilter = optString("position_filter", "any"),
         songStats = List(stats.length()) { index ->
@@ -675,6 +667,36 @@ private fun JSONObject.toExampleResult(): ExampleResult {
         totalAfter = optInt("total_after"),
         deduplicationRate = optDouble("deduplication_rate"),
         message = optString("message"),
+    )
+}
+
+private fun JSONObject.toLyricExample(): LyricExample {
+    val linesJson = optJSONArray("lyric_translations") ?: JSONArray()
+    return LyricExample(
+        id = optInt("id"),
+        paragraph = optString("paragraph"),
+        title = optString("title"),
+        album = optString("album"),
+        lyric = optString("lyric"),
+        start = optInt("start"),
+        end = optInt("end"),
+        poeticTranslation = optString("poetic_translation"),
+        literalTranslation = optString("literal_translation"),
+        englishTranslation = optString("english_translation"),
+        japaneseTranslation = optString("japanese_translation"),
+        koreanTranslation = optString("korean_translation"),
+        lyricTranslations = List(linesJson.length()) { lineIndex ->
+            linesJson.getJSONObject(lineIndex).let {
+                LyricLineTranslation(
+                    line = it.optString("line"),
+                    poetic = it.optString("poetic"),
+                    literal = it.optString("literal"),
+                    english = it.optString("english"),
+                    japanese = it.optString("japanese"),
+                    korean = it.optString("korean"),
+                )
+            }
+        },
     )
 }
 

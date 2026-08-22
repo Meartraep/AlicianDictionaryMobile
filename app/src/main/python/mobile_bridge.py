@@ -543,6 +543,11 @@ def invoke(method: str, payload_json: str = "{}") -> str:
                     str(payload.get("word") or ""),
                     str(payload.get("position") or "any"),
                 )
+            elif method == "lyric_translations":
+                result = _dictionary.get_lyric_translations(
+                    str(payload.get("title") or ""),
+                    str(payload.get("album") or ""),
+                )
             elif method == "dictionary_update_lyric":
                 result = _dictionary.update_song_lyric(
                     str(payload.get("title") or ""),

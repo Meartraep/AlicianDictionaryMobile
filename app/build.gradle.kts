@@ -49,15 +49,15 @@ android {
         applicationId = "com.meartraep.alician.mobile"
         minSdk = 24
         targetSdk = 36
-        versionCode = 10
-        versionName = "1.7.0"
+        versionCode = 11
+        versionName = "1.8.0"
 
         ndk {
             abiFilters += listOf("arm64-v8a", "x86_64")
         }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
-        buildConfigField("String", "DATABASE_ASSET_VERSION", "\"2026-07-29-semantic-aliases-v2\"")
+        buildConfigField("String", "DATABASE_ASSET_VERSION", "\"2026-08-22-lyric-literal-alignments\"")
     }
 
     signingConfigs {

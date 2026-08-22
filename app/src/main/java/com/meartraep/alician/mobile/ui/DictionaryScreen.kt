@@ -58,6 +58,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.AnnotatedString
@@ -74,6 +75,7 @@ import com.meartraep.alician.mobile.R
 import com.meartraep.alician.mobile.data.DictionaryEntry
 import com.meartraep.alician.mobile.data.ExampleResult
 import com.meartraep.alician.mobile.data.LyricExample
+import com.meartraep.alician.mobile.data.LyricLineTranslation
 
 private val positionOptions = listOf(
     "any" to "任意位置",
@@ -382,6 +384,38 @@ private fun DictionaryEntryCard(
             }
             Spacer(Modifier.height(7.dp))
             Text(entry.explanation, style = MaterialTheme.typography.bodyLarge)
+            if (entry.englishGloss.isNotBlank()) {
+                Spacer(Modifier.height(4.dp))
+                Row(verticalAlignment = Alignment.Top) {
+                    Text(
+                        "英",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        entry.englishGloss,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+            if (entry.japaneseGloss.isNotBlank()) {
+                Spacer(Modifier.height(4.dp))
+                Row(verticalAlignment = Alignment.Top) {
+                    Text(
+                        "日",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.tertiary,
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        entry.japaneseGloss,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
             Spacer(Modifier.height(10.dp))
             Text(
                 "词频 ${entry.count} · 泛度 ${entry.variety}　点按查看歌词例句",
@@ -448,9 +482,12 @@ private fun ExamplesSheet(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         Spacer(Modifier.height(10.dp))
+                        val paragraphLines = example.paragraph.split('\n')
+                        val sentence = paragraphLines.firstOrNull { it.isNotBlank() }.orEmpty()
+                        val glossLines = paragraphLines.filter { it.isNotBlank() }.drop(1)
                         Text(
                             highlightedText(
-                                text = example.paragraph,
+                                text = sentence,
                                 word = result.word,
                                 background = MaterialTheme.colorScheme.errorContainer,
                                 foreground = MaterialTheme.colorScheme.onErrorContainer,
@@ -458,6 +495,30 @@ private fun ExamplesSheet(
                             fontFamily = alicianFont,
                             style = MaterialTheme.typography.bodyLarge,
                         )
+                        if (glossLines.isNotEmpty()) {
+                            Spacer(Modifier.height(6.dp))
+                            Text(
+                                glossLines.joinToString("\n"),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        if (
+                            example.poeticTranslation.isNotBlank() ||
+                            example.literalTranslation.isNotBlank() ||
+                            example.japaneseTranslation.isNotBlank() ||
+                            example.englishTranslation.isNotBlank() ||
+                            example.koreanTranslation.isNotBlank()
+                        ) {
+                            Spacer(Modifier.height(8.dp))
+                            LyricTranslationsBlock(
+                                poetic = example.poeticTranslation,
+                                literal = example.literalTranslation,
+                                japanese = example.japaneseTranslation,
+                                english = example.englishTranslation,
+                                korean = example.koreanTranslation,
+                            )
+                        }
                         Spacer(Modifier.height(8.dp))
                         TextButton(onClick = { contextIndex = index }) {
                             Text("查看整首歌词并定位")
@@ -642,16 +703,20 @@ private fun FocusedLyric(
     alicianFont: FontFamily,
     modifier: Modifier = Modifier,
 ) {
-    val start = example.start.coerceIn(0, example.lyric.length)
-    val end = example.end.coerceIn(start, example.lyric.length)
-    val before = example.lyric.substring(0, start)
-    val focused = example.lyric.substring(start, end)
-    val after = example.lyric.substring(end)
-    val requester = remember(example.id, example.title, start, end) {
+    val focusStart = example.start.coerceIn(0, example.lyric.length)
+    val focusEnd = example.end.coerceIn(focusStart, example.lyric.length)
+    val requester = remember(example.id, example.title, focusStart, focusEnd) {
         BringIntoViewRequester()
     }
     val hitBackground = MaterialTheme.colorScheme.errorContainer
     val hitForeground = MaterialTheme.colorScheme.onErrorContainer
+    val translations = remember(example) {
+        example.lyricTranslations.associateBy { it.line.trim() }
+    }
+    val blocks = remember(example) { buildLyricBlocks(example.lyric) }
+    val focusedIndex = remember(blocks, focusStart) {
+        blocks.indexOfLast { it.start <= focusStart }.coerceAtLeast(0)
+    }
 
     LaunchedEffect(requester) {
         requester.bringIntoView()
@@ -669,44 +734,182 @@ private fun FocusedLyric(
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
                     .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                if (before.isNotEmpty()) {
-                    Text(
-                        highlightedText(before, word, hitBackground, hitForeground),
-                        fontFamily = alicianFont,
-                        style = MaterialTheme.typography.bodyLarge,
-                    )
-                }
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .bringIntoViewRequester(requester)
-                        .background(
-                            MaterialTheme.colorScheme.secondaryContainer,
-                            MaterialTheme.shapes.small,
+                blocks.forEachIndexed { index, block ->
+                    val focused = index == focusedIndex
+                    val content: @Composable () -> Unit = {
+                        LyricBlockContent(
+                            block = block,
+                            translations = translations,
+                            word = word,
+                            alicianFont = alicianFont,
+                            hitBackground = hitBackground,
+                            hitForeground = hitForeground,
+                            translationColor = if (focused) {
+                                MaterialTheme.colorScheme.onSecondaryContainer
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
                         )
-                        .border(
-                            1.dp,
-                            MaterialTheme.colorScheme.secondary,
-                            MaterialTheme.shapes.small,
-                        )
-                        .padding(horizontal = 8.dp, vertical = 6.dp),
-                ) {
-                    Text(
-                        highlightedText(focused, word, hitBackground, hitForeground),
-                        fontFamily = alicianFont,
-                        style = MaterialTheme.typography.bodyLarge,
-                    )
-                }
-                if (after.isNotEmpty()) {
-                    Text(
-                        highlightedText(after, word, hitBackground, hitForeground),
-                        fontFamily = alicianFont,
-                        style = MaterialTheme.typography.bodyLarge,
-                    )
+                    }
+                    if (focused) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .bringIntoViewRequester(requester)
+                                .background(
+                                    MaterialTheme.colorScheme.secondaryContainer,
+                                    MaterialTheme.shapes.small,
+                                )
+                                .border(
+                                    1.dp,
+                                    MaterialTheme.colorScheme.secondary,
+                                    MaterialTheme.shapes.small,
+                                )
+                                .padding(horizontal = 8.dp, vertical = 6.dp),
+                        ) {
+                            content()
+                        }
+                    } else {
+                        content()
+                    }
                 }
             }
         }
+    }
+}
+
+private data class LyricBlock(val start: Int, val lines: List<String>) {
+    val sentence: String get() = lines.firstOrNull { it.isNotBlank() } ?: ""
+}
+
+private fun isLyricGloss(line: String): Boolean =
+    line.contains('：') || line.contains(':')
+
+/**
+ * Group the raw lyric into paragraphs: one Alician sentence plus all of its
+ * following word-by-word gloss lines.  In the stored lyrics the sentence and
+ * its gloss are separated by a blank line, so blank lines must not split a
+ * paragraph — only the next sentence line does.
+ */
+private fun buildLyricBlocks(lyric: String): List<LyricBlock> {
+    val blocks = mutableListOf<LyricBlock>()
+    var current = mutableListOf<String>()
+    var currentStart = 0
+    var offset = 0
+    for (line in lyric.split('\n')) {
+        val trimmed = line.trim()
+        if (trimmed.isEmpty()) {
+            // separator inside a paragraph; a following sentence line flushes
+        } else if (isLyricGloss(trimmed)) {
+            if (current.isNotEmpty()) current.add(line)
+        } else {
+            if (current.isNotEmpty()) {
+                blocks += LyricBlock(currentStart, current.toList())
+            }
+            current = mutableListOf(line)
+            currentStart = offset
+        }
+        offset += line.length + 1
+    }
+    if (current.isNotEmpty()) blocks += LyricBlock(currentStart, current.toList())
+    return blocks
+}
+
+@Composable
+private fun LyricBlockContent(
+    block: LyricBlock,
+    translations: Map<String, LyricLineTranslation>,
+    word: String,
+    alicianFont: FontFamily,
+    hitBackground: Color,
+    hitForeground: Color,
+    translationColor: Color,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+        block.lines.forEachIndexed { lineIndex, line ->
+            if (line.isBlank()) return@forEachIndexed
+            Text(
+                highlightedText(line, word, hitBackground, hitForeground),
+                fontFamily = alicianFont,
+                style = if (lineIndex == 0) {
+                    MaterialTheme.typography.bodyLarge
+                } else {
+                    MaterialTheme.typography.bodySmall
+                },
+            )
+        }
+        translations[block.sentence.trim()]?.let { translation ->
+            if (
+                translation.poetic.isNotBlank() ||
+                translation.literal.isNotBlank() ||
+                translation.japanese.isNotBlank() ||
+                translation.english.isNotBlank() ||
+                translation.korean.isNotBlank()
+            ) {
+                Spacer(Modifier.height(2.dp))
+                LyricTranslationsBlock(
+                    poetic = translation.poetic,
+                    literal = translation.literal,
+                    japanese = translation.japanese,
+                    english = translation.english,
+                    korean = translation.korean,
+                    textColor = translationColor,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun LyricTranslationsBlock(
+    poetic: String,
+    literal: String,
+    japanese: String,
+    english: String,
+    korean: String,
+    modifier: Modifier = Modifier,
+    textColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        if (poetic.isNotBlank()) {
+            TranslationRow("中文翻译", poetic, MaterialTheme.colorScheme.primary, textColor)
+        }
+        if (literal.isNotBlank()) {
+            TranslationRow("中文对译", literal, MaterialTheme.colorScheme.tertiary, textColor)
+        }
+        if (japanese.isNotBlank()) {
+            TranslationRow("官方日译", japanese, null, textColor)
+        }
+        if (english.isNotBlank()) {
+            TranslationRow("官方英译", english, null, textColor)
+        }
+        if (korean.isNotBlank()) {
+            TranslationRow("官方韩译", korean, null, textColor)
+        }
+    }
+}
+
+@Composable
+private fun TranslationRow(
+    label: String,
+    text: String,
+    labelColor: Color?,
+    textColor: Color,
+) {
+    Row(verticalAlignment = Alignment.Top) {
+        Text(
+            label,
+            style = MaterialTheme.typography.labelSmall,
+            color = labelColor ?: MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Spacer(Modifier.width(6.dp))
+        Text(
+            text,
+            style = MaterialTheme.typography.bodyMedium,
+            color = textColor,
+        )
     }
 }
 

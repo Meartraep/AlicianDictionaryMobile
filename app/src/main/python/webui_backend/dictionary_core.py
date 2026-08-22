@@ -203,6 +203,21 @@ class DatabaseHandler:
         self.cursor.execute("SELECT words, display_explanation FROM dictionary_headwords")
         return self.cursor.fetchall()
 
+    def get_word_glosses(self, word: str) -> Tuple[str, str]:
+        """Return (english_gloss, japanese_gloss) for a word, if recorded."""
+        if not self.cursor:
+            return "", ""
+        try:
+            self.cursor.execute(
+                "SELECT english_gloss, japanese_gloss FROM dictionary "
+                "WHERE LOWER(words) = LOWER(?) AND english_gloss <> '' LIMIT 1",
+                (word.strip(),),
+            )
+        except sqlite3.Error:
+            return "", ""
+        row = self.cursor.fetchone()
+        return (row[0] or "", row[1] or "") if row else ("", "")
+
     def find_songs_with_word(self, word: str) -> List[Tuple[str, str, str]]:
         if not self.cursor or not word:
             return []
@@ -213,6 +228,57 @@ class DatabaseHandler:
             (pattern, pattern, pattern),
         )
         return self.cursor.fetchall()
+
+    def find_song_alignments(self, title: str, album: str) -> List[Tuple[str, str, str, str, str, str]]:
+        """Return per-line (alician, poetic, literal, english, japanese, korean).
+
+        Older databases may not carry lyric_literal_alignments or
+        song_translations yet; missing tables degrade gracefully to empty
+        translation fields.
+        """
+        if not self.cursor:
+            return []
+        try:
+            self.cursor.execute(
+                "SELECT sa.alician_sentence, sa.chinese_translation, "
+                "l.chinese_translation_literal, st.english, st.japanese, st.korean "
+                "FROM sentence_alignments sa "
+                "LEFT JOIN lyric_literal_alignments l "
+                "ON l.sentence_alignment_id = sa.id "
+                "LEFT JOIN song_translations st "
+                "ON st.song_title = sa.song_title "
+                "AND st.sentence = sa.alician_sentence "
+                "WHERE sa.song_title = ? AND sa.album = ? "
+                "AND TRIM(sa.alician_sentence) <> '' "
+                "ORDER BY sa.song_sentence_order",
+                (title.strip(), album.strip()),
+            )
+        except sqlite3.Error:
+            try:
+                self.cursor.execute(
+                    "SELECT sa.alician_sentence, sa.chinese_translation, "
+                    "l.chinese_translation_literal, '', '', '' "
+                    "FROM sentence_alignments sa "
+                    "LEFT JOIN lyric_literal_alignments l "
+                    "ON l.sentence_alignment_id = sa.id "
+                    "WHERE sa.song_title = ? AND sa.album = ? "
+                    "AND TRIM(sa.alician_sentence) <> '' "
+                    "ORDER BY sa.song_sentence_order",
+                    (title.strip(), album.strip()),
+                )
+            except sqlite3.Error:
+                self.cursor.execute(
+                    "SELECT alician_sentence, chinese_translation, '', '', '', '' "
+                    "FROM sentence_alignments "
+                    "WHERE song_title = ? AND album = ? "
+                    "AND TRIM(alician_sentence) <> '' "
+                    "ORDER BY song_sentence_order",
+                    (title.strip(), album.strip()),
+                )
+        return [
+            (row[0], row[1] or "", row[2] or "", row[3] or "", row[4] or "", row[5] or "")
+            for row in self.cursor.fetchall()
+        ]
 
     def update_song_lyric(self, title: str, album: str, new_lyric: str) -> bool:
         if not self.cursor or not self.conn:
