@@ -23,7 +23,7 @@ val hasCiSigningConfig = ciSigningStoreFile?.isFile == true &&
     !ciSigningKeyPassword.isNullOrBlank()
 val hasLocalSigningConfig = signingPropertiesFile.isFile
 
-val chaquopyPythonVersion = "3.10"
+val chaquopyPythonVersion = "3.14"
 val githubRunnerPython = System.getenv("RUNNER_TOOL_CACHE")
     ?.let(::File)
     ?.resolve("Python")

@@ -3,6 +3,7 @@ from __future__ import annotations
 import sqlite3
 import tempfile
 import unittest
+from contextlib import closing
 from pathlib import Path
 
 from webui_backend.translation_service import TranslationService
@@ -26,7 +27,10 @@ class SemanticExpansionTests(unittest.TestCase):
         include_direct_alias_term: bool = False,
         include_strong_exact_cover: bool = False,
     ) -> None:
-        with sqlite3.connect(path) as connection:
+        # Explicitly close the connection: on Python 3.14 sqlite3 connections
+        # are only released by the cyclic GC, which would otherwise keep the
+        # file locked when TemporaryDirectory tries to delete it on Windows.
+        with closing(sqlite3.connect(path)) as connection:
             connection.executescript(
                 """
                 CREATE TABLE dictionary (
@@ -113,6 +117,7 @@ class SemanticExpansionTests(unittest.TestCase):
                     VALUES (1, 1, 1, '龘靐齉', 0.94, 1, 'fake', 'fake', 'now');
                     """
                 )
+            connection.commit()
 
     def test_aliases_are_opt_in_and_beat_shorter_exact_terms(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
