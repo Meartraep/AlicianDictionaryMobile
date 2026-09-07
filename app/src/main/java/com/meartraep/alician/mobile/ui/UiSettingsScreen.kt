@@ -41,6 +41,7 @@ import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -97,7 +98,9 @@ fun UiSettingsScreen(
             }
         }
 
-        item(span = { GridItemSpan(maxLineSpan) }) { MaterialPreviewCard() }
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            key(settings) { MaterialPreviewCard() }
+        }
 
         item { SectionHeader("主题模式", "可覆盖系统的浅色/深色外观") }
         item {
