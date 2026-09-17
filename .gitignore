@@ -12,3 +12,4 @@ deliverables/*.apk
 verification/
 build-run*.log
 *.hprof
+gpg-private-backup.asc
