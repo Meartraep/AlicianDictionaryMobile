@@ -109,6 +109,7 @@ class DictionaryService:
         ranked.sort(key=lambda item: (item[0], -item[1], abs(len(item[2]) - query_length), item[2].casefold()))
         return [
             {
+                "word": word,
                 "explanation": explanation,
                 "words": [word],
                 "similarity": round(similarity, 4),

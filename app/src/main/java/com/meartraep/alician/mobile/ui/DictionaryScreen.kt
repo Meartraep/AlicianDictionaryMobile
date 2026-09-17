@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.rememberScrollState
@@ -303,13 +304,17 @@ private fun LazyListScope.dictionaryResultItems(
             if (result.message.isNotBlank()) {
                 item { InfoBanner(result.message, isError = result.sections.isEmpty()) }
             }
-            if (result.suggestions.isNotEmpty()) {
+            val suggestions = result.suggestions.filter { it.word.isNotBlank() }
+            if (suggestions.isNotEmpty()) {
                 item {
                     SectionHeader("你是否想查", "Lite 版基于编辑距离提供拼写纠错")
                 }
                 item {
                     LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        items(result.suggestions, key = { it.word }) { suggestion ->
+                        itemsIndexed(
+                            suggestions,
+                            key = { index, suggestion -> "$index:${suggestion.word}" },
+                        ) { _, suggestion ->
                             AssistChip(
                                 onClick = {
                                     onQueryChanged(suggestion.word)
@@ -339,7 +344,7 @@ private fun LazyListScope.dictionaryResultItems(
                     )
                 }
             }
-            if (result.sections.isEmpty() && result.suggestions.isEmpty()) {
+            if (result.sections.isEmpty() && suggestions.isEmpty()) {
                 item {
                     EmptyState(
                         icon = Icons.Outlined.Search,

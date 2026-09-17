@@ -631,11 +631,15 @@ private fun JSONObject.toDictionaryResult(): DictionaryResult {
         isPhrase = optBoolean("is_phrase"),
         sections = sections,
         suggestions = List(suggestionsJson.length()) { index ->
-            suggestionsJson.getJSONObject(index).let {
+            suggestionsJson.getJSONObject(index).let { suggestion ->
+                val words = suggestion.optJSONArray("words")
+                val word = suggestion.optString("word").ifBlank {
+                    words?.optString(0).orEmpty()
+                }
                 Suggestion(
-                    word = it.optString("word"),
-                    explanation = it.optString("explanation"),
-                    score = it.optDouble("score", it.optDouble("similarity", 0.0)),
+                    word = word,
+                    explanation = suggestion.optString("explanation"),
+                    score = suggestion.optDouble("score", suggestion.optDouble("similarity", 0.0)),
                 )
             }
         },
