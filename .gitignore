@@ -13,3 +13,5 @@ verification/
 build-run*.log
 *.hprof
 gpg-private-backup.asc
+search_history.json
+backups/
