@@ -157,12 +157,14 @@ private fun StudyOverview(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item(span = { GridItemSpan(maxLineSpan) }) {
-            Text("爱丽丝语背诵", style = MaterialTheme.typography.headlineMedium)
-            Text(
-                "字符识读 · 主动回忆 · 间隔重复",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            Column(Modifier.fillMaxWidth()) {
+                Text("爱丽丝语背诵", style = MaterialTheme.typography.headlineMedium)
+                Text(
+                    "字符识读 · 主动回忆 · 间隔重复",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
 
         item {

@@ -119,12 +119,14 @@ fun SettingsScreen(viewModel: MainViewModel, padding: PaddingValues) {
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         item(span = { GridItemSpan(maxLineSpan) }) {
-            Text("设置", style = MaterialTheme.typography.headlineMedium)
-            Text(
-                "显示、数据维护与版本信息",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            Column(Modifier.fillMaxWidth()) {
+                Text("设置", style = MaterialTheme.typography.headlineMedium)
+                Text(
+                    "显示、数据维护与版本信息",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
         item { SectionHeader("界面") }
         item {
