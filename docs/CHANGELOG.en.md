@@ -3,6 +3,48 @@
 > Chinese release notes are shown on the GitHub Releases page. This document is
 > the dedicated English version for readers who prefer English.
 
+## v1.8.1 (2026-09-19)
+
+### Fixes
+
+- **Exact dictionary search no longer crashes**: with "Exact match" enabled,
+  looking up a word that is not in the dictionary made the backend return
+  spelling suggestions under `words` (an array) while the client read `word`
+  (a string). Every suggestion therefore parsed into an empty string, and the
+  Compose list keyed on that field hit duplicate keys and threw, killing the
+  app. The backend now also emits `word`, the client accepts either field, and
+  the suggestion list uses unique keys and drops blank entries.
+- **Page titles no longer overlap their subtitles**: the Settings and Study
+  pages drew their top headline and its small caption on top of each other.
+  Both screens host their content in a `LazyVerticalGrid`, and
+  `LazyGridMeasuredItem` places every direct child of one item at the same
+  coordinate (the item height is the maximum of its children) — unlike
+  `LazyColumn`, which sums the heights and lays children out in sequence. The
+  title and caption are now wrapped in an explicit `Column`, fixing landscape
+  and portrait alike.
+- **UI settings preview card refreshes correctly**: the Material preview card
+  did not update after changing theme, palette or typography; it now carries a
+  key so that it reacts to settings changes.
+
+### Build and toolchain
+
+- Android Gradle Plugin upgraded to 9.3.2, Chaquopy migrated to Python 3.14
+- CI dependencies bumped: `gradle/actions/setup-gradle`,
+  `gradle/actions/wrapper-validation`, `actions/setup-java`, `actions/attest`
+
+### Technical details
+
+- Version: 1.8.1 (versionCode 12)
+- ABIs: arm64-v8a + x86_64
+
+### Release assets
+
+- `AlicianDictionary-v1.8.1.apk`: signed release APK (arm64-v8a + x86_64)
+- `AlicianDictionary-v1.8.1.apk.intoto.jsonl`: SLSA build provenance
+- `SHA256SUMS.txt`: SHA-256 checksums of the assets
+
+**Full changelog**: https://github.com/Meartraep/AlicianDictionaryMobile/compare/v1.8.0...v1.8.1
+
 ## v1.6.1 (2026-08-12)
 
 ### Fixes
