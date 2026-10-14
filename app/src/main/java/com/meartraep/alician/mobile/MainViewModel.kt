@@ -9,6 +9,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.meartraep.alician.mobile.data.AppUpdateInfo
 import com.meartraep.alician.mobile.data.DatabaseInfo
+import com.meartraep.alician.mobile.data.DatabaseUpdateLogic
+import com.meartraep.alician.mobile.data.DatabaseUpdateManifest
 import com.meartraep.alician.mobile.data.DbTablePage
 import com.meartraep.alician.mobile.data.DictionaryResult
 import com.meartraep.alician.mobile.data.ExampleResult
@@ -128,6 +130,22 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var appUpdateError by mutableStateOf<String?>(null)
         private set
 
+    /** Non-null while the startup check waits for the user to accept a download. */
+    var databaseUpdate by mutableStateOf<DatabaseUpdateManifest?>(null)
+        private set
+    var checkingDatabaseUpdate by mutableStateOf(false)
+        private set
+    var applyingDatabaseUpdate by mutableStateOf(false)
+        private set
+    var databaseUpdateError by mutableStateOf<String?>(null)
+        private set
+    var localDatabaseVersion by mutableStateOf(DatabaseUpdateLogic.UNKNOWN_DATABASE_VERSION)
+        private set
+    var autoDatabaseUpdateCheck by mutableStateOf(repository.autoDatabaseUpdateCheck)
+        private set
+    var lastDatabaseCheckAt by mutableStateOf(repository.lastDatabaseCheckAt)
+        private set
+
     var studySettings by mutableStateOf(studyRepository.settings)
         private set
     var studyOverview by mutableStateOf(StudyOverview())
@@ -147,6 +165,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             ready = true
             viewModelScope.launch {
                 refreshAppUpdate(showFeedback = false)
+            }
+            viewModelScope.launch {
+                refreshDatabaseUpdate(showFeedback = false)
             }
         }
     }
@@ -571,6 +592,90 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun dismissRemoteComparison() {
         remoteComparison = null
+    }
+
+    /** Manual "check now" from the settings screen; always reports the outcome. */
+    fun checkDatabaseUpdate() {
+        viewModelScope.launch {
+            refreshDatabaseUpdate(showFeedback = true)
+        }
+    }
+
+    /**
+     * Startup check: asks GitHub for the published manifest and, when it announces
+     * a newer revision than the installed one, raises the update prompt and waits
+     * for the user to accept the download. Network problems stay silent unless the
+     * user asked for the check explicitly.
+     */
+    private suspend fun refreshDatabaseUpdate(showFeedback: Boolean) {
+        if (checkingDatabaseUpdate) return
+        if (!showFeedback && !repository.autoDatabaseUpdateCheck) return
+        checkingDatabaseUpdate = true
+        databaseUpdateError = null
+        try {
+            localDatabaseVersion = repository.databaseVersion()
+            val manifest = repository.fetchDatabaseUpdateManifest()
+            repository.recordDatabaseCheck()
+            lastDatabaseCheckAt = repository.lastDatabaseCheckAt
+            databaseUpdate = manifest?.takeIf { candidate ->
+                DatabaseUpdateLogic.shouldPrompt(
+                    localVersion = localDatabaseVersion,
+                    remoteVersion = candidate.dbVersion,
+                    dismissedVersion = repository.dismissedDatabaseVersion,
+                )
+            }
+            if (showFeedback) {
+                noticeMessage = when {
+                    manifest == null -> "未能获取数据库更新清单。"
+                    databaseUpdate != null -> "发现数据库更新：v" + manifest.dbVersion
+                    else -> "数据库已是最新（v" + localDatabaseVersion + "）。"
+                }
+            }
+        } catch (throwable: Throwable) {
+            if (throwable is CancellationException) throw throwable
+            databaseUpdateError = throwable.message ?: "数据库更新检查失败"
+            if (showFeedback) {
+                errorMessage = databaseUpdateError
+            }
+        } finally {
+            checkingDatabaseUpdate = false
+        }
+    }
+
+    /** Downloads the accepted revision and swaps it in (the old database is backed up). */
+    fun applyDatabaseUpdate() {
+        val manifest = databaseUpdate ?: return
+        if (applyingDatabaseUpdate) return
+        applyingDatabaseUpdate = true
+        launchTask("正在下载并更新数据库…") {
+            try {
+                val downloaded = repository.downloadDatabaseUpdate(manifest)
+                noticeMessage = repository.applyDownloadedDatabase(downloaded)
+                databaseUpdate = null
+                repository.recordDatabaseCheck()
+                lastDatabaseCheckAt = repository.lastDatabaseCheckAt
+                localDatabaseVersion = repository.databaseVersion()
+                afterDatabaseChanged()
+            } finally {
+                applyingDatabaseUpdate = false
+            }
+        }
+    }
+
+    /** "Later": remembers this revision so the prompt only returns for a newer one. */
+    fun dismissDatabaseUpdate() {
+        databaseUpdate?.let { repository.recordDatabaseUpdateDismissed(it.dbVersion) }
+        databaseUpdate = null
+    }
+
+    fun updateAutoDatabaseUpdateCheck(enabled: Boolean) {
+        repository.setAutoDatabaseUpdateCheck(enabled)
+        autoDatabaseUpdateCheck = enabled
+        if (enabled) {
+            viewModelScope.launch {
+                refreshDatabaseUpdate(showFeedback = false)
+            }
+        }
     }
 
     fun checkAppUpdate() {

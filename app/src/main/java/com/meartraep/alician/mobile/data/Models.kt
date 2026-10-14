@@ -250,6 +250,22 @@ data class RemoteComparison(
     val diff: DatabaseDiff = DatabaseDiff(),
 )
 
+/**
+ * Published "database-manifest.json" describing the newest database release.
+ *
+ * The bundled Lite database carries a matching revision in its own
+ * `database_metadata` table, so the app can decide whether the published one is
+ * newer without downloading the database itself.
+ */
+data class DatabaseUpdateManifest(
+    val dbVersion: Int,
+    val publishedAt: String = "",
+    val notes: String = "",
+    val size: Long = 0L,
+    val sha1: String = "",
+    val url: String = "",
+)
+
 data class DatabaseDiff(
     val totalAdded: Int = 0,
     val totalRemoved: Int = 0,

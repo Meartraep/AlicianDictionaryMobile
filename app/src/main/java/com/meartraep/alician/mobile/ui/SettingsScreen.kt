@@ -43,6 +43,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -67,6 +68,8 @@ import com.meartraep.alician.mobile.data.RemoteComparison
 import com.meartraep.alician.mobile.data.ThemeMode
 import com.meartraep.alician.mobile.data.TypographySize
 import com.meartraep.alician.mobile.data.UiSettings
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.Locale
 
 @Composable
@@ -198,14 +201,59 @@ fun SettingsScreen(viewModel: MainViewModel, padding: PaddingValues) {
                 )
             }
         }
+        item { SectionHeader("数据库更新", "每次启动自动检查 GitHub 上的发布清单") }
+        item {
+            SettingsCard {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("启动时自动检查", style = MaterialTheme.typography.titleSmall)
+                        Text(
+                            "发现新版本时弹出提示，确认后才下载",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    Switch(
+                        checked = viewModel.autoDatabaseUpdateCheck,
+                        onCheckedChange = viewModel::updateAutoDatabaseUpdateCheck,
+                    )
+                }
+                DatabaseMetricLine("本地数据库版本", "v" + viewModel.localDatabaseVersion)
+                DatabaseMetricLine("最近检查", formatLastCheck(viewModel.lastDatabaseCheckAt))
+                viewModel.databaseUpdateError?.let { message ->
+                    Text(
+                        message,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            }
+        }
         item {
             Button(
+                onClick = viewModel::checkDatabaseUpdate,
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !viewModel.checkingDatabaseUpdate,
+            ) {
+                Icon(Icons.Outlined.CloudDownload, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
+                Text(if (viewModel.checkingDatabaseUpdate) "正在检查…" else "立即检查数据库更新")
+            }
+        }
+        item {
+            SectionHeader(
+                "上游完整数据库",
+                "Meartraep/Alician_dictionary 的全量数据，不含官方日/英译词",
+            )
+        }
+        item {
+            OutlinedButton(
                 onClick = viewModel::checkRemoteUpdate,
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Icon(Icons.Outlined.CloudDownload, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
-                Text("检查云端数据库更新")
+                Text("检查并导入上游完整数据库")
             }
         }
         item {
@@ -747,6 +795,13 @@ private fun uiSettingsSummary(settings: UiSettings): String {
     }
     return "$mode · $colors · $type"
 }
+
+private fun formatLastCheck(timestamp: Long): String =
+    if (timestamp <= 0L) {
+        "尚未检查"
+    } else {
+        SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date(timestamp))
+    }
 
 private fun formatBytes(size: Long): String = when {
     size >= 1024 * 1024 -> String.format(Locale.US, "%.1f MB", size / 1024.0 / 1024.0)

@@ -15,6 +15,7 @@ import org.json.JSONObject
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
+import java.security.MessageDigest
 
 class PythonRepository(private val application: Application) {
     private val dataDirectory = application.filesDir
@@ -30,6 +31,21 @@ class PythonRepository(private val application: Application) {
         get() = preferences.getBoolean("dynamic_colors", true)
     val semanticExpansionsEnabled: Boolean
         get() = preferences.getBoolean("semantic_expansions_enabled", true)
+
+    /** Whether the app checks the published database manifest on every cold start. */
+    val autoDatabaseUpdateCheck: Boolean
+        get() = preferences.getBoolean("auto_database_update_check", true)
+
+    /** Revision the user deferred with "later"; nothing is deferred by default. */
+    val dismissedDatabaseVersion: Int
+        get() = preferences.getInt(
+            "dismissed_database_version",
+            DatabaseUpdateLogic.NO_DISMISSED_VERSION,
+        )
+
+    /** Wall clock of the last completed check, or 0 when never checked. */
+    val lastDatabaseCheckAt: Long
+        get() = preferences.getLong("last_database_check_at", 0L)
     val uiSettings: UiSettings
         get() = UiSettings(
             themeMode = preferenceEnum("theme_mode", ThemeMode.SYSTEM),
@@ -442,6 +458,95 @@ class PythonRepository(private val application: Application) {
     suspend fun databaseInfo(): DatabaseInfo =
         invoke("database_info").getJSONObject("database").toDatabaseInfo()
 
+    /** Revision carried by the installed database (0 for pre-marker databases). */
+    suspend fun databaseVersion(): Int = withContext(Dispatchers.IO) {
+        invoke("database_metadata").optInt("database_version", 0)
+    }
+
+    fun setAutoDatabaseUpdateCheck(enabled: Boolean) {
+        preferences.edit { putBoolean("auto_database_update_check", enabled) }
+    }
+
+    fun recordDatabaseUpdateDismissed(version: Int) {
+        preferences.edit { putInt("dismissed_database_version", version) }
+    }
+
+    fun recordDatabaseCheck() {
+        preferences.edit { putLong("last_database_check_at", System.currentTimeMillis()) }
+    }
+
+    /** Fetches the small published manifest; the database itself is only downloaded on demand. */
+    suspend fun fetchDatabaseUpdateManifest(): DatabaseUpdateManifest = withContext(Dispatchers.IO) {
+        val connection = URL(DATABASE_MANIFEST_URL).openConnection() as HttpURLConnection
+        connection.requestMethod = "GET"
+        connection.connectTimeout = 8_000
+        connection.readTimeout = 8_000
+        connection.setRequestProperty("Accept", "application/json")
+        connection.setRequestProperty("Cache-Control", "no-cache")
+        connection.setRequestProperty("User-Agent", "AlicianDictionaryMobile/" + BuildConfig.VERSION_NAME)
+        try {
+            val responseCode = connection.responseCode
+            if (responseCode != HttpURLConnection.HTTP_OK) {
+                throw IllegalStateException("数据库更新清单获取失败（HTTP " + responseCode + "）")
+            }
+            val json = JSONObject(connection.inputStream.bufferedReader().use { it.readText() })
+            DatabaseUpdateManifest(
+                dbVersion = json.optInt("db_version", 0),
+                publishedAt = json.optString("published_at"),
+                notes = json.optString("notes"),
+                size = json.optLong("size", 0L),
+                sha1 = json.optString("sha1").lowercase(),
+                url = json.optString("url").ifBlank { DATABASE_RAW_URL },
+            )
+        } finally {
+            connection.disconnect()
+        }
+    }
+
+    /** Downloads the published database and verifies size and SHA-1 before it is applied. */
+    suspend fun downloadDatabaseUpdate(manifest: DatabaseUpdateManifest): File =
+        withContext(Dispatchers.IO) {
+            val target = File(application.cacheDir, "database_update.db")
+            if (target.exists() && !target.delete()) {
+                throw IllegalStateException("无法清理旧的下载缓存。")
+            }
+            val connection = URL(manifest.url).openConnection() as HttpURLConnection
+            connection.connectTimeout = 15_000
+            connection.readTimeout = 120_000
+            connection.setRequestProperty("User-Agent", "AlicianDictionaryMobile/" + BuildConfig.VERSION_NAME)
+            try {
+                val responseCode = connection.responseCode
+                if (responseCode != HttpURLConnection.HTTP_OK) {
+                    throw IllegalStateException("数据库下载失败（HTTP " + responseCode + "）")
+                }
+                connection.inputStream.use { input ->
+                    target.outputStream().use(input::copyTo)
+                }
+            } finally {
+                connection.disconnect()
+            }
+            if (manifest.size > 0L && target.length() != manifest.size) {
+                val actual = target.length()
+                target.delete()
+                throw IllegalStateException("数据库下载不完整（" + actual + " / " + manifest.size + " 字节）")
+            }
+            if (manifest.sha1.isNotBlank() && sha1Of(target) != manifest.sha1) {
+                target.delete()
+                throw IllegalStateException("数据库校验失败，下载内容与发布清单不一致。")
+            }
+            target
+        }
+
+    /** Backs up the installed database, then replaces it with the downloaded one. */
+    suspend fun applyDownloadedDatabase(file: File): String = withContext(Dispatchers.IO) {
+        try {
+            invoke("replace_database", JSONObject().put("path", file.absolutePath))
+                .optString("message")
+        } finally {
+            file.delete()
+        }
+    }
+
     suspend fun checkRemoteUpdate(): RemoteComparison {
         val json = invoke("check_remote_update")
         return withContext(Dispatchers.Default) {
@@ -559,11 +664,30 @@ class PythonRepository(private val application: Application) {
     }
 
     private companion object {
+        const val DATABASE_MANIFEST_URL =
+            "https://raw.githubusercontent.com/Meartraep/AlicianDictionaryMobile/" +
+                "main/database-manifest.json"
+        const val DATABASE_RAW_URL =
+            "https://raw.githubusercontent.com/Meartraep/AlicianDictionaryMobile/" +
+                "main/app/src/main/assets/translated.db"
         const val APP_RELEASE_API_URL =
             "https://api.github.com/repos/Meartraep/AlicianDictionaryMobile/releases/latest"
         const val APP_RELEASES_URL =
             "https://github.com/Meartraep/AlicianDictionaryMobile/releases"
     }
+}
+
+private fun sha1Of(file: File): String {
+    val digest = MessageDigest.getInstance("SHA-1")
+    file.inputStream().use { stream ->
+        val buffer = ByteArray(64 * 1024)
+        while (true) {
+            val read = stream.read(buffer)
+            if (read <= 0) break
+            digest.update(buffer, 0, read)
+        }
+    }
+    return digest.digest().joinToString("") { byte -> "%02x".format(byte) }
 }
 
 private fun JSONObject.requireOk() {

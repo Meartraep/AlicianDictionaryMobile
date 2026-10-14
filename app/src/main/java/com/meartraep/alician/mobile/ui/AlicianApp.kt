@@ -95,6 +95,17 @@ fun AlicianApp(viewModel: MainViewModel) {
             }
         }
     }
+
+    // Raised by the startup check; waits here until the user accepts or defers.
+    viewModel.databaseUpdate?.let { manifest ->
+        DatabaseUpdateDialog(
+            manifest = manifest,
+            localVersion = viewModel.localDatabaseVersion,
+            applying = viewModel.applyingDatabaseUpdate,
+            onApply = viewModel::applyDatabaseUpdate,
+            onDismiss = viewModel::dismissDatabaseUpdate,
+        )
+    }
 }
 
 @Composable

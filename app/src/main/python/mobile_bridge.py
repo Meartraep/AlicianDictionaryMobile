@@ -157,6 +157,28 @@ def _database_info() -> Dict[str, Any]:
     }
 
 
+def _database_metadata() -> Dict[str, Any]:
+    """Version marker stored inside the database itself.
+
+    Databases published before the marker existed simply report version 0, which
+    lets the app offer them the first versioned update.
+    """
+    path = Path(_db_path)
+    values: Dict[str, str] = {}
+    if path.is_file():
+        with sqlite3.connect(path) as conn:
+            try:
+                for key, value in conn.execute("SELECT key, value FROM database_metadata"):
+                    values[str(key)] = str(value)
+            except sqlite3.Error:
+                values = {}
+    try:
+        version = int(values.get("db_version", "0"))
+    except (TypeError, ValueError):
+        version = 0
+    return _ok(database_version=version, metadata=values)
+
+
 def _table_page(payload: Dict[str, Any]) -> Dict[str, Any]:
     table = str(payload.get("table") or "")
     keyword = str(payload.get("keyword") or "")
@@ -621,6 +643,8 @@ def invoke(method: str, payload_json: str = "{}") -> str:
                 result = _export_csv_zip(str(payload.get("path") or ""))
             elif method == "database_info":
                 result = _ok(database=_database_info())
+            elif method == "database_metadata":
+                result = _database_metadata()
             elif method == "check_remote_update":
                 result = _check_remote_update()
             elif method == "apply_remote_update":
