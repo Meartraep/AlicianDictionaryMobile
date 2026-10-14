@@ -42,6 +42,16 @@ jobs:
         with:
           python-version: "3.14"
 
+      - name: Verify database release metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Version uniqueness is a release requirement: a database content change
+          # without a new db_version makes the update silently unreachable.
+          python scripts/verify_database_manifest.py
+          python scripts/verify_database_versions.py
+          python scripts/update_database_manifest.py
+
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
 
@@ -137,3 +147,11 @@ jobs:
               --generate-notes \
               --title "Alician Dictionary ${GITHUB_REF_NAME}"
           fi
+
+      - name: Verify the published database matches the ledger
+        shell: bash
+        run: |
+          set -euo pipefail
+          # The bytes a user downloads must be the bytes the ledger recorded, so the
+          # app either installs exactly that revision or refuses the update.
+          python scripts/verify_database_versions.py --remote --retries 5 --delay 20

@@ -650,7 +650,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         launchTask("正在下载并更新数据库…") {
             try {
                 val downloaded = repository.downloadDatabaseUpdate(manifest)
-                noticeMessage = repository.applyDownloadedDatabase(downloaded)
+                noticeMessage = repository.applyDownloadedDatabase(downloaded, manifest.dbVersion)
                 databaseUpdate = null
                 repository.recordDatabaseCheck()
                 lastDatabaseCheckAt = repository.lastDatabaseCheckAt

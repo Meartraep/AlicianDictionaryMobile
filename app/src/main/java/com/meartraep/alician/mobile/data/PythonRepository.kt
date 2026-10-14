@@ -541,15 +541,26 @@ class PythonRepository(private val application: Application) {
             target
         }
 
-    /** Backs up the installed database, then replaces it with the downloaded one. */
-    suspend fun applyDownloadedDatabase(file: File): String = withContext(Dispatchers.IO) {
-        try {
-            invoke("replace_database", JSONObject().put("path", file.absolutePath))
-                .optString("message")
-        } finally {
-            file.delete()
+    /**
+     * Backs up the installed database, then replaces it with the downloaded one.
+     *
+     * The download is only accepted when the revision stored inside the file is the
+     * one the manifest announced, so a mismatched publication cannot install a
+     * database under the wrong version number.
+     */
+    suspend fun applyDownloadedDatabase(file: File, expectedDbVersion: Int): String =
+        withContext(Dispatchers.IO) {
+            try {
+                invoke(
+                    "replace_database",
+                    JSONObject()
+                        .put("path", file.absolutePath)
+                        .put("expected_db_version", expectedDbVersion),
+                ).optString("message")
+            } finally {
+                file.delete()
+            }
         }
-    }
 
     suspend fun checkRemoteUpdate(): RemoteComparison {
         val json = invoke("check_remote_update")

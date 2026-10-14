@@ -18,7 +18,7 @@ import urllib.request
 import zipfile
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 
 _lock = threading.RLock()
@@ -166,12 +166,14 @@ def _database_metadata() -> Dict[str, Any]:
     path = Path(_db_path)
     values: Dict[str, str] = {}
     if path.is_file():
-        with sqlite3.connect(path) as conn:
-            try:
-                for key, value in conn.execute("SELECT key, value FROM database_metadata"):
-                    values[str(key)] = str(value)
-            except sqlite3.Error:
-                values = {}
+        connection = sqlite3.connect(path)
+        try:
+            for key, value in connection.execute("SELECT key, value FROM database_metadata"):
+                values[str(key)] = str(value)
+        except sqlite3.Error:
+            values = {}
+        finally:
+            connection.close()
     try:
         version = int(values.get("db_version", "0"))
     except (TypeError, ValueError):
@@ -519,9 +521,36 @@ def _apply_remote_update() -> Dict[str, Any]:
     )
 
 
-def _replace_database(source_path: str) -> Dict[str, Any]:
+def _read_database_version(path: Path) -> int:
+    """Version marker of an arbitrary database file (0 when it has none)."""
+    if not path.is_file():
+        return 0
+    connection = sqlite3.connect(path)
+    try:
+        try:
+            row = connection.execute(
+                "SELECT value FROM database_metadata WHERE key='db_version'"
+            ).fetchone()
+        except sqlite3.Error:
+            return 0
+    finally:
+        connection.close()
+    try:
+        return int(row[0]) if row else 0
+    except (TypeError, ValueError):
+        return 0
+
+
+def _replace_database(source_path: str, expected_db_version: Optional[int] = None) -> Dict[str, Any]:
     source = Path(source_path)
     _validate_database(source)
+    if expected_db_version is not None:
+        actual = _read_database_version(source)
+        if actual != expected_db_version:
+            raise ValueError(
+                "数据库内容与发布清单不一致：清单为 v%d，文件为 v%d，已取消更新。"
+                % (expected_db_version, actual)
+            )
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     backup = Path(_data_dir) / f"translated.backup_{timestamp}.db"
     _close_services()
@@ -650,7 +679,11 @@ def invoke(method: str, payload_json: str = "{}") -> str:
             elif method == "apply_remote_update":
                 result = _apply_remote_update()
             elif method == "replace_database":
-                result = _replace_database(str(payload.get("path") or ""))
+                expected = payload.get("expected_db_version")
+                result = _replace_database(
+                    str(payload.get("path") or ""),
+                    None if expected is None else int(expected),
+                )
             elif method == "reinitialize":
                 _close_services()
                 _open_services()
