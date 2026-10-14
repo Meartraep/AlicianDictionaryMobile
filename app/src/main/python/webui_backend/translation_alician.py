@@ -380,11 +380,12 @@ class AlicianTranslationMixin:
         return token
 
     def _attested_lexical_override_token(self, source: str) -> Optional[Dict[str, Any]]:
+        # Glosses that used to disagree with the official Japanese/English
+        # columns (xianya / qllsiim / qllsiimtiel) are now corrected in the
+        # database itself by scripts/migrate_gloss_fixes.py, so the data is the
+        # single source of truth and no runtime patch is needed here.
         overrides = {
             "alice": ("爱丽丝", "n.", "两首歌中的独立对齐句均将 Alice 用作人名“爱丽丝”。"),
-            "xianya": ("他们", "pron.", "对齐语料与官方译文均作 they/those。"),
-            "qllsiim": ("我们", "pron.", "对齐语料与官方译文均作 we/us。"),
-            "qllsiimtiel": ("我们自己", "pron.", "对齐语料与官方译文均作 ourselves。"),
             "syeillas": ("天使们", "n.", "词典与语料均标明为 Syeilla 的复数。"),
             "enes": ("人们", "n.", "词典明确标注的 -s 复数形式。"),
             "haols": ("双手", "n.", "词典明确标注的 -s 复数形式。"),
@@ -561,6 +562,45 @@ class AlicianTranslationMixin:
                 ))
                 i += 1
                 continue
+            if lower_part == "elize":
+                # Official Japanese lines settle this: the Alician clause
+                # following Elize is the host of Japanese clause-final
+                # から / だ+から ("because"), in 21 of 23 aligned lines.
+                # Elize therefore marks a reason clause, matching the
+                # dictionary gloss 因为.
+                tokens.append(self._alician_grammar_token(
+                    part, part, "因为", "causal_reason_marker", "conj.",
+                ))
+                i += 1
+                continue
+            if lower_part == "gout":
+                tokens.append(self._alician_grammar_token(
+                    part, part, "但是", "contrastive_marker", "conj.",
+                ))
+                i += 1
+                continue
+            if lower_part == "poetklar":
+                # All five official Japanese lines containing ながら contain
+                # Poetklar, so this is the Japanese converb "while V-ing"
+                # rather than an aspect marker.  Only the second dictionary
+                # sense is surface text; the first is an editor note.
+                tokens.append(self._alician_grammar_token(
+                    part, part, "一边", "converb_marker", "adv.",
+                ))
+                i += 1
+                continue
+            if lower_part == "zel":
+                tokens.append(self._alician_grammar_token(
+                    part, part, "没有任何事物", "indefinite_any_marker", "n.",
+                ))
+                i += 1
+                continue
+            if lower_part == "ifa":
+                tokens.append(self._alician_grammar_token(
+                    part, part, "伴随", "accompaniment_marker", "prep.",
+                ))
+                i += 1
+                continue
             if lower_part == "imm":
                 tokens.append(self._alician_grammar_token(
                     part, part, "在", "locative_marker", "prep.",
@@ -670,6 +710,15 @@ class AlicianTranslationMixin:
             if lower_part == "iqyur":
                 tokens.append(self._alician_grammar_token(
                     part, part, "", "honorific_marker", "", omit=True,
+                ))
+                i += 1
+                continue
+            if lower_part == "yur":
+                # The dictionary describes yur as an honorific prefix/suffix
+                # (お〜) whose gloss is a rule rather than a word, so it has no
+                # Chinese surface and must not surface as an unknown token.
+                tokens.append(self._alician_grammar_token(
+                    part, part, "", "honorific_affix_marker", "", omit=True,
                 ))
                 i += 1
                 continue
@@ -995,6 +1044,34 @@ class AlicianTranslationMixin:
             end += 1
         return start, end
 
+    def _loosya_focus_np_end(
+        self, tokens: List[Dict[str, Any]], start: int,
+    ) -> Optional[int]:
+        """Return the index of the noun that the focus particle Loosya governs.
+
+        Loosya realises Japanese すら / も, which Chinese renders with the
+        bracketing frame 连 … 都; the frame's right edge is this token.
+        """
+        end = None
+        index = start
+        while index < len(tokens):
+            token = tokens[index]
+            if token.get("status") == "punct":
+                break
+            if token.get("syntax_role") == "semantically_light_particle":
+                index += 1
+                continue
+            family = self._syntax_family(token)
+            if family in {"adj", "art", "num"}:
+                index += 1
+                continue
+            if self._is_nominal_family(family):
+                end = index
+                index += 1
+                continue
+            break
+        return end
+
     def _resolve_alician_function_words(
         self, tokens: List[Dict[str, Any]],
     ) -> List[Dict[str, Any]]:
@@ -1204,6 +1281,87 @@ class AlicianTranslationMixin:
                     token["resolved_target"] = "当"
                     token["poutie_resolution"] = "temporal_fallback"
                 token["note"] = "Poutie 已按相邻构式解析为时间、条件、伴随或比较关系。"
+            elif source == "zel":
+                following = neighbor(index, 1)
+                following_family = (
+                    self._syntax_family(following) if following is not None else ""
+                )
+                if self._is_nominal_family(following_family):
+                    token["resolved_target"] = "任何"
+                    token["note"] = "Zel 后接名词时按限定词“任何”解析（Zel Note → 任何事物）。"
+                else:
+                    token["resolved_target"] = "没有任何事物"
+                    token["note"] = "Zel 未后接名词，保留词典释义“没有任何事物”。"
+            elif role == "contrastive_marker":
+                # Sentence-final Gout is Japanese けれど, which Chinese must
+                # still render ("…流逝，但").  Dropping it (as the Chinese
+                # localization does) loses the contrast.
+                dangling = True
+                for candidate in resolved[index + 1:]:
+                    if candidate.get("status") == "punct":
+                        break
+                    if candidate.get("omit_from_result"):
+                        continue
+                    if candidate.get("syntax_role") in {
+                        "semantically_light_particle", "contrastive_marker",
+                    }:
+                        continue
+                    dangling = False
+                    break
+                if dangling:
+                    token["resolved_target"] = "但"
+                    token["note"] = "句末 Gout（日语 けれど）表达未完的转折，译为“但”。"
+            elif source == "loosya":
+                # Official Japanese marks this as the focus particle すら / も
+                # (「人ですらない」, 「意味すら嘲る」, 「独裁者も」).  Chinese
+                # realises it with the frame 连 … 都, so Loosya becomes 连 and
+                # the governed noun carries a trailing 都.
+                token["resolved_target"] = "连"
+                token["syntax_role"] = "focus_particle_loosya"
+                token["note"] = (
+                    "Loosya = 日语 すら/も（焦点助词），按中文“连…都”框架生成。"
+                )
+                np_end = self._loosya_focus_np_end(resolved, index + 1)
+                if np_end is not None:
+                    resolved[np_end]["trailing_particle"] = "都"
+                else:
+                    token["resolved_target"] = "甚至"
+                    token["note"] = (
+                        "Loosya 后无名词可管辖，退化为副词“甚至”。"
+                    )
+            elif source == "laiz":
+                # Final Laiz after a verb is Japanese だろう (presumptive),
+                # not the noun 未来.  Filler syllables (La 啦) and adverbs may
+                # sit between the verb and Laiz, so look past them.
+                is_final = all(
+                    candidate.get("status") == "punct"
+                    or candidate.get("omit_from_result")
+                    or candidate.get("syntax_role") == "semantically_light_particle"
+                    for candidate in resolved[index + 1:]
+                )
+                if is_final:
+                    host = None
+                    for candidate in reversed(resolved[:index]):
+                        if candidate.get("status") == "punct":
+                            break
+                        role = candidate.get("syntax_role")
+                        if role in {
+                            "semantically_light_particle", "coordinator",
+                            "contrastive_marker", "causal_reason_marker",
+                        }:
+                            continue
+                        if self._syntax_family(candidate) in {"adv", "interj"}:
+                            continue
+                        host = candidate
+                        break
+                    if host is not None and self._syntax_family(host) == "v":
+                        token["resolved_target"] = "将"
+                        token["word_class"] = "adv."
+                        token["syntax_role"] = "future_marker"
+                        token["method"] = "grammar_function"
+                        token["note"] = (
+                            "句末 Laiz 依附前文动词时按日语 だろう 解析为“将”。"
+                        )
         return resolved
 
     def _resolve_alician_negations(
@@ -1246,7 +1404,21 @@ class AlicianTranslationMixin:
             ]
 
             # Chinese imperatives conventionally use “别”.
-            if previous_source == "poet" or previous_target.startswith("请"):
+            following_is_loosya = bool(
+                following is not None
+                and following.get("syntax_role") == "focus_particle_loosya"
+            )
+            if following_is_loosya:
+                # 人ですらない → 连…都不是: the negation belongs to the focus
+                # frame's tail instead of the predicate slot.
+                np_end = self._loosya_focus_np_end(resolved, index + 2)
+                token["resolved_target"] = ""
+                token["omit_from_result"] = True
+                token["negation_form_reason"] = "loosya_focus_frame"
+                token["note"] = "Nai 在“连…都”框架中并入后置成分“都不是”。"
+                if np_end is not None:
+                    resolved[np_end]["trailing_particle"] = "都不是"
+            elif previous_source == "poet" or previous_target.startswith("请"):
                 token["resolved_target"] = "别"
                 token["negation_form_reason"] = "imperative"
             elif emphatics:
@@ -1256,7 +1428,21 @@ class AlicianTranslationMixin:
                     emphatic["omit_from_result"] = True
             else:
                 modal = self._negative_modal_form(previous_target)
-                if previous and previous_family == "v" and modal:
+                suppressed_copula = bool(
+                    previous is not None
+                    and previous.get("omit_from_result")
+                    and previous.get("syntax_role") == "topic_or_copula_marker"
+                )
+                if suppressed_copula:
+                    # iy was resolved as a topic boundary and produces no
+                    # surface, so its 是 cannot carry the negation.  Japanese
+                    # 君じゃない keeps a copular 不是 while さみしくない
+                    # negates the predicate directly.
+                    token["resolved_target"] = (
+                        "不是" if following_family in {"n", "pron"} else "不"
+                    )
+                    token["negation_form_reason"] = "topic_boundary_negation"
+                elif previous and previous_family == "v" and modal:
                     previous["resolved_target"] = modal
                     token["omit_from_result"] = True
                     token["negation_form_reason"] = "preceding_modal_or_copula"
@@ -1281,6 +1467,17 @@ class AlicianTranslationMixin:
                                 "negation_context_sense",
                             )
                             replacement["note"] = "已按否定系词结构选择名词义项。"
+                            original = resolved[index + 1]
+                            # A function word already resolved by grammar
+                            # (for example Zel → 任何) must keep that reading
+                            # when the noun sense is re-selected.
+                            for key in ("resolved_target", "syntax_role", "trailing_particle"):
+                                if original.get(key):
+                                    replacement[key] = original[key]
+                            if original.get("omit_from_result"):
+                                replacement["omit_from_result"] = True
+                            if str(original.get("source") or "").casefold() == "zel":
+                                replacement["resolved_target"] = "任何"
                             resolved[index + 1] = replacement
                 elif (
                     following_source in {"aihel", "dilem"}

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import sqlite3
 import unittest
 from pathlib import Path
@@ -683,6 +684,319 @@ class AttestedGrammarTests(unittest.TestCase):
         speak = next(token for token in result["tokens"] if token["source"] == "讲")
         self.assertEqual(speak["status"], "unknown")
         self.assertEqual(speak["target"], "〔讲〕")
+
+    def test_elize_marks_the_reason_clause_as_in_official_japanese(self) -> None:
+        # The official Japanese is the source text; the Chinese column is a
+        # loose localization that often swaps the two clauses.  The Alician
+        # clause FOLLOWING Elize is the host of Japanese clause-final
+        # から / だ+から ("because") in 21 of 23 aligned lines, so Elize is a
+        # reason marker (dictionary gloss 因为), not a result marker.
+        rows = self.connection.execute(
+            """
+            SELECT sentence AS alician, japanese, english
+            FROM song_translations
+            WHERE lower(sentence) LIKE '%elize%'
+              AND japanese IS NOT NULL AND japanese <> ''
+            """
+        ).fetchall()
+        self.assertGreaterEqual(len(rows), 15)
+        kara = 0
+        for row in rows:
+            jp = str(row["japanese"]).replace("\n", " ")
+            if re.search(r"(だから|から)[ねよ。、！？…\s]*$", jp) or "だから" in jp:
+                kara += 1
+        self.assertGreaterEqual(kara, 15)
+        # Same clause order as Japanese: 不幸 / Elize / 改写故事.
+        result = self.service.translate(
+            "Mill end Dikti Elize Olkemia Story ifa Bis a Xia Haol",
+            "alician_to_zh",
+        )
+        self.assertIn("因为", result["result_text"])
+        self.assertNotIn("所以", result["result_text"])
+        # Mid-sentence reason clauses still take the comma "…，因为…".
+        self.assertIn("，因为", result["result_text"])
+
+    def test_poetklar_is_the_japanese_converb_nagara(self) -> None:
+        # Every official Japanese line containing ながら contains Poetklar
+        # (5 of 5); the first dictionary sense is an editor note.
+        total = self.connection.execute(
+            "SELECT COUNT(*) c FROM song_translations WHERE japanese LIKE '%ながら%'"
+        ).fetchone()["c"]
+        matched = self.connection.execute(
+            "SELECT COUNT(*) c FROM song_translations WHERE japanese LIKE '%ながら%'"
+            " AND lower(sentence) LIKE '%poetklar%'"
+        ).fetchone()["c"]
+        self.assertGreaterEqual(total, 5)
+        self.assertEqual(matched, total)
+        result = self.service.translate(
+            "Poetklar Myte Herz Yien Torjest Mii", "alician_to_zh",
+        )
+        self.assertNotIn("与动词构成", result["result_text"])
+        self.assertIn("一边", result["result_text"])
+        self.assertNotIn("正在", result["result_text"])
+
+    def test_zel_before_a_noun_becomes_the_determiner_any(self) -> None:
+        # "Zel Note" is glossed 任何事物, not 没有任何事物事物: the following
+        # noun supplies the head.  Corpus row "Kulu Nai Ranya Zel Note" →
+        # 我什么也看不见.  Bare Zel keeps its dictionary reading.
+        self.assertTranslation("Zel Note", "alician_to_zh", "任何事物")
+        self.assertTranslation("Zel", "alician_to_zh", "没有任何事物")
+        self.assertTranslation(
+            "Kulu Nai Ranya Zel Note", "alician_to_zh", "不能看见任何事物",
+        )
+        self.assertTranslation(
+            "Kulu Nai Ranya end Kulu Nai Prifiel Zel Note",
+            "alician_to_zh",
+            "不能看见，不能理解任何事物",
+        )
+
+    def test_ifa_adjunct_fronts_before_the_predicate(self) -> None:
+        # Post-verbal ifa NPs read as instrument/manner adjuncts in the
+        # corpus: "Olkemia Story ifa Bis a Xia Haol" → 用这双手改写故事.
+        self.assertTranslation(
+            "Stea ifa Enbrikardi Fas", "alician_to_zh", "用恐怖的色彩描绘",
+        )
+        # A preceding passive marker keeps the natural 被-用 order.
+        self.assertTranslation(
+            "Yien Stea ifa Enbrikardi Fas", "alician_to_zh",
+            "被用恐怖的色彩描绘",
+        )
+        # A phrase-initial ifa keeps the accompaniment reading.
+        self.assertTranslation(
+            "Ifa Anie ou Bip", "alician_to_zh", "伴随昆虫的气息",
+        )
+
+    def test_non_relative_end_surfaces_as_an_enumeration_comma(self) -> None:
+        # "Arupe Elled Nols end ol Kllea end ol Sjiyupe" → 古老的电梯，
+        # 忘却的事情，哭泣受挫的日子: here end enumerates items, while
+        # head-end-relative still yields 的.
+        result = self.service.translate(
+            "Arupe Elled Nols end ol Kllea end ol Sjiyupe", "alician_to_zh",
+        )
+        self.assertIn("，", result["result_text"])
+        self.assertNotIn("〔end〕", result["result_text"])
+        self.assertTranslation(
+            "Syeilla end Mii Harie", "alician_to_zh", "我记得的天使",
+        )
+
+    def test_trailing_end_is_dropped_but_trailing_gout_keeps_the_contrast(self) -> None:
+        # Trailing `end` is a line filler ("Ween Nai end" ↔ 長い道を辿るのだ).
+        # Trailing `Gout` is Japanese けれど and Chinese must still show it
+        # ("君の傍を過ぎ去ったけれど" → …流逝，但), so it is NOT dropped.
+        for source in ("Gout Mii Lootaria end Loog", "Laiscall ou Frait miz ei end"):
+            with self.subTest(source=source):
+                result = self.service.translate(source, "alician_to_zh")
+                self.assertNotIn("〔end〕", result["result_text"])
+        rows = self.connection.execute(
+            """
+            SELECT sentence, japanese FROM song_translations
+            WHERE lower(sentence) LIKE '% gout' AND japanese LIKE '%けれど%'
+            """
+        ).fetchall()
+        self.assertGreaterEqual(len(rows), 2)
+        for row in rows:
+            with self.subTest(sentence=row["sentence"]):
+                out = self.service.translate(
+                    row["sentence"], "alician_to_zh",
+                )["result_text"]
+                self.assertTrue(
+                    any(word in out for word in ("但", "却", "不过")),
+                    f"{row['sentence']} -> {out}",
+                )
+
+    def test_dictionary_japanese_gloss_column_matches_the_official_corpus(self) -> None:
+        # The dictionary's japanese_gloss / english_gloss columns were built
+        # from the official lyrics and outrank the Chinese explanation column.
+        # Each expectation below was re-verified against song_translations.
+        expected = {
+            "Elize": "だから",
+            "Poetklar": "ながら",
+            "Qleea": "〜てしまう",
+            "folme": "から",
+            "baly": "いつだって",
+            "zel": "何",
+            "ifa": "で",
+            "lend": "か",
+            "mols": "だけ",
+        }
+        for word, jp_fragment in expected.items():
+            with self.subTest(word=word):
+                rows = self.connection.execute(
+                    "SELECT japanese_gloss FROM dictionary WHERE lower(words)=lower(?)",
+                    (word,),
+                ).fetchall()
+                self.assertTrue(rows, word)
+                self.assertTrue(
+                    any(jp_fragment in str(r["japanese_gloss"] or "") for r in rows),
+                    f"{word}: {[r['japanese_gloss'] for r in rows]}",
+                )
+
+    def test_official_japanese_marker_ids_survive_translation(self) -> None:
+        # Each expectation pairs an Alician function word with the official
+        # Japanese marker and its idiomatic Chinese reflex.
+        result = self.service.translate(
+            "Elize Shelista Fur a Leimy Zill Baly", "alician_to_zh",
+        )
+        self.assertIn("因为", result["result_text"])          # から
+        self.assertIn(
+            "只",
+            self.service.translate("Mols Crai", "alician_to_zh")["result_text"],
+        )                                                     # だけ
+        self.assertIn(
+            "总是",
+            self.service.translate("Crai Baly", "alician_to_zh")["result_text"],
+        )                                                     # いつだって
+
+    def test_chinese_result_connective_generates_elize(self) -> None:
+        # だから as a line-initial conjunction ("so") is attested three times
+        # with Elize (「だから ここから先は…」 etc.), so Chinese 所以 must not
+        # degrade to an unknown word.
+        for chinese in ("所以我们会用这双手改写故事", "所以继续玩吧"):
+            with self.subTest(chinese=chinese):
+                result = self.service.translate(chinese, "zh_to_alician")
+                self.assertIn("Elize", result["result_text"])
+                self.assertNotIn("〔所以〕", result["result_text"])
+        self.assertEqual(
+            self.service.translate("因为世界总是抛弃我们", "zh_to_alician")["result_text"].split()[0],
+            "Elize",
+        )
+
+    def test_glosses_realigned_with_the_official_japanese_column(self) -> None:
+        # scripts/migrate_gloss_fixes.py realigned these entries with the
+        # official Japanese/English columns; the first sense is the surface
+        # gloss used by the translator.
+        expected = {
+            "Qllsiim": "我们",          # offid=232 ↔ 我々は / EN we
+            "Qllsiimtiel": "我们自己",  # offid=230 ↔ 我々自身 / EN ourselves
+            "Xianya": "他们",           # offid=228 ↔ それらは / EN they
+            "Salah": "阴影",            # offid=154/430/665/856 ↔ 影 / EN shadow
+            "Rinasia": "诞生",          # offid=241… ↔ 生まれる / EN born
+            "Loosya": "连",             # offid=236/865 ↔ すら (not even)
+            "ob": "持续",               # offid=185/319 ↔ ていた
+            "Coll": "身躯",             # offid=305/321/543/683 ↔ 体 / EN body
+            "tie": "在",                # offid=62/63 ↔ 故郷で
+            "Mail": "披上",             # offid=588 ↔ 纏い / EN clad
+        }
+        for word, gloss in expected.items():
+            with self.subTest(word=word):
+                rows = self.connection.execute(
+                    "SELECT explanation, class FROM dictionary WHERE lower(words)=lower(?)"
+                    " ORDER BY sense_order",
+                    (word,),
+                ).fetchall()
+                self.assertTrue(rows, word)
+                self.assertEqual(rows[0]["explanation"], gloss)
+                # No doubt marker may survive on the corrected entry.
+                self.assertNotIn("(?)", "".join(r["explanation"] for r in rows))
+                headword = self.connection.execute(
+                    "SELECT display_explanation FROM dictionary_headwords"
+                    " WHERE lower(words)=lower(?)",
+                    (word,),
+                ).fetchone()
+                self.assertIsNotNone(headword, word)
+                self.assertIn(gloss, headword["display_explanation"])
+
+    def test_salah_no_longer_claims_the_water_surface_sense(self) -> None:
+        # offid=154 「瞳の影 瞳の奥の水面」 assigns 水面 to Akarche, not Salah.
+        stray = self.connection.execute(
+            "SELECT 1 FROM dictionary WHERE lower(words)='salah' AND explanation LIKE '%水面%'"
+        ).fetchone()
+        self.assertIsNone(stray)
+        akarche = self.connection.execute(
+            "SELECT 1 FROM dictionary WHERE lower(words)='akarche' AND explanation LIKE '%水面%'"
+        ).fetchone()
+        self.assertIsNotNone(akarche)
+        self.assertTranslation("Salah ou Tittri", "alician_to_zh", "眼睛的阴影")
+
+    def test_realigned_glosses_need_no_runtime_override(self) -> None:
+        # The database is now the single source of truth for these three, so
+        # the old hand patch must be gone from the translator source.
+        source = (
+            DATABASE.parents[4]
+            / "app" / "src" / "main" / "python" / "webui_backend" / "translation_alician.py"
+        ).resolve()
+        self.assertTrue(source.is_file(), source)
+        text = source.read_text(encoding="utf-8")
+        for word in ('"xianya"', '"qllsiim"', '"qllsiimtiel"'):
+            with self.subTest(word=word):
+                self.assertNotIn(word, text)
+
+
+    def test_loosya_builds_the_chinese_lian_dou_focus_frame(self) -> None:
+        # Loosya realises the Japanese focus particle すら / も:
+        #   「人ですらない」 (not even a human)  offid=236
+        #   「意味すら嘲る」 (mocks even meaning) offid=865
+        #   「ナルシストな独裁者も」 (the dictator too) offid=631
+        # Chinese brackets the governed noun with 连 … 都.
+        self.assertTranslation("Loosya Selti", "alician_to_zh", "连意义都")
+        negation = self.service.translate(
+            "Oudiq Nai Hexixa Wondidda Elize Vig iy Nai Loosya Enebis Wetijka",
+            "alician_to_zh",
+        )["result_text"]
+        self.assertIn("连人类都不是", negation)
+        attributive = self.service.translate(
+            "Loosya Hewvews Liiquip iy Aola Feim Wranbend Yien Fims Hegglait",
+            "alician_to_zh",
+        )["result_text"]
+        self.assertIn("连自恋的独裁者都", attributive)
+        # The dictionary gloss must stay the focus particle, not 任何.
+        row = self.connection.execute(
+            "SELECT explanation FROM dictionary WHERE lower(words)='loosya'"
+        ).fetchone()
+        self.assertEqual(row["explanation"], "连")
+
+
+    def test_loosya_marks_the_noun_hosted_by_official_sura_mo(self) -> None:
+        # Evidence is restricted to the OFFICIAL Japanese/English lyrics.
+        # 1) Every official Japanese line carrying the particle すら that has
+        #    an Alician counterpart contains Loosya (zero counter-examples).
+        rows = self.connection.execute(
+            "SELECT id, sentence, japanese FROM song_translations"
+            " WHERE japanese LIKE '%すら%'"
+        ).fetchall()
+        particle_lines = []
+        for row in rows:
+            jp = str(row["japanese"]).replace("\n", " ")
+            positions = [m.start() for m in re.finditer("すら", jp)]
+            real = [p for p in positions if not jp[max(0, p - 2):p].endswith("ひた")]
+            if not real:
+                continue           # ひたすら is a different lexeme
+            particle_lines.append(row)
+            if not str(row["sentence"]).strip():
+                continue           # unaligned lines cannot be tested
+            self.assertIn(
+                "loosya", str(row["sentence"]).casefold(),
+                f"offid={row['id']} 含副助词すら但缺 Loosya",
+            )
+        self.assertEqual(len(particle_lines), 3)
+        # 2) Loosya always precedes the noun phrase whose head is the noun
+        #    that すら/も attaches to (631 has an attributive adjective first).
+        expected_host = {236: "Enebis", 631: "Liiquip", 865: "Selti"}
+        for offid, host in expected_host.items():
+            with self.subTest(offid=offid):
+                row = self.connection.execute(
+                    "SELECT sentence, japanese FROM song_translations WHERE id=?", (offid,)
+                ).fetchone()
+                words = [w for w in re.findall(r"[A-Za-z][A-Za-z'-]*", row["sentence"])]
+                lowered = [w.casefold() for w in words]
+                self.assertIn("loosya", lowered)
+                index = lowered.index("loosya")
+                self.assertIn(host, words[index + 1:index + 3])
+                self.assertTrue(any(m in row["japanese"] for m in ("すら", "も")))
+        # 3) The official English explicitly renders すら as "even" (offid=865),
+        #    and no line contains the interrogative a 何も reading would need.
+        english = self.connection.execute(
+            "SELECT english FROM song_translations WHERE id=865"
+        ).fetchone()["english"]
+        self.assertIn("even", english.casefold())
+        for offid in (236, 631, 865):
+            jp = self.connection.execute(
+                "SELECT japanese FROM song_translations WHERE id=?", (offid,)
+            ).fetchone()["japanese"]
+            self.assertFalse(
+                any(q in jp for q in ("何も", "誰も", "どんな")),
+                f"offid={offid}: {jp}",
+            )
 
 
 if __name__ == "__main__":

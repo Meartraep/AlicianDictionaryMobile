@@ -99,7 +99,6 @@ data class DictionaryResult(
 data class LyricLineTranslation(
     val line: String,
     val poetic: String,
-    val literal: String,
     val english: String = "",
     val japanese: String = "",
     val korean: String = "",
@@ -114,7 +113,6 @@ data class LyricExample(
     val start: Int,
     val end: Int,
     val poeticTranslation: String = "",
-    val literalTranslation: String = "",
     val englishTranslation: String = "",
     val japaneseTranslation: String = "",
     val koreanTranslation: String = "",

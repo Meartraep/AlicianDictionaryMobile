@@ -229,22 +229,19 @@ class DatabaseHandler:
         )
         return self.cursor.fetchall()
 
-    def find_song_alignments(self, title: str, album: str) -> List[Tuple[str, str, str, str, str, str]]:
-        """Return per-line (alician, poetic, literal, english, japanese, korean).
+    def find_song_alignments(self, title: str, album: str) -> List[Tuple[str, str, str, str, str]]:
+        """Return per-line (alician, poetic, english, japanese, korean).
 
-        Older databases may not carry lyric_literal_alignments or
-        song_translations yet; missing tables degrade gracefully to empty
-        translation fields.
+        Older databases may not carry song_translations yet; the missing table
+        degrades gracefully to empty official translation fields.
         """
         if not self.cursor:
             return []
         try:
             self.cursor.execute(
                 "SELECT sa.alician_sentence, sa.chinese_translation, "
-                "l.chinese_translation_literal, st.english, st.japanese, st.korean "
+                "st.english, st.japanese, st.korean "
                 "FROM sentence_alignments sa "
-                "LEFT JOIN lyric_literal_alignments l "
-                "ON l.sentence_alignment_id = sa.id "
                 "LEFT JOIN song_translations st "
                 "ON st.song_title = sa.song_title "
                 "AND st.sentence = sa.alician_sentence "
@@ -254,29 +251,16 @@ class DatabaseHandler:
                 (title.strip(), album.strip()),
             )
         except sqlite3.Error:
-            try:
-                self.cursor.execute(
-                    "SELECT sa.alician_sentence, sa.chinese_translation, "
-                    "l.chinese_translation_literal, '', '', '' "
-                    "FROM sentence_alignments sa "
-                    "LEFT JOIN lyric_literal_alignments l "
-                    "ON l.sentence_alignment_id = sa.id "
-                    "WHERE sa.song_title = ? AND sa.album = ? "
-                    "AND TRIM(sa.alician_sentence) <> '' "
-                    "ORDER BY sa.song_sentence_order",
-                    (title.strip(), album.strip()),
-                )
-            except sqlite3.Error:
-                self.cursor.execute(
-                    "SELECT alician_sentence, chinese_translation, '', '', '', '' "
-                    "FROM sentence_alignments "
-                    "WHERE song_title = ? AND album = ? "
-                    "AND TRIM(alician_sentence) <> '' "
-                    "ORDER BY song_sentence_order",
-                    (title.strip(), album.strip()),
-                )
+            self.cursor.execute(
+                "SELECT alician_sentence, chinese_translation, '', '', '' "
+                "FROM sentence_alignments "
+                "WHERE song_title = ? AND album = ? "
+                "AND TRIM(alician_sentence) <> '' "
+                "ORDER BY song_sentence_order",
+                (title.strip(), album.strip()),
+            )
         return [
-            (row[0], row[1] or "", row[2] or "", row[3] or "", row[4] or "", row[5] or "")
+            (row[0], row[1] or "", row[2] or "", row[3] or "", row[4] or "")
             for row in self.cursor.fetchall()
         ]
 

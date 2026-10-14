@@ -93,6 +93,12 @@ class ChineseGrammarMixin:
             "将": "Laiz", "将要": "Laiz",
             "被": "Yien",
             "请": "Phier",
+            # Elize renders Japanese から / だ+から.  The conjunction use of
+            # だから ("so, therefore") is attested by three official lines
+            # (だから ここから先は… / だからせめて… / 私たちは不幸だ だから…),
+            # so 因为 and 所以 share the same Alician word.  因此 keeps its own
+            # dictionary term (Endjulf).
+            "因为": "Elize", "所以": "Elize",
         }
         for token in tokens:
             source = str(token.get("source") or "")
@@ -117,6 +123,8 @@ class ChineseGrammarMixin:
                 token["syntax_role"] = "passive_marker"
             elif source == "请":
                 token["syntax_role"] = "imperative_marker"
+            elif target_word == "Elize":
+                token["syntax_role"] = "causal_reason_marker"
             token["confidence"] = 1.0
             token["note"] = "按爱丽丝语语法功能词生成。"
         return tokens

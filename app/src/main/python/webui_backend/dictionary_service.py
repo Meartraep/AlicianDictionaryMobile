@@ -227,7 +227,7 @@ class DictionaryService:
             return self._get_examples_payload(normalized_word, position_filter)
 
     def get_lyric_translations(self, title: str, album: str) -> Dict[str, Any]:
-        """Return per-line poetic and literal translations for one song."""
+        """Return per-line poetic and official translations for one song."""
         with self._lock:
             self._ensure_connection()
             lines = self._load_song_translations(title, album)
@@ -244,12 +244,11 @@ class DictionaryService:
             {
                 "line": line,
                 "poetic": poetic,
-                "literal": literal,
                 "english": english,
                 "japanese": japanese,
                 "korean": korean,
             }
-            for line, poetic, literal, english, japanese, korean in rows
+            for line, poetic, english, japanese, korean in rows
         ]
 
     def _get_examples_payload(self, word: str, position_filter: str = "any") -> Dict[str, Any]:
@@ -278,7 +277,6 @@ class DictionaryService:
                 "id": index, "paragraph": paragraph, "title": example["title"],
                 "album": example["album"], "lyric": lyric, "start": start_pos, "end": end_pos,
                 "poetic_translation": matched.get("poetic", ""),
-                "literal_translation": matched.get("literal", ""),
                 "english_translation": matched.get("english", ""),
                 "japanese_translation": matched.get("japanese", ""),
                 "korean_translation": matched.get("korean", ""),

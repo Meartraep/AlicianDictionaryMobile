@@ -29,7 +29,7 @@ class PythonRepository(private val application: Application) {
     val dynamicColorsEnabled: Boolean
         get() = preferences.getBoolean("dynamic_colors", true)
     val semanticExpansionsEnabled: Boolean
-        get() = preferences.getBoolean("semantic_expansions_enabled", false)
+        get() = preferences.getBoolean("semantic_expansions_enabled", true)
     val uiSettings: UiSettings
         get() = UiSettings(
             themeMode = preferenceEnum("theme_mode", ThemeMode.SYSTEM),
@@ -685,7 +685,6 @@ private fun JSONObject.toLyricExample(): LyricExample {
         start = optInt("start"),
         end = optInt("end"),
         poeticTranslation = optString("poetic_translation"),
-        literalTranslation = optString("literal_translation"),
         englishTranslation = optString("english_translation"),
         japaneseTranslation = optString("japanese_translation"),
         koreanTranslation = optString("korean_translation"),
@@ -694,7 +693,6 @@ private fun JSONObject.toLyricExample(): LyricExample {
                 LyricLineTranslation(
                     line = it.optString("line"),
                     poetic = it.optString("poetic"),
-                    literal = it.optString("literal"),
                     english = it.optString("english"),
                     japanese = it.optString("japanese"),
                     korean = it.optString("korean"),

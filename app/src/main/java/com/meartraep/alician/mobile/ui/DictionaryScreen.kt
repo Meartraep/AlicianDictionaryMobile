@@ -510,7 +510,6 @@ private fun ExamplesSheet(
                         }
                         if (
                             example.poeticTranslation.isNotBlank() ||
-                            example.literalTranslation.isNotBlank() ||
                             example.japaneseTranslation.isNotBlank() ||
                             example.englishTranslation.isNotBlank() ||
                             example.koreanTranslation.isNotBlank()
@@ -518,7 +517,6 @@ private fun ExamplesSheet(
                             Spacer(Modifier.height(8.dp))
                             LyricTranslationsBlock(
                                 poetic = example.poeticTranslation,
-                                literal = example.literalTranslation,
                                 japanese = example.japaneseTranslation,
                                 english = example.englishTranslation,
                                 korean = example.koreanTranslation,
@@ -848,7 +846,6 @@ private fun LyricBlockContent(
         translations[block.sentence.trim()]?.let { translation ->
             if (
                 translation.poetic.isNotBlank() ||
-                translation.literal.isNotBlank() ||
                 translation.japanese.isNotBlank() ||
                 translation.english.isNotBlank() ||
                 translation.korean.isNotBlank()
@@ -856,7 +853,6 @@ private fun LyricBlockContent(
                 Spacer(Modifier.height(2.dp))
                 LyricTranslationsBlock(
                     poetic = translation.poetic,
-                    literal = translation.literal,
                     japanese = translation.japanese,
                     english = translation.english,
                     korean = translation.korean,
@@ -870,7 +866,6 @@ private fun LyricBlockContent(
 @Composable
 private fun LyricTranslationsBlock(
     poetic: String,
-    literal: String,
     japanese: String,
     english: String,
     korean: String,
@@ -880,9 +875,6 @@ private fun LyricTranslationsBlock(
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
         if (poetic.isNotBlank()) {
             TranslationRow("中文翻译", poetic, MaterialTheme.colorScheme.primary, textColor)
-        }
-        if (literal.isNotBlank()) {
-            TranslationRow("中文对译", literal, MaterialTheme.colorScheme.tertiary, textColor)
         }
         if (japanese.isNotBlank()) {
             TranslationRow("官方日译", japanese, null, textColor)

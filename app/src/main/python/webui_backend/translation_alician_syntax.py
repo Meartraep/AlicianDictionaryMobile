@@ -418,6 +418,56 @@ class AlicianSyntaxMixin:
             token["grammar_order_locked"] = True
         return arranged
 
+    def _front_alician_ifa_phrase(
+        self, tokens: List[Dict[str, Any]],
+    ) -> Optional[List[Dict[str, Any]]]:
+        """Move a post-verbal ifa NP to the Chinese preverbal 用/和 NP slot.
+
+        Attested readings front the phrase as an instrument/manner adjunct
+        (“Olkemia Story ifa Bis a Xia Haol” → 用这双手改写故事; “Yien Stea ifa
+        Enbrikardi Fas” → 用可怕的颜色描绘).  A phrase-initial or noun-led
+        ifa keeps the accompaniment reading 伴随 in place.
+        """
+        ifa_index = next(
+            (
+                index for index, token in enumerate(tokens)
+                if token.get("syntax_role") == "accompaniment_marker"
+            ),
+            -1,
+        )
+        if ifa_index < 1 or ifa_index + 1 >= len(tokens):
+            return None
+        verb_index = -1
+        for index in range(ifa_index - 1, -1, -1):
+            if (
+                self._syntax_family(tokens[index]) == "v"
+                and tokens[index].get("syntax_role") != "topic_or_copula_marker"
+            ):
+                verb_index = index
+                break
+        if verb_index < 0:
+            return None
+        marker = tokens[ifa_index]
+        following = tokens[ifa_index + 1]
+        comitative = self._syntax_family(following) == "pron"
+        marker.update({
+            "resolved_target": "和" if comitative else "用",
+            "syntax_role": "instrument_marker",
+            "parse_method": "attested_ifa_adjunct_grammar",
+            "note": "谓词后的 ifa NP 已按工具/方式/伴随短语移到谓词前。",
+        })
+        # A passive marker keeps its slot before the adjunct, giving the
+        # natural Chinese order 被-用 NP-V rather than 用 NP-被 V.
+        arranged = (
+            tokens[:verb_index]
+            + tokens[ifa_index:]
+            + tokens[verb_index:ifa_index]
+        )
+        for position, token in enumerate(arranged):
+            token["reordered_position"] = position
+            token["grammar_order_locked"] = True
+        return arranged
+
     def _reorder_negative_passive_markers(
         self, tokens: List[Dict[str, Any]],
     ) -> List[Dict[str, Any]]:
@@ -448,8 +498,22 @@ class AlicianSyntaxMixin:
             head_index = marker_index - 1
             if not self._is_nominal_family(self._syntax_family(tokens[head_index])):
                 continue
+            # A relative clause ends at the next structural boundary (another
+            # linker, a coordinator, or a discourse connective); without this
+            # bound a long sentence's main clause is swallowed into the
+            # modifier.
+            boundary = len(tokens)
+            for index in range(marker_index + 1, len(tokens)):
+                if tokens[index].get("syntax_role") in {
+                    "coordinator",
+                    "relative_or_linker",
+                    "causal_reason_marker",
+                    "contrastive_marker",
+                }:
+                    boundary = index
+                    break
             verb_indexes = [
-                index for index in range(marker_index + 1, len(tokens))
+                index for index in range(marker_index + 1, boundary)
                 if self._syntax_family(tokens[index]) == "v"
                 and tokens[index].get("syntax_role") not in {
                     "topic_or_copula_marker",
@@ -458,7 +522,7 @@ class AlicianSyntaxMixin:
             if not verb_indexes:
                 continue
             first_verb = verb_indexes[0]
-            relative_end = len(tokens)
+            relative_end = boundary
             if len(verb_indexes) > 1:
                 relative_end = verb_indexes[1]
                 while relative_end > first_verb + 1 and (
@@ -474,6 +538,9 @@ class AlicianSyntaxMixin:
             passive_modifier = self._reorder_alician_passive(modifier)
             if passive_modifier is not None:
                 modifier = passive_modifier
+            ifa_modifier = self._front_alician_ifa_phrase(modifier)
+            if ifa_modifier is not None:
+                modifier = ifa_modifier
             marker.update({
                 "resolved_target": "的",
                 "explanation": "关系从句标记",
@@ -518,10 +585,35 @@ class AlicianSyntaxMixin:
                     -1,
                 )
                 if role == "imperative_marker" and marker_index > predicate_index:
-                    arranged[marker_index]["resolved_target"] = "吧"
-                    arranged[marker_index]["note"] = (
-                        "句末 Phier 按语料中的祈使/礼貌语气译为“吧”。"
+                    # Japanese ください follows the verb ("助けてください") but
+                    # Chinese 请 leads it ("请帮助"), so a post-predicate
+                    # Phier moves in front.  When the clause already opens with
+                    # Yiep/Yiela (which renders 请…吧), the extra Phier is
+                    # absorbed instead of producing a second 请.
+                    has_clause_marker = any(
+                        token.get("syntax_role") == "imperative_clause_marker"
+                        for token in arranged
                     )
+                    if has_clause_marker:
+                        marker = arranged[marker_index]
+                        marker["resolved_target"] = ""
+                        marker["omit_from_result"] = True
+                        marker["note"] = (
+                            "同分句已有 Yiep/Yiela 引导祈使，Phier 不重复生成“请”。"
+                        )
+                        continue
+                    marker = arranged.pop(marker_index)
+                    predicate_index = next(
+                        index for index, token in enumerate(arranged)
+                        if self._syntax_family(token) == "v"
+                        and token.get("syntax_role") not in {
+                            "topic_or_copula_marker", "passive_marker",
+                        }
+                    )
+                    marker["note"] = (
+                        "谓语后的 Phier（日语 ください）按中文习惯前移为“请”。"
+                    )
+                    arranged.insert(predicate_index, marker)
                     continue
                 if marker_index > predicate_index:
                     marker = arranged.pop(marker_index)
@@ -745,7 +837,45 @@ class AlicianSyntaxMixin:
             else:
                 clause.append(token)
         flush()
+        self._resolve_alician_enumeration_end(result)
         return result
+
+    def _resolve_alician_enumeration_end(
+        self, tokens: List[Dict[str, Any]],
+    ) -> None:
+        """Render a non-relative ``end`` as an enumeration comma.
+
+        A relative clause is rewritten to head-的 by
+        ``_reorder_alician_relative_clause`` and its role becomes
+        ``relative_clause_marker``.  An ``end`` still tagged
+        ``relative_or_linker`` therefore precedes a verb-led sequence; in the
+        corpus that use links enumerated items (“Arupe Elled Nols end ol Kllea
+        end ol Sjiyupe” → 古老的电梯，忘却的事情，哭泣受挫的日子) and must
+        surface as a comma instead of disappearing.
+        """
+        for index, token in enumerate(tokens):
+            if token.get("syntax_role") != "relative_or_linker":
+                continue
+            preceding = any(
+                candidate.get("status") != "punct"
+                for candidate in tokens[:index]
+                if candidate.get("syntax_role") != "relative_or_linker"
+            )
+            following = any(
+                candidate.get("status") != "punct"
+                for candidate in tokens[index + 1:]
+            )
+            if not (preceding and following):
+                continue
+            next_candidate = tokens[index + 1]
+            if self._syntax_family(next_candidate) in {"n", "pron"}:
+                # Nominal-led: the head-end reading is handled elsewhere.
+                continue
+            token["resolved_target"] = "，"
+            token["omit_from_result"] = False
+            token["syntax_role"] = "enumeration_linker"
+            token["parse_method"] = "attested_enumeration_linker"
+            token["note"] = "未被关系从句构式消费的 end 按语料枚举关系解析为逗号。"
 
     def _reorder_simple_clause(self, clause: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         semantic = [token for token in clause if token.get("status") != "space"]
@@ -764,6 +894,9 @@ class AlicianSyntaxMixin:
         instrumental = self._reorder_alician_instrumental(semantic)
         if instrumental is not None:
             semantic = instrumental
+        ifa_phrase = self._front_alician_ifa_phrase(semantic)
+        if ifa_phrase is not None:
+            semantic = ifa_phrase
         semantic = self._reorder_negative_passive_markers(semantic)
         semantic = self._reorder_alician_markers(semantic)
         imperative = self._resolve_imperative_clause(semantic)

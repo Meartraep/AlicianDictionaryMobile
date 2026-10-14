@@ -15,8 +15,6 @@ from webui_backend.translation_common import (
     _CHINESE_NEGATION_FORMS,
     _CHINESE_NON_ERHUA_WORDS,
     _CHINESE_PART_RE,
-    _CJK_RE,
-    _CJK_RUN_RE,
     _NO_CLASS_ALIAS_RE,
     _POS_RE,
     _TEMPLATE_SLOT_RE,
@@ -96,7 +94,7 @@ class ChineseLexiconMixin:
             return tokens
         tokens: List[Dict[str, Any]] = []
         for word in self._segment_chinese_run(text):
-            tokens.append(self._translate_segmented_chinese_word(word))
+            tokens.extend(self._expand_chinese_word(word))
         return tokens
 
     def _translate_chinese_sentence_template(
@@ -505,7 +503,6 @@ class ChineseLexiconMixin:
 
         scored: List[Tuple[float, Dict[str, Any]]] = []
         if self._enable_fallback_matching:
-            query_set = set(query)
             for entry in self._entries:
                 if (
                     entry.get("fragment_parents")
@@ -523,20 +520,23 @@ class ChineseLexiconMixin:
                 elif query and query in explanation:
                     score = max(score, 64.0 - min(len(explanation), 40) * 0.3)
                 for term in terms:
-                    if len(term) < 2 and len(query) > 1:
+                    # A shared short fragment is not evidence of synonymy: the
+                    # can* in 可以 must not select the entry for 可.  Only a
+                    # match which covers most of the query (or most of the
+                    # gloss) is accepted, which removes the character-overlap
+                    # noise that used to produce confident-looking collisions.
+                    if len(term) < 2:
                         continue
                     if term and term in query:
                         coverage = len(term) / max(len(query), 1)
+                        if coverage < 0.6:
+                            continue
                         score = max(score, 34.0 + coverage * 30.0)
                     elif query in term:
                         coverage = len(query) / max(len(term), 1)
+                        if coverage < 0.6:
+                            continue
                         score = max(score, 28.0 + coverage * 28.0)
-                if score <= 0 and len(query) >= 2 and query_set:
-                    exp_chars = {ch for ch in explanation if _CJK_RE.match(ch)}
-                    if exp_chars:
-                        overlap = len(query_set & exp_chars) / max(len(query_set), 1)
-                        if overlap >= 0.6:
-                            score = 22.0 + overlap * 18.0
                 if score > 0:
                     score += min(entry["count"], 20) * 0.08 + min(entry["variety"], 10) * 0.12
                     if entry["kind"] == "phrase" and len(query) >= 2:

@@ -51,6 +51,70 @@ _CHINESE_NON_ERHUA_WORDS = frozenset({
     "儿", "女儿", "男儿", "婴儿", "幼儿", "孤儿",
     "这儿", "那儿", "哪儿", "哪会儿", "一会儿",
 })
+# Chinese function words which carry a grammatical role but have no lexical
+# entry in the Alician dictionary.  Without this table a fluent sentence such
+# as “花开了” leaves 了 as an unknown token, which is what forces users to
+# rewrite natural Chinese into dictionary-shaped fragments.  An empty target
+# means the particle is dropped from the output; a non-empty target reuses an
+# attested Alician function word (for example 与/及 share the coordinator a).
+_CHINESE_FUNCTION_PARTICLES: Dict[str, Tuple[str, str]] = {
+    "了": ("", "aspect_particle"),
+    "着": ("", "aspect_particle"),
+    "过": ("", "aspect_particle"),
+    "得": ("", "structural_particle"),
+    "之": ("", "structural_particle"),
+    "则": ("", "structural_particle"),
+    "而": ("", "structural_particle"),
+    "把": ("", "disposal_particle"),
+    "与": ("a", "coordinator"),
+    "及": ("a", "coordinator"),
+    "或": ("", "alternative_particle"),
+    "等": ("", "enumeration_particle"),
+    "等等": ("", "enumeration_particle"),
+    "呢": ("", "modal_particle"),
+    "吗": ("", "modal_particle"),
+    "吧": ("", "modal_particle"),
+    "呀": ("", "modal_particle"),
+    "嘛": ("", "modal_particle"),
+    "啦": ("", "modal_particle"),
+}
+# Fluent Chinese compounds whose meaning is not the sum of their parts.  Their
+# morphemes are individually known, so without this guard the compositional
+# resolver would emit a plausible-looking but wrong reading (for example
+# 东西 “thing” must not become 东 + 西 “east + west”).
+_CHINESE_NON_COMPOSITIONAL_COMPOUNDS = frozenset({
+    "东西", "左右", "大小", "小说", "小心", "时候", "地方",
+    "知道", "觉得", "希望", "打算", "马上", "可以", "应该", "一定",
+    "已经", "曾经", "正在", "刚才", "然后", "于是", "但是", "可是",
+    "虽然", "如果", "因为", "所以", "而且", "或者", "还是", "不过",
+    "并且", "因此", "由于", "关于", "对于", "按照", "根据", "通过",
+    "除了", "作为", "随着", "重新", "只好", "再也", "当真", "一切",
+    "还有", "不用", "不好", "不是", "不再", "没有", "什么", "怎么",
+    "怎样", "为何", "这里", "那里", "哪里", "这个", "那个",
+    "这些", "那些", "一个", "一些", "一种", "自己", "别人", "大家",
+    "大概", "也许", "立刻", "突然", "忽然", "终于", "果然",
+    "居然", "仍然", "仍旧", "依然", "照样", "同样", "共同", "一起",
+    "一样", "一边", "一点", "一同", "一向", "一旦", "一般",
+    "小人", "深刻", "当天", "当年", "心里", "眼里", "手里",
+    "鱼雷", "船只", "念头", "一路", "一手", "一头", "一笔", "一脚",
+    # Common proper names whose morphemes are individually known: splitting
+    # them would produce a plausible but wrong literal reading.
+    "北京", "上海", "天津", "重庆", "广州", "深圳", "武汉", "西安", "成都",
+    "杭州", "南京", "苏州", "长沙", "郑州", "济南", "青岛", "大连", "沈阳",
+    "昆明", "福州", "厦门", "合肥", "南昌", "太原", "兰州", "拉萨", "香港",
+    "澳门", "台湾", "海南", "云南", "四川", "广东", "广西", "山东", "山西",
+    "河南", "河北", "湖南", "湖北", "江苏", "浙江", "安徽", "福建", "江西",
+    "贵州", "陕西", "甘肃", "辽宁", "吉林", "宁夏", "新疆", "西藏",
+    "长江", "黄河", "西湖", "东湖", "太湖", "天门",
+})
+# Compositional resolution only accepts pieces which carry lexical meaning.
+# The head must be nominal: verb-headed two-morpheme words are frequently
+# lexicalized (听说, 再说, 真是, 像是) and their morpheme sum is not the whole
+# meaning, whereas [modifier + noun] is the transparent productive pattern.
+_CHINESE_COMPOUND_MODIFIER_FAMILIES = frozenset({"n", "v", "adj", "adv", "num"})
+_CHINESE_COMPOUND_HEAD_FAMILIES = frozenset({"n"})
+_CHINESE_COMPOUND_CONTENT_FAMILIES = frozenset({"n", "v", "adj", "adv", "num"})
+_CHINESE_COMPOUND_MAX_LENGTH = 4
 _CHINESE_FALLBACK_BOUNDARIES = frozenset({
     "我", "你", "他", "她", "它", "这", "那", "谁",
     "是", "有", "在", "和", "与", "或", "但", "而",
@@ -82,6 +146,7 @@ class TranslationCore:
         self,
         db_path: Optional[str] = None,
         enable_fallback_matching: Optional[bool] = None,
+        enable_composition: Optional[bool] = None,
     ) -> None:
         self._lock = threading.RLock()
         self._db_path = db_path or _default_db_path()
@@ -89,6 +154,12 @@ class TranslationCore:
             not is_lite_build()
             if enable_fallback_matching is None
             else bool(enable_fallback_matching)
+        )
+        # Chinese particles and compositional compounds are resolved from the
+        # dictionary alone, so unlike the text2vec fallback they stay available
+        # in the lite (Android) build and are on by default.
+        self._enable_composition = (
+            True if enable_composition is None else bool(enable_composition)
         )
         self._conn = sqlite3.connect(self._db_path, check_same_thread=False)
         self._conn.row_factory = sqlite3.Row
@@ -269,7 +340,7 @@ class TranslationCore:
             return ""
         if re.match(
             r"^(?:引导|提示一个动作|用于(?:过去|完成)|常置于|表示施事者|"
-            r"(?:用)?在动词后|动词前表|助动词|语气词|后缀|同[A-Za-z])",
+            r"(?:用)?在动词后|动词前表|助动词|语气词|后缀|与动词构成|同[A-Za-z])",
             surface,
             flags=re.IGNORECASE,
         ):
@@ -432,7 +503,24 @@ class TranslationCore:
                         target = _TEMPLATE_SLOT_RE.sub("", template)
                         token["note"] = f"该句式需要 {arity} 个论元，当前输入不完整。"
                         token["method"] = "sentence_template_incomplete"
+            # A result/inference or contrastive connective opening a new
+            # clause mid-sentence is separated by a comma in attested
+            # references (e.g. “…，所以…”, “…，但…”); sentence-initial uses
+            # stay bare.
+            if (
+                target
+                and str(token.get("source") or "").casefold() in {"elize", "gout"}
+                and out
+                and out[-1]
+                and out[-1][-1] not in "，。！？；：、…—,.!?;:(（[\"'“‘「『【《"
+            ):
+                out.append("，")
             out.append(target)
+            # A postposed frame particle (Chinese 连 … 都) travels with the
+            # token it follows, so reordering cannot separate the pair.
+            trailing = str(token.get("trailing_particle") or "")
+            if trailing:
+                out.append(trailing)
         return "".join(out).strip()
 
     def _stats(self, tokens: List[Dict[str, Any]]) -> Dict[str, int]:
