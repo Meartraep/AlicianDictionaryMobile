@@ -57,7 +57,7 @@ android {
         }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
-        buildConfigField("String", "DATABASE_ASSET_VERSION", "\"2026-08-22-lyric-literal-alignments\"")
+        buildConfigField("String", "DATABASE_ASSET_VERSION", "\"2026-10-14-lyric-sentence-alignments\"")
     }
 
     signingConfigs {
@@ -125,6 +125,11 @@ chaquopy {
                     "jieba-0.42.1.tar.gz#sha256=" +
                     "055ca12f62674fafed09427f176506079bc135638a14e23e25be909131928db2"
             )
+            // Chaquopy runs pip with `isolated=True`, so it ignores PIP_* environment
+            // variables and pip config files. Without this option pip writes its wheel
+            // cache under %LOCALAPPDATA%\pip, which confined build environments deny,
+            // failing with "WinError 5" while building the jieba wheel.
+            options("--no-cache-dir")
         }
     }
 }
