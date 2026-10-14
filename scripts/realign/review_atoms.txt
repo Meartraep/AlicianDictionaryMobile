@@ -1,0 +1,1092 @@
+@@ A Little Servant | S01 | K=4 | ENatoms=14 JAatoms=7
+   orig: Finzo a Fiola end ol Melnaid | Veit Syarfi Oul Solien Vala ou Quondlea | Jiddle Ceeka Meisem Clooshela | Klautie end ol Dizzle
+   app0: Finzo a Fiola end ol Melnaid || 有那干枯的花朵
+   app1: Veit Syarfi Oul Solien Vala ou Quondlea || 红裙子，大沙发，堡垒的城墙
+   app2: Jiddle Ceeka Meisem Clooshela || 铁栅栏与凌乱的壁橱
+   app3: Klautie end ol Dizzle || 还有破碎的指甲
+   EN: 0|Withered 1|flower, 2|Red 3|dress, 4|Big 5|sofa, 6|Castellated 7|wall, 8|Iron 9|bars, 10|Messy 11|closet, 12|Broken 13|nail //
+   JA: 0|萎れた花 1|赤いドレス 2|大きなソファ 3|城壁 4|鉄格子 5|散らかったクローゼット 6|割れた爪 //
+
+@@ A Little Servant | S03 | K=2 | ENatoms=10 JAatoms=3
+   orig: Foul Xia o Siala end Dilem no Amie | a Siala Blem lar
+   app0: Foul Xia o Siala end Dilem no Amie || 也许那是没有爱情的歌谣
+   app1: a Siala Blem lar o Shelista Plentie || 那是为谁唱的？是这个世界的摄影机吗？
+   EN: 0|The 1|song 2|may 3|be 4|without 5|love 6|This 7|is 8|for 9|whom? //
+   JA: 0|それはきっと 1|愛のない唄 2|誰が為の唄 //
+
+@@ A Little Servant | S04 | K=2 | ENatoms=8 JAatoms=3
+   orig: o Shelista Plenptie ? | Cloud o Iequim Lef Mono
+   app0: a Siala Blem lar o Shelista Plentie || 那是为谁唱的？是这个世界的摄影机吗？
+   app1: Cloud o Iequim Lef Mono || （如果是的话）那你一定像单色的摄影机
+   EN: 0|Is 1|this 2|world 3|cinematograph? 4|You 5|look 6|like 7|monochrome //
+   JA: 0|世界は映写機？ 1|あなたはまるで 2|モノクローム //
+
+@@ A Little Servant | S07 | K=2 | ENatoms=12 JAatoms=8
+   orig: Gout Hellm o Ola Poul ail | Ignai Canvie Imeila Prous Amblait
+   app0: Gout Hellm o Ola Poul ail || 然而幻想中根本空无一物
+   app1: Ignai Canvie Imeila Prous Amalait || 即使我多么努力的祈祷也无用
+   EN: 0|But 1|there 2|is 3|nothing 4|in 5|illusion 6|anyway // 7|Despite 8|how 9|strong 10|I 11|wish //
+   JA: 0|けれど 1|幻は 2|結局 3|がらんどう // 4|どれほど 5|強く 6|強く 7|祈ったところでね //
+
+@@ A Little Servant | S17 | K=2 | ENatoms=11 JAatoms=4
+   orig: Yiela Prous il Kolto ou Tehomea | Lef Feikeed end Piikle Xaite Herches
+   app0: Yiela Prous il Kolto ou Tehomea || 在深渊底部不断祈祷着
+   app1: Lef Feikeed end Piikle Xaite Herches || 就像刺穿那心脏
+   EN: 0|Pray 1|in 2|the 3|bottom 4|depths, // 5|as 6|if 7|you 8|stick 9|that 10|heart //
+   JA: 0|深淵の底で 1|祈り賜え // 2|かの心臓を 3|突き刺すように //
+
+@@ A Little Servant | S18 | K=2 | ENatoms=11 JAatoms=4
+   orig: Yiela Sween Poetolt Heipe Sole ou Venesene | Lef Yien Leimy folme Vins Hellm imm Lootaria
+   app0: Yiela Sween Poetolt Heipe Sole ou Venesene || 在幽灵的怀抱中不断沉睡着
+   app1: Lef Yien Leimy folme Vins Hellm imm Lootaria || 就像逃离了永恒的梦魇
+   EN: 0|Sleep 1|with 2|mystical 3|cluster, // 4|as 5|if 6|you 7|escape 8|from 9|eternal 10|nightmare //
+   JA: 0|幽魂を抱いて 1|眠り賜え // 2|永遠の悪夢から 3|解放されるように //
+
+@@ A Little Servant | S19 | K=2 | ENatoms=12 JAatoms=3
+   orig: Hiele Meele ou Trane Farla | imm Kolto Xia Ignai Dialoss
+   app0: Hiele Meele ou Trane Farla || 看哪，那底部便是泪水之海
+   app1: imm Kolto Xia Ignai Dialoss || 是永不枯竭的海
+   EN: 0|Look, 1|the 2|bottom 3|is 4|a 5|sea 6|of 7|tears, 8|the 9|never 10|perishing 11|sea //
+   JA: 0|ほら 1|底は泪の海 2|枯れることのない海 //
+
+@@ ALQ | S03 | K=2 | ENatoms=0 JAatoms=1
+   orig: Luan Slay Blu Elie Ween Nai end
+   app0: Luan Slay Blu Elie || 沿途而去，漫漫长路，绵延不绝
+   app1: Ween Nai end || 无穷无尽
+   EN: <none>
+   JA: 0|長い道を辿るのだ //
+
+@@ ALQ | S06 | K=2 | ENatoms=0 JAatoms=2
+   orig: end Mii Caty Cate | end Lar ou Ail Sartain
+   app0: end Mii Caty Cate || 旅人迈步前行
+   app1: end Lar ou Ail Sartain || 向天地万象迎来黎明
+   EN: <none>
+   JA: 0|旅人は步みゆく // 1|天地万象へ黎明を //
+
+@@ ALQ | S07 | K=2 | ENatoms=0 JAatoms=2
+   orig: ah end Mii Caty Cate | end Mii Bis Haol ou Ail
+   app0: ah end Mii Caty Cate || 旅人迈步前行
+   app1: end Mii Bis Haol ou Ail || 在森罗万象的手掌心
+   EN: <none>
+   JA: 0|旅人は步みゆく // 1|森羅万象の手のひらを //
+
+@@ ALQ | S12 | K=2 | ENatoms=0 JAatoms=1
+   orig: Luan Slay Blu Elie Ween Nai end
+   app0: Luan Slay Blu Elie || 沿途而去，漫漫长路，绵延不绝
+   app1: Ween Nai end || 无穷无尽
+   EN: <none>
+   JA: 0|長い道を辿るのだ //
+
+@@ ALQ | S17 | K=2 | ENatoms=0 JAatoms=2
+   orig: end Mii Caty Cate | end Lar ou Ail Sartain
+   app0: end Mii Caty Cate || 旅人迈步前行
+   app1: end Lar ou Ail Sartain || 向天地万象迎来黎明
+   EN: <none>
+   JA: 0|旅人は步みゆく // 1|天地万象へ黎明を //
+
+@@ ALQ | S18 | K=2 | ENatoms=0 JAatoms=2
+   orig: ah end Mii Caty Cate | end Mii Bis Haol ou Ail
+   app0: ah end Mii Caty Cate || 旅人迈步前行
+   app1: end Mii Bis Haol ou Ail || 在森罗万象的手掌心
+   EN: <none>
+   JA: 0|旅人は步みゆく // 1|森羅万象の手のひらを //
+
+@@ ALQ | S19 | K=2 | ENatoms=0 JAatoms=2
+   orig: Mii Cate Elie Skie Finient | Mii Cate Elie Skie Finient
+   app0: Mii Cate Elie Skie Finient || 直至跨越地平
+   app1: Mii Cate Elie Skie Finient || 直至跨越地平
+   EN: <none>
+   JA: 0|地平線の向こうまで // 1|地平線の向こうまで //
+
+@@ Alice Music | S05 | K=2 | ENatoms=10 JAatoms=3
+   orig: Disverry Ail Swormin Haol Staps Termz Floul end
+   app0: Disverry Ail Swormin || 随着魔法咒文 纷扬起飞吧
+   app1: Haol Staps Termz Floul end || 拍拍手吧
+   EN: 0|By 1|magical 2|words, 3|leave 4|on 5|each 6|trip // 7|Clap 8|our 9|hands //
+   JA: 0|さぁ魔法の呪文で 1|バラバラになって飛んでいけ // 2|手をたたこう //
+
+@@ Alice Music | S20 | K=2 | ENatoms=3 JAatoms=1
+   orig: end a Nout Mii Ail Scape
+   app0: end || 那
+   app1: a Nout Mii Ail Scape || 天涯海角皆可前往
+   EN: 0|"Alice, 1|Alice, 2|Alice" //
+   JA: 0|どこへだってゆける //
+
+@@ Apocalypse | S07 | K=2 | ENatoms=11 JAatoms=2
+   orig: end Ranya Advelses Stei ou Monodrama | Finz Ranya
+   app0: end Ranya Advelses Stei ou Monodrama Finz || 在颠倒的景象中终于窥见了这独角戏的结局
+   app1: Ranya Crai Ran Alan end Karna Mii Dist end Dist Mii || 与你四目相对时，我又会忘记自己
+   EN: 0|And 1|finally 2|peeped 3|end 4|of 5|monodrama 6|in 7|the 8|view 9|after 10|flip //
+   JA: 0|そして宙返りで臨んだ景色に 1|モノドラマの終りを垣間見る //
+
+@@ Apocalypse | S14 | K=4 | ENatoms=8 JAatoms=8
+   orig: es hai di es towai di es crai ni es grei ni lau | es towai di es crai ni es grei ni lau | es towai di es crai ni es grei ni lau | es crai ni es grei ni lau
+   app0: es hai di es towai di es crai ni es grei ni lau || 追寻，光芒，救赎，命运
+   app1: es towai di es crai ni es grei ni lau || 追寻，光芒，救赎，命运
+   app2: es towai di es crai ni es grei ni lau || 追寻，光芒，救赎，命运
+   app3: es crai ni es grei ni lau || 追寻，光芒，救赎，命运
+   EN: 0|Trail, 1|Brightness, 2|Redemption, 3|Fate // 4|Trail, 5|Brightness, 6|Redemption, 7|Fate //
+   JA: 0|証跡を 1|赫赫を 2|贖罪を 3|宿運を // 4|証跡を 5|赫赫を 6|贖罪を 7|宿運を //
+
+@@ Chocolate Missile | S02 | K=2 | ENatoms=17 JAatoms=4
+   orig: Missile end Cliid a Geeg | Vell Sctution Cloud ieq Falarle folme Erel ou Bis Ildrem
+   app0: Missile end Cliid a Geeg || 在倾泻而下的导弹之中
+   app1: Vell Sctution Cloud ieq Falarle folme Erel ou Bis Ildrem || （我）将成为雨伞来守护你免于这个文明的崩坏。
+   EN: 0|The 1|downpour 2|of 3|missiles, 4|I’m 5|an 6|umbrella // 7|I 8|will 9|protect 10|you 11|from 12|the 13|calamity 14|of 15|this 16|civilization //
+   JA: 0|降り注ぐミサイル // 1|私は 2|傘此の文明の勿怪から 3|あなたをお護りします //
+
+@@ Chocolate Missile | S04 | K=2 | ENatoms=13 JAatoms=2
+   orig: Dex imm Bis Oli Aola ieq Drone Iila Vell Nai Kreis imm Lootaria Zel o
+   app0: Dex imm Bis Oli Aola ieq Drone Iila Vell Nai Kreis imm Loota || 永远不会相交的两个人，如今作为同一个少女出现在这里
+   app1: o Saray Mii Nai Dilem Graid ou Oltia Rak || 是朋友吗？可我根本不记得有这样一个人
+   EN: 0|Two 1|people 2|who 3|will 4|never 5|intersect, 6|are 7|here 8|now 9|as 10|a 11|same 12|girl //
+   JA: 0|永遠に交わることのない二人は 1|独りの少女として今此処にいる //
+
+@@ Chocolate Missile | S22 | K=2 | ENatoms=7 JAatoms=3
+   orig: Lishe Luan Falke Alie Rowt Saryarte
+   app0: Lishe Luan Falke Elie Rowt || 让我们马上出发，直到坠入地狱的深渊
+   app1: Saryarte || 一起吧
+   EN: 0|Let’s 1|go 2|to 3|the 4|Abyss 5|soon, 6|together //
+   JA: 0|早くいきましょう 1|奈落の底まで 2|一緒に //
+
+@@ Cԋιʅԃɾҽɳ ιɳ ƚԋҽ Aʂԋҽʂ(Children in the Ashes) | S15 | K=2 | ENatoms=18 JAatoms=4
+   orig: Elize Shelista Fur a Leimy Zill Baly | Kueip Gete Shelista Ord Bis Haol Dou
+   app0: Elize Shelista Fur a Leimy Zill Baly || 这个世界总是把我们抛弃
+   app1: Kueip Gete Shelista Ord Bis Haol Dou || 所以我们要用我们的双手创造一个全新的世界
+   EN: 0|The 1|world 2|has 3|always 4|abandoned 5|us, // 6|so 7|we’re 8|going 9|to 10|make 11|a 12|new 13|world 14|with 15|our 16|own 17|hands //
+   JA: 0|世界はいつも 1|僕らを見放すから // 2|この手で 3|新しい世界を作るんだ //
+
+@@ Cԋιʅԃɾҽɳ ιɳ ƚԋҽ Aʂԋҽʂ(Children in the Ashes) | S16 | K=6 | ENatoms=28 JAatoms=8
+   orig: ( " Crai Nai Anisia Bai sii ," | " Hiele Lishe Klattle Haol " | " Crai iy Nai Drone folme Aolu " | " Crai Nai Anisia Bai sii ," | " Hiele Lishe Klattle Haol " | " Crai iy
+   app0: Crai Nai Anisia Bai sii || （我们不会再寂寞了）
+   app1: Hiele Lishe Klattle Haol || （来握住我们的手吧）
+   app2: Crai iy Nai Drone folme Aolu || （从今天开始，你将不再是孤单一人）
+   app3: Crai Nai Anisia Bai sii || （我们不会再寂寞了）
+   app4: Hiele Lishe Klattle Haol || （来握住我们的手吧）
+   app5: Crai iy Nai Drone folme Aolu || （从今天开始，你将不再是孤单一人）
+   EN: 0|“We’re 1|not 2|lonely 3|anymore” // 4|“Let’s 5|hold 6|our 7|hands” // 8|“You’re 9|not 10|alone 11|from 12|today 13|on” // 14|“We’re 15|not 16|lonely 17|anymore” // 18|“Let’s 19|hold 20|our 21|hands” // 22|“You’re 23|not 24|alone 25|from 26|today 27|on” //
+   JA: 0|‟もう寂しくないね” // 1|‟ほら手を繋ごう” // 2|‟今日から 3|君は独りじゃない” // 4|‟もう寂しくないね” // 5|‟ほら手を繋ごう” // 6|‟今日から 7|君は独りじゃない” //
+
+@@ Cԋιʅԃɾҽɳ ιɳ ƚԋҽ Aʂԋҽʂ(Children in the Ashes) | S18 | K=2 | ENatoms=11 JAatoms=2
+   orig: Ene qls end Wondilip Crai Nai Aihel Amblu | Nai Aihel Bai
+   app0: Ene qls end Wondilip Crai Nai Aihel Amblu || 没有人能在这个世界伤害你
+   app1: Nai Aihel Bai || 因为他们都已经不在了
+   EN: 0|No 1|one 2|in 3|this 4|world 5|will 6|hurt 7|you // 8|They’re 9|all 10|gone //
+   JA: 0|君を傷つけるものはどこにもいない 1|もういない //
+
+@@ Cԋιʅԃɾҽɳ ιɳ ƚԋҽ Aʂԋҽʂ(Children in the Ashes) | S19 | K=2 | ENatoms=7 JAatoms=3
+   orig: Poet Nai Kllea , Poet Nai Kllea , | Yiela Sween Aola Bai
+   app0: Poet Nai Kllea Poet Nai Kllea || 请不要哭泣，请不要哭泣
+   app1: Yiela Sween Aola Bai || 亲爱的，来做个美梦吧
+   EN: 0|Don’t 1|cry, 2|don’t 3|cry // 4|Sleep 5|tight, 6|sweetheart //
+   JA: 0|泣かないで 1|泣かないで 2|今はもうお眠りなさい //
+
+@@ End of Mythology | S01 | K=2 | ENatoms=16 JAatoms=3
+   orig: Eem Shalm Ol Kulu Nai Ranya a Leim ou Xia Story
+   app0: Imm Finz ou Opsa Story Fie ol Inay Drone Eem Shalm || 在故事的终幕，他独自一人等待着
+   app1: Ol Kulu Nai Ranya a Leim ou Xia Story || 他感到伤心，因为直到最后都没能看到故事的结局
+   EN: 0|It 1|is 2|sad // 3|In 4|the 5|end, 6|we 7|never 8|got 9|to 10|see 11|the 12|rest 13|of 14|the 15|story //
+   JA: 0|切ないね // 1|結局 2|その話の続きは見られなかった //
+
+@@ EИDФЯPHIИ(Endorphin) | S07 | K=2 | ENatoms=12 JAatoms=3
+   orig: Elize Tella a Belqua Ilis Fas | Hiele Phim Pleesa Hellsijma
+   app0: Elize Tella a Belqua Ilis Fas || 再倒入用来涂上绚丽色彩的彩虹
+   app1: Hiele Phim Pleesa Hellsijma || 来吧，让我看看究竟是什么样的幻觉
+   EN: 0|and 1|pouring 2|a 3|rainbow 4|into 5|it, 6|so 7|now, // 8|show 9|me 10|an 11|illusion //
+   JA: 0|虹色を流し込むから // 1|ねえ 2|幻を見せて //
+
+@@ EИDФЯPHIИ(Endorphin) | S12 | K=2 | ENatoms=15 JAatoms=4
+   orig: Poetolt Zia Haundi Ziksiilait , | Poetolt Zia Sween ifa Zeit | Bis iy Fikalat ou Yutulsinv | Lishe Dal ieq Faress Ame
+   app0: Poetolt Zia Haundi Ziksiilait Poetolt Zia Sween ifa Zeit || 举止端庄，按时睡觉
+   app1: Bis iy Fikalat ou Yutulsinv Lishe Dal ieq Faress Ame || 作息规律，当个乖宝
+   EN: 0|Be 1|well-behaved // 2|Sleep 3|on 4|time // 5|My 6|daily 7|routines // 8|Always 9|trying 10|to 11|be 12|a 13|good 14|boy //
+   JA: 0|お行儀よくして // 1|時間通りに眠って // 2|毎日のルーティーン // 3|良い子でいましょう //
+
+@@ FEHLT | S03 | K=3 | ENatoms=13 JAatoms=5
+   orig: Mill Yiend Teejt imm Brai ou Giinia Velidi Mill iy Pliphalaine qls | Pliphalaine qls | Pliphalaine qls
+   app0: Eist il Slay lar Falt Yiend Clooshe Mill Yiend Teejt || 而返回的大门早已关闭
+   app1: imm Brai ou Giinia Velidi Milliy Pliphalaineqls || 我们只是被困在金色牢笼中的被实验者们
+   app2: Pliphalaineqls Pliphalaineqls || 被实验者们，被实验者们
+   EN: 0|We 1|are 2|trapped 3|in 4|golden 5|cages, 6|the 7|human 8|subjects // 9|human 10|subjects // 11|human 12|subjects //
+   JA: 0|僕たちは 1|金色の檻に閉じ込められた 2|被験者たち // 3|被験者たち // 4|被験者たち //
+
+@@ FEHLT | S05 | K=2 | ENatoms=11 JAatoms=2
+   orig: Yien Seeka imm Brai ou Epkejla Myahalke Lef Plenptie
+   app0: Sleetia end Flous iy Kopiitoli Crait Sadiet Tvulei Yien Seek || 漂浮的回廊已成废墟，你的身影逐渐消散
+   app1: imm Brai ou Epkejla Myahalke Lef Plenptie || 这光景如同放映机一般不断的在我脑海中回放
+   EN: 0|It’s 1|been 2|shown 3|in 4|my 5|head 6|many 7|times 8|like 9|a 10|projector //
+   JA: 0|映写機のように 1|何度も頭の中で流れるんだよ //
+
+@@ FEHLT | S06 | K=2 | ENatoms=11 JAatoms=5
+   orig: En Mii Likti Selanya a Geeg imm Hellm end | Nai Dilem Shiita imm Lootaria Lef Mariotoriet
+   app0: En Mii Likti Selanya a Geeg imm Hellm end || 然后，在这无法醒来的梦中
+   app1: Nai Dilem Shiita imm Lootaria Lef Mariotoriet || 我只能如同傀儡一般不断徘徊
+   EN: 0|And, 1|in 2|an 3|unwakeable 4|dream // 5|I’m 6|just 7|wandering 8|like 9|a 10|puppet //
+   JA: 0|そして 1|今もずっと覚めない夢を // 2|ただ 3|傀儡のように 4|彷徨ってるんだ //
+
+@@ FEHLT | S07 | K=2 | ENatoms=9 JAatoms=4
+   orig: Antakt il Pliphasoil en | Wely Dooomlait Wely Dooomlait
+   app0: Antaka il Pliphasoil en || 潜入试管中，
+   app1: Wely Dooomlait Wely Dooomlait || 深深地，深深地下沉
+   EN: 0|Dive 1|into 2|a 3|test 4|tube, // 5|Sink 6|deeply 7|and 8|deeply //
+   JA: 0|試験管に潜って // 1|深く 2|深く 3|沈む //
+
+@@ FEHLT | S15 | K=2 | ENatoms=12 JAatoms=2
+   orig: Imeila Likti Hierti Ellift en Finzie Myahalke
+   app0: Antaka il Pliphasoil en || 潜入试管中，
+   app1: Wely Dooomlait Wely Dooomlait || 深深地，深深地下沉
+   EN: 0|Just 1|repeated 2|to 3|live, 4|No 5|matter 6|how 7|many 8|times 9|I 10|end 11|it //
+   JA: 0|生きる事をただ繰り返して 1|何度終わらせたところで //
+
+@@ FEHLT | S16 | K=2 | ENatoms=9 JAatoms=2
+   orig: Baly Harla end Sjeid Mols Rance imm Finz Ween
+   app0: Wely Dooomlait Wely Dooomlait || 深深地，深深地下沉
+   app1: Mii Hols Olizes Ignai Rait Mii || 这样任何人都不会找到我
+   EN: 0|There 1|are 2|always 3|only 4|rusty 5|desires 6|in 7|the 8|end //
+   JA: 0|いつだって最期にあるのは 1|錆びついた願望だけ //
+
+@@ Forbidden Wonderland short ver | S00 | K=2 | ENatoms=4 JAatoms=2
+   orig: Arla Klolsi Arla Klolsi
+   app0: Arla Klolsi || 纯白色的兔子
+   app1: Arla Klolsi || 纯白色的兔子
+   EN: 0|White 1|Bunny 2|White 3|Bunny //
+   JA: 0|白いうさぎ 1|白いうさぎ //
+
+@@ Forbidden Wonderland short ver | S02 | K=2 | ENatoms=6 JAatoms=1
+   orig: " Thloo , Mii o Peiti "
+   app0: Thloo || 我的天啊，
+   app1: Mii o Peiti || 我来迟了
+   EN: 0|"Oh 1|My 2|God, 3|be 4|almost 5|late" //
+   JA: 0|“大変、遅刻だよ” //
+
+@@ Friend | S05 | K=2 | ENatoms=0 JAatoms=1
+   orig: Crai Briss Gout | Gout end Gout
+   app0: Crai Briss Gout || 在你身边
+   app1: Gout end Gout || 不断飞逝
+   EN: <none>
+   JA: 0|君の傍を過ぎ去ったけれど、 //
+
+@@ Friend | S06 | K=2 | ENatoms=0 JAatoms=1
+   orig: Mii a Crai end Crai end Crai end Crai | Lootaria Saray
+   app0: Mii a Crai end Crai end Crai end Crai || 但对我来说 你啊
+   app1: Lootaria Saray || 一直是朋友
+   EN: <none>
+   JA: 0|私は君の友達。 //
+
+@@ Friend | S07 | K=2 | ENatoms=0 JAatoms=1
+   orig: " end Crai Toriesta "
+   app0: end Crai Toriesta || “（魔女）Toriesta。"
+   app1: Toriesta || 
+   EN: <none>
+   JA: 0|"トリエスタ。" //
+
+@@ Friend | S09 | K=3 | ENatoms=0 JAatoms=1
+   orig: Foul Mii Foul Mii Foul Mii | Crai Lar Elay Awter | Foul Mii
+   app0: Foul Mii Foul Mii Foul Mii || “我一定”
+   app1: Crai Lar Elay Awter || “是为了与你相见”
+   app2: Foul Mii || “我一定…”
+   EN: <none>
+   JA: 0|"私は、君に会うために‥" //
+
+@@ Friend | S14 | K=2 | ENatoms=0 JAatoms=2
+   orig: Oulayz Zote | " a Drone Swiina " | Oulayz Minai
+   app0: Oulayz Zote a Drone Swiina || 诸多季节 （我一直孤身一人）
+   app1: Oulayz Minai || 诸多夜空
+   EN: <none>
+   JA: 0|"ずっと孤独に包まれていた" // 1|たくさんの季節と夜空が //
+
+@@ Friend | S15 | K=2 | ENatoms=0 JAatoms=1
+   orig: Mill Briss Gout | Gout end Gout
+   app0: Mill Briss Gout || 在我们身边
+   app1: Gout end Gout || 不断飞逝
+   EN: <none>
+   JA: 0|私たちの傍を過ぎ去ったけれど、 //
+
+@@ Friend | S16 | K=2 | ENatoms=0 JAatoms=1
+   orig: Mii a Crai end Crai end Crai end Crai | Lootaria Saray end Mii Lili ah
+   app0: Mii a Crai end Crai end Crai end Crai || 但对我来说 你啊
+   app1: Lootaria Saray end Mii Lili ah || 一直是朋友 我珍贵的——
+   EN: <none>
+   JA: 0|君はずっと、私の大切な //
+
+@@ Frozen Tree | S28 | K=3 | ENatoms=9 JAatoms=3
+   orig: Rook Haol ou Di end | Loog Slay a Ley Lar Crai | end Baly | Lar Crai | end Baly end
+   app0: Rook Haol ou Di end || 松开双手
+   app1: Loog Slay a Ley Lar Crai end Baly || 你面前尚有漫漫长路
+   app2: Lar Crai end Baly end || 无论何时
+   EN: 0|The 1|hand 2|unclasped, // 3|The 4|long 5|way 6|leads 7|you // 8|anytime //
+   JA: 0|ほどいた手 // 1|君の前には長い道が続いている // 2|いつだって //
+
+@@ Frozen Tree | S31 | K=5 | ENatoms=13 JAatoms=5
+   orig: Rook Haol ou Di end | Loog Slay a Ley Lar Crai end Baly | Lar Crai end Baly end | Ley Lar Crai | Ley Lar Crai
+   app0: Rook Haol ou Di end || 松开双手
+   app1: Loog Slay a Ley Lar Crai end Baly || 你面前尚有漫漫长路
+   app2: Lar Crai end Baly end || 无论何时
+   app3: Ley Lar Crai || 为了你
+   app4: Ley Lar Crai || 为了你
+   EN: 0|The 1|hand 2|unclasped, // 3|The 4|long 5|way 6|leads 7|you // 8|anytime // 9|For 10|you // 11|For 12|you //
+   JA: 0|はなした手 // 1|君の前には長い道が続いている // 2|いつだって // 3|君のために // 4|君のために //
+
+@@ Give Me a Nightmare | S03 | K=2 | ENatoms=9 JAatoms=2
+   orig: Koll Olfeis Nol imm Xia , Ilek ol Hols tou Kerla folme Ailent
+   app0: Meisem Graid end Yien Rustie il Salah ou Sai Koll Olfeis Nol || 当我于早晨扎根在反射在水面上的凌乱的记忆中时，
+   app1: Ilek ou Hols tou Kerla folme Ailent || 无论如何我都想从这无聊的日子里逃出来
+   EN: 0|I 1|hoped 2|to 3|escape 4|from 5|these 6|boring 7|days 8|somehow //
+   JA: 0|どうにかして 1|日常から逃げ出したくなったんだ //
+
+@@ Give Me a Nightmare | S04 | K=2 | ENatoms=9 JAatoms=2
+   orig: Poutie Mii Clooshe Eist Ord Ail Entic , Kiila ol Prai a Cliid
+   app0: Poutie Mii Clooshe Eist Ord || 在我把大门关严的时候
+   app1: Ail Entic Kiila ou Prai a Cliid || 一个彗星坠落了
+   EN: 0|When 1|I 2|closed 3|the 4|door 5|roundly, 6|a 7|comet 8|fell //
+   JA: 0|扉を思い切り閉めると 1|彗星が降り注いだ //
+
+@@ Give Me a Nightmare | S05 | K=3 | ENatoms=23 JAatoms=4
+   orig: Lef Yien Plarli Ord Elquom ou Ail Minelia | Gout ol Cate imm Lootaria Arch Sleetia | Poul ail ol Guit Ra Bis Dilem Nai Shiita
+   app0: Lef Yien Plarri Ord Elquom ou Ail Minelia || 就像被满月牵引一样，
+   app1: Gout ou Cate imm Lootaria Arch Sleetia || 我只能一直在走廊中徘徊
+   app2: Poul Ail ol Guit Ra Bis Dilem Nai Shiita || 但最后才发现这里无穷无尽，没有终点
+   EN: 0|I 1|just 2|walked 3|on 4|the 5|corridor 6|as 7|if 8|I 9|was 10|pulled 11|by 12|the 13|full 14|moon's 15|attraction, 16|but 17|finally 18|found 19|that 20|it 21|was 22|endless //
+   JA: 0|満月の引力に引っ張られるように 1|回廊の上をひたすら歩いたけれど // 2|結局 3|ここに終わりはないと知った //
+
+@@ Give Me a Nightmare | S09 | K=2 | ENatoms=5 JAatoms=1
+   orig: "Frey" Lishe Nai Hal il Enes
+   app0: Frey || “幸福”
+   app1: Lishe Nai Hal il Enes || 无需与人分享
+   EN: 0|"Happiness" 1|doesn’t 2|talk 3|to 4|humans //
+   JA: 0|「幸福」は人間とは話してくれない //
+
+@@ Give Me a Nightmare | S12 | K=2 | ENatoms=12 JAatoms=3
+   orig: Poutie Ani Emsa Trane Eala a Tollm Arch Fenklu | Vell Idem Entilk Ani Karna
+   app0: Poutie Ani Emsa Trane Eala a Tollm Arch Fenklu || 伴随着越来越多的泪水从脸庞上流下，
+   app1: Vell Idem Entilk Ani Karna || 你将会变得更加坚强
+   EN: 0|As 1|more 2|tears 3|run 4|down 5|your 6|face, // 7|the 8|stronger 9|you 10|will 11|be //
+   JA: 0|涙がひと粒 1|頬を伝えば // 2|またひとつ強くなれる //
+
+@@ HOLIC | S01 | K=2 | ENatoms=11 JAatoms=4
+   orig: Poet Nai Clooshe Cloudyte Ran end | Yiep Quoltri il Cloudyte Ran Meila end Meila
+   app0: Poet Nai Clooshe Cloudyte Ran end || 请别垂下眼帘
+   app1: Yiep Quoltri il Cloudyte Ran Meila end Meila || 把这景象更深，更深地烙印在眼中
+   EN: 0|Don’t 1|hide 2|your 3|eyes, 4|Burn 5|it 6|into 7|your 8|eyes, 9|more 10|more! //
+   JA: 0|目を伏せないで 1|目に焼き付けて 2|もっと 3|もっと //
+
+@@ HOLIC | S07 | K=2 | ENatoms=9 JAatoms=3
+   orig: Skelat Nai Stica Ol Kulu Ranya Lef Fellusia | Eclat imm Ilis Fas
+   app0: Skelat Nai Stica Ol Kulu Ranya Lef Fellusia || 嬉笑声像那星际间的以太一般，无法停止
+   app1: Eclat imm Ilis Fas || 看起来像是彩虹的色彩般熠熠生辉
+   EN: 0|I 1|can’t 2|stop 3|laughing, 4|the 5|interstellar 6|ethers 7|seemed 8|iridescent //
+   JA: 0|笑いが止まらない 1|星間エーテルが 2|虹色に光ってるように見えた //
+
+@@ HOLIC | S08 | K=2 | ENatoms=13 JAatoms=3
+   orig: Queit Melp end Tella o Colt | Yiep Pleesa Hellm Roa
+   app0: Queit Melp end Tella o Colt || 这流淌的鲜血如此冰冷
+   app1: Yiep Pleesa Hellm Roa || 一切所见皆为幻象
+   EN: 0|Even 1|though 2|the 3|running 4|blood 5|is 6|cold 7|so 8|much // 9|Show 10|me 11|the 12|phantom //
+   JA: 0|こんなに 1|流れる血は冷たいのに 2|幻を見せて //
+
+@@ HOLIC | S15 | K=2 | ENatoms=15 JAatoms=6
+   orig: Hiele Apka Mii ol Plarli Fouz Ola Stache | Verde Apka Poetolt Drea Sto
+   app0: Hiele Apka Mii ol Plarli Fouz Ola Stache || 看吧，从抽屉中拉出来的绳索
+   app1: Verde Apka Poetolt Drea Sto || 牵引椅子的歪曲的绳索
+   EN: 0|See, 1|a 2|rope 3|pulled 4|out 5|of 6|a 7|drawer // 8|A 9|rope 10|distorted 11|by 12|dragging 13|a 14|chair //
+   JA: 0|ほら 1|ドロワーから 2|引っ張り出した 3|ロープ // 4|椅子を引きずって 5|歪曲したロープ //
+
+@@ HӋPПO̵͇̫̲ƬIZΣD(Hypnotized) | S18 | K=3 | ENatoms=9 JAatoms=2
+   orig: Poetolt Womphil a Finz Hedijlyke a Hellm | Bis Ran Yien Amabell Brait | Brait
+   app0: Poetolt Womphil a Finz Hedijlyke a Hellm || 吞噬了混沌和幻想之后
+   app1: Bis Ran Yien Amabell Brait || 这些眼睛最终睁开了
+   app2: Brait || 睁开了
+   EN: 0|This 1|eye 2|finally 3|opens 4|after 5|drinking 6|chaos 7|and 8|dreams //
+   JA: 0|混沌と夢を飲み干して // 1|この眼はようやく開かれる //
+
+@@ HӋPПO̵͇̫̲ƬIZΣD(Hypnotized) | S31 | K=3 | ENatoms=9 JAatoms=2
+   orig: Poetolt Womphil a Finz Hedijlyke a Hellm | Bis Ran Yien Amabell Brait | Brait
+   app0: Poetolt Womphil a Finz Hedijlyke a Hellm || 吞噬了混沌和幻想之后
+   app1: Bis Ran Yien Amabell Brait || 这些眼睛最终睁开了
+   app2: Brait || 睁开了
+   EN: 0|This 1|eye 2|finally 3|opens 4|after 5|drinking 6|chaos 7|and 8|dreams //
+   JA: 0|混沌と夢を飲み干して // 1|この眼はようやく開かれる //
+
+@@ Lost My Savepoint | S05 | K=2 | ENatoms=7 JAatoms=2
+   orig: Oulayz Verry Olis end a Oulayz Verry Olis end
+   app0: Oulayz Verry Olis end a Oulayz Verry Olis || 便涌现诸多记忆
+   app1: end Aola Mill Bis Swormin Cees Meele Inay || 随即我们这就飞离此处 冰色之海在前方等候
+   EN: 0|And 1|then 2|plenty 3|of 4|memories 5|bubbled 6|over //
+   JA: 0|それから 1|たくさんの記憶が溢れ出した //
+
+@@ Lost My Savepoint | S09 | K=3 | ENatoms=9 JAatoms=3
+   orig: Brai ou Pocket | Brai ou Pocket | Brai ou Pocket end Lootaria Crai Lili
+   app0: Brai ou Pocket || 那口袋中
+   app1: Brai ou Pocket || 那口袋中
+   app2: Brai ou Pocket end Lootaria Crai Lili || 那口袋中一直存放着的重要之物…
+   EN: 0|I 1|gripped 2|it 3|tightly 4|in 5|the 6|pocket, 7|my 8|important… //
+   JA: 0|そのポケットの中 1|ずっと持っていた 2|大切な... //
+
+@@ Lost My Savepoint | S21 | K=3 | ENatoms=9 JAatoms=3
+   orig: Brai ou Pocket | Brai ou Pocket | Brai ou Pocket end Lootaria Crai Lili
+   app0: Brai ou Pocket || 那口袋中
+   app1: Brai ou Pocket || 那口袋中
+   app2: Brai ou Pocket end Lootaria Crai Lili || 那口袋中一直存放着的重要之物…
+   EN: 0|I 1|gripped 2|it 3|tightly 4|in 5|the 6|pocket, 7|my 8|important… //
+   JA: 0|そのポケットの中 1|ずっと持っていた 2|大切な... //
+
+@@ Maharajah | S05 | K=2 | ENatoms=15 JAatoms=2
+   orig: " Hal a Story Oracle " end | Ani Brait Door len Razzle em Carafe
+   app0: Hal a Story Oracle end || “到时间讲个童话故事了”
+   app1: Ani Brait Door len Razzle em Carafe || 开启的门，摔落在地的玻璃瓶
+   EN: 0|“Time 1|to 2|tell 3|a 4|fairy 5|tale” // 6|An 7|open 8|door, 9|A 10|carafe 11|that 12|falls 13|and 14|breaks //
+   JA: 0|“御伽話をしよう” // 1|開いたままのドア落ちて割れるカラフェ //
+
+@@ Maharajah | S06 | K=2 | ENatoms=19 JAatoms=6
+   orig: Ah Mail Shiita end a Fete | ah Cate Aola Crai Lamiy end | Shelista Hal a Olkei Mii
+   app0: Ah Mail Shiita end a Fete || 身披宿命，享受你的命运
+   app1: ah Cate Aola Crai Lamiy end Shelista Hal a Olkei Mii || 你存活至今，必定是世界上最正确的
+   EN: 0|Clad 1|in 2|the 3|fate, 4|Glorify 5|your 6|destiny // 7|You’re 8|just 9|living 10|now, 11|You’re 12|the 13|most 14|correct 15|one 16|in 17|this 18|world //
+   JA: 0|天命を纏い 1|運命を謳歌せよ // 2|君は今 3|生きている 4|そして 5|世界で君が一番正しいんだ //
+
+@@ Maharajah | S07 | K=2 | ENatoms=6 JAatoms=2
+   orig: 『 Ay Mii end Harmiy 』 | 『 a Xia Trico !』
+   app0: Ay Mii end Harmiy || 【等一下】
+   app1: a Xia Trico || 【那太多了】
+   EN: 0|“Give 1|me 2|a 3|break!That’s 4|too 5|much!” //
+   JA: 0|『ちょっとまってよ 1|そんなのあんまりだよ!』 //
+
+@@ Maharajah | S08 | K=2 | ENatoms=10 JAatoms=4
+   orig: Bllink Asta Ya Historia ou Leat ah Coffee Dist Far | " Age Winde ." Bis lan la
+   app0: Bllink Asta Ya Historia ou Leat ah Coffee || 闪电的光芒，未尽的历史，咖啡留在桌子上
+   app1: Dist far Age Winde Bis lan la Nouche ou Crai Bai Dis Harie Y || “你醒了吗？” 这是你的夜晚世界,你忘了吗
+   EN: 0|Blinking 1|light, 2|Unfinished 3|History, 4|Untouched 5|Coffee // 6|“Did 7|you 8|wake 9|up?” //
+   JA: 0|明滅する電気 1|書きかけの歴史 2|置いたままのコーヒー // 3|“目は覚めたかい” //
+
+@@ Maharajah | S10 | K=2 | ENatoms=15 JAatoms=3
+   orig: Leste " Hal a Story Oracle " end | Ani Brait Door end Razzle Carafe
+   app0: Leste Hal a Story Oracle end || “到时间讲个童话故事了”
+   app1: Ani Brait Door end Razzle Carafe || 开启的门，摔落在地的玻璃瓶
+   EN: 0|“Time 1|to 2|tell 3|a 4|fairy 5|tale” // 6|An 7|open 8|door, 9|A 10|carafe 11|that 12|fell 13|and 14|broke //
+   JA: 0|“御伽話をしよう” // 1|開いたままのドア 2|落として割れたカラフェ //
+
+@@ Maharajah | S12 | K=2 | ENatoms=19 JAatoms=6
+   orig: Ah Mail Shiita end a Fete | ah Cate Aola Crai Lamiy end | Shelista Hal a Olkei Mii
+   app0: Ah Mail Shiita end a Fete || 身披宿命，享受你的命运
+   app1: ah Cate Aola Crai Lamiy end Shelista Hal a Olkei Mii || 你存活至今，必定是世界上最正确的
+   EN: 0|Clad 1|in 2|the 3|fate, 4|Glorify 5|your 6|destiny // 7|You’re 8|just 9|living 10|now, 11|You’re 12|the 13|most 14|correct 15|one 16|in 17|this 18|world //
+   JA: 0|天命を纏い 1|運命を謳歌せよ // 2|君は今 3|生きている 4|そして 5|世界で君が一番正しいんだ //
+
+@@ Maharajah | S13 | K=2 | ENatoms=6 JAatoms=2
+   orig: 『 Ay Mii end Harmiy 』 | 『 a Xia Trico !』
+   app0: Ay Mii end Harmiy || 【等一下】
+   app1: a Xia Trico || 【那太多了】
+   EN: 0|“Give 1|me 2|a 3|break!That’s 4|too 5|much!” //
+   JA: 0|『ちょっとまってよ 1|そんなのあんまりだよ!』 //
+
+@@ Maharajah | S14 | K=2 | ENatoms=10 JAatoms=4
+   orig: Bllink Asta Ya Historia ou Leat ah Coffee Dist Far | " Age Winde ." Bis lan la
+   app0: Bllink Asta Ya Historia ou Leat ah Coffee || 闪电的光芒，未尽的历史，咖啡留在桌子上
+   app1: Dist far Age Winde Bis lan la || “你醒了吗？” 这是你的夜晚世界”
+   EN: 0|Blinking 1|light, 2|Unfinished 3|History, 4|Untouched 5|Coffee // 6|“Did 7|you 8|wake 9|up?” //
+   JA: 0|明滅する電気 1|書きかけの歴史 2|置いたままのコーヒー // 3|“目は覚めたかい” //
+
+@@ Maharajah | S19 | K=2 | ENatoms=13 JAatoms=4
+   orig: Bis Nacc Finz end Nouche ou Finz Dis | Aihel end Age Alvete a Drone
+   app0: Bis Nacc Finz end Nouche ou Finz Dis || 这便是永夜的尽头
+   app1: Aihel end Age Alvete a Drone || 看呐，这里我们找到了孤独的世界
+   EN: 0|This 1|is 2|the 3|End, 4|End 5|of 6|the 7|endless 8|night // 9|Look, 10|solitude 11|is 12|here //
+   JA: 0|これが終り 1|果てなき夜の終り 2|ほら 3|孤独はここにある //
+
+@@ Popcorns Falling from Heaven | S08 | K=2 | ENatoms=15 JAatoms=3
+   orig: Shelista ou Finz Yutul ol iy Doraid | Seedat weil Nai Aihel Amblu
+   app0: Shelista ou Finz Yutul ol iy Doraid || 在终焉之日，世界一片漆黑
+   app1: Seedat weig Nai Aihel Amblu || 也丝毫没有什么指引可言
+   EN: 0|On 1|the 2|very 3|last 4|day, 5|the 6|world 7|was 8|pitch 9|black // 10|There 11|was 12|no 13|guidance 14|whatsoever //
+   JA: 0|終わりの日 1|世界は真っ暗で // 2|導きなんてどこにもなかった //
+
+@@ Sno (_ _) oze & Sn (o_o) ze | S03 | K=3 | ENatoms=0 JAatoms=3
+   orig: Staps Termz end Ran Hise Hamil Slay !
+   app0: Staps Termz end Ran Hise || 拍拍时钟 揉揉眼睛
+   app1: HamilSlay || 早上好！
+   app2: HamilSlay || 早上好！
+   EN: <none>
+   JA: 0|時計のたたいて 1|目をこすって 2|おはよう！ //
+
+@@ Sno (_ _) oze & Sn (o_o) ze | S05 | K=2 | ENatoms=0 JAatoms=2
+   orig: ah Aolu Story end Bale ?
+   app0: ah Aolu Story end Bale || 今天的故事是什么样？
+   app1: Aolu Story end Bale || 今天的故事是什么样？
+   EN: <none>
+   JA: 0|今日の物語は 1|どんな物語だった？ //
+
+@@ Sno (_ _) oze & Sn (o_o) ze | S08 | K=3 | ENatoms=0 JAatoms=3
+   orig: Staps Termz end Ran Hise Hamil Slay !
+   app0: Staps Termz end Ran Hise || 拍拍时钟 揉揉眼睛
+   app1: HamilSlay || 早上好！
+   app2: HamilSlay || 早上好！
+   EN: <none>
+   JA: 0|時計のたたいて 1|目をこすって 2|おはよう！ //
+
+@@ Sno (_ _) oze & Sn (o_o) ze | S18 | K=2 | ENatoms=0 JAatoms=1
+   orig: a Quest ...
+   app0: a Quest || 踏上冒险
+   app1: Quest || 冒险…
+   EN: <none>
+   JA: 0|冒険へ‥ //
+
+@@ Teardrop del Ray | S02 | K=2 | ENatoms=16 JAatoms=2
+   orig: Hai Tarn a Tarn Fel Swiina Giinia Hyuz Whiil Nouche a Luan
+   app0: Liin Cliid Nai Lyck Skaid Olis Jay Hai Tarn a Tarn Fel || 望着久旱无雨的天空，国王深深悲叹着
+   app1: Swiina Giinia Hyuz Whiil Nouche a Luan || 长年长年以来，小镇被金色的风包裹着，迷失在白夜里
+   EN: 0|Many 1|many 2|years 3|the 4|town 5|will 6|be 7|covered 8|by 9|golden 10|wind, 11|and 12|lost 13|in 14|white 15|night //
+   JA: 0|幾年も幾年も街は金色の風に包まれたまま 1|白夜の中をさ迷うのだ //
+
+@@ The Fatal Fantasia | S02 | K=2 | ENatoms=11 JAatoms=2
+   orig: Loog end Loog Staple | Visini Estola Myte Polt
+   app0: Loog end Loog Staple || 长长的阶梯上
+   app1: Visini Estola Myte Polt || 恶魔把我的脚缠住
+   EN: 0|A 1|long, 2|long 3|staircase, 4|a 5|devil 6|is 7|tangling 8|at 9|my 10|feet //
+   JA: 0|長い長い階段 1|足元に悪魔が絡みついて //
+
+@@ The Fatal Fantasia | S06 | K=2 | ENatoms=20 JAatoms=7
+   orig: " Leste Plist a Wely Dooom end Dooom Stica Anie en Toubi Ran Eist ou Gete Story Brait "
+   app0: Leste Plist a Wely Dooom end Dooom Stica Anie || “来吧，让我们沉浸下去，越来越深，屏住呼吸吧
+   app1: en Toubi Ran Eist ou Gete Story Brait || 睁开双眼，这就是新故事的起点”
+   EN: 0|"Well, 1|let's 2|all 3|sink, 4|hold 5|deep, // 6|hold 7|your 8|breath, 9|open 10|your 11|eyes, 12|this 13|is 14|the 15|beginning 16|of 17|a 18|new 19|story" //
+   JA: 0|「さぁ 1|沈んでみなよ 2|深く深く 3|息を止めて 4|眼を開けて 5|ここが 6|新しい物語の始まり」 //
+
+@@ The White Land | S00 | K=2 | ENatoms=0 JAatoms=4
+   orig: Whiil Sarga end Whiil a Peak | Zel Nai Aihel end Zel Aihel
+   app0: Whiil Sarga end Whiil a Peak || 白色天空 白色鞋履
+   app1: Zel Nai Aihel end Zel Aihel || 别无一人 别无一人
+   EN: <none>
+   JA: 0|白い空 1|白い靴 2|誰も居ない 3|誰も居ない //
+
+@@ The White Land | S01 | K=2 | ENatoms=0 JAatoms=4
+   orig: Whiil Hyuz end Whiil Minelia | la la Mii Aola Drone a Mii Aola Drone
+   app0: Whiil Hyuz end Whiil Minelia || 白色的风 白色的月
+   app1: la la Mii Aola Drone a Mii Aola Drone || 孤身一人 孤身一人
+   EN: <none>
+   JA: 0|白い風 1|白い月 2|独りぼっち 3|独りぼっち //
+
+@@ The White Land | S02 | K=2 | ENatoms=0 JAatoms=3
+   orig: Ah Bis end Story " A "
+   app0: Ah Bis end Story A || 啊 这里是空白的故事“A”
+   app1: A || 
+   EN: <none>
+   JA: 0|あぁ 1|ここは真っ白なストーリー 2|"Ａ" //
+
+@@ The White Land | S07 | K=3 | ENatoms=0 JAatoms=5
+   orig: Mii Bell Amy ou Trane end Saut ou Saray | Reiz ou Di end | Cees Fei ou Minelia o World Tree
+   app0: Mii Bell Amy ou Trane end Saut ou Saray || 泪水的温度 朋友的声音
+   app1: Reiz ou Di end || 两人的脚印
+   app2: Cees Fei ou Minelia o World Tree || 冻结的月轮 高耸的巨树
+   EN: <none>
+   JA: 0|涙の温度 1|友達の声 2|二つの足跡 3|凍える月のわ 4|聳える大樹 //
+
+@@ The White Land | S09 | K=2 | ENatoms=0 JAatoms=4
+   orig: ah Whiil Sarga end Whiil a Peak | Zel Nai Aihel end Zel Aihel
+   app0: ah Whiil Sarga end Whiil a Peak || 白色天空 白色鞋履
+   app1: Zel Nai Aihel end Zel Aihel || 别无一人 别无一人
+   EN: <none>
+   JA: 0|白い空 1|白い靴 2|誰も居ない 3|誰も居ない //
+
+@@ The White Land | S10 | K=2 | ENatoms=0 JAatoms=4
+   orig: Whiil Hyuz end Whiil Minelia | la la Mii Aola Drone a Mii Aola Drone
+   app0: Whiil Hyuz end Whiil Minelia || 白色的风 白色的月
+   app1: la la Mii Aola Drone a Mii Aola Drone || 孤身一人 孤身一人
+   EN: <none>
+   JA: 0|白い風 1|白い月 2|独りぼっち 3|独りぼっち //
+
+@@ The White Land | S12 | K=2 | ENatoms=0 JAatoms=2
+   orig: Luan Razzle Compass end | Disverry ou Crai Rance Bis
+   app0: Luan Razzle Compass end || 打转的指南针
+   app1: Disverry ou Crai Rance Bis || 你的结界（魔法）尚余此
+   EN: <none>
+   JA: 0|廻る羅針盤と 1|フィールドに残された君の結果 //
+
+@@ The White Land | S13 | K=2 | ENatoms=0 JAatoms=2
+   orig: Ani Retuel e Atherty Verry | Razzle Eist a Loast Pazz
+   app0: Ani Retuel e Atherty Verry || 以一偏颇的进化论
+   app1: Razzle Eist a Loast Pazz || 打破无限房间之门
+   EN: <none>
+   JA: 0|偏った進化論がひとつ 1|無限の部屋の扉を破れ //
+
+@@ The White Land | S14 | K=2 | ENatoms=0 JAatoms=4
+   orig: ah Leste Bis Nacc Ola end Story " A "
+   app0: ah Leste Bis Nacc Ola end Story A || 看吧 这里才是空白的故事 “A”
+   app1: A || 
+   EN: <none>
+   JA: 0|ほら 1|こここそが 2|真っ白なストーリー 3|"Ａ" //
+
+@@ The White Land | S18 | K=4 | ENatoms=0 JAatoms=1
+   orig: Leste Alista Story a end
+   app0: Leste Alista Story a end || 来吧 将故事延续
+   app1: Ola end Story || 而这里是 空白的故事
+   app2: Razzle Eist a Loast Pazz || 打破无限房间之门
+   app3: ah Leste Bis Nacc Ola end Story A || 看吧 这里才是空白的故事 “A”
+   EN: <none>
+   JA: 0|さぁ、物語の続きを //
+
+@@ Thirty Million Persona | S02 | K=2 | ENatoms=13 JAatoms=3
+   orig: Olim Millant Enes imm Bis Shelista | ol Kelletta Ail Colls Fiesmes
+   app0: Olim Millant Enes imm Bis Shelista || 在这个世界上数以亿计的空蝉
+   app1: ol Kelletta Ail Colls Fiesmes || 早已耗尽了体温
+   EN: 0|Billions 1|of 2|mere 3|mortals 4|have 5|used 6|up 7|all 8|the 9|warmth 10|there 11|long 12|ago //
+   JA: 0|幾億の空蝉は 1|そこにあった体温なんて 2|とうに使い果たしてしまった //
+
+@@ Thirty Million Persona | S06 | K=2 | ENatoms=17 JAatoms=4
+   orig: Bis Nouche o osa Iequim Lef Kopiita Tordu Eist Naits o Nai Zel Note
+   app0: Quim Ail ou Ene Yien Holo end Dist Poul ail Bis Nouche o osa || 如果所有的一切最终都会被原谅，被遗忘，那么这个夜晚
+   app1: Iequim Lef Kopiita Tordu Eist Naits o Nai Zel Note || 就像完全敞开大门的废墟一般，一无所有
+   EN: 0|This 1|night, 2|too, 3|it’s 4|just 5|like 6|a 7|ruin 8|where 9|there’s 10|nothing 11|even 12|though 13|I 14|open 15|the 16|door //
+   JA: 0|この夜も 1|まるで 2|扉を開けたってなにもない 3|廃墟のように //
+
+@@ Thirty Million Persona | S07 | K=2 | ENatoms=14 JAatoms=3
+   orig: Xia o Optokia tou Squa Crait Fimoa | Oltemia Baly Olizes Ranya Crait Selaf
+   app0: Xia o Optokia tou Squa Crait Fimoa Oltemia Baly || 隐藏自己的容颜毫无用处，因为无论何时
+   app1: Olizes Ranya Crait Selaf || 都有人能看到真正的你
+   EN: 0|There’s 1|no 2|point 3|in 4|hiding 5|your 6|face 7|Someone 8|is 9|always 10|watching 11|your 12|true 13|self //
+   JA: 0|顔を隠したって無駄だよ // 1|いつだって誰かが見ている 2|本当の君を //
+
+@@ Thirty Million Persona | S13 | K=2 | ENatoms=14 JAatoms=3
+   orig: Bis Nouche o osa Iequim Lef Kopiita Tordu Eist Naits o Nai Zel Note
+   app0: Quim Ail ou Ene Yien Holo end Dist Poul ail Bis Nouche o osa || 如果所有的一切最终都会被原谅，被遗忘，那么这个夜晚)
+   app1: Iequim Lef Kopiita Tordu Eist Naits o Nai Zel Note || 就像完全敞开大门的废墟一般，一无所有
+   EN: 0|It’s 1|just 2|like 3|a 4|ruin 5|where 6|there’s 7|nothing 8|even 9|though 10|I 11|open 12|the 13|door //
+   JA: 0|まるで 1|扉を開けたってなにもない 2|廃墟のように //
+
+@@ Thirty Million Persona | S14 | K=2 | ENatoms=15 JAatoms=3
+   orig: Xia o Optokia tou Squa Crait Selvell | Oltemia Baly Olizes Seema il Crait Selaf
+   app0: Xia o Optokia tou Squa Crait Selvell Oltemia Baly || 掩盖自己的真实想法毫无用处，因为无论何时
+   app1: Olizes Seema il Crait Selaf || 都有人能注意到真正的你
+   EN: 0|There’s 1|no 2|point 3|in 4|hiding 5|your 6|true 7|feelings 8|Someone 9|is 10|always 11|noticing 12|your 13|true 14|self //
+   JA: 0|本音を隠したって無駄だよ 1|いつだって誰かが気付いてる 2|本当の君に //
+
+@@ Toys | S06 | K=2 | ENatoms=9 JAatoms=2
+   orig: la la Mii Arth Bis Arth Bis | ah end Crai Arth tie Bis
+   app0: la la Mii Arth Bis Arth Bis || 我在此处
+   app1: ah end Crai Arth tie Bis || 以及，你也在此处
+   EN: 0|I 1|am 2|here 3|alone 4|and 5|you 6|are 7|there 8|alone //
+   JA: 0|私だけがここにいて // 1|そしてあなただけがそこにいる //
+
+@@ Toys | S09 | K=2 | ENatoms=18 JAatoms=3
+   orig: Hey ah Fiiani ou Gete Reiz | Luan In Minelu end
+   app0: Hey ah Fiiani ou Gete Reiz || 看哪，宣告新旅途开始的深呼吸
+   app1: Luan In Minelu end || 穿过星际间隙
+   EN: 0|You 1|see, 2|a 3|deep 4|breath 5|that’s 6|is 7|a 8|sign 9|of 10|departure, 11|slips 12|through 13|the 14|space 15|between 16|the 17|stars //
+   JA: 0|ほら 1|旅立ちを告げる深呼吸が 2|星の透き間をすり抜ける //
+
+@@ Toys | S10 | K=2 | ENatoms=9 JAatoms=2
+   orig: Karna Mii Skie a Graid ou Selaf end | ah Graid Selaf end ah Ley
+   app0: Karna Mii Skie a Graid ou Selaf end || 度过好几个如此般的夜晚
+   app1: ah Graid Selaf end ah Ley || 就像这样下去
+   EN: 0|Just 1|like 2|that, 3|I 4|go 5|through 6|many 7|nights 8|again //
+   JA: 0|そんな風にまた 1|幾つもの夜を越えてゆく //
+
+@@ Toys | S13 | K=2 | ENatoms=9 JAatoms=2
+   orig: la la Mii Arth Bis Arth Bis | ah end Crai Arth tie Bis
+   app0: la la Mii Arth Bis Arth Bis || 我在此处
+   app1: ah end Crai Arth tie Bis || 以及，你也在此处
+   EN: 0|I 1|am 2|here 3|alone 4|and 5|you 6|are 7|there 8|alone //
+   JA: 0|私だけがここにいて // 1|そしてあなただけがそこにいる //
+
+@@ Toys | S16 | K=2 | ENatoms=18 JAatoms=3
+   orig: Hey ah Fiiani ou Gete Reiz | Luan In Minelu end
+   app0: Hey ah Fiiani ou Gete Reiz || 看哪，宣告新旅途开始的深呼吸
+   app1: Luan In Minelu end || 穿过星际间隙
+   EN: 0|You 1|see, 2|a 3|deep 4|breath 5|that’s 6|is 7|a 8|sign 9|of 10|departure, 11|slips 12|through 13|the 14|space 15|between 16|the 17|stars //
+   JA: 0|ほら 1|旅立ちを告げる深呼吸が 2|星の透き間をすり抜ける //
+
+@@ Toys | S17 | K=3 | ENatoms=9 JAatoms=2
+   orig: Karna Mii Skie a Graid ou Selaf end | ah Graid Selaf end ah Ley | ah Ley
+   app0: Karna Mii Skie a Graid ou Selaf end || 度过好几个如此般的夜晚
+   app1: ah Graid Selaf end ah Ley || 就像这样下去
+   app2: ah Ley || 不断继续下去
+   EN: 0|Just 1|like 2|that, 3|I 4|go 5|through 6|many 7|nights 8|again //
+   JA: 0|そんな風にまた 1|幾つもの夜を越えてゆく //
+
+@@ Under Wonder Nights | S01 | K=2 | ENatoms=7 JAatoms=3
+   orig: Oulayz Saut , Verry | Kulu Nai Harie Zel Note
+   app0: Oulayz Saut Verry || 无数的声音，话语
+   app1: Kulu Nai Harie Zel Note || 对这一切都丝毫没有印象
+   EN: 0|I 1|can’t 2|remember 3|the 4|myriad 5|voices, 6|words //
+   JA: 0|無数の声 1|言葉 2|何も思い出せないよ //
+
+@@ Under Wonder Nights | S08 | K=2 | ENatoms=13 JAatoms=3
+   orig: Kolto o Meele Fiola ou Finz Ween | Mii Nai Dist Crai Foul
+   app0: Kolto o Meele Fiola ou Finz Ween || 底部为海，终焉的花朵
+   app1: Mii Nai Dist Crai Foul || 我绝对不会忘记你
+   EN: 0|The 1|bottom 2|is 3|the 4|sea, 5|Flower 6|of 7|the 8|end, // 9|I 10|won’t 11|forget 12|you //
+   JA: 0|底は海 1|終焉の花 // 2|君を忘れない //
+
+@@ Under Wonder Nights | S14 | K=2 | ENatoms=13 JAatoms=3
+   orig: Kolto o Meele Fiola ou Finz Ween | Mii Nai Dist Crai Foul
+   app0: Kolto o Meele Fiola ou Finz Ween || 底部为海，终焉的花朵
+   app1: Mii Nai Dist Crai Foul || 我绝对不会忘记你
+   EN: 0|The 1|bottom 2|is 3|the 4|sea, 5|Flower 6|of 7|the 8|end, // 9|I 10|won’t 11|forget 12|you //
+   JA: 0|底は海 1|終焉の花 // 2|君を忘れない //
+
+@@ Urxbxrxs | S00 | K=2 | ENatoms=16 JAatoms=4
+   orig: Ullem ou Epkejla Lef Dizzlet , | Bipeidit Garei , | Wendit Lusia Entie Arch Synapse , | il Eiti Minelu
+   app0: Ullem ou Epkejla Lef Dizzlet Bipeidit Garei Wendit Lusia Ent || 分裂的大脑深处，蠢蠢欲动的神经元，游动的光骑乘上突触，
+   app1: Il Eiti Minelu Sikid Pillusi Olipha en Selanya Helfigi ou Fl || 到达下一个星球，意识无处可去，在次元的裂隙中徘徊
+   EN: 0|Wriggling 1|neurons 2|deep 3|in 4|my 5|splitting 6|head // 7|Swimming 8|lights 9|ride 10|the 11|synapse 12|to 13|the 14|next 15|star //
+   JA: 0|割れるような頭の奥 // 1|蠢くニューロン // 2|泳ぐ光はシナプスに乗り // 3|次の星へ //
+
+@@ Urxbxrxs | S05 | K=2 | ENatoms=20 JAatoms=4
+   orig: Poutie Skima Fei end Kremsa Nache Eidarit | iy Mazy ou Guidial Spay end Qtua Loosya Selti
+   app0: Mineldari Quop end Acary Seeda Herches ou Minelbli Poutie Sk || 由默示指引的行星系，恒星的心脏，穿过作为嬉戏的基本粒子的圆轮
+   app1: Kremsa Nache Eidarit iy Mazy ou Guidial Spay end Qtua Loosya || 这是一个连任何意义都会嘲笑的，由镜子组成的迷宫
+   EN: 0|Go 1|through 2|the 3|circle 4|of 5|elementary 6|particles 7|at 8|play // 9|We 10|find 11|a 12|labyrinth 13|of 14|mirrors 15|that 16|mocks 17|even 18|every 19|meaning //
+   JA: 0|素粒子の戯れる輪を潜れば // 1|そこは 2|意味すら嘲る 3|合わせ鏡の迷路 //
+
+@@ Urxbxrxs | S13 | K=2 | ENatoms=16 JAatoms=4
+   orig: Ullem ou Epkejla Lef Dizzlet , | Bipeidit Garei , | Wendit Lusia Entie Arch Synapse , | il Eiti Minelu
+   app0: Ullem ou Epkejla Lef Dizzlet Bipeidit Garei Wendit Lusia Ent || 分裂的大脑深处，蠢蠢欲动的神经元，游动的光骑乘上突触，
+   app1: Il Eiti Minelu Sikid Pillusi Olipha en Selanya Helfigi ou Fl || 到达下一个星球，意识无处可去，在次元的裂隙中徘徊
+   EN: 0|Wriggling 1|neurons 2|deep 3|in 4|my 5|splitting 6|head // 7|Swimming 8|lights 9|ride 10|the 11|synapse 12|to 13|the 14|next 15|star //
+   JA: 0|割れるような頭の奥 // 1|蠢くニューロン // 2|泳ぐ光はシナプスに乗り // 3|次の星へ //
+
+@@ Urxbxrxs | S18 | K=2 | ENatoms=20 JAatoms=4
+   orig: Poutie Skima Fei end Kremsa Nache | Eidarit | iy Mazy ou Guidial Spay end Qtua Loosya Selti
+   app0: Mineldari Quop end Acary Seeda Herches ou Minelbli Poutie Sk || 由默示指引的行星系，恒星的心脏，穿过作为嬉戏的基本粒子的圆轮
+   app1: Kremsa Nache Eidarit iy Mazy ou Guidial Spay end Qtua Loosya || 这是一个连任何意义都会嘲笑的，由镜子组成的迷宫
+   EN: 0|Go 1|through 2|the 3|circle 4|of 5|elementary 6|particles 7|at 8|play // 9|We 10|find 11|a 12|labyrinth 13|of 14|mirrors 15|that 16|mocks 17|even 18|every 19|meaning //
+   JA: 0|素粒子の戯れる輪を潜れば // 1|そこは 2|意味すら嘲る 3|合わせ鏡の迷路 //
+
+@@ Wonder World Sketch | S00 | K=2 | ENatoms=11 JAatoms=2
+   orig: Olis Leste Stea Shelista Ilis Leste Stea Xia Scape ah
+   app0: Olis Leste Stea Shelista || 描绘这充盈的世界吧
+   app1: Ilis Leste Stea Xia Scape ah || 用七色的画具描绘吧
+   EN: 0|Let's 1|draw 2|prismatic 3|world // 4|Let's 5|paint 6|with 7|all 8|colors 9|of 10|rainbow //
+   JA: 0|あふれる世界を描こう 1|七色の繪の具で描こう //
+
+@@ Wonder World Sketch | S01 | K=2 | ENatoms=17 JAatoms=2
+   orig: Laiziin Leste Oulayz Stea end Droq Ani Minelu Loqcka Elie
+   app0: Laiziin Leste Oulayz Stea || 描绘那无限的航路吧
+   app1: end Droq Ani Minelu Loqcka Elie || 一个手提包就够让我前往星辰彼方
+   EN: 0|Let's 1|open 2|up 3|our 4|unlimited 5|sea 6|route // 7|Just 8|grab 9|a 10|bag 11|and 12|let's 13|go 14|beyond 15|the 16|star //
+   JA: 0|無限の航路を描こう 1|カバンひとつで星の彼方まで //
+
+@@ Wonder World Sketch | S04 | K=2 | ENatoms=15 JAatoms=3
+   orig: Loog end Loog Stei Nai Mariju Viin end Nai Ranya Note
+   app0: Loog end Loog Stei Nai Mariju Viin end || 一直追寻的景色
+   app1: Nai Ranya Note || 寻遍不得的事物
+   EN: 0|The 1|view 2|I 3|sought 4|and 5|chased 6|for 7|a 8|long 9|time // 10|That 11|i 12|could 13|never 14|find //
+   JA: 0|ずっとずっと探していた 1|追いかけていた景色 // 2|見つからなかったもの //
+
+@@ Wonder World Sketch | S06 | K=2 | ENatoms=14 JAatoms=3
+   orig: ah Talis Mii Alista Shelista end Heart ou Brai Mii Inay
+   app0: ah Talis Mii Alista Shelista end || 想象已久的世界
+   app1: Heart ou Brai Mii Inay || 就在我心中等候
+   EN: 0|The 1|world 2|I 3|dreamed 4|for 5|a 6|long 7|time // 8|That 9|is 10|waiting 11|in 12|my 13|heart. //
+   JA: 0|長い間 1|想い描いていた世界は 2|心の中で待っている //
+
+@@ Wonder World Sketch | S07 | K=2 | ENatoms=6 JAatoms=3
+   orig: Leste Luan a Crai Sar Mii Leste Luan
+   app0: Leste Luan a Crai Sar Mii || 你和我一起去吧
+   app1: Leste Luan || 一起
+   EN: 0|Let's 1|go 2|with 3|me // 4|With 5|me... //
+   JA: 0|さぁ 1|君も一緒に行こう 2|一緒に //
+
+@@ Wonder World Sketch | S08 | K=2 | ENatoms=15 JAatoms=5
+   orig: Talis a Jareic Rig ou Abelu | Karna Enaq Bis Gent end Stea Laiziin
+   app0: Talis a Jareic Rig ou Abelu || 将飘扬已久的开绽旗帜
+   app1: Karna Enaq Bis Gent end Stea Laiziin || 再度挥起，树于此处，划出航线
+   EN: 0|Hoist 1|and 2|hold 3|up 4|a 5|frayed 6|flag 7|flowed 8|in 9|ages 10|here // 11|Draw 12|the 13|sea 14|route //
+   JA: 0|長い間靡いていた 1|ほころんだ旗を // 2|もう一度かざして 3|ここに立てて 4|航路を描いて //
+
+@@ Wonder World Sketch | S09 | K=2 | ENatoms=5 JAatoms=2
+   orig: Fiiani end ah Leste Liz !
+   app0: Fiiani end || 做个深呼吸
+   app1: ah Leste Liz || 好，马上前进！
+   EN: 0|Breathe 1|deep, 2|and 3|let's 4|go! //
+   JA: 0|深呼吸をしたら 1|さぁ、進め！ //
+
+@@ Wonder World Sketch | S10 | K=2 | ENatoms=15 JAatoms=3
+   orig: Loog end Loog Laiz Nai Mariju Viin end Nai Ranya Note
+   app0: Loog end Loog Laiz Nai Mariju Viin end || 一直追寻的未来
+   app1: Nai Ranya Note || 失落不见的事物
+   EN: 0|The 1|future 2|I 3|sought 4|and 5|chased 6|for 7|a 8|long 9|time // 10|That 11|i 12|could 13|never 14|find //
+   JA: 0|ずっとずっと探していた 1|追いかけていた未来 // 2|失くしてしまったもの //
+
+@@ Wonder World Sketch | S12 | K=2 | ENatoms=14 JAatoms=3
+   orig: ah Talis Mii Alista Shelista end Heart ou Brai Mii Inay
+   app0: ah Talis Mii Alista Shelista end || 想象已久的世界
+   app1: Heart ou Brai Mii Inay || 就在我心中等候
+   EN: 0|The 1|world 2|I 3|dreamed 4|for 5|a 6|long 7|time // 8|That 9|is 10|waiting 11|in 12|my 13|heart. //
+   JA: 0|長い間 1|想い描いていた世界は 2|心の中で待っている //
+
+@@ Wonder World Sketch | S13 | K=2 | ENatoms=6 JAatoms=3
+   orig: Leste Luan a Crai Sar Mii Inay Leste Luan
+   app0: Leste Luan a Crai Sar Mii || 你和我一起去吧
+   app1: Leste Luan || 一起
+   EN: 0|Let's 1|go 2|with 3|me // 4|With 5|me... //
+   JA: 0|さぁ 1|君も一緒に行こう 2|一緒に //
+
+@@ i am always wrong | S00 | K=2 | ENatoms=12 JAatoms=3
+   orig: Bertene Alfloul Zia iy Shellte Apnesia Baly | Xia iy Kysei Tepistl Wei
+   app0: Bertene Alfloul Zia iy Shellte Apnesia Baly || 我周围的人总是对的
+   app1: Xia iy Kysei Tepistl Wei || 这是明确无误的事实
+   EN: 0|The 1|people 2|around 3|me 4|are 5|always 6|correct // 7|That 8|is 9|the 10|unmistakable 11|truth //
+   JA: 0|まわりのひとびとは 1|いつも決まって正しいんだ // 2|それはまぎれもない事実だよ //
+
+@@ i am always wrong | S03 | K=2 | ENatoms=10 JAatoms=3
+   orig: Tifijl Xia end Yien Stea ifa Enbrikardi Fas , | iy Zyte Tvulei ...?
+   app0: Tifijl Xia end Yien Stea ifa Enbrikardi Fas || 一个用可怕的颜色描绘的扭曲的人物，
+   app1: iy Zyte Tvulei || 是我吗。。。？
+   EN: 0|A 1|distorted 2|figure 3|depicted 4|in 5|terrifying 6|colors, // 7|Is 8|that 9|me...? //
+   JA: 0|恐ろしい色で描かれた 1|いびつな、それは // 2|僕の姿・・・? //
+
+@@ i am always wrong | S09 | K=2 | ENatoms=5 JAatoms=4
+   orig: Elaind Zia iy Hyuserti imm Bale Taz
+   app0: Elaind Zia iy Hyuserti imm Bale Taz || 是的，我总是错的
+   app1: Zia iy Hyuserti imm Bale Taz || 我总是错的）
+   EN: 0|Yes, 1|i 2|am 3|always 4|wrong //
+   JA: 0|そう 1|僕は 2|いつだって 3|間違っている //
+
+@@ ᖽᐸᓰᒪᒪ ᘻᖻ ᖴᓍᖇᖶᑘᘉᘿ(Kill My Fortune) | S04 | K=2 | ENatoms=5 JAatoms=3
+   orig: Leife Leife | Mii Skyar Histipri
+   app0: Leife Leife || 空荡荡，空荡荡
+   app1: Mii Skyar Histipri || 追溯历史
+   EN: 0|Hollow 1|Hollow 2|Trace 3|the 4|history //
+   JA: 0|うつろ 1|うつろ 2|歴史をたどる //
+
+@@ ▷ NEW GAME | S07 | K=2 | ENatoms=15 JAatoms=3
+   orig: Bis iy Goriis Viizy Olis Feida Viizy Mii Phina Colista Eivena Ofa Bis Lazz
+   app0: Bis iy Goriis Viizy Olis Feida Viizy || 这是一个严重的bug，非常致命的bug
+   app1: Mii Phina Colista Eivena Ofa Bis Lazz || 我们要求这一条命重开
+   EN: 0|This 1|is 2|a 3|serious 4|bug, 5|A 6|crucial 7|bug // 8|We 9|demand 10|this 11|life 12|to 13|be 14|withdrawn //
+   JA: 0|これは深刻なバグ 1|すごく致命的なバグ // 2|私たちはこの命の撤回を求めます //
+
+@@ ▷ NEW GAME | S11 | K=2 | ENatoms=14 JAatoms=3
+   orig: Entie Arch Feilihna en Skima Roofialakta , Polt Pray ou Olizes Selfe a Geeg
+   app0: Entie Arch Feilihea en Skima Roofialakta || 骑着海马穿过隧道
+   app1: Polt Pray ou Olizes Selfe a Geeg || 不知道是谁的脚步声持续不断
+   EN: 0|Ride 1|on 2|a 3|sea 4|horse 5|and 6|go 7|through 8|the 9|tunnel // 10|Someone’s 11|footsteps 12|wouldn’t 13|stop //
+   JA: 0|海馬に乗ってくぐるトンネル 1|何者かの 2|足音が鳴り止まない //
+
+@@ ▷ NEW GAME | S12 | K=2 | ENatoms=16 JAatoms=4
+   orig: Ah , Voi Kulu Heilim Bis osa Ord Doraid Elaind Harmiy Xia Bis iy Ignai Lanai
+   app0: Voi Kulu Heilim Bis osa Ord Doraid || 啊，这也能被称作是“黑暗”吧
+   app1: Elaind Harmiy Xia Bis iy Ignai Lanai || 这也没什么好奇怪的，毕竟这也不是什么乐园
+   EN: 0|Ah, 1|this 2|can 3|also 4|be 5|called 6|darkness // 7|It 8|is 9|no 10|wonder, 11|because 12|this 13|is 14|no 15|paradise //
+   JA: 0|ああ 1|これは暗闇とも呼べる // 2|それもそうだろう 3|ここは楽園などではない //
+
+@@ ▷ NEW GAME | S13 | K=10 | ENatoms=43 JAatoms=36
+   orig: " Kulu Nai Rait Heiliam Tuklt " | " Lend Cloud Skeem Gete Liumd ?" | " Kulu Nai Rait Heiliam Tuklt " | " Lend Lend Cloud Skeem ?" | " Kulu Nai Rait Heiliam Tuklt " | " Le
+   app0: Kulu Nai Rait Heiliam Tuklt || “未找到存档数据”
+   app1: Lend Cloud Skeem Gete Liumd || “是否开始新游戏？”
+   app2: Kulu Nai Rait Heiliam Tuklt || “未找到存档数据”
+   app3: Lend Lend Cloud Skeem || “是否开始？”
+   app4: Kulu Nai Rait Heiliam Tuklt || “未找到存档数据”
+   app5: Lend Cloud Skeem Gete Liumd || “是否开始新游戏？”
+   app6: Kulu Nai Rait Rait Rait Rait Rait Rait Rait Heiliam Tuklt || “未未未未未未未找到存档数据”
+   app7: Lend Cloud Skeem Gete Liumd || “是否开始新游戏？”
+   app8: Kulu Nai Rait Heiliam Tuklt || “未找到存档数据”
+   app9: Lend Cloud Skeem Skeem Skeem Skeem Skeem Skeem Skeem Gete Li || “是否开始开始开始开始开始开始开始新游戏？”
+   EN: 0|“SAVE 1|DATA 2|NOT 3|FOUND” 4|“START 5|NEW 6|GAME?” // 7|“SAVE 8|DATA 9|NOT 10|FOUND” 11|“START?” // 12|“SAVE 13|DATA 14|NOT 15|FOUND” 16|“START 17|NEW 18|GAME?” // 19|“SAVE 20|DATA 21|NOT 22|NOT 23|NOT 24|NOT 25|NOT 26|NOT 27|FOUND” // 28|“START 29|NEW 30|GAME?” 31|“SAVE 32|DATA 33|NOT 34|FOUND” // 35|“START 36|START 37|START 38|START 39|START 40|START 41|NEW 42|GAME?” //
+   JA: 0|「SAVE 1|DATA 2|がみつかりません」「NEW 3|GAME 4|をはじめますか？」 // 5|「SAVE 6|DATA 7|がみつかりません」「はじめますか？」 // 8|「SAVE 9|DATA 10|がみつかりません」「NEW 11|GAME 12|をはじめますか？」 // 13|「SAVE 14|DATA 15|がみつかり 16|みつかり 17|みつかり 18|みつかり 19|みつかり 20|みつかり 21|ません」 // 22|「NEW 23|GAME 24|をはじめますか？」「SAVE 25|DATA 26|がみつかりません」 // 27|「NEW 28|GAME 29|をはじめ 30|はじめ 31|はじめ 32|はじめ 33|はじめ 34|はじめ 35|ますか？」 //
+
+@@ ▷ NEW GAME | S17 | K=2 | ENatoms=15 JAatoms=3
+   orig: Bis iy Goriis Viizy Olis Feida Viizy Mii Colista Eivena Ofa Bis Lazz
+   app0: Bis iy Goriis Viizy Olis Feida Viizy || 这是一个严重的bug，非常致命的bug
+   app1: Mii Phina Colista Eivena Ofa Bis Lazz || 我们要求这一条命重开
+   EN: 0|This 1|is 2|a 3|serious 4|bug, 5|A 6|crucial 7|bug // 8|We 9|demand 10|this 11|life 12|to 13|be 14|withdrawn //
+   JA: 0|これは深刻なバグ 1|すごく致命的なバグ // 2|私たちはこの命の撤回を求める //
+
+@@ アーカーシャの碑文 | S03 | K=2 | ENatoms=0 JAatoms=2
+   orig: “ Foly , Mii Harmiy Xia o Nai Loqcka Opl ! Ticca Quente Elie Akasya ”
+   app0: Foly Mii Harmiy Xia o Nai Loqcka Opl || “没关系，应该不远的！
+   app1: Ticca Quente Elie Akasya || 距离阿卡莎还有一点了”
+   EN: <none>
+   JA: 0|“大丈夫、そう遠くないはずだよ！ 1|アーカーシャまでもうちょっと" //
+
+@@ エリシアンズ・オールドマンズ(Elysion's Old Mans) | S08 | K=2 | ENatoms=17 JAatoms=5
+   orig: Will a Shellarm Fiolaza Herches | Arupe Elled Nols end ou Kllea end ou Sjlyupe
+   app0: Will a Shellarm Fiolaza a Herches || 心跳及圣殿， 花束与心脏
+   app1: Arupe Elled Nols end ol Kllea end ol Sjiyupe || 古老的电梯，忘却的事情，哭泣受挫的日子
+   EN: 0|Heartbeat 1|and 2|Holy 3|Temple, 4|Bouquet 5|and 6|Heart // 7|Ancient 8|Elevator, 9|Forgotten 10|Stuff, 11|The 12|cried 13|number, 14|the 15|disheartened 16|number //
+   JA: 0|鼓動と神殿 1|花束と心臓 // 2|古代のエレベーター 3|泣いた数 4|挫けた数 //
+
+@@ エリシアンズ・オールドマンズ(Elysion's Old Mans) | S21 | K=2 | ENatoms=15 JAatoms=8
+   orig: Capite Capite Taz Capite Scteus | Sween , Lishe Senju Elie Finza
+   app0: Capite Capite Taz Capite Scteus || 待首都 首都 首都的卫兵入睡后
+   app1: Sween Lishe Senju Elie Finza || 逃离的出口， 我会带你到那里
+   EN: 0|Capital’s 1|Capital’s 2|Capital’s 3|guardian, 4|after 5|they 6|sleep // 7|Exit 8|Exit 9|Exit, 10|I’ 11|ll 12|bring 13|you 14|there //
+   JA: 0|帝都の 1|帝都の 2|帝都の 3|護り神が眠ったら // 4|出口まで 5|出口まで 6|出口まで 7|送っていくよ //
+
+@@ エリシアンズ・オールドマンズ(Elysion's Old Mans) | S24 | K=2 | ENatoms=14 JAatoms=8
+   orig: Capite Capite Taz Capite Scteus | Sween , Lishe Senju Elie Finza
+   app0: Capite Capite Taz Capite Scteus || 待首都 首都 首都的卫兵入睡后
+   app1: Sween Lishe Senju Elie Finza || 逃离的出口， 我会带你到那里
+   EN: 0|Capital’s 1|Capital’s 2|Capital’s 3|guardian, 4|after 5|they 6|sleep // 7|Exit 8|Exit 9|Exit, 10|I’ll 11|bring 12|you 13|there //
+   JA: 0|帝都の 1|帝都の 2|帝都の 3|護り神が眠ったら // 4|出口まで 5|出口まで 6|出口まで 7|送っていくよ //
+
+@@ フライブルクとエンドロウル(Flyburg and the Endroll) | S03 | K=2 | ENatoms=23 JAatoms=3
+   orig: a Ame ou Bis Sartain | rie end Fel Swiina Fei ou Mage a Rinasia end Stea Dis
+   app0: a Ame ou Bis Sartin rin || 在破晓时刻诞生的孩子
+   app1: end Fel Swiina Fei ou Mage a Rin Asia end Stea Dis || 最终触及魔方阵的街道孵化出来，运送了他们俩
+   EN: 0|Children 1|born 2|at 3|the 4|break 5|of 6|day // 7|The 8|town 9|touched 10|on 11|magical 12|square 13|hatches 14|in 15|the 16|course 17|of 18|time 19|and 20|carries 21|them 22|two //
+   JA: 0|暁の元に生まれた子ども // 1|やがて魔方陣に触れた街は孵化をして 2|二人を運ぶ //
+
+@@ フライブルクとエンドロウル(Flyburg and the Endroll) | S05 | K=2 | ENatoms=13 JAatoms=4
+   orig: Telly Crai Oul Laqq end Terra ou Arla | end Mii Telly Crai Nai ou Finz Hait end Finz Hait
+   app0: Telly Crai Oul Labb end Terra ou Arla || 大大的宝箱和纯白的特拉
+   app1: end Mii Telly Crai Nai ou Finz Hait end Finz Hait || 以及无尽的自由，都托付给你吧
+   EN: 0|I 1|leave 2|you 3|a 4|big 5|treasure 6|box, 7|completely 8|white 9|terra, 10|and 11|never-ending 12|freedom //
+   JA: 0|大きな宝箱を 1|真っ白なterra 2|を 3|そして終りのない自由を君に預けよう //
+
+@@ フライブルクとエンドロウル(Flyburg and the Endroll) | S11 | K=2 | ENatoms=13 JAatoms=2
+   orig: Pray ou Elza Challen Endroll | end Sartain Harmiy Lar Crai Lar
+   app0: a Brait Anie Miz Laila Ritto Aka Goss Pray || 绽放的气息化作鸟儿，飞沫送出祝福
+   app1: ou Elza Challen Endroll end Sartain Harmiy Lar Crai Lar || 每当羽翼之音回响于终末的庆典，太阳将升起和涌出回忆
+   EN: 0|Each 1|time 2|beat 3|their 4|wings 5|during 6|ending 7|celebration, 8|the 9|sun 10|rise 11|and 12|remember //
+   JA: 0|羽音がエンドロウルに響く度 1|陽は昇って想いを馳せる //
+
+@@ フライブルクとエンドロウル(Flyburg and the Endroll) | S13 | K=2 | ENatoms=13 JAatoms=4
+   orig: Telly Crai Oul Laqq end Terra ou Arla | end Mii Telly Crai Nai ou Finz Hait end Finz Hait
+   app0: Telly Crai Oul Labb end Terra ou Arla || 大大的宝箱和纯白的特拉
+   app1: end Mii Telly Crai Nai ou Finz Hait end Finz Hait || 以及无尽的自由，都托付给你吧
+   EN: 0|I 1|leave 2|you 3|a 4|big 5|treasure 6|box, 7|completely 8|white 9|terra, 10|and 11|never-ending 12|freedom //
+   JA: 0|大きな宝箱を 1|真っ白なterra 2|を 3|そして終りのない自由を君に預けよう //
+
+@@ フライブルクとエンドロウル(Flyburg and the Endroll) | S19 | K=2 | ENatoms=13 JAatoms=2
+   orig: Pray ou Elza Challen Endroll | end Sartain Harmiy Lar Crai Lar
+   app0: a Brait Anie Miz Laila Ritto Aka Goss Pray || 绽放的气息化作鸟儿，飞沫送出祝福
+   app1: ou Elza Challen Endroll end Sartain Harmiy Lar Crai Lar || 每当羽翼之音回响于终末的庆典，太阳将升起和涌出回忆
+   EN: 0|Each 1|time 2|beat 3|their 4|wings 5|during 6|ending 7|celebration, 8|the 9|sun 10|rise 11|and 12|remember //
+   JA: 0|羽音がエンドロウルに響く度 1|陽は昇って想いを馳せる //
+
+@@ ワンダーシャッフェンの法則 | S03 | K=2 | ENatoms=0 JAatoms=3
+   orig: Quondlea Vala a Alter , Fouzanoa | Zeit Mols Aihel Pllia Ran
+   app0: Quondlea Vala a Alter Fouzanoa || 映在眼前的只有城墙和怪物
+   app1: Zeit Mols Aihel Pllia Ran || 以及不自然的时间
+   EN: <none>
+   JA: 0|目の前にあるのは 1|城壁と魔物と // 2|取って付けたような時間だけ //
+
+@@ ワンダーシャッフェンの法則 | S06 | K=2 | ENatoms=0 JAatoms=3
+   orig: Elaind , Ollenes Kulu Nai | Kirla folme Retuel a Herz Foul
+   app0: Elaind Ollenes Kulu Nai || 没错，好奇心
+   app1: Kerla folme Retuela Herz Foul || 是无法摆脱的
+   EN: <none>
+   JA: 0|そう 1|きっと好奇心から // 2|逃げることなんてできない //
+
+@@ ワンダーシャッフェンの法則 | S07 | K=2 | ENatoms=0 JAatoms=2
+   orig: Poet Nai Harmiy Ra | Craill o Mariotoriet !
+   app0: Poet Nai Harmiy Ra || 牵线木偶什么的
+   app1: Craill o Mariotoriet || 别开玩笑了！
+   EN: <none>
+   JA: 0|マリオネットだなんて // 1|とんでもない！ //
+
+@@ 九番目の迷路(Maze No.9) | S11 | K=2 | ENatoms=8 JAatoms=2
+   orig: Ijsya ou Nita imm Loqcka Graid , Herz ou Briss a Geeg
+   app0: Ijsya ou Nita imm Loqcka Graid || 无论是遥远夏季的香气
+   app1: Herz ou Briss a Geeg || 还是逐渐疏远的心
+   EN: 0|Distant 1|summer 2|scent, 3|hearts 4|that 5|still 6|grow 7|apart //
+   JA: 0|遠い夏の香りも 1|すれ違ったままの心も //
+
+@@ 九番目の迷路(Maze No.9) | S12 | K=2 | ENatoms=22 JAatoms=3
+   orig: Ame ou Sar Minelu , Nai Ieha Way | Esp ou Shelista Nai Dilem Arsia
+   app0: Ame ou Sar Minelu Nai Ieha Way || 都是源自于同一个星球，不需要答案
+   app1: Esp ou Shelista Nai Dilem Arsia || 世界的碎片没有理由
+   EN: 0|All 1|of 2|them 3|are 4|born 5|from 6|the 7|same 8|star // 9|We 10|don’t 11|need 12|answer, 13|a 14|piece 15|of 16|the 17|world 18|doesn’t 19|have 20|some 21|reasons //
+   JA: 0|同じ星の子 1|答えなんて要らない 2|世界の欠片に理由なんてないよ //
+
+@@ 九番目の迷路(Maze No.9) | S13 | K=2 | ENatoms=13 JAatoms=4
+   orig: Elize imm Krey | Phier Holo Miis imm Aim Taz Madie Ofa Ellif Slay
+   app0: Elize imm Krey Phier Holo Miis imm Aim || 所以至少在你迷失自我的时候
+   app1: Taz Madie Ofa Ellif Slay || 请微笑着原谅自己吧
+   EN: 0|So 1|the 2|least 3|you 4|excuse 5|yourself 6|with 7|smiling 8|when 9|you 10|lose 11|your 12|way //
+   JA: 0|だからせめて 1|迷った時 2|自分くらいは 3|笑って赦してあげてね //
+
+@@ 九番目の迷路(Maze No.9) | S18 | K=2 | ENatoms=10 JAatoms=2
+   orig: Finz ou Vinelo Mii ol Harmiy Loog , Herz Yiele Awte
+   app0: Finz ou Vinelo Mii ou Harmiy Loog || 无论是长久冬季的终点
+   app1: Herz Yiele Awte || 还是从未相连的心
+   EN: 0|End 1|of 2|long 3|winter, 4|hearts 5|that 6|aren’t 7|linked 8|by 9|fate //
+   JA: 0|長かった冬の終わりも 1|出逢うことのなかった心も //
+
+@@ 九番目の迷路(Maze No.9) | S19 | K=2 | ENatoms=22 JAatoms=3
+   orig: Ame ou Sar Minelu , Nai Ieha Way | Esp ou Shelista Nai Dilem Arsia
+   app0: Ame ou Sar Minelu Nai Ieha Way || 都是源自于同一个星球，不需要答案
+   app1: Esp ou Shelista Nai Dilem Arsia || 世界的碎片没有理由
+   EN: 0|All 1|of 2|them 3|are 4|born 5|from 6|the 7|same 8|star // 9|We 10|don’t 11|need 12|answer, 13|a 14|piece 15|of 16|the 17|world 18|doesn’t 19|have 20|some 21|reasons //
+   JA: 0|同じ星の子 1|答えなんて要らない 2|世界の欠片に理由なんてないよ //
+
+@@ 九番目の迷路(Maze No.9) | S20 | K=2 | ENatoms=13 JAatoms=4
+   orig: Elize imm Krey | Phier Holo Miis imm Aim Taz Madie Ofa Ellif Slay
+   app0: Elize imm Krey Phier Holo Miis imm Aim || 所以至少在你迷失自我的时候
+   app1: Taz Madie Ofa Ellif Slay || 请微笑着原谅自己吧
+   EN: 0|So 1|the 2|least 3|you 4|excuse 5|yourself 6|with 7|smiling 8|when 9|you 10|lose 11|your 12|way //
+   JA: 0|だからせめて 1|迷った時 2|自分くらいは 3|笑って赦してあげてね //
+
+@@ 地平線のアクアツォーネ | S02 | K=2 | ENatoms=0 JAatoms=2
+   orig: Mii Seiren Aria end Ramiy Sar Hyuz
+   app0: Mii Seiren Aria end || 低吟的咏叹调
+   app1: Ramiy Sar Hyuz || 乘风飘逝
+   EN: <none>
+   JA: 0|囁いたアリアは 1|風に乗って行ってしまった //
+
+@@ 地平線のアクアツォーネ | S08 | K=2 | ENatoms=0 JAatoms=2
+   orig: end Karna Awter Noll Awter Noll tie Mill Haymate | Ah Awter Noll tie Haymate Mane
+   app0: end Karna Awter Noll Awter Noll tie Mill Haymate || 为了日后能在故乡重逢
+   app1: Ah Awter Noll tie Haymate Mane || 在故乡重逢
+   EN: <none>
+   JA: 0|いつかまた 1|故郷で会えるように //
+
+@@ 地平線のアクアツォーネ | S09 | K=2 | ENatoms=0 JAatoms=2
+   orig: Herz Aihel Bis Koll end | Mii Aihel a Bis ah Lootaria
+   app0: Herz Aihel Bis Koll end || 心还在此
+   app1: Mii Aihel a Bis ah Lootaria || 而我一直在此
+   EN: <none>
+   JA: 0|心はまだここにある 1|私はずっとここにいる //
+
+@@ 地平線のアクアツォーネ | S16 | K=5 | ENatoms=0 JAatoms=3
+   orig: la la la Cliid end Aola Cliid end | Razzle Syena la la Minelu a Visc Sole
+   app0: la la la Cliid end Aola Cliid end || 倾注 倾注如瀑
+   app1: Razzle Syena la la Minelu a Visc Sole || 击碎神化之星座 宿于殊卓之英魂
+   app2: Cliid end Aola Cliid end || 倾注如瀑
+   app3: Razzle Syena la la Minelu a Visc Sole || 击碎神化之星座 宿于殊卓之英魂
+   app4: Razzle Syena la la Minelu a Visc Sole || 击碎神化之星座 宿于殊卓之英魂
+   EN: <none>
+   JA: 0|降り注げ // 1|神明なる星座を砕いて 2|殊勝なる魂を宿せ //
+
+@@ 地平線のアクアツォーネ | S17 | K=2 | ENatoms=0 JAatoms=3
+   orig: Mii , Pray ou Liin end Herz end | a Pray ou Liin Herz end
+   app0: Mii Pray ou Liin end Herz end || 我，雨音与心音
+   app1: a Pray ou Liin Herz end || 无尽雨音与心音
+   EN: <none>
+   JA: 0|私 1|無限の雨音 2|心臓の音 //
+
+@@ 地平線のアクアツォーネ | S21 | K=2 | ENatoms=0 JAatoms=2
+   orig: Herz Aihel Bis Koll end | Mii Aihel a Bis ah Lootaria
+   app0: Herz Aihel Bis Koll end || 心还在此
+   app1: Mii Aihel a Bis ah Lootaria || 而我一直在此
+   EN: <none>
+   JA: 0|心はまだここにある 1|私はずっとここにいる //
+
+@@ 氷の檻のトリエスタ | S01 | K=2 | ENatoms=0 JAatoms=2
+   orig: Saus Cees Well end Mii a Swiina | end Cees Heart
+   app0: Saus Cees Well end Mii a Swiina || 千年的冰栅加我于身
+   app1: end Cees Heart || 连心脏亦被冻结
+   EN: <none>
+   JA: 0|千年の氷の格子は私に纏わり付いて // 1|心まで凍てついてしまった //
+
+@@ 空想モダニズム -Alice Schach remix- | S00 | K=2 | ENatoms=0 JAatoms=3
+   orig: Vleid Fol , Twiik Seia end Swiina Piala Syarfi | Shelista Sielat Mii Baly
+   app0: Vleid Fol Twiik Seia end Swiina Piala Syarfi || 脏兮兮的地板，雪白礼服的那个孩子
+   app1: Shelista Skelat Mii Baly || 世界总是嘲笑我
+   EN: <none>
+   JA: 0|薄汚れた床 1|真っ白なドレスのあの子 // 2|世界はいつも私を嘲笑う //
+
+@@ 空想モダニズム -Alice Schach remix- | S01 | K=2 | ENatoms=0 JAatoms=5
+   orig: Aa Wilen Flutenia Ailent | Oldia Taz , ol Faet Cloud end Digleema imm Brai ou Sharla Daltu
+   app0: Aa Wilenq Flutenoa Ailent || 啊，多么无聊的每一天
+   app1: Oltia Taz ol Faet Cloud end Digleema imm Brai ou Sharla Dalt || 就在这时，我在木箱中发现了躺在那里的你
+   EN: <none>
+   JA: 0|ああ 1|なんてつまらない毎日 // 2|そんな時 3|木箱の中 4|横たわるあなたを見つけたの //
+
+@@ 𝕆(O) | S28 | K=2 | ENatoms=13 JAatoms=2
+   orig: Klleat Fimoa iy Olis Elta sii | Foly Elize Vell Mins Lwei Foul
+   app0: Klleat Fimoa iy Olis Eita sii || 你的哭脸太可爱了
+   app1: Foly Elize Vell Mins Lwei Foul || 别担心，你会习惯的
+   EN: 0|Your 1|crying 2|face 3|is 4|so 5|adorable // 6|Don't 7|worry, 8|you'll 9|get 10|used 11|to 12|it //
+   JA: 0|泣いている顔はとても可愛いね // 1|そのうちきっと慣れてくるから大丈夫 //

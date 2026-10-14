@@ -1,0 +1,258 @@
+[
+  {
+    "song": "the_white_land",
+    "stanza": 0,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "白い空 白い靴 誰も居ない 誰も居ない",
+    "fix": "unknown"
+  },
+  {
+    "song": "the_white_land",
+    "stanza": 1,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "白い風 白い月 独りぼっち 独りぼっち",
+    "fix": "unknown"
+  },
+  {
+    "song": "the_white_land",
+    "stanza": 2,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "あぁ ここは真っ白なストーリー \"Ａ\"",
+    "fix": "unknown"
+  },
+  {
+    "song": "the_white_land",
+    "stanza": 3,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "旅人は最果てにて眠る",
+    "fix": "unknown"
+  },
+  {
+    "song": "the_white_land",
+    "stanza": 4,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "とても長い時間 終わりのない時間",
+    "fix": "unknown"
+  },
+  {
+    "song": "the_white_land",
+    "stanza": 5,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "ほころんだキャンバス まどろんだ懐中時計",
+    "fix": "unknown"
+  },
+  {
+    "song": "the_white_land",
+    "stanza": 6,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "まだこの世界には 何もない",
+    "fix": "unknown"
+  },
+  {
+    "song": "the_white_land",
+    "stanza": 7,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "涙の温度 友達の声 二つの足跡 凍える月のわ 聳える大樹",
+    "fix": "unknown"
+  },
+  {
+    "song": "the_white_land",
+    "stanza": 8,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "全部覚えている 忘れるはずなんてない だから‥",
+    "fix": "unknown"
+  },
+  {
+    "song": "the_white_land",
+    "stanza": 9,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "白い空 白い靴 誰も居ない 誰も居ない",
+    "fix": "unknown"
+  },
+  {
+    "song": "the_white_land",
+    "stanza": 10,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "白い風 白い月 独りぼっち 独りぼっち",
+    "fix": "unknown"
+  },
+  {
+    "song": "the_white_land",
+    "stanza": 11,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "そしてここは 真っ白なストーリー",
+    "fix": "unknown"
+  },
+  {
+    "song": "the_white_land",
+    "stanza": 12,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "廻る羅針盤と フィールドに残された君の結果",
+    "fix": "unknown"
+  },
+  {
+    "song": "the_white_land",
+    "stanza": 13,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "偏った進化論がひとつ 無限の部屋の扉を破れ",
+    "fix": "unknown"
+  },
+  {
+    "song": "the_white_land",
+    "stanza": 14,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "ほら こここそが 真っ白なストーリー \"Ａ\"",
+    "fix": "unknown"
+  },
+  {
+    "song": "the_white_land",
+    "stanza": 15,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "呼応 透明な魔物とがらんどう でも 不安なんてここにはない",
+    "fix": "unknown"
+  },
+  {
+    "song": "the_white_land",
+    "stanza": 16,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "悪い記憶に惑わされるな",
+    "fix": "unknown"
+  },
+  {
+    "song": "the_white_land",
+    "stanza": 17,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "人の夢を覗かないで 人の夢を取り上げないで",
+    "fix": "unknown"
+  },
+  {
+    "song": "the_white_land",
+    "stanza": 18,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "さぁ、物語の続きを",
+    "fix": "unknown"
+  },
+  {
+    "song": "Akasha_no_hibun",
+    "stanza": 0,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "繋いだ手 言葉 体温 壊れた羅針盤",
+    "fix": "unknown"
+  },
+  {
+    "song": "Akasha_no_hibun",
+    "stanza": 1,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "太陽とはぐれてしまった日",
+    "fix": "unknown"
+  },
+  {
+    "song": "Akasha_no_hibun",
+    "stanza": 2,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "それは 長い 長い 旅が始まった日",
+    "fix": "unknown"
+  },
+  {
+    "song": "Akasha_no_hibun",
+    "stanza": 3,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "“大丈夫、そう遠くないはずだよ！ アーカーシャまでもうちょっと\"",
+    "fix": "unknown"
+  },
+  {
+    "song": "Akasha_no_hibun",
+    "stanza": 4,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "“君がなくしてしまった宝物を 一緒に探そう”",
+    "fix": "unknown"
+  },
+  {
+    "song": "Akasha_no_hibun",
+    "stanza": 5,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "幾憶の天球はただ 目の前に 広がっていた",
+    "fix": "unknown"
+  },
+  {
+    "song": "Akasha_no_hibun",
+    "stanza": 6,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "記憶の終点 真っ白な最果て",
+    "fix": "unknown"
+  },
+  {
+    "song": "Akasha_no_hibun",
+    "stanza": 7,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "でも 世界はいつだって 君のそばにいる",
+    "fix": "unknown"
+  },
+  {
+    "song": "Akasha_no_hibun",
+    "stanza": 8,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "掠れて読めなくなった碑文と 続きのない年代記",
+    "fix": "unknown"
+  },
+  {
+    "song": "Akasha_no_hibun",
+    "stanza": 9,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "慟哭の月 螺旋 心配しないで",
+    "fix": "unknown"
+  },
+  {
+    "song": "Akasha_no_hibun",
+    "stanza": 10,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "ほら 物語はいつだって 君のそばにある",
+    "fix": "unknown"
+  },
+  {
+    "song": "Akasha_no_hibun",
+    "stanza": 11,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "約束、感覚の果てるまで",
+    "fix": "unknown"
+  },
+  {
+    "song": "Akasha_no_hibun",
+    "stanza": 12,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "“お願い ずっと忘れないでね”",
+    "fix": "unknown"
+  }
+]

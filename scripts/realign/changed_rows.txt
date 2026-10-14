@@ -1,0 +1,1598 @@
+====================================================================================================
+### A Little Servant   (16 changed rows)
+  [ 1] AL: Finzo a Fiola end ol Melnaid
+       ZH: 有那干枯的花朵
+     OLD : Withered flower, Red dress, Big sofa, Castellated wall, Iron bars, Messy closet, Broken nail | 萎れた花 赤いドレス 大きなソファ 城壁 鉄格子 散らかったクローゼット 割れた爪
+     NEW : Withered flower, | 萎れた花
+  [ 2] AL: Veit Syarfi Oul Solien Vala ou Quondlea
+       ZH: 红裙子，大沙发，堡垒的城墙
+     OLD : Withered flower, Red dress, Big sofa, Castellated wall, Iron bars, Messy closet, Broken nail | 萎れた花 赤いドレス 大きなソファ 城壁 鉄格子 散らかったクローゼット 割れた爪
+     NEW : Red dress, Big sofa, Castellated wall, | 赤いドレス 大きなソファ 城壁
+  [ 3] AL: Jiddle Ceeka Meisem Clooshela
+       ZH: 铁栅栏与凌乱的壁橱
+     OLD : Withered flower, Red dress, Big sofa, Castellated wall, Iron bars, Messy closet, Broken nail | 萎れた花 赤いドレス 大きなソファ 城壁 鉄格子 散らかったクローゼット 割れた爪
+     NEW : Iron bars, Messy closet, | 鉄格子 散らかったクローゼット
+  [ 4] AL: Klautie end ol Dizzle
+       ZH: 还有破碎的指甲
+     OLD : Withered flower, Red dress, Big sofa, Castellated wall, Iron bars, Messy closet, Broken nail | 萎れた花 赤いドレス 大きなソファ 城壁 鉄格子 散らかったクローゼット 割れた爪
+     NEW : Broken nail | 割れた爪
+  [ 6] AL: Foul Xia o Siala end Dilem no Amie
+       ZH: 也许那是没有爱情的歌谣
+     OLD : The song may be without love This is for whom? | それはきっと 愛のない唄 誰が為の唄
+     NEW : The song may be without love | それはきっと 愛のない唄
+  [ 7] AL: a Siala Blem lar o Shelista Plentie
+       ZH: 那是为谁唱的？是这个世界的摄影机吗？
+     OLD : The song may be without love This is for whom? | それはきっと 愛のない唄 誰が為の唄
+     NEW : This is for whom? / Is this world cinematograph? | 誰が為の唄 / 世界は映写機？
+  [ 8] AL: Cloud o Iequim Lef Mono
+       ZH: （如果是的话）那你一定像单色的摄影机
+     OLD : Is this world cinematograph? You look like monochrome | 世界は映写機？ あなたはまるで モノクローム
+     NEW : You look like monochrome | あなたはまるで モノクローム
+  [11] AL: Gout Hellm o Ola Poul ail
+       ZH: 然而幻想中根本空无一物
+     OLD : But there is nothing in illusion anyway / Despite how strong I wish | けれど 幻は 結局 がらんどう / どれほど 強く 強く 祈ったところでね
+     NEW : But there is nothing in illusion anyway | けれど 幻は 結局 がらんどう
+  [12] AL: Ignai Canvie Imeila Prous Amalait
+       ZH: 即使我多么努力的祈祷也无用
+     OLD : But there is nothing in illusion anyway / Despite how strong I wish | けれど 幻は 結局 がらんどう / どれほど 強く 強く 祈ったところでね
+     NEW : Despite how strong I wish | どれほど 強く 強く 祈ったところでね
+  [18] AL: Eilent Rave o Xia Haol Cloud Telly il Mii Selaf Note
+       ZH: 懊恼溢流成河，你伸出了手，可那真实存在吗？
+     OLD : You held out your hand, but is that real? | 差し出した その手は 本物なの？
+     NEW : Chagrin is overflowing / You held out your hand, but is that real? | 悔しさが滲む / 差し出した その手は 本物なの？
+  [21] AL: Yiela Prous il Kolto ou Tehomea
+       ZH: 在深渊底部不断祈祷着
+     OLD : Pray in the bottom depths, / as if you stick that heart | 深淵の底で 祈り賜え / かの心臓を 突き刺すように
+     NEW : Pray in the bottom depths, | 深淵の底で 祈り賜え
+  [22] AL: Lef Feikeed end Piikle Xaite Herches
+       ZH: 就像刺穿那心脏
+     OLD : Pray in the bottom depths, / as if you stick that heart | 深淵の底で 祈り賜え / かの心臓を 突き刺すように
+     NEW : as if you stick that heart | かの心臓を 突き刺すように
+  [23] AL: Yiela Sween Poetolt Heipe Sole ou Venesene
+       ZH: 在幽灵的怀抱中不断沉睡着
+     OLD : Sleep with mystical cluster, / as if you escape from eternal nightmare | 幽魂を抱いて 眠り賜え / 永遠の悪夢から 解放されるように
+     NEW : Sleep with mystical cluster, | 幽魂を抱いて 眠り賜え
+  [24] AL: Lef Yien Leimy folme Vins Hellm imm Lootaria
+       ZH: 就像逃离了永恒的梦魇
+     OLD : Sleep with mystical cluster, / as if you escape from eternal nightmare | 幽魂を抱いて 眠り賜え / 永遠の悪夢から 解放されるように
+     NEW : as if you escape from eternal nightmare | 永遠の悪夢から 解放されるように
+  [25] AL: Hiele Meele ou Trane Farla
+       ZH: 看哪，那底部便是泪水之海
+     OLD : Look, the bottom is a sea of tears, the never perishing sea | ほら 底は泪の海 枯れることのない海
+     NEW : Look, the bottom is a sea of tears, | ほら 底は泪の海
+  [26] AL: imm Kolto Xia Ignai Dialoss
+       ZH: 是永不枯竭的海
+     OLD : Look, the bottom is a sea of tears, the never perishing sea | ほら 底は泪の海 枯れることのない海
+     NEW : the never perishing sea | 枯れることのない海
+====================================================================================================
+### ALQ   (11 changed rows)
+  [ 4] AL: Ween Nai end
+       ZH: 无穷无尽
+     OLD :  | 長い道を辿るのだ
+     NEW :  | 
+  [ 7] AL: end Mii Caty Cate
+       ZH: 旅人迈步前行
+     OLD :  | 旅人は步みゆく / 天地万象へ黎明を
+     NEW :  | 旅人は步みゆく
+  [ 8] AL: end Lar ou Ail Sartain
+       ZH: 向天地万象迎来黎明
+     OLD :  | 旅人は步みゆく / 天地万象へ黎明を
+     NEW :  | 天地万象へ黎明を
+  [ 9] AL: ah end Mii Caty Cate
+       ZH: 旅人迈步前行
+     OLD :  | 旅人は步みゆく / 森羅万象の手のひらを
+     NEW :  | 旅人は步みゆく
+  [10] AL: end Mii Bis Haol ou Ail
+       ZH: 在森罗万象的手掌心
+     OLD :  | 旅人は步みゆく / 森羅万象の手のひらを
+     NEW :  | 森羅万象の手のひらを
+  [11] AL: Mii Cate Elie Skie Finient
+       ZH: 直至跨越地平
+     OLD :  | 地平線の向こうまで / 地平線の向こうまで
+     NEW :  | 地平線の向こうまで
+  [16] AL: Ween Nai end
+       ZH: 无穷无尽
+     OLD :  | 長い道を辿るのだ
+     NEW :  | 
+  [21] AL: ah end Mii Caty Cate
+       ZH: 旅人迈步前行
+     OLD :  | 旅人は步みゆく / 森羅万象の手のひらを
+     NEW :  | 旅人は步みゆく
+  [22] AL: end Mii Bis Haol ou Ail
+       ZH: 在森罗万象的手掌心
+     OLD :  | 旅人は步みゆく / 森羅万象の手のひらを
+     NEW :  | 森羅万象の手のひらを
+  [23] AL: Mii Cate Elie Skie Finient
+       ZH: 直至跨越地平
+     OLD :  | 地平線の向こうまで / 地平線の向こうまで
+     NEW :  | 地平線の向こうまで
+  [24] AL: Mii Cate Elie Skie Finient
+       ZH: 直至跨越地平
+     OLD :  | 地平線の向こうまで / 地平線の向こうまで
+     NEW :  | 地平線の向こうまで
+====================================================================================================
+### Alice Music   (14 changed rows)
+  [ 5] AL: Disverry Ail Swormin
+       ZH: 随着魔法咒文 纷扬起飞吧
+     OLD : By magical words, leave on each trip / Clap our hands | さぁ魔法の呪文で バラバラになって飛んでいけ / 手をたたこう
+     NEW : By magical words, leave on each trip | さぁ魔法の呪文で バラバラになって飛んでいけ
+  [ 7] AL: Sail Lans ah Minelia Seiren Heart Karna Vivi end
+       ZH: 表针转动 太阳起舞 月儿歌唱 思念点亮
+     OLD : Turning the hands of clock, The sun dancing, | 時計が回って 太陽は踊り 月が歌って 想いは燈る
+     NEW : Turning the hands of clock, The sun dancing, / The moon singing, and the thoughts born | 時計が回って 太陽は踊り 月が歌って 想いは燈る
+  [ 8] AL: Loog Loog Storys Frait
+       ZH: 然后 悠长的故事又揭开篇章…
+     OLD : The moon singing, and the thoughts born | そして 長い長い物語がまたひとつ。。
+     NEW : Then long tale starts again.. | そして 長い長い物語がまたひとつ。。
+  [ 9] AL: End Nout Mil Ail Scape
+       ZH: 天涯海角皆可前往
+     OLD : Then long long tale starts again.. | どこへだってゆける
+     NEW : Everywhere you can go | どこへだってゆける
+  [10] AL: Shiita a Shiitaria Rainya Mii Elie
+       ZH: 直到能望见终结的终结
+     OLD : Everywhere you can go | 終わりの終わりが見えるまで
+     NEW : Until you find quite end of the world | 終わりの終わりが見えるまで
+  [15] AL: Sail Lans ah Minelia Seiren Heart Karna Vivi end
+       ZH: 表针转动 太阳起舞 月儿歌唱 思念点亮
+     OLD : Turning the hands of clock, The sun dancing, | 時計が回って 太陽は踊り 月が歌って 想いは燈る
+     NEW : Turning the hands of clock, The sun dancing, / The moon singing, and the thoughts born | 時計が回って 太陽は踊り 月が歌って 想いは燈る
+  [16] AL: Loog Loog Storys Frait
+       ZH: 然后 悠长的故事又揭开篇章…
+     OLD : The moon singing, and the thoughts born | そして 長い長い物語がまたひとつ。。
+     NEW : Then long long tale starts again.. | そして 長い長い物語がまたひとつ。。
+  [17] AL: End Nout Mil Ail Scape
+       ZH: 天涯海角皆可前往
+     OLD : Then long long tale starts again.. | どこへだってゆける
+     NEW : Everywhere you can go | どこへだってゆける
+  [18] AL: Shiita a Shiitaria Rainya Mii Elie
+       ZH: 直到能望见终结的终结
+     OLD : Everywhere you can go | 終わりの終わりが見えるまで
+     NEW : Until you find quite end of the world | 終わりの終わりが見えるまで
+  [19] AL: End Oulayz Termz Nout Skie Leste
+       ZH: 去飞越无数时光
+     OLD : Go through time to time | 幾つもの空を超えていけ
+     NEW : Go through time to time | 幾つもの時を超えていけ
+  [20] AL: Alice Alice Leste Alice
+       ZH: “爱丽丝，爱丽丝。来吧爱丽丝。"
+     OLD : "Alice, Alice, Alice" | “アリス、アリス。さぁアリス。”
+     NEW : "Alice, Alice, Alice" | “アリス。アリス。さぁアリス。”
+  [21] AL: end
+       ZH: 那
+     OLD : "Alice, Alice, Alice" | どこへだってゆける
+     NEW :  | 
+  [22] AL: a Nout Mii Ail Scape
+       ZH: 天涯海角皆可前往
+     OLD : "Alice, Alice, Alice" | どこへだってゆける
+     NEW : Everywhere you can go | どこへだってゆける
+  [23] AL: Farley Fraitaria Rainya Mii Elie
+       ZH: 直到能望见下一个开端
+     OLD : Everywhere you can go | 次の始まりが見えるまで
+     NEW :  | 次の始まりが見えるまで
+====================================================================================================
+### Apocalypse   (8 changed rows)
+  [ 9] AL: a Falke Luan a Gout Mii Disrait oh Chail ou Eist
+       ZH: 我现在就得离去！开门的钥匙却不见踪影
+     OLD : But can’t find the key of door | でも 扉の鍵が見つからない
+     NEW : I have to leave right now ! / But can’t find the key of door | 早く行かなくちゃ！ / でも 扉の鍵が見つからない
+  [11] AL: a Falke Luan
+       ZH: 我现在就得离去！
+     OLD : I have to leave right now ! | 早く行かなくちゃ！
+     NEW : I have to go right now ! | 早く行かなくちゃ！
+  [13] AL: es hai di es towai di es crai ni es grei ni lau
+       ZH: 追寻，光芒，救赎，命运
+     OLD : Trail, Brightness, Redemption, Fate / Trail, Brightness, Redemption, Fate | 証跡を 赫赫を 贖罪を 宿運を / 証跡を 赫赫を 贖罪を 宿運を
+     NEW : Trail, Brightness, | 証跡を 赫赫を
+  [14] AL: es towai di es crai ni es grei ni lau
+       ZH: 追寻，光芒，救赎，命运
+     OLD : Trail, Brightness, Redemption, Fate / Trail, Brightness, Redemption, Fate | 証跡を 赫赫を 贖罪を 宿運を / 証跡を 赫赫を 贖罪を 宿運を
+     NEW : Redemption, Fate | 贖罪を 宿運を
+  [15] AL: es towai di es crai ni es grei ni lau
+       ZH: 追寻，光芒，救赎，命运
+     OLD : Trail, Brightness, Redemption, Fate / Trail, Brightness, Redemption, Fate | 証跡を 赫赫を 贖罪を 宿運を / 証跡を 赫赫を 贖罪を 宿運を
+     NEW : Trail, Brightness, | 証跡を 赫赫を
+  [16] AL: es crai ni es grei ni lau
+       ZH: 追寻，光芒，救赎，命运
+     OLD : Trail, Brightness, Redemption, Fate / Trail, Brightness, Redemption, Fate | 証跡を 赫赫を 贖罪を 宿運を / 証跡を 赫赫を 贖罪を 宿運を
+     NEW : Redemption, Fate | 贖罪を 宿運を
+  [18] AL: a Falke Luan a Gout Mii Disrait oh Chail ou Eist
+       ZH: 我现在就得离去！开门的钥匙却不见踪影
+     OLD : But can’t find the key of door | でも 扉の鍵が見つからない
+     NEW : I have to leave right now ! / But can’t find the key of door | 早く行かなくちゃ！ / でも 扉の鍵が見つからない
+  [20] AL: a Falke Luan
+       ZH: 我现在就得离去！
+     OLD : I have to leave right now ! | 早く行かなくちゃ！
+     NEW : I have to go right now ! | 早く行かなくちゃ！
+====================================================================================================
+### Chocolate Missile   (5 changed rows)
+  [ 2] AL: Missile end Cliid a Geeg
+       ZH: 在倾泻而下的导弹之中
+     OLD : The downpour of missiles, I’m an umbrella / I will protect you from the calamity of this civilization | 降り注ぐミサイル / 私は 傘此の文明の勿怪から あなたをお護りします
+     NEW : The downpour of missiles, I’m an umbrella | 降り注ぐミサイル
+  [ 3] AL: Vell Sctution Cloud ieq Falarle folme Erel ou Bis Ildrem
+       ZH: （我）将成为雨伞来守护你免于这个文明的崩坏。
+     OLD : The downpour of missiles, I’m an umbrella / I will protect you from the calamity of this civilization | 降り注ぐミサイル / 私は 傘此の文明の勿怪から あなたをお護りします
+     NEW : I will protect you from the calamity of this civilization | 私は 傘此の文明の勿怪から あなたをお護りします
+  [17] AL: Lishe Luan Falke Elie Rowt
+       ZH: 让我们马上出发，直到坠入地狱的深渊
+     OLD : Let’s go to the Abyss soon, together | 早くいきましょう 奈落の底まで 一緒に
+     NEW : Let’s go to the Abyss soon | 早くいきましょう 奈落の底まで
+  [23] AL: Lishe Luan Falke Elie Rowt
+       ZH: 让我们马上出发，直到坠入地狱的深渊
+     OLD : Let’s go to the Abyss soon, together | 早くいきましょう 奈落の底まで 一緒に
+     NEW : Let’s go to the Abyss soon, | 早くいきましょう 奈落の底まで
+  [24] AL: Saryarte
+       ZH: 一起吧
+     OLD : Let’s go to the Abyss soon, together | 早くいきましょう 奈落の底まで 一緒に
+     NEW : together | 一緒に
+====================================================================================================
+### Cԋιʅԃɾҽɳ ιɳ ƚԋҽ Aʂԋҽʂ(Children in the Ashes)   (15 changed rows)
+  [ 6] AL: Crai Nai Anisia Bai sii
+       ZH: “我们不会再寂寞了，
+     OLD : “We’re not lonely anymore” / “Let’s hold our hands” / “You’re not alone from today on” / “We’re not lonely anymore” / “Let’s hold our hands” / “You’re not alone from today on” | ‟もう寂しくないね” / ‟ほら手を繋ごう” / ‟今日から 君は独りじゃない” / ‟もう寂しくないね” / ‟ほら手を繋ごう” / ‟今日から 君は独りじゃない”
+     NEW : “We’re not lonely anymore” | ‟もう寂しくないね”
+  [ 7] AL: Hiele Lishe Klattle Haol
+       ZH: 来握住我们的手吧”
+     OLD : “We’re not lonely anymore” / “Let’s hold our hands” / “You’re not alone from today on” / “We’re not lonely anymore” / “Let’s hold our hands” / “You’re not alone from today on” | ‟もう寂しくないね” / ‟ほら手を繋ごう” / ‟今日から 君は独りじゃない” / ‟もう寂しくないね” / ‟ほら手を繋ごう” / ‟今日から 君は独りじゃない”
+     NEW : “Let’s hold our hands” | ‟ほら手を繋ごう”
+  [ 8] AL: Crai iy Nai Drone folme Aolu
+       ZH: “从今天开始，你将不再是孤单一人”
+     OLD : “We’re not lonely anymore” / “Let’s hold our hands” / “You’re not alone from today on” / “We’re not lonely anymore” / “Let’s hold our hands” / “You’re not alone from today on” | ‟もう寂しくないね” / ‟ほら手を繋ごう” / ‟今日から 君は独りじゃない” / ‟もう寂しくないね” / ‟ほら手を繋ごう” / ‟今日から 君は独りじゃない”
+     NEW : “You’re not alone from today on” | ‟今日から 君は独りじゃない”
+  [15] AL: Elize Shelista Fur a Leimy Zill Baly
+       ZH: 这个世界总是把我们抛弃
+     OLD : The world has always abandoned us, / so we’re going to make a new world with our own hands | 世界はいつも 僕らを見放すから / この手で 新しい世界を作るんだ
+     NEW : The world has always abandoned us, | 世界はいつも 僕らを見放すから
+  [16] AL: Kueip Gete Shelista Ord Bis Haol Dou
+       ZH: 所以我们要用我们的双手创造一个全新的世界
+     OLD : The world has always abandoned us, / so we’re going to make a new world with our own hands | 世界はいつも 僕らを見放すから / この手で 新しい世界を作るんだ
+     NEW : so we’re going to make a new world with our own hands | この手で 新しい世界を作るんだ
+  [17] AL: Crai Nai Anisia Bai sii
+       ZH: （我们不会再寂寞了）
+     OLD : “We’re not lonely anymore” / “Let’s hold our hands” / “You’re not alone from today on” / “We’re not lonely anymore” / “Let’s hold our hands” / “You’re not alone from today on” | ‟もう寂しくないね” / ‟ほら手を繋ごう” / ‟今日から 君は独りじゃない” / ‟もう寂しくないね” / ‟ほら手を繋ごう” / ‟今日から 君は独りじゃない”
+     NEW : “We’re not lonely anymore” | ‟もう寂しくないね”
+  [18] AL: Hiele Lishe Klattle Haol
+       ZH: （来握住我们的手吧）
+     OLD : “We’re not lonely anymore” / “Let’s hold our hands” / “You’re not alone from today on” / “We’re not lonely anymore” / “Let’s hold our hands” / “You’re not alone from today on” | ‟もう寂しくないね” / ‟ほら手を繋ごう” / ‟今日から 君は独りじゃない” / ‟もう寂しくないね” / ‟ほら手を繋ごう” / ‟今日から 君は独りじゃない”
+     NEW : “Let’s hold our hands” | ‟ほら手を繋ごう”
+  [19] AL: Crai iy Nai Drone folme Aolu
+       ZH: （从今天开始，你将不再是孤单一人）
+     OLD : “We’re not lonely anymore” / “Let’s hold our hands” / “You’re not alone from today on” / “We’re not lonely anymore” / “Let’s hold our hands” / “You’re not alone from today on” | ‟もう寂しくないね” / ‟ほら手を繋ごう” / ‟今日から 君は独りじゃない” / ‟もう寂しくないね” / ‟ほら手を繋ごう” / ‟今日から 君は独りじゃない”
+     NEW : “You’re not alone from today on” | ‟今日から 君は独りじゃない”
+  [20] AL: Crai Nai Anisia Bai sii
+       ZH: （我们不会再寂寞了）
+     OLD : “We’re not lonely anymore” / “Let’s hold our hands” / “You’re not alone from today on” / “We’re not lonely anymore” / “Let’s hold our hands” / “You’re not alone from today on” | ‟もう寂しくないね” / ‟ほら手を繋ごう” / ‟今日から 君は独りじゃない” / ‟もう寂しくないね” / ‟ほら手を繋ごう” / ‟今日から 君は独りじゃない”
+     NEW : “We’re not lonely anymore” | ‟もう寂しくないね”
+  [21] AL: Hiele Lishe Klattle Haol
+       ZH: （来握住我们的手吧）
+     OLD : “We’re not lonely anymore” / “Let’s hold our hands” / “You’re not alone from today on” / “We’re not lonely anymore” / “Let’s hold our hands” / “You’re not alone from today on” | ‟もう寂しくないね” / ‟ほら手を繋ごう” / ‟今日から 君は独りじゃない” / ‟もう寂しくないね” / ‟ほら手を繋ごう” / ‟今日から 君は独りじゃない”
+     NEW : “Let’s hold our hands” | ‟ほら手を繋ごう”
+  [22] AL: Crai iy Nai Drone folme Aolu
+       ZH: （从今天开始，你将不再是孤单一人）
+     OLD : “We’re not lonely anymore” / “Let’s hold our hands” / “You’re not alone from today on” / “We’re not lonely anymore” / “Let’s hold our hands” / “You’re not alone from today on” | ‟もう寂しくないね” / ‟ほら手を繋ごう” / ‟今日から 君は独りじゃない” / ‟もう寂しくないね” / ‟ほら手を繋ごう” / ‟今日から 君は独りじゃない”
+     NEW : “You’re not alone from today on” | ‟今日から 君は独りじゃない”
+  [24] AL: Ene qls end Wondilip Crai Nai Aihel Amblu
+       ZH: 没有人能在这个世界伤害你
+     OLD : No one in this world will hurt you / They’re all gone | 君を傷つけるものはどこにもいない もういない
+     NEW : No one in this world will hurt you | 君を傷つけるものはどこにもいない
+  [25] AL: Nai Aihel Bai
+       ZH: 因为他们都已经不在了
+     OLD : No one in this world will hurt you / They’re all gone | 君を傷つけるものはどこにもいない もういない
+     NEW : They’re all gone | もういない
+  [26] AL: Poet Nai Kllea Poet Nai Kllea
+       ZH: 请不要哭泣，请不要哭泣
+     OLD : Don’t cry, don’t cry / Sleep tight, sweetheart | 泣かないで 泣かないで 今はもうお眠りなさい
+     NEW : Don’t cry, don’t cry | 泣かないで 泣かないで
+  [27] AL: Yiela Sween Aola Bai
+       ZH: 亲爱的，来做个美梦吧
+     OLD : Don’t cry, don’t cry / Sleep tight, sweetheart | 泣かないで 泣かないで 今はもうお眠りなさい
+     NEW : Sleep tight, sweetheart | 今はもうお眠りなさい
+====================================================================================================
+### Doppelgängers   (1 changed rows)
+  [12] AL: Yiep Verse Yiep Verse Yiep Verse Yiep Verse Yiep Verse Yiep Verse Yiep Verse Yiep Verse
+       ZH: 走开×8
+     OLD :  | 消えろ 消えろ 消えろ 消えろ 消えろ 消えろ 消えろ 消えろ
+     NEW :  | 消えろ 消えろ 消えろ 消えろ 消えろ 消えろ 消えろ 消えろ / (消えろ)
+====================================================================================================
+### EAT YOU UP   (1 changed rows)
+  [11] AL: Keritta Hellm Keritta Hellm
+       ZH: 在短暂的梦中
+     OLD : Caught in the ephemeral dream, caught in the ephemeral dream | 刹那の夢を見ている 刹那の夢を見ている
+     NEW : In the ephemeral dream, in the ephemeral dream | 刹那の夢を 刹那の夢を
+====================================================================================================
+### End of Mythology   (2 changed rows)
+  [ 0] AL: Imm Finz ou Opsa Story Fie ol Inay Drone Eem Shalm
+       ZH: 在故事的终幕，他独自一人等待着
+     OLD : He was waiting alone at the end of a story | 或る物語の終わりで 彼はひとり待っていた
+     NEW : He was waiting alone at the end of a story / It is sad | 或る物語の終わりで 彼はひとり待っていた / 切ないね
+  [ 1] AL: Ol Kulu Nai Ranya a Leim ou Xia Story
+       ZH: 他感到伤心，因为直到最后都没能看到故事的结局
+     OLD : It is sad / In the end, we never got to see the rest of the story | 切ないね / 結局 その話の続きは見られなかった
+     NEW : In the end, we never got to see the rest of the story | 結局 その話の続きは見られなかった
+====================================================================================================
+### EИDФЯPHIИ(Endorphin)   (4 changed rows)
+  [ 7] AL: Elize Tella a Belqua Ilis Fas
+       ZH: 再倒入用来涂上绚丽色彩的彩虹
+     OLD : and pouring a rainbow into it, so now, / show me an illusion | 虹色を流し込むから / ねえ 幻を見せて
+     NEW : and pouring a rainbow into it, so now, | 虹色を流し込むから
+  [ 8] AL: Hiele Phim Pleesa Hellsijma
+       ZH: 来吧，让我看看究竟是什么样的幻觉
+     OLD : and pouring a rainbow into it, so now, / show me an illusion | 虹色を流し込むから / ねえ 幻を見せて
+     NEW : show me an illusion | ねえ 幻を見せて
+  [13] AL: Poetolt Zia Haundi Ziksiilait Poetolt Zia Sween ifa Zeit
+       ZH: 举止端庄，按时睡觉
+     OLD : Be well-behaved / Sleep on time / My daily routines / Always trying to be a good boy | お行儀よくして / 時間通りに眠って / 毎日のルーティーン / 良い子でいましょう
+     NEW : Be well-behaved / Sleep on time | お行儀よくして / 時間通りに眠って
+  [14] AL: Bis iy Fikalat ou Yutulsinv Lishe Dal ieq Faress Ame
+       ZH: 作息规律，当个乖宝
+     OLD : Be well-behaved / Sleep on time / My daily routines / Always trying to be a good boy | お行儀よくして / 時間通りに眠って / 毎日のルーティーン / 良い子でいましょう
+     NEW : My daily routines / Always trying to be a good boy | 毎日のルーティーン / 良い子でいましょう
+====================================================================================================
+### FEHLT   (8 changed rows)
+  [ 3] AL: imm Brai ou Giinia Velidi Milliy Pliphalaineqls
+       ZH: 我们只是被困在金色牢笼中的被实验者们
+     OLD : We are trapped in golden cages, the human subjects / human subjects / human subjects | 僕たちは 金色の檻に閉じ込められた 被験者たち / 被験者たち / 被験者たち
+     NEW : We are trapped in golden cages, the human subjects | 僕たちは 金色の檻に閉じ込められた 被験者たち
+  [ 4] AL: Pliphalaineqls Pliphalaineqls
+       ZH: 被实验者们，被实验者们
+     OLD :  | 
+     NEW : human subjects / human subjects | 被験者たち / 被験者たち
+  [ 7] AL: En Mii Likti Selanya a Geeg imm Hellm end
+       ZH: 然后，在这无法醒来的梦中
+     OLD : And, in an unwakeable dream / I’m just wandering like a puppet | そして 今もずっと覚めない夢を / ただ 傀儡のように 彷徨ってるんだ
+     NEW : And, in an unwakeable dream | そして 今もずっと覚めない夢を
+  [ 8] AL: Nai Dilem Shiita imm Lootaria Lef Mariotoriet
+       ZH: 我只能如同傀儡一般不断徘徊
+     OLD : And, in an unwakeable dream / I’m just wandering like a puppet | そして 今もずっと覚めない夢を / ただ 傀儡のように 彷徨ってるんだ
+     NEW : I’m just wandering like a puppet | ただ 傀儡のように 彷徨ってるんだ
+  [ 9] AL: Antaka il Pliphasoil en
+       ZH: 潜入试管中，
+     OLD : Dive into a test tube, / Sink deeply and deeply | 試験管に潜って / 深く 深く 沈む
+     NEW : Dive into a test tube, | 試験管に潜って
+  [10] AL: Wely Dooomlait Wely Dooomlait
+       ZH: 深深地，深深地下沉
+     OLD : Dive into a test tube, / Sink deeply and deeply | 試験管に潜って / 深く 深く 沈む
+     NEW : Sink deeply and deeply | 深く 深く 沈む
+  [18] AL: Antaka il Pliphasoil en
+       ZH: 潜入试管中，
+     OLD : Dive into a test tube, / Sink deeply and deeply | 試験管に潜って / 深く 深く 沈む
+     NEW : Dive into a test tube, | 試験管に潜って
+  [19] AL: Wely Dooomlait Wely Dooomlait
+       ZH: 深深地，深深地下沉
+     OLD : Dive into a test tube, / Sink deeply and deeply | 試験管に潜って / 深く 深く 沈む
+     NEW : Sink deeply and deeply | 深く 深く 沈む
+====================================================================================================
+### Forbidden Wonderland short ver   (4 changed rows)
+  [ 0] AL: Arla Klolsi
+       ZH: 纯白色的兔子
+     OLD : White Bunny White Bunny | 白いうさぎ 白いうさぎ
+     NEW : White Bunny | 白いうさぎ
+  [ 1] AL: Arla Klolsi
+       ZH: 纯白色的兔子
+     OLD : White Bunny White Bunny | 白いうさぎ 白いうさぎ
+     NEW : White Bunny | 白いうさぎ
+  [ 4] AL: Thloo
+       ZH: 我的天啊，
+     OLD : "Oh My God, be almost late" | “大変、遅刻だよ”
+     NEW : "Oh My God, | “大変、
+  [ 5] AL: Mii o Peiti
+       ZH: 我来迟了
+     OLD : "Oh My God, be almost late" | “大変、遅刻だよ”
+     NEW : be almost late" | 遅刻だよ”
+====================================================================================================
+### Friend   (15 changed rows)
+  [ 1] AL: ou Drone end Dorain ah Shelista
+       ZH: 孤身一人待在这昏暗的世界里。
+     OLD :  | ずっと暗い世界で、独りぼっちだった。
+     NEW :  | 独りぼっち、この暗い世界で。
+  [ 3] AL: Mii Awter Crai end Oulayz Vitui
+       ZH: 遇到你真是太好了。
+     OLD :  | 君と逢えて良かった。
+     NEW :  | 君に会えて良かった。
+  [ 5] AL: Crai Briss Gout
+       ZH: 在你身边
+     OLD :  | 君の傍を過ぎ去ったけれど、
+     NEW :  | 君の傍を
+  [ 6] AL: Gout end Gout
+       ZH: 不断飞逝
+     OLD :  | 私たちの傍を過ぎ去ったけれど、
+     NEW :  | 過ぎ去ったけれど、
+  [ 7] AL: Mii a Crai end Crai end Crai end Crai
+       ZH: 但对我来说 你啊
+     OLD :  | 君はずっと、私の大切な
+     NEW :  | 
+  [10] AL: Toriesta
+       ZH: 
+     OLD :  | "トリエスタ。"
+     NEW :  | 
+  [12] AL: Foul Mii Foul Mii Foul Mii
+       ZH: “我一定”
+     OLD :  | "きっと私は君に会うために、ここへやってきた。"
+     NEW :  | 
+  [13] AL: Crai Lar Elay Awter
+       ZH: “是为了与你相见”
+     OLD :  | "きっと私は君に会うために、ここへやってきた。"
+     NEW :  | "私は、君に会うために‥"
+  [14] AL: Foul Mii
+       ZH: “我一定…”
+     OLD :  | "きっと私は君に会うために、ここへやってきた。"
+     NEW :  | 
+  [19] AL: Oulayz Zote a Drone Swiina
+       ZH: 诸多季节 （我一直孤身一人）
+     OLD :  | "ずっと孤独に包まれていた" / たくさんの季節と夜空が
+     NEW :  | "ずっと孤独に包まれていた"
+  [20] AL: Oulayz Minai
+       ZH: 诸多夜空
+     OLD :  | "ずっと孤独に包まれていた" / たくさんの季節と夜空が
+     NEW :  | たくさんの季節と夜空が
+  [21] AL: Mill Briss Gout
+       ZH: 在我们身边
+     OLD :  | 私たちの傍を過ぎ去ったけれど、
+     NEW :  | 私たちの傍を
+  [22] AL: Gout end Gout
+       ZH: 不断飞逝
+     OLD :  | 私たちの傍を過ぎ去ったけれど、
+     NEW :  | 過ぎ去ったけれど、
+  [23] AL: Mii a Crai end Crai end Crai end Crai
+       ZH: 但对我来说 你啊
+     OLD :  | 君はずっと、私の大切な
+     NEW :  | 
+  [25] AL: Saray
+       ZH: 朋友。
+     OLD :  | 君はずっと、私の大切な
+     NEW :  | 友達。
+====================================================================================================
+### Frozen Tree   (9 changed rows)
+  [ 5] AL: Lazz ou Loast Inay o Lar Crai
+       ZH: 无限的生命就只待你
+     OLD : Unlimited life is just waiting for you | 無限の生命は ただ君を待つ
+     NEW : Unlimited life is just waiting for you | 無限の生命は ただ君を待つ,
+  [28] AL: Rook Haol ou Di end
+       ZH: 松开双手
+     OLD : The hand unclasped, / The long way leads you / anytime / For you / For you | はなした手 / 君の前には長い道が続いている / いつだって / 君のために / 君のために
+     NEW : The hand unclasped, | ほどいた手
+  [29] AL: Loog Slay a Ley Lar Crai end Baly
+       ZH: 你面前尚有漫漫长路
+     OLD : The hand unclasped, / The long way leads you / anytime / For you / For you | はなした手 / 君の前には長い道が続いている / いつだって / 君のために / 君のために
+     NEW : The long way leads you | 君の前には長い道が続いている
+  [30] AL: Lar Crai end Baly end
+       ZH: 无论何时
+     OLD : The hand unclasped, / The long way leads you / anytime / For you / For you | はなした手 / 君の前には長い道が続いている / いつだって / 君のために / 君のために
+     NEW : anytime | いつだって
+  [33] AL: Rook Haol ou Di end
+       ZH: 松开双手
+     OLD : The hand unclasped, / The long way leads you / anytime / For you / For you | はなした手 / 君の前には長い道が続いている / いつだって / 君のために / 君のために
+     NEW : The hand unclasped, | はなした手
+  [34] AL: Loog Slay a Ley Lar Crai end Baly
+       ZH: 你面前尚有漫漫长路
+     OLD : The hand unclasped, / The long way leads you / anytime / For you / For you | はなした手 / 君の前には長い道が続いている / いつだって / 君のために / 君のために
+     NEW : The long way leads you | 君の前には長い道が続いている
+  [35] AL: Lar Crai end Baly end
+       ZH: 无论何时
+     OLD : The hand unclasped, / The long way leads you / anytime / For you / For you | はなした手 / 君の前には長い道が続いている / いつだって / 君のために / 君のために
+     NEW : anytime | いつだって
+  [36] AL: Ley Lar Crai
+       ZH: 为了你
+     OLD : The hand unclasped, / The long way leads you / anytime / For you / For you | はなした手 / 君の前には長い道が続いている / いつだって / 君のために / 君のために
+     NEW : For you | 君のために
+  [37] AL: Ley Lar Crai
+       ZH: 为了你
+     OLD : The hand unclasped, / The long way leads you / anytime / For you / For you | はなした手 / 君の前には長い道が続いている / いつだって / 君のために / 君のために
+     NEW : For you | 君のために
+====================================================================================================
+### Give Me a Nightmare   (9 changed rows)
+  [ 4] AL: Poutie Mii Clooshe Eist Ord
+       ZH: 在我把大门关严的时候
+     OLD : When I closed the door roundly, a comet fell | 扉を思い切り閉めると 彗星が降り注いだ
+     NEW : When I closed the door | 扉を思い切り閉めると
+  [ 5] AL: Ail Entic Kiila ou Prai a Cliid
+       ZH: 一个彗星坠落了
+     OLD : When I closed the door roundly, a comet fell | 扉を思い切り閉めると 彗星が降り注いだ
+     NEW : roundly, a comet fell | 彗星が降り注いだ
+  [ 6] AL: Lef Yien Plarri Ord Elquom ou Ail Minelia
+       ZH: 就像被满月牵引一样，
+     OLD : I just walked on the corridor as if I was pulled by the full moon's attraction, but finally found that it was endless | 満月の引力に引っ張られるように 回廊の上をひたすら歩いたけれど / 結局 ここに終わりはないと知った
+     NEW : I just walked on the corridor | 満月の引力に引っ張られるように
+  [ 7] AL: Gout ou Cate imm Lootaria Arch Sleetia
+       ZH: 我只能一直在走廊中徘徊
+     OLD : I just walked on the corridor as if I was pulled by the full moon's attraction, but finally found that it was endless | 満月の引力に引っ張られるように 回廊の上をひたすら歩いたけれど / 結局 ここに終わりはないと知った
+     NEW : as if I was pulled by the full moon's attraction, | 回廊の上をひたすら歩いたけれど
+  [ 8] AL: Poul Ail ol Guit Ra Bis Dilem Nai Shiita
+       ZH: 但最后才发现这里无穷无尽，没有终点
+     OLD : I just walked on the corridor as if I was pulled by the full moon's attraction, but finally found that it was endless | 満月の引力に引っ張られるように 回廊の上をひたすら歩いたけれど / 結局 ここに終わりはないと知った
+     NEW : but finally found that it was endless | 結局 ここに終わりはないと知った
+  [12] AL: Frey
+       ZH: “幸福”
+     OLD : "Happiness" doesn’t talk to humans | 「幸福」は人間とは話してくれない
+     NEW : "Happiness" | 「幸福」は
+  [13] AL: Lishe Nai Hal il Enes
+       ZH: 无需与人分享
+     OLD : "Happiness" doesn’t talk to humans | 「幸福」は人間とは話してくれない
+     NEW : doesn’t talk to humans | 人間とは話してくれない
+  [16] AL: Poutie Ani Emsa Trane Eala a Tollm Arch Fenklu
+       ZH: 伴随着越来越多的泪水从脸庞上流下，
+     OLD : As more tears run down your face, / the stronger you will be | 涙がひと粒 頬を伝えば / またひとつ強くなれる
+     NEW : As more tears run down your face, | 涙がひと粒 頬を伝えば
+  [17] AL: Vell Idem Entilk Ani Karna
+       ZH: 你将会变得更加坚强
+     OLD : As more tears run down your face, / the stronger you will be | 涙がひと粒 頬を伝えば / またひとつ強くなれる
+     NEW : the stronger you will be | またひとつ強くなれる
+====================================================================================================
+### HOLIC   (8 changed rows)
+  [ 1] AL: Poet Nai Clooshe Cloudyte Ran end
+       ZH: 请别垂下眼帘
+     OLD : Don’t hide your eyes, Burn it into your eyes, more more! | 目を伏せないで 目に焼き付けて もっと もっと
+     NEW : Don’t hide your eyes, | 目を伏せないで 目に焼き付けて
+  [ 2] AL: Yiep Quoltri il Cloudyte Ran Meila end Meila
+       ZH: 把这景象更深，更深地烙印在眼中
+     OLD : Don’t hide your eyes, Burn it into your eyes, more more! | 目を伏せないで 目に焼き付けて もっと もっと
+     NEW : Burn it into your eyes, more more! | もっと もっと
+  [ 8] AL: Skelat Nai Stica Ol Kulu Ranya Lef Fellusia
+       ZH: 嬉笑声像那星际间的以太一般，无法停止
+     OLD : I can’t stop laughing, the interstellar ethers seemed iridescent | 笑いが止まらない 星間エーテルが 虹色に光ってるように見えた
+     NEW : I can’t stop laughing, | 笑いが止まらない 星間エーテルが
+  [ 9] AL: Eclat imm Ilis Fas
+       ZH: 看起来像是彩虹的色彩般熠熠生辉
+     OLD : I can’t stop laughing, the interstellar ethers seemed iridescent | 笑いが止まらない 星間エーテルが 虹色に光ってるように見えた
+     NEW : the interstellar ethers seemed iridescent | 虹色に光ってるように見えた
+  [10] AL: Queit Melp end Tella o Colt
+       ZH: 这流淌的鲜血如此冰冷
+     OLD : Even though the running blood is cold so much / Show me the phantom | こんなに 流れる血は冷たいのに 幻を見せて
+     NEW : Even though the running blood is cold so much | こんなに 流れる血は冷たいのに
+  [11] AL: Yiep Pleesa Hellm Roa
+       ZH: 一切所见皆为幻象
+     OLD : Even though the running blood is cold so much / Show me the phantom | こんなに 流れる血は冷たいのに 幻を見せて
+     NEW : Show me the phantom | 幻を見せて
+  [18] AL: Hiele Apka Mii ol Plarli Fouz Ola Stache
+       ZH: 看吧，从抽屉中拉出来的绳索
+     OLD : See, a rope pulled out of a drawer / A rope distorted by dragging a chair | ほら ドロワーから 引っ張り出した ロープ / 椅子を引きずって 歪曲したロープ
+     NEW : See, a rope pulled out of a drawer | ほら ドロワーから 引っ張り出した ロープ
+  [19] AL: Verde Apka Poetolt Drea Sto
+       ZH: 牵引椅子的歪曲的绳索
+     OLD : See, a rope pulled out of a drawer / A rope distorted by dragging a chair | ほら ドロワーから 引っ張り出した ロープ / 椅子を引きずって 歪曲したロープ
+     NEW : A rope distorted by dragging a chair | 椅子を引きずって 歪曲したロープ
+====================================================================================================
+### HӋPПO̵͇̫̲ƬIZΣD(Hypnotized)   (6 changed rows)
+  [18] AL: Poetolt Womphil a Finz Hedijlyke a Hellm
+       ZH: 吞噬了混沌和幻想之后
+     OLD : This eye finally opens after drinking chaos and dreams | 混沌と夢を飲み干して / この眼はようやく開かれる
+     NEW : This eye finally opens after | 混沌と夢を飲み干して
+  [19] AL: Bis Ran Yien Amabell Brait
+       ZH: 这些眼睛最终睁开了
+     OLD : This eye finally opens after drinking chaos and dreams | 混沌と夢を飲み干して / この眼はようやく開かれる
+     NEW : drinking chaos and dreams | この眼はようやく開かれる
+  [20] AL: Brait
+       ZH: 睁开了
+     OLD : This eye finally opens after drinking chaos and dreams | 混沌と夢を飲み干して / この眼はようやく開かれる
+     NEW :  | 
+  [33] AL: Poetolt Womphil a Finz Hedijlyke a Hellm
+       ZH: 吞噬了混沌和幻想之后
+     OLD : This eye finally opens after drinking chaos and dreams | 混沌と夢を飲み干して / この眼はようやく開かれる
+     NEW : This eye finally opens after | 混沌と夢を飲み干して
+  [34] AL: Bis Ran Yien Amabell Brait
+       ZH: 这些眼睛最终睁开了
+     OLD : This eye finally opens after drinking chaos and dreams | 混沌と夢を飲み干して / この眼はようやく開かれる
+     NEW : drinking chaos and dreams | この眼はようやく開かれる
+  [35] AL: Brait
+       ZH: 睁开了
+     OLD : This eye finally opens after drinking chaos and dreams | 混沌と夢を飲み干して / この眼はようやく開かれる
+     NEW :  | 
+====================================================================================================
+### KILLED BY ANGEL   (3 changed rows)
+  [ 2] AL: il Edilloli ou Vijg Uiideliap
+       ZH: 我会把营养物质
+     OLD : I’ll send nutrients | 飢えた細胞の隅々まで
+     NEW : To every corner of your starving cells | 飢えた細胞の隅々まで
+  [ 3] AL: Endyd Senju Phialak
+       ZH: 送到你的每一个饥饿的细胞
+     OLD :  | 
+     NEW : I’ll send nutrients | 栄養を送ってあげる
+  [ 7] AL: Ord Sjeidveitmea a Easdriwb
+       ZH: 用一个锈红色断头台
+     OLD : “Even God will abandon you” | “お前は神からも見離されるんだ”
+     NEW : With a rusty red guillotine | 赤錆びたギロチンで
+====================================================================================================
+### Life in a Plastic Bag   (1 changed rows)
+  [ 8] AL: Pelietijt Lanai Noablem Kulu Dijsya weig Bai
+       ZH: 彩虹色的天堂 没有人能挡我的路
+     OLD : No one can stand in my way | 誰ももう邪魔なんてできない
+     NEW : An iridescent paradise / No one can stand in my way | 玉虫色の楽園 / 誰ももう邪魔なんてできない
+====================================================================================================
+### Lost My Savepoint   (8 changed rows)
+  [ 5] AL: Oulayz Verry Olis end a Oulayz Verry Olis
+       ZH: 便涌现诸多记忆
+     OLD : And then plenty of memories bubbled over | それから たくさんの記憶が溢れ出した
+     NEW :  | 
+  [ 6] AL: end Aola Mill Bis Swormin Cees Meele Inay
+       ZH: 随即我们这就飞离此处 冰色之海在前方等候
+     OLD : Dash out from here right now, and if the blue ocean is waiting for us.. | 今すぐにここから飛び出して 水色の海が私たちを待っていたら
+     NEW : And then plenty of memories bubbled over / Dash out from here right now, and if the blue ocean is waiting for us.. | それから たくさんの記憶が溢れ出した / 今すぐにここから飛び出して 水色の海が私たちを待っていたら
+  [ 9] AL: Brai ou Pocket
+       ZH: 那口袋中
+     OLD : I gripped it tightly in the pocket, my important… | そのポケットの中 ずっと持っていた 大切な...
+     NEW :  | そのポケットの中
+  [10] AL: Brai ou Pocket
+       ZH: 那口袋中
+     OLD : I gripped it tightly in the pocket, my important… | そのポケットの中 ずっと持っていた 大切な...
+     NEW :  | ずっと持っていた
+  [11] AL: Brai ou Pocket end Lootaria Crai Lili
+       ZH: 那口袋中一直存放着的重要之物…
+     OLD : I gripped it tightly in the pocket, my important… | そのポケットの中 ずっと持っていた 大切な...
+     NEW : I gripped it tightly in the pocket, my important… | 大切な...
+  [23] AL: Brai ou Pocket
+       ZH: 那口袋中
+     OLD : I gripped it tightly in the pocket, my important… | そのポケットの中 ずっと持っていた 大切な...
+     NEW :  | そのポケットの中
+  [24] AL: Brai ou Pocket
+       ZH: 那口袋中
+     OLD : I gripped it tightly in the pocket, my important… | そのポケットの中 ずっと持っていた 大切な...
+     NEW :  | ずっと持っていた
+  [25] AL: Brai ou Pocket end Lootaria Crai Lili
+       ZH: 那口袋中一直存放着的重要之物…
+     OLD : I gripped it tightly in the pocket, my important… | そのポケットの中 ずっと持っていた 大切な...
+     NEW : I gripped it tightly in the pocket, my important… | 大切な...
+====================================================================================================
+### Maharajah   (19 changed rows)
+  [ 3] AL: Alvete Drone a Noll Sar Linq End Elay Elie Bis ah
+       ZH: 欢迎来到这孤独世界，每个人都是如此
+     OLD : Everyone had arrived here like you | 誰だってそうやって ここへたどり着いたんだ
+     NEW : Welcome to a lonely world / Everyone had arrived here like you | 孤独へようこそ / 誰だってそうやって ここへたどり着いたんだ
+  [ 4] AL: Hal a Story Oracle end
+       ZH: “到时间讲个童话故事了”
+     OLD : “Time to tell a fairy tale” / An open door, A carafe that falls and breaks | “御伽話をしよう” / 開いたままのドア落ちて割れるカラフェ
+     NEW : “Time to tell a fairy tale” | “御伽話をしよう”
+  [ 5] AL: Ani Brait Door len Razzle em Carafe
+       ZH: 开启的门，摔落在地的玻璃瓶
+     OLD : “Time to tell a fairy tale” / An open door, A carafe that falls and breaks | “御伽話をしよう” / 開いたままのドア落ちて割れるカラフェ
+     NEW : An open door, A carafe that falls and breaks | 開いたままのドア落ちて割れるカラフェ
+  [ 6] AL: Ah Mail Shiita end a Fete
+       ZH: 身披宿命，享受你的命运
+     OLD : Clad in the fate, Glorify your destiny / You’re just living now, You’re the most correct one in this world | 天命を纏い 運命を謳歌せよ / 君は今 生きている そして 世界で君が一番正しいんだ
+     NEW : Clad in the fate, Glorify your destiny | 天命を纏い 運命を謳歌せよ
+  [ 7] AL: ah Cate Aola Crai Lamiy end Shelista Hal a Olkei Mii
+       ZH: 你存活至今，必定是世界上最正确的
+     OLD : Clad in the fate, Glorify your destiny / You’re just living now, You’re the most correct one in this world | 天命を纏い 運命を謳歌せよ / 君は今 生きている そして 世界で君が一番正しいんだ
+     NEW : You’re just living now, You’re the most correct one in this world | 君は今 生きている そして 世界で君が一番正しいんだ
+  [ 8] AL: Ay Mii end Harmiy
+       ZH: 【等一下】
+     OLD : “Give me a break!That’s too much!” | 『ちょっとまってよ そんなのあんまりだよ!』
+     NEW : “Give me a break! | 『ちょっとまってよ
+  [ 9] AL: a Xia Trico
+       ZH: 【那太多了】
+     OLD : “Give me a break!That’s too much!” | 『ちょっとまってよ そんなのあんまりだよ!』
+     NEW : That’s too much!” | そんなのあんまりだよ!』
+  [10] AL: Bllink Asta Ya Historia ou Leat ah Coffee
+       ZH: 闪电的光芒，未尽的历史，咖啡留在桌子上
+     OLD : Blinking light, Unfinished History, Untouched Coffee / “Did you wake up?” | 明滅する電気 書きかけの歴史 置いたままのコーヒー / “目は覚めたかい”
+     NEW : Blinking light, Unfinished History, Untouched Coffee | 明滅する電気 書きかけの歴史 置いたままのコーヒー
+  [11] AL: Dist far Age Winde Bis lan la Nouche ou Crai Bai Dis Harie Ya
+       ZH: “你醒了吗？” 这是你的夜晚世界,你忘了吗
+     OLD : Blinking light, Unfinished History, Untouched Coffee / “Did you wake up?” | 明滅する電気 書きかけの歴史 置いたままのコーヒー / “目は覚めたかい”
+     NEW : “Did you wake up?” / Here is your night world / Have you forgotten? | “目は覚めたかい” / ここは君の夜 / もう忘れてしまったかい
+  [12] AL: Leste Hal a Story Oracle end
+       ZH: “到时间讲个童话故事了”
+     OLD : “Time to tell a fairy tale” / An open door, A carafe that fell and broke | “御伽話をしよう” / 開いたままのドア 落として割れたカラフェ
+     NEW : “Time to tell a fairy tale” | “御伽話をしよう”
+  [13] AL: Ani Brait Door end Razzle Carafe
+       ZH: 开启的门，摔落在地的玻璃瓶
+     OLD : “Time to tell a fairy tale” / An open door, A carafe that fell and broke | “御伽話をしよう” / 開いたままのドア 落として割れたカラフェ
+     NEW : An open door, A carafe that fell and broke | 開いたままのドア 落として割れたカラフェ
+  [15] AL: Ah Mail Shiita end a Fete
+       ZH: 身披宿命，享受你的命运
+     OLD : Clad in the fate, Glorify your destiny / You’re just living now, You’re the most correct one in this world | 天命を纏い 運命を謳歌せよ / 君は今 生きている そして 世界で君が一番正しいんだ
+     NEW : Clad in the fate, Glorify your destiny | 天命を纏い 運命を謳歌せよ
+  [16] AL: ah Cate Aola Crai Lamiy end Shelista Hal a Olkei Mii
+       ZH: 你存活至今，必定是世界上最正确的
+     OLD : Clad in the fate, Glorify your destiny / You’re just living now, You’re the most correct one in this world | 天命を纏い 運命を謳歌せよ / 君は今 生きている そして 世界で君が一番正しいんだ
+     NEW : You’re just living now, You’re the most correct one in this world | 君は今 生きている そして 世界で君が一番正しいんだ
+  [17] AL: Ay Mii end Harmiy
+       ZH: 【等一下】
+     OLD : “Give me a break!That’s too much!” | 『ちょっとまってよ そんなのあんまりだよ!』
+     NEW : “Give me a break! | 『ちょっとまってよ
+  [18] AL: a Xia Trico
+       ZH: 【那太多了】
+     OLD : “Give me a break!That’s too much!” | 『ちょっとまってよ そんなのあんまりだよ!』
+     NEW : That’s too much!” | そんなのあんまりだよ!』
+  [19] AL: Bllink Asta Ya Historia ou Leat ah Coffee
+       ZH: 闪电的光芒，未尽的历史，咖啡留在桌子上
+     OLD : Blinking light, Unfinished History, Untouched Coffee / “Did you wake up?” | 明滅する電気 書きかけの歴史 置いたままのコーヒー / “目は覚めたかい”
+     NEW : Blinking light, Unfinished History, Untouched Coffee | 明滅する電気 書きかけの歴史 置いたままのコーヒー
+  [20] AL: Dist far Age Winde Bis lan la
+       ZH: “你醒了吗？” 这是你的夜晚世界”
+     OLD : Blinking light, Unfinished History, Untouched Coffee / “Did you wake up?” | 明滅する電気 書きかけの歴史 置いたままのコーヒー / “目は覚めたかい”
+     NEW : “Did you wake up?” | “目は覚めたかい”
+  [25] AL: Bis Nacc Finz end Nouche ou Finz Dis
+       ZH: 这便是永夜的尽头
+     OLD : This is the End, End of the endless night / Look, solitude is here | これが終り 果てなき夜の終り ほら 孤独はここにある
+     NEW : This is the End, End of the endless night | これが終り 果てなき夜の終り
+  [26] AL: Aihel end Age Alvete a Drone
+       ZH: 看呐，这里我们找到了孤独的世界
+     OLD : This is the End, End of the endless night / Look, solitude is here | これが終り 果てなき夜の終り ほら 孤独はここにある
+     NEW : Look, solitude is here | ほら 孤独はここにある
+====================================================================================================
+### Popcorns Falling from Heaven   (2 changed rows)
+  [ 8] AL: Shelista ou Finz Yutul ol iy Doraid
+       ZH: 在终焉之日，世界一片漆黑
+     OLD : On the very last day, the world was pitch black / There was no guidance whatsoever | 終わりの日 世界は真っ暗で / 導きなんてどこにもなかった
+     NEW : On the very last day, the world was pitch black | 終わりの日 世界は真っ暗で
+  [ 9] AL: Seedat weig Nai Aihel Amblu
+       ZH: 也丝毫没有什么指引可言
+     OLD : On the very last day, the world was pitch black / There was no guidance whatsoever | 終わりの日 世界は真っ暗で / 導きなんてどこにもなかった
+     NEW : There was no guidance whatsoever | 導きなんてどこにもなかった
+====================================================================================================
+### QUEEN FLY   (1 changed rows)
+  [24] AL: Rie sii
+       ZH: 早晚
+     OLD : Sooner or later, I’m going to be a wizard and blow you all away | 僕は直に 君たちを吹き飛ばせる魔法使いになるからね
+     NEW : Sooner or later | 直にね
+====================================================================================================
+### Sno (_ _) oze & Sn (o_o) ze   (7 changed rows)
+  [ 5] AL: Staps Termz end Ran Hise
+       ZH: 拍拍时钟 揉揉眼睛
+     OLD :  | 時計のたたいて 目をこすって おはよう！
+     NEW :  | 時計のたたいて 目をこすって
+  [ 6] AL: HamilSlay
+       ZH: 早上好！
+     OLD :  | 時計のたたいて 目をこすって おはよう！
+     NEW :  | おはよう！
+  [ 7] AL: HamilSlay
+       ZH: 早上好！
+     OLD :  | 時計のたたいて 目をこすって おはよう！
+     NEW :  | 
+  [14] AL: Staps Termz end Ran Hise
+       ZH: 拍拍时钟 揉揉眼睛
+     OLD :  | 時計のたたいて 目をこすって おはよう！
+     NEW :  | 時計のたたいて 目をこすって
+  [15] AL: HamilSlay
+       ZH: 早上好！
+     OLD :  | 時計のたたいて 目をこすって おはよう！
+     NEW :  | おはよう！
+  [16] AL: HamilSlay
+       ZH: 早上好！
+     OLD :  | 時計のたたいて 目をこすって おはよう！
+     NEW :  | 
+  [27] AL: Quest
+       ZH: 冒险
+     OLD :  | 冒険へ‥
+     NEW :  | また、大きな冒険へ
+====================================================================================================
+### Teardrop del Ray   (2 changed rows)
+  [11] AL: Ta La Ta Ta La Ta Era Hyuz Aka Shay en Disverry
+       ZH: 土·风·火·水·魔法的咒语
+     OLD : Earth, Wind, Fire, Water, Magical words | 土・風・炎・水・魔法の言葉
+     NEW : Ta La Ta Ta La Ta / Earth, Wind, Fire, Water, Magical words | Ta La Ta Ta La Ta / 土・風・炎・水・魔法の言葉
+  [12] AL: Ta La Ta Ta La Ta Era Hyuz Aka Shay en Invalda Sanctue
+       ZH: 土·风·火·水·圣域的召唤
+     OLD : Earth, Wind, Fire, Water, Summon of sanctuary | 土・風・炎・水・聖域の召喚
+     NEW : Ta La Ta Ta La Ta / Earth, Wind, Fire, Water, Summon of sanctuary | Ta La Ta Ta La Ta / 土・風・炎・水・聖域の召喚
+====================================================================================================
+### The Fatal Fantasia   (4 changed rows)
+  [ 2] AL: Loog end Loog Staple
+       ZH: 长长的阶梯上
+     OLD : A long, long staircase, a devil is tangling at my feet | 長い長い階段 足元に悪魔が絡みついて
+     NEW : A long, long | 長い長い階段
+  [ 3] AL: Visini Estola Myte Polt
+       ZH: 恶魔把我的脚缠住
+     OLD : A long, long staircase, a devil is tangling at my feet | 長い長い階段 足元に悪魔が絡みついて
+     NEW : staircase, a devil is tangling at my feet | 足元に悪魔が絡みついて
+  [ 7] AL: Leste Plist a Wely Dooom end Dooom Stica Anie
+       ZH: “来吧，让我们沉浸下去，越来越深，屏住呼吸吧
+     OLD : "Well, let's all sink, hold deep, / hold your breath, open your eyes, this is the beginning of a new story" | 「さぁ 沈んでみなよ 深く深く 息を止めて 眼を開けて ここが 新しい物語の始まり」
+     NEW : "Well, let's all sink, hold deep, / hold your breath, | 「さぁ 沈んでみなよ 深く深く 息を止めて
+  [ 8] AL: en Toubi Ran Eist ou Gete Story Brait
+       ZH: 睁开双眼，这就是新故事的起点”
+     OLD : "Well, let's all sink, hold deep, / hold your breath, open your eyes, this is the beginning of a new story" | 「さぁ 沈んでみなよ 深く深く 息を止めて 眼を開けて ここが 新しい物語の始まり」
+     NEW : open your eyes, this is the beginning of a new story" | 眼を開けて ここが 新しい物語の始まり」
+====================================================================================================
+### The White Land   (29 changed rows)
+  [ 0] AL: Whiil Sarga end Whiil a Peak
+       ZH: 白色天空 白色鞋履
+     OLD :  | 白い空 白い靴 誰も居ない 誰も居ない
+     NEW :  | 白い空 白い靴
+  [ 1] AL: Zel Nai Aihel end Zel Aihel
+       ZH: 别无一人 别无一人
+     OLD :  | 白い空 白い靴 誰も居ない 誰も居ない
+     NEW :  | 誰も居ない 誰も居ない
+  [ 2] AL: Whiil Hyuz end Whiil Minelia
+       ZH: 白色的风 白色的月
+     OLD :  | 白い風 白い月 独りぼっち 独りぼっち
+     NEW :  | 白い風 白い月
+  [ 3] AL: la la Mii Aola Drone a Mii Aola Drone
+       ZH: 孤身一人 孤身一人
+     OLD :  | 白い風 白い月 独りぼっち 独りぼっち
+     NEW :  | 独りぼっち 独りぼっち
+  [ 4] AL: Ah Bis end Story A
+       ZH: 啊 这里是空白的故事“A”
+     OLD :  | あぁ ここは真っ白なストーリー "Ａ"
+     NEW :  | あぁ ここは真っ白なストーリー
+  [ 5] AL: A
+       ZH: 
+     OLD :  | さぁ、物語の続きを
+     NEW :  | "Ａ"
+  [10] AL: Mii Bell Amy ou Trane end Saut ou Saray
+       ZH: 泪水的温度 朋友的声音
+     OLD :  | 涙の温度 友達の声 二つの足跡 凍える月のわ 聳える大樹
+     NEW :  | 涙の温度 友達の声
+  [11] AL: Reiz ou Di end
+       ZH: 两人的脚印
+     OLD :  | 涙の温度 友達の声 二つの足跡 凍える月のわ 聳える大樹
+     NEW :  | 二つの足跡
+  [12] AL: Cees Fei ou Minelia o World Tree
+       ZH: 冻结的月轮 高耸的巨树
+     OLD :  | 涙の温度 友達の声 二つの足跡 凍える月のわ 聳える大樹
+     NEW :  | 凍える月のわ 聳える大樹
+  [14] AL: ah Whiil Sarga end Whiil a Peak
+       ZH: 白色天空 白色鞋履
+     OLD :  | 白い空 白い靴 誰も居ない 誰も居ない
+     NEW :  | 白い空 白い靴
+  [15] AL: Zel Nai Aihel end Zel Aihel
+       ZH: 别无一人 别无一人
+     OLD :  | 白い空 白い靴 誰も居ない 誰も居ない
+     NEW :  | 誰も居ない 誰も居ない
+  [16] AL: Whiil Hyuz end Whiil Minelia
+       ZH: 白色的风 白色的月
+     OLD :  | 白い風 白い月 独りぼっち 独りぼっち
+     NEW :  | 白い風 白い月
+  [17] AL: la la Mii Aola Drone a Mii Aola Drone
+       ZH: 孤身一人 孤身一人
+     OLD :  | 白い風 白い月 独りぼっち 独りぼっち
+     NEW :  | 独りぼっち 独りぼっち
+  [19] AL: Luan Razzle Compass end
+       ZH: 打转的指南针
+     OLD :  | 廻る羅針盤と フィールドに残された君の結果
+     NEW :  | 廻る羅針盤と
+  [20] AL: Disverry ou Crai Rance Bis
+       ZH: 你的结界（魔法）尚余此
+     OLD :  | 廻る羅針盤と フィールドに残された君の結果
+     NEW :  | フィールドに残された君の結果
+  [21] AL: Ani Retuel e Atherty Verry
+       ZH: 以一偏颇的进化论
+     OLD :  | 偏った進化論がひとつ 無限の部屋の扉を破れ
+     NEW :  | 偏った進化論がひとつ
+  [22] AL: Razzle Eist a Loast Pazz
+       ZH: 打破无限房间之门
+     OLD :  | 偏った進化論がひとつ 無限の部屋の扉を破れ
+     NEW :  | 無限の部屋の扉を破れ
+  [23] AL: ah Leste Bis Nacc Ola end Story A
+       ZH: 看吧 这里才是空白的故事 “A”
+     OLD :  | ほら こここそが 真っ白なストーリー "Ａ"
+     NEW :  | ほら こここそが 真っ白なストーリー
+  [24] AL: A
+       ZH: 
+     OLD :  | さぁ、物語の続きを
+     NEW :  | "Ａ"
+  [29] AL: ah Whiil Sarga end Whiil a Peak
+       ZH: 白色天空 白色鞋履
+     OLD :  | 白い空 白い靴 誰も居ない 誰も居ない
+     NEW :  | 白い空 白い靴
+  [30] AL: Zel Nai Aihel end Zel Aihel
+       ZH: 别无一人 别无一人
+     OLD :  | 白い空 白い靴 誰も居ない 誰も居ない
+     NEW :  | 誰も居ない 誰も居ない
+  [31] AL: Whiil Hyuz end Whiil Minelia
+       ZH: 白色的风 白色的月
+     OLD :  | 白い風 白い月 独りぼっち 独りぼっち
+     NEW :  | 白い風 白い月
+  [32] AL: la la Mii Aola Drone a Mii Aola Drone
+       ZH: 孤身一人 孤身一人
+     OLD :  | 白い風 白い月 独りぼっち 独りぼっち
+     NEW :  | 独りぼっち 独りぼっち
+  [34] AL: Luan Razzle Compass end
+       ZH: 打转的指南针
+     OLD :  | 廻る羅針盤と フィールドに残された君の結果
+     NEW :  | 廻る羅針盤と
+  [35] AL: Disverry ou Crai Rance Bis
+       ZH: 你的结界（魔法）尚余此
+     OLD :  | 廻る羅針盤と フィールドに残された君の結果
+     NEW :  | フィールドに残された君の結果
+  [36] AL: Ani Retuel e Atherty Verry
+       ZH: 以一偏颇的进化论
+     OLD :  | 偏った進化論がひとつ 無限の部屋の扉を破れ
+     NEW :  | 偏った進化論がひとつ
+  [37] AL: Razzle Eist a Loast Pazz
+       ZH: 打破无限房间之门
+     OLD :  | 偏った進化論がひとつ 無限の部屋の扉を破れ
+     NEW :  | 無限の部屋の扉を破れ
+  [38] AL: ah Leste Bis Nacc Ola end Story A
+       ZH: 看吧 这里才是空白的故事 “A”
+     OLD :  | ほら こここそが 真っ白なストーリー "Ａ"
+     NEW :  | ほら こここそが 真っ白なストーリー
+  [39] AL: A
+       ZH: 
+     OLD :  | さぁ、物語の続きを
+     NEW :  | "Ａ"
+====================================================================================================
+### Thirty Million Persona   (8 changed rows)
+  [ 2] AL: Olim Millant Enes imm Bis Shelista
+       ZH: 在这个世界上数以亿计的空蝉
+     OLD : Billions of mere mortals have used up all the warmth there long ago | 幾億の空蝉は そこにあった体温なんて とうに使い果たしてしまった
+     NEW : Billions of mere mortals | 幾億の空蝉は
+  [ 3] AL: ol Kelletta Ail Colls Fiesmes
+       ZH: 早已耗尽了体温
+     OLD : Billions of mere mortals have used up all the warmth there long ago | 幾億の空蝉は そこにあった体温なんて とうに使い果たしてしまった
+     NEW : have used up all the warmth there long ago | そこにあった体温なんて とうに使い果たしてしまった
+  [ 6] AL: Quim Ail ou Ene Yien Holo end Dist Poul ail Bis Nouche o osa
+       ZH: 如果所有的一切最终都会被原谅，被遗忘，那么这个夜晚
+     OLD : Eventually, if everything can be forgiven, if everything can be forgotten | 結局 全てが赦されてしまうなら 忘れられてしまうなら
+     NEW : Eventually, if everything can be forgiven, if everything can be forgotten / This | 結局 全てが赦されてしまうなら 忘れられてしまうなら / この夜も
+  [ 7] AL: Iequim Lef Kopiita Tordu Eist Naits o Nai Zel Note
+       ZH: 就像完全敞开大门的废墟一般，一无所有
+     OLD : It’s just like a ruin where there’s nothing even though I open the door | まるで 扉を開けたってなにもない 廃墟のように
+     NEW : night, too, it’s just like a ruin where there’s nothing even though I open the door | まるで 扉を開けたってなにもない 廃墟のように
+  [ 8] AL: Xia o Optokia tou Squa Crait Fimoa Oltemia Baly
+       ZH: 隐藏自己的容颜毫无用处，因为无论何时
+     OLD : There’s no point in hiding your face Someone is always watching your true self | 顔を隠したって無駄だよ / いつだって誰かが見ている 本当の君を
+     NEW : There’s no point in hiding your face | 顔を隠したって無駄だよ
+  [ 9] AL: Olizes Ranya Crait Selaf
+       ZH: 都有人能看到真正的你
+     OLD : There’s no point in hiding your face Someone is always watching your true self | 顔を隠したって無駄だよ / いつだって誰かが見ている 本当の君を
+     NEW : Someone is always watching your true self | いつだって誰かが見ている 本当の君を
+  [16] AL: Xia o Optokia tou Squa Crait Selvell Oltemia Baly
+       ZH: 掩盖自己的真实想法毫无用处，因为无论何时
+     OLD : There’s no point in hiding your true feelings Someone is always noticing your true self | 本音を隠したって無駄だよ いつだって誰かが気付いてる 本当の君に
+     NEW : There’s no point in hiding your true feelings | 本音を隠したって無駄だよ
+  [17] AL: Olizes Seema il Crait Selaf
+       ZH: 都有人能注意到真正的你
+     OLD : There’s no point in hiding your true feelings Someone is always noticing your true self | 本音を隠したって無駄だよ いつだって誰かが気付いてる 本当の君に
+     NEW : Someone is always noticing your true self | いつだって誰かが気付いてる 本当の君に
+====================================================================================================
+### Toys   (13 changed rows)
+  [ 6] AL: la la Mii Arth Bis Arth Bis
+       ZH: 我在此处
+     OLD : I am here alone and you are there alone | 私だけがここにいて / そしてあなただけがそこにいる
+     NEW : I am here alone | 私だけがここにいて
+  [ 7] AL: ah end Crai Arth tie Bis
+       ZH: 以及，你也在此处
+     OLD : I am here alone and you are there alone | 私だけがここにいて / そしてあなただけがそこにいる
+     NEW : and you are there alone | そしてあなただけがそこにいる
+  [10] AL: Hey ah Fiiani ou Gete Reiz
+       ZH: 看哪，宣告新旅途开始的深呼吸
+     OLD : You see, a deep breath that’s is a sign of departure, slips through the space between the stars | ほら 旅立ちを告げる深呼吸が 星の透き間をすり抜ける
+     NEW : You see, a deep breath that’s is a sign of departure, | ほら 旅立ちを告げる深呼吸が
+  [11] AL: Luan In Minelu end
+       ZH: 穿过星际间隙
+     OLD : You see, a deep breath that’s is a sign of departure, slips through the space between the stars | ほら 旅立ちを告げる深呼吸が 星の透き間をすり抜ける
+     NEW : slips through the space between the stars | 星の透き間をすり抜ける
+  [12] AL: Karna Mii Skie a Graid ou Selaf end
+       ZH: 度过好几个如此般的夜晚
+     OLD : Just like that, I go through many nights again | そんな風にまた 幾つもの夜を越えてゆく
+     NEW : Just like that, | そんな風にまた
+  [13] AL: ah Graid Selaf end ah Ley
+       ZH: 就像这样下去
+     OLD : Just like that, I go through many nights again | そんな風にまた 幾つもの夜を越えてゆく
+     NEW : I go through many nights again | 幾つもの夜を越えてゆく
+  [16] AL: la la Mii Arth Bis Arth Bis
+       ZH: 我在此处
+     OLD : I am here alone and you are there alone | 私だけがここにいて / そしてあなただけがそこにいる
+     NEW : I am here alone | 私だけがここにいて
+  [17] AL: ah end Crai Arth tie Bis
+       ZH: 以及，你也在此处
+     OLD : I am here alone and you are there alone | 私だけがここにいて / そしてあなただけがそこにいる
+     NEW : and you are there alone | そしてあなただけがそこにいる
+  [20] AL: Hey ah Fiiani ou Gete Reiz
+       ZH: 看哪，宣告新旅途开始的深呼吸
+     OLD : You see, a deep breath that’s is a sign of departure, slips through the space between the stars | ほら 旅立ちを告げる深呼吸が 星の透き間をすり抜ける
+     NEW : You see, a deep breath that’s is a sign of departure, | ほら 旅立ちを告げる深呼吸が
+  [21] AL: Luan In Minelu end
+       ZH: 穿过星际间隙
+     OLD : You see, a deep breath that’s is a sign of departure, slips through the space between the stars | ほら 旅立ちを告げる深呼吸が 星の透き間をすり抜ける
+     NEW : slips through the space between the stars | 星の透き間をすり抜ける
+  [22] AL: Karna Mii Skie a Graid ou Selaf end
+       ZH: 度过好几个如此般的夜晚
+     OLD : Just like that, I go through many nights again | そんな風にまた 幾つもの夜を越えてゆく
+     NEW : Just like that, | そんな風にまた
+  [23] AL: ah Graid Selaf end ah Ley
+       ZH: 就像这样下去
+     OLD : Just like that, I go through many nights again | そんな風にまた 幾つもの夜を越えてゆく
+     NEW : I go through many nights again | 幾つもの夜を越えてゆく
+  [24] AL: ah Ley
+       ZH: 不断继续下去
+     OLD : Just like that, I go through many nights again | そんな風にまた 幾つもの夜を越えてゆく
+     NEW :  | 
+====================================================================================================
+### Under Wonder Nights   (6 changed rows)
+  [ 1] AL: Oulayz Saut Verry
+       ZH: 无数的声音，话语
+     OLD : I can’t remember the myriad voices, words | 無数の声 言葉 何も思い出せないよ
+     NEW : I can’t remember the | 無数の声 言葉
+  [ 2] AL: Kulu Nai Harie Zel Note
+       ZH: 对这一切都丝毫没有印象
+     OLD : I can’t remember the myriad voices, words | 無数の声 言葉 何も思い出せないよ
+     NEW : myriad voices, words | 何も思い出せないよ
+  [ 9] AL: Kolto o Meele Fiola ou Finz Ween
+       ZH: 底部为海，终焉的花朵
+     OLD : The bottom is the sea, Flower of the end, / I won’t forget you | 底は海 終焉の花 / 君を忘れない
+     NEW : The bottom is the sea, Flower of the end, | 底は海 終焉の花
+  [10] AL: Mii Nai Dist Crai Foul
+       ZH: 我绝对不会忘记你
+     OLD : The bottom is the sea, Flower of the end, / I won’t forget you | 底は海 終焉の花 / 君を忘れない
+     NEW : I won’t forget you | 君を忘れない
+  [16] AL: Kolto o Meele Fiola ou Finz Ween
+       ZH: 底部为海，终焉的花朵
+     OLD : The bottom is the sea, Flower of the end, / I won’t forget you | 底は海 終焉の花 / 君を忘れない
+     NEW : The bottom is the sea, Flower of the end, | 底は海 終焉の花
+  [17] AL: Mii Nai Dist Crai Foul
+       ZH: 我绝对不会忘记你
+     OLD : The bottom is the sea, Flower of the end, / I won’t forget you | 底は海 終焉の花 / 君を忘れない
+     NEW : I won’t forget you | 君を忘れない
+====================================================================================================
+### Urxbxrxs   (8 changed rows)
+  [ 0] AL: Ullem ou Epkejla Lef Dizzlet Bipeidit Garei Wendit Lusia Entie Arch Synapse
+       ZH: 分裂的大脑深处，蠢蠢欲动的神经元，游动的光骑乘上突触，
+     OLD : Wriggling neurons deep in my splitting head / Swimming lights ride the synapse to the next star | 割れるような頭の奥 / 蠢くニューロン / 泳ぐ光はシナプスに乗り / 次の星へ
+     NEW : Wriggling neurons deep in my splitting head | 割れるような頭の奥 / 蠢くニューロン / 泳ぐ光はシナプスに乗り
+  [ 1] AL: Il Eiti Minelu Sikid Pillusi Olipha en Selanya Helfigi ou Fleekijt
+       ZH: 到达下一个星球，意识无处可去，在次元的裂隙中徘徊
+     OLD : Consciousness has lost its way, wandering between dimensions | 意識は行き場を失くし 次元の狭間を彷徨うのだ
+     NEW : Swimming lights ride the synapse to the next star / Consciousness has lost its way, wandering between dimensions | 次の星へ / 意識は行き場を失くし 次元の狭間を彷徨うのだ
+  [ 4] AL: Mineldari Quop end Acary Seeda Herches ou Minelbli Poutie Skima Fei end
+       ZH: 由默示指引的行星系，恒星的心脏，穿过作为嬉戏的基本粒子的圆轮
+     OLD : Planetary systems guided by revelation, the stellar heart | 黙示が導く惑星系 / 恒星の心臓
+     NEW : Planetary systems guided by revelation, / the stellar heart / Go through the circle of elementary particles at play | 黙示が導く惑星系 / 恒星の心臓 / 素粒子の戯れる輪を潜れば
+  [ 5] AL: Kremsa Nache Eidarit iy Mazy ou Guidial Spay end Qtua Loosya Selti
+       ZH: 这是一个连任何意义都会嘲笑的，由镜子组成的迷宫
+     OLD : Go through the circle of elementary particles at play / We find a labyrinth of mirrors that mocks even every meaning | 素粒子の戯れる輪を潜れば / そこは 意味すら嘲る 合わせ鏡の迷路
+     NEW : We find a labyrinth of mirrors that mocks even every meaning | そこは 意味すら嘲る 合わせ鏡の迷路
+  [13] AL: Ullem ou Epkejla Lef Dizzlet Bipeidit Garei Wendit Lusia Entie Arch Synapse
+       ZH: 分裂的大脑深处，蠢蠢欲动的神经元，游动的光骑乘上突触，
+     OLD : Wriggling neurons deep in my splitting head / Swimming lights ride the synapse to the next star | 割れるような頭の奥 / 蠢くニューロン / 泳ぐ光はシナプスに乗り / 次の星へ
+     NEW : Wriggling neurons deep in my splitting head | 割れるような頭の奥 / 蠢くニューロン / 泳ぐ光はシナプスに乗り
+  [14] AL: Il Eiti Minelu Sikid Pillusi Olipha en Selanya Helfigi ou Fleekijt
+       ZH: 到达下一个星球，意识无处可去，在次元的裂隙中徘徊
+     OLD : Consciousness has lost its way, wandering between dimensions | 意識は行き場を失くし 次元の狭間を彷徨うのだ
+     NEW : Swimming lights ride the synapse to the next star / Consciousness has lost its way, wandering between dimensions | 次の星へ / 意識は行き場を失くし 次元の狭間を彷徨うのだ
+  [17] AL: Mineldari Quop end Acary Seeda Herches ou Minelbli Poutie Skima Fei end
+       ZH: 由默示指引的行星系，恒星的心脏，穿过作为嬉戏的基本粒子的圆轮
+     OLD : Planetary systems guided by revelation, the stellar heart | 黙示が導く惑星系 / 恒星の心臓
+     NEW : Planetary systems guided by revelation, the stellar heart / Go through the circle of elementary particles at play | 黙示が導く惑星系 / 恒星の心臓 / 素粒子の戯れる輪を潜れば
+  [18] AL: Kremsa Nache Eidarit iy Mazy ou Guidial Spay end Qtua Loosya Selti
+       ZH: 这是一个连任何意义都会嘲笑的，由镜子组成的迷宫
+     OLD : Go through the circle of elementary particles at play / We find a labyrinth of mirrors that mocks even every meaning | 素粒子の戯れる輪を潜れば / そこは 意味すら嘲る 合わせ鏡の迷路
+     NEW : We find a labyrinth of mirrors that mocks even every meaning | そこは 意味すら嘲る 合わせ鏡の迷路
+====================================================================================================
+### Wonder World Sketch   (21 changed rows)
+  [ 0] AL: Olis Leste Stea Shelista
+       ZH: 描绘这充盈的世界吧
+     OLD : Let's draw prismatic world / Let's paint with all colors of rainbow | あふれる世界を描こう 七色の繪の具で描こう
+     NEW : Let's draw prismatic world | あふれる世界を描こう
+  [ 1] AL: Ilis Leste Stea Xia Scape ah
+       ZH: 用七色的画具描绘吧
+     OLD : Let's draw prismatic world / Let's paint with all colors of rainbow | あふれる世界を描こう 七色の繪の具で描こう
+     NEW : Let's paint with all colors of rainbow | 七色の繪の具で描こう
+  [ 2] AL: Laiziin Leste Oulayz Stea
+       ZH: 描绘那无限的航路吧
+     OLD : Let's open up our unlimited sea route / Just grab a bag and let's go beyond the star | 無限の航路を描こう カバンひとつで星の彼方まで
+     NEW : Let's open up our unlimited sea route | 無限の航路を描こう
+  [ 3] AL: end Droq Ani Minelu Loqcka Elie
+       ZH: 一个手提包就够让我前往星辰彼方
+     OLD : Let's open up our unlimited sea route / Just grab a bag and let's go beyond the star | 無限の航路を描こう カバンひとつで星の彼方まで
+     NEW : Just grab a bag and let's go beyond the star | カバンひとつで星の彼方まで
+  [ 6] AL: Loog end Loog Stei Nai Mariju Viin end
+       ZH: 一直追寻的景色
+     OLD : The view I sought and chased for a long time / That i could never find | ずっとずっと探していた 追いかけていた景色 / 見つからなかったもの
+     NEW : The view I sought and chased for a long time | ずっとずっと探していた 追いかけていた景色
+  [ 7] AL: Nai Ranya Note
+       ZH: 寻遍不得的事物
+     OLD : The future I sought and chased for a long time / That i could never find | ずっとずっと探していた 追いかけていた未来 / 失くしてしまったもの
+     NEW : That i could never find | 見つからなかったもの
+  [ 8] AL: Foul Xia ou Mii a Loot end Loot end Aihel
+       ZH: 肯定一直都在我之中
+     OLD : It might be inside me from way back | それはきっと 私の中にずっとあったんだよ
+     NEW : It might be inside me from way back | それはきっと私の中にずっとあったんだよ
+  [ 9] AL: ah Talis Mii Alista Shelista end
+       ZH: 想象已久的世界
+     OLD : The world I dreamed for a long time / That is waiting in my heart. | 長い間 想い描いていた世界は 心の中で待っている
+     NEW : The world I dreamed for a long time | 長い間 想い描いていた世界は
+  [10] AL: Heart ou Brai Mii Inay
+       ZH: 就在我心中等候
+     OLD : The world I dreamed for a long time / That is waiting in my heart. | 長い間 想い描いていた世界は 心の中で待っている
+     NEW : That is waiting in my heart. | 心の中で待っている
+  [11] AL: Leste Luan a Crai Sar Mii
+       ZH: 你和我一起去吧
+     OLD : Let's go with me / With me... | さぁ 君も一緒に行こう 一緒に
+     NEW : Let's go with me | さぁ 君も一緒に行こう
+  [12] AL: Leste Luan
+       ZH: 一起
+     OLD : Let's go with me / With me... | さぁ 君も一緒に行こう 一緒に
+     NEW : With me... | 一緒に
+  [13] AL: Talis a Jareic Rig ou Abelu
+       ZH: 将飘扬已久的开绽旗帜
+     OLD : Hoist and hold up a frayed flag flowed in ages here / Draw the sea route | 長い間靡いていた ほころんだ旗を / もう一度かざして ここに立てて 航路を描いて
+     NEW : Hoist and hold up a frayed flag flowed in ages here | 長い間靡いていた ほころんだ旗を
+  [14] AL: Karna Enaq Bis Gent end Stea Laiziin
+       ZH: 再度挥起，树于此处，划出航线
+     OLD : Hoist and hold up a frayed flag flowed in ages here / Draw the sea route | 長い間靡いていた ほころんだ旗を / もう一度かざして ここに立てて 航路を描いて
+     NEW : Draw the sea route | もう一度かざして ここに立てて 航路を描いて
+  [15] AL: Fiiani end
+       ZH: 做个深呼吸
+     OLD : Breathe deep, and let's go! | 深呼吸をしたら さぁ、進め！
+     NEW : Breathe deep, | 深呼吸をしたら
+  [16] AL: ah Leste Liz
+       ZH: 好，马上前进！
+     OLD : Breathe deep, and let's go! | 深呼吸をしたら さぁ、進め！
+     NEW : and let's go! | さぁ、進め！
+  [17] AL: Loog end Loog Laiz Nai Mariju Viin end
+       ZH: 一直追寻的未来
+     OLD : The future I sought and chased for a long time / That i could never find | ずっとずっと探していた 追いかけていた未来 / 失くしてしまったもの
+     NEW : The future I sought and chased for a long time | ずっとずっと探していた 追いかけていた未来
+  [18] AL: Nai Ranya Note
+       ZH: 失落不见的事物
+     OLD : The future I sought and chased for a long time / That i could never find | ずっとずっと探していた 追いかけていた未来 / 失くしてしまったもの
+     NEW : That i could never find | 失くしてしまったもの
+  [20] AL: ah Talis Mii Alista Shelista end
+       ZH: 想象已久的世界
+     OLD : The world I dreamed for a long time / That is waiting in my heart. | 長い間 想い描いていた世界は 心の中で待っている
+     NEW : The world I dreamed for a long time | 長い間 想い描いていた世界は
+  [21] AL: Heart ou Brai Mii Inay
+       ZH: 就在我心中等候
+     OLD : The world I dreamed for a long time / That is waiting in my heart. | 長い間 想い描いていた世界は 心の中で待っている
+     NEW : That is waiting in my heart. | 心の中で待っている
+  [22] AL: Leste Luan a Crai Sar Mii
+       ZH: 你和我一起去吧
+     OLD : Let's go with me / With me... | さぁ 君も一緒に行こう 一緒に
+     NEW : Let's go with me | さぁ 君も一緒に行こう
+  [23] AL: Leste Luan
+       ZH: 一起
+     OLD : Let's go with me / With me... | さぁ 君も一緒に行こう 一緒に
+     NEW : With me... | 一緒に
+====================================================================================================
+### i am always wrong   (7 changed rows)
+  [ 0] AL: Bertene Alfloul Zia iy Shellte Apnesia Baly
+       ZH: 我周围的人总是对的
+     OLD : The people around me are always correct / That is the unmistakable truth | まわりのひとびとは いつも決まって正しいんだ / それはまぎれもない事実だよ
+     NEW : The people around me are always correct | まわりのひとびとは いつも決まって正しいんだ
+  [ 1] AL: Xia iy Kysei Tepistl Wei
+       ZH: 这是明确无误的事实
+     OLD : The people around me are always correct / That is the unmistakable truth | まわりのひとびとは いつも決まって正しいんだ / それはまぎれもない事実だよ
+     NEW : That is the unmistakable truth | それはまぎれもない事実だよ
+  [ 2] AL: Zia iy Hyuserti imm Bale Taz
+       ZH: 我总是错的
+     OLD : Yes, i am always wrong | そう 僕は いつだって 間違っている
+     NEW : I am always wrong | 僕は いつだって 間違っている
+  [ 4] AL: Tifijl Xia end Yien Stea ifa Enbrikardi Fas
+       ZH: 一个用可怕的颜色描绘的扭曲的人物，
+     OLD : A distorted figure depicted in terrifying colors, / Is that me...? | 恐ろしい色で描かれた いびつな、それは / 僕の姿・・・?
+     NEW : A distorted figure depicted in terrifying colors, | 恐ろしい色で描かれた いびつな、それは
+  [ 5] AL: iy Zyte Tvulei
+       ZH: 是我吗。。。？
+     OLD : A distorted figure depicted in terrifying colors, / Is that me...? | 恐ろしい色で描かれた いびつな、それは / 僕の姿・・・?
+     NEW : Is that me...? | 僕の姿・・・?
+  [12] AL: Bertene Alfloul Zia iy Shellte Apnesia Baly
+       ZH: （我周围的人总是对的
+     OLD : The people around me are always correct / That is the unmistakable truth | まわりのひとびとは いつも決まって正しいんだ / それはまぎれもない事実だよ
+     NEW : The people around me are always correct | まわりのひとびとは いつも決まって正しいんだ
+  [13] AL: Xia iy Kysei Tepistl Wei
+       ZH: 这是明确无误的事实
+     OLD : The people around me are always correct / That is the unmistakable truth | まわりのひとびとは いつも決まって正しいんだ / それはまぎれもない事実だよ
+     NEW : That is the unmistakable truth | それはまぎれもない事実だよ
+====================================================================================================
+### ᖽᐸᓰᒪᒪ ᘻᖻ ᖴᓍᖇᖶᑘᘉᘿ(Kill My Fortune)   (4 changed rows)
+  [ 0] AL: Leste Irdliq Phina Frait Lend Crai Awlst
+       ZH: 审判之日已到，你是否做好准备？
+     OLD : Judgment is about to begin Are you ready? | さあ 審判が始まります 準備はできましたか？
+     NEW : Judgment is about to begin Are you ready? | さぁ 審判が始まります 準備はできましたか？
+  [ 2] AL: Leste Irdliq Phina Frait Lend Crai Awlst
+       ZH: 审判之日已到，你是否做好准备？
+     OLD : Judgment is about to begin Are you ready? | さあ 審判が始まります 準備はできましたか？
+     NEW : Judgment is about to begin Are you ready? | さぁ 審判が始まります 準備はできましたか？
+  [ 4] AL: Leife Leife
+       ZH: 空荡荡，空荡荡
+     OLD : Hollow Hollow Trace the history | うつろ うつろ 歴史をたどる
+     NEW : Hollow Hollow | うつろ うつろ
+  [ 5] AL: Mii Skyar Histipri
+       ZH: 追溯历史
+     OLD : Hollow Hollow Trace the history | うつろ うつろ 歴史をたどる
+     NEW : Trace the history | 歴史をたどる
+====================================================================================================
+### ᗯᗅᑎᗫᙍᖇᙍᖇᏕ(WANDERERS)   (8 changed rows)
+  [ 0] AL: Xia iy Enphil Minelu Shelista end Dim Nai Aihel
+       ZH: 那是琥珀色的行星，没有痛苦的世界
+     OLD : It's an amber star, a world without suffering | それは 琥珀色の星 苦しみのない世界
+     NEW : I'm an amber star, a world without suffering | それは 琥珀色の星 苦しみのない世界
+  [ 1] AL: Elzanoa Mill Vell Ignai Flojrie sii
+       ZH: 没有翅膀的我们，一定无法到达
+     OLD : We who have no wings will never get There's | 翼のない私達には きっと辿り着けないね
+     NEW : We who have no wings will never get there | 翼のない私達には きっと辿り着けないね
+  [ 2] AL: Poetolt Weliim il Nouche ou Folqui Wely il Kolto
+       ZH: 在争吵的夜晚中融化，沉入深渊
+     OLD : Metl in the noisy night and sink to the bottom | 諍いの夜に溶けて 底へ沈む
+     NEW : Melt in the noisy night and sink to the bottom | 諍いの夜に溶けて 底へ沈む
+  [ 5] AL: Sjeidmea Ijsya Sjeidmea Ijsya
+       ZH: 生锈的味道，生锈的味道
+     OLD : Rusty smell, rusty smell | 錆びた匂い 錆びた匂い
+     NEW : Rusty smell, Rusty smell | 錆びた匂い 錆びた匂い
+  [11] AL: Poetklar Heipe a Dilem Doraid Yiep Liz Yiep Liz
+       ZH: 拥抱着黑暗，向前行进，向前行进
+     OLD : Holding darkness in our arms, Go on, Go one | 暗闇を抱きかかえながら 進め 進め
+     NEW : Holding darkness in our arms, Go on, Go on | 暗闇を抱きかかえながら 進め 進め
+  [21] AL: Arliqlowt ou Shelista A Krey Tim Vell Amil
+       ZH: 世界的原理，和小小的灯火将苏醒
+     OLD : The reason for the world, | 世界の理は 小さな灯は その目を覚ます
+     NEW : The reason for the world, a little light wakes up its eyes | 世界の理は 小さな灯は その目を覚ます
+  [22] AL: Lishe Nolm Disverry ifa Iladmea Coll
+       ZH: 用烟熏的身体念出咒语吧
+     OLD : a little light wakes up its eyes | 煤けた体で 呪文を唱えましょう
+     NEW : Let's recite a spell with a sooty body | 煤けた体で 呪文を唱えましょう
+  [23] AL: Arsiam Hiip a Tigalm Fete end ol Yien Siiqlea Ord Giidu
+       ZH: 为了涂黑被决定的命运
+     OLD : Let's recite a spell with a sooty body to blacken our preodained destiny | 決められた運命を 黒く塗り潰すために
+     NEW : to blacken our preodained destiny | 決められた運命を 黒く塗り潰すために
+====================================================================================================
+### ▷ NEW GAME   (19 changed rows)
+  [ 3] AL: Bis Mazy iy Oli end Ley Nai Laiz Nai Aihel lid Naits
+       ZH: “这个迷宫已经是死胡同了，没有未来可言”
+     OLD : “This maze is a dead end. There’s no future from here.” | 「この迷路は行き止まり ここから先に未来はない」
+     NEW : “This maze is a dead end. There’s no future out there.” | 「この迷路は行き止まり 先に未来はない」
+  [ 7] AL: Bis iy Goriis Viizy Olis Feida Viizy
+       ZH: 这是一个严重的bug，非常致命的bug
+     OLD : This is a serious bug, A crucial bug / We demand this life to be withdrawn | これは深刻なバグ すごく致命的なバグ / 私たちはこの命の撤回を求める
+     NEW : This is a serious bug, A crucial bug / We demand this life to be withdrawn | これは深刻なバグ すごく致命的なバグ / 私たちはこの命の撤回を求めます
+  [ 8] AL: bug bug
+       ZH: 
+     OLD :  | 
+     NEW : Hope scatters ruthlessly and descends as an angel | 希望は血も涙もなくばら撒かれ 天使となって舞い降りる
+  [13] AL: Entie Arch Feilihea en Skima Roofialakta
+       ZH: 骑着海马穿过隧道
+     OLD : Ride on a sea horse and go through the tunnel / Someone’s footsteps wouldn’t stop | 海馬に乗ってくぐるトンネル 何者かの 足音が鳴り止まない
+     NEW : Ride on a sea horse and go through the tunnel | 海馬に乗ってくぐるトンネル
+  [14] AL: Polt Pray ou Olizes Selfe a Geeg
+       ZH: 不知道是谁的脚步声持续不断
+     OLD : Ride on a sea horse and go through the tunnel / Someone’s footsteps wouldn’t stop | 海馬に乗ってくぐるトンネル 何者かの 足音が鳴り止まない
+     NEW : Someone’s footsteps wouldn’t stop | 何者かの 足音が鳴り止まない
+  [15] AL: Voi Kulu Heilim Bis osa Ord Doraid
+       ZH: 啊，这也能被称作是“黑暗”吧
+     OLD : Ah, this can also be called darkness / It is no wonder, because this is no paradise | ああ これは暗闇とも呼べる / それもそうだろう ここは楽園などではない
+     NEW : Ah, this can also be called darkness | ああ これは暗闇とも呼べる
+  [16] AL: Elaind Harmiy Xia Bis iy Ignai Lanai
+       ZH: 这也没什么好奇怪的，毕竟这也不是什么乐园
+     OLD : Ah, this can also be called darkness / It is no wonder, because this is no paradise | ああ これは暗闇とも呼べる / それもそうだろう ここは楽園などではない
+     NEW : It is no wonder, because this is no paradise | それもそうだろう ここは楽園などではない
+  [17] AL: Kulu Nai Rait Heiliam Tuklt
+       ZH: “未找到存档数据”
+     OLD : “SAVE DATA NOT FOUND” “START NEW GAME?” / “SAVE DATA NOT FOUND” “START?” / “SAVE DATA NOT FOUND” “START NEW GAME?” / “SAVE DATA NOT NOT NOT NOT NOT NOT FOUND” / “START NEW GAME?” “SAVE DATA NOT FOUND” / “START START START START START START NEW GAME?” | 「SAVE DATA がみつかりません」「NEW GAME をはじめますか？」 / 「SAVE DATA がみつかりません」「はじめますか？」 / 「SAVE DATA がみつかりません」「NEW GAME をはじめますか？」 / 「SAVE DATA がみつかり みつかり みつかり みつかり みつかり みつかり ません」 / 「NEW GAME をはじめますか？」「SAVE DATA がみつかりません」 / 「NEW GAME をはじめ はじめ はじめ はじめ はじめ はじめ ますか？」
+     NEW : “SAVE DATA NOT FOUND” | 「SAVE DATA がみつかりません」
+  [18] AL: Lend Cloud Skeem Gete Liumd
+       ZH: “是否开始新游戏？”
+     OLD : “SAVE DATA NOT FOUND” “START NEW GAME?” / “SAVE DATA NOT FOUND” “START?” / “SAVE DATA NOT FOUND” “START NEW GAME?” / “SAVE DATA NOT NOT NOT NOT NOT NOT FOUND” / “START NEW GAME?” “SAVE DATA NOT FOUND” / “START START START START START START NEW GAME?” | 「SAVE DATA がみつかりません」「NEW GAME をはじめますか？」 / 「SAVE DATA がみつかりません」「はじめますか？」 / 「SAVE DATA がみつかりません」「NEW GAME をはじめますか？」 / 「SAVE DATA がみつかり みつかり みつかり みつかり みつかり みつかり ません」 / 「NEW GAME をはじめますか？」「SAVE DATA がみつかりません」 / 「NEW GAME をはじめ はじめ はじめ はじめ はじめ はじめ ますか？」
+     NEW : “START NEW GAME?” | 「NEW GAME をはじめますか？」
+  [19] AL: Kulu Nai Rait Heiliam Tuklt
+       ZH: “未找到存档数据”
+     OLD : “SAVE DATA NOT FOUND” “START NEW GAME?” / “SAVE DATA NOT FOUND” “START?” / “SAVE DATA NOT FOUND” “START NEW GAME?” / “SAVE DATA NOT NOT NOT NOT NOT NOT FOUND” / “START NEW GAME?” “SAVE DATA NOT FOUND” / “START START START START START START NEW GAME?” | 「SAVE DATA がみつかりません」「NEW GAME をはじめますか？」 / 「SAVE DATA がみつかりません」「はじめますか？」 / 「SAVE DATA がみつかりません」「NEW GAME をはじめますか？」 / 「SAVE DATA がみつかり みつかり みつかり みつかり みつかり みつかり ません」 / 「NEW GAME をはじめますか？」「SAVE DATA がみつかりません」 / 「NEW GAME をはじめ はじめ はじめ はじめ はじめ はじめ ますか？」
+     NEW : “SAVE DATA NOT FOUND” | 「SAVE DATA がみつかりません」
+  [20] AL: Lend Lend Cloud Skeem
+       ZH: “是否开始？”
+     OLD : “SAVE DATA NOT FOUND” “START NEW GAME?” / “SAVE DATA NOT FOUND” “START?” / “SAVE DATA NOT FOUND” “START NEW GAME?” / “SAVE DATA NOT NOT NOT NOT NOT NOT FOUND” / “START NEW GAME?” “SAVE DATA NOT FOUND” / “START START START START START START NEW GAME?” | 「SAVE DATA がみつかりません」「NEW GAME をはじめますか？」 / 「SAVE DATA がみつかりません」「はじめますか？」 / 「SAVE DATA がみつかりません」「NEW GAME をはじめますか？」 / 「SAVE DATA がみつかり みつかり みつかり みつかり みつかり みつかり ません」 / 「NEW GAME をはじめますか？」「SAVE DATA がみつかりません」 / 「NEW GAME をはじめ はじめ はじめ はじめ はじめ はじめ ますか？」
+     NEW : “START?” | 「はじめますか？」
+  [21] AL: Kulu Nai Rait Heiliam Tuklt
+       ZH: “未找到存档数据”
+     OLD : “SAVE DATA NOT FOUND” “START NEW GAME?” / “SAVE DATA NOT FOUND” “START?” / “SAVE DATA NOT FOUND” “START NEW GAME?” / “SAVE DATA NOT NOT NOT NOT NOT NOT FOUND” / “START NEW GAME?” “SAVE DATA NOT FOUND” / “START START START START START START NEW GAME?” | 「SAVE DATA がみつかりません」「NEW GAME をはじめますか？」 / 「SAVE DATA がみつかりません」「はじめますか？」 / 「SAVE DATA がみつかりません」「NEW GAME をはじめますか？」 / 「SAVE DATA がみつかり みつかり みつかり みつかり みつかり みつかり ません」 / 「NEW GAME をはじめますか？」「SAVE DATA がみつかりません」 / 「NEW GAME をはじめ はじめ はじめ はじめ はじめ はじめ ますか？」
+     NEW : “SAVE DATA NOT FOUND” | 「SAVE DATA がみつかりません」
+  [22] AL: Lend Cloud Skeem Gete Liumd
+       ZH: “是否开始新游戏？”
+     OLD : “SAVE DATA NOT FOUND” “START NEW GAME?” / “SAVE DATA NOT FOUND” “START?” / “SAVE DATA NOT FOUND” “START NEW GAME?” / “SAVE DATA NOT NOT NOT NOT NOT NOT FOUND” / “START NEW GAME?” “SAVE DATA NOT FOUND” / “START START START START START START NEW GAME?” | 「SAVE DATA がみつかりません」「NEW GAME をはじめますか？」 / 「SAVE DATA がみつかりません」「はじめますか？」 / 「SAVE DATA がみつかりません」「NEW GAME をはじめますか？」 / 「SAVE DATA がみつかり みつかり みつかり みつかり みつかり みつかり ません」 / 「NEW GAME をはじめますか？」「SAVE DATA がみつかりません」 / 「NEW GAME をはじめ はじめ はじめ はじめ はじめ はじめ ますか？」
+     NEW : “START NEW GAME?” | 「NEW GAME をはじめますか？」
+  [23] AL: Kulu Nai Rait Rait Rait Rait Rait Rait Rait Heiliam Tuklt
+       ZH: “未未未未未未未找到存档数据”
+     OLD : “SAVE DATA NOT FOUND” “START NEW GAME?” / “SAVE DATA NOT FOUND” “START?” / “SAVE DATA NOT FOUND” “START NEW GAME?” / “SAVE DATA NOT NOT NOT NOT NOT NOT FOUND” / “START NEW GAME?” “SAVE DATA NOT FOUND” / “START START START START START START NEW GAME?” | 「SAVE DATA がみつかりません」「NEW GAME をはじめますか？」 / 「SAVE DATA がみつかりません」「はじめますか？」 / 「SAVE DATA がみつかりません」「NEW GAME をはじめますか？」 / 「SAVE DATA がみつかり みつかり みつかり みつかり みつかり みつかり ません」 / 「NEW GAME をはじめますか？」「SAVE DATA がみつかりません」 / 「NEW GAME をはじめ はじめ はじめ はじめ はじめ はじめ ますか？」
+     NEW : “SAVE DATA NOT NOT NOT NOT NOT NOT FOUND” | 「SAVE DATA がみつかり みつかり みつかり みつかり みつかり みつかり ません」
+  [24] AL: Lend Cloud Skeem Gete Liumd
+       ZH: “是否开始新游戏？”
+     OLD : “SAVE DATA NOT FOUND” “START NEW GAME?” / “SAVE DATA NOT FOUND” “START?” / “SAVE DATA NOT FOUND” “START NEW GAME?” / “SAVE DATA NOT NOT NOT NOT NOT NOT FOUND” / “START NEW GAME?” “SAVE DATA NOT FOUND” / “START START START START START START NEW GAME?” | 「SAVE DATA がみつかりません」「NEW GAME をはじめますか？」 / 「SAVE DATA がみつかりません」「はじめますか？」 / 「SAVE DATA がみつかりません」「NEW GAME をはじめますか？」 / 「SAVE DATA がみつかり みつかり みつかり みつかり みつかり みつかり ません」 / 「NEW GAME をはじめますか？」「SAVE DATA がみつかりません」 / 「NEW GAME をはじめ はじめ はじめ はじめ はじめ はじめ ますか？」
+     NEW : “START NEW GAME?” | 「NEW GAME をはじめますか？」
+  [25] AL: Kulu Nai Rait Heiliam Tuklt
+       ZH: “未找到存档数据”
+     OLD : “SAVE DATA NOT FOUND” “START NEW GAME?” / “SAVE DATA NOT FOUND” “START?” / “SAVE DATA NOT FOUND” “START NEW GAME?” / “SAVE DATA NOT NOT NOT NOT NOT NOT FOUND” / “START NEW GAME?” “SAVE DATA NOT FOUND” / “START START START START START START NEW GAME?” | 「SAVE DATA がみつかりません」「NEW GAME をはじめますか？」 / 「SAVE DATA がみつかりません」「はじめますか？」 / 「SAVE DATA がみつかりません」「NEW GAME をはじめますか？」 / 「SAVE DATA がみつかり みつかり みつかり みつかり みつかり みつかり ません」 / 「NEW GAME をはじめますか？」「SAVE DATA がみつかりません」 / 「NEW GAME をはじめ はじめ はじめ はじめ はじめ はじめ ますか？」
+     NEW : “SAVE DATA NOT FOUND” | 「SAVE DATA がみつかりません」
+  [26] AL: Lend Cloud Skeem Skeem Skeem Skeem Skeem Skeem Skeem Gete Liumd
+       ZH: “是否开始开始开始开始开始开始开始新游戏？”
+     OLD : “SAVE DATA NOT FOUND” “START NEW GAME?” / “SAVE DATA NOT FOUND” “START?” / “SAVE DATA NOT FOUND” “START NEW GAME?” / “SAVE DATA NOT NOT NOT NOT NOT NOT FOUND” / “START NEW GAME?” “SAVE DATA NOT FOUND” / “START START START START START START NEW GAME?” | 「SAVE DATA がみつかりません」「NEW GAME をはじめますか？」 / 「SAVE DATA がみつかりません」「はじめますか？」 / 「SAVE DATA がみつかりません」「NEW GAME をはじめますか？」 / 「SAVE DATA がみつかり みつかり みつかり みつかり みつかり みつかり ません」 / 「NEW GAME をはじめますか？」「SAVE DATA がみつかりません」 / 「NEW GAME をはじめ はじめ はじめ はじめ はじめ はじめ ますか？」
+     NEW : “START START START START START START NEW GAME?” | 「NEW GAME をはじめ はじめ はじめ はじめ はじめ はじめ ますか？」
+  [31] AL: bug bug
+       ZH: 
+     OLD :  | 
+     NEW : Hope scatters ruthlessly and descends as an angel | 希望は血も涙もなくばら撒かれ 天使となって舞い降りる
+  [32] AL: Mii Phina Colista Eivena Ofa Bis Lazz
+       ZH: 我们要求这一条命重开
+     OLD : This is a serious bug, A crucial bug / We demand this life to be withdrawn | これは深刻なバグ すごく致命的なバグ / 私たちはこの命の撤回を求めます
+     NEW : This is a serious bug, A crucial bug / We demand this life to be withdrawn | これは深刻なバグ すごく致命的なバグ / 私たちはこの命の撤回を求める
+====================================================================================================
+### アーカーシャの碑文   (2 changed rows)
+  [ 3] AL: Foly Mii Harmiy Xia o Nai Loqcka Opl
+       ZH: “没关系，应该不远的！
+     OLD :  | “大丈夫、そう遠くないはずだよ！ アーカーシャまでもうちょっと"
+     NEW :  | “大丈夫、そう遠くないはずだよ！
+  [ 4] AL: Ticca Quente Elie Akasya
+       ZH: 距离阿卡莎还有一点了”
+     OLD :  | “大丈夫、そう遠くないはずだよ！ アーカーシャまでもうちょっと"
+     NEW :  | アーカーシャまでもうちょっと"
+====================================================================================================
+### エリシアンズ・オールドマンズ(Elysion's Old Mans)   (6 changed rows)
+  [ 8] AL: Will a Shellarm Fiolaza a Herches
+       ZH: 心跳及圣殿， 花束与心脏
+     OLD : Heartbeat and Holy Temple, Bouquet and Heart / Ancient Elevator, Forgotten Stuff, The cried number, the disheartened number | 鼓動と神殿 花束と心臓 / 古代のエレベーター 泣いた数 挫けた数
+     NEW : Heartbeat and Holy Temple, Bouquet and Heart | 鼓動と神殿 花束と心臓
+  [ 9] AL: Arupe Elled Nols end ol Kllea end ol Sjiyupe
+       ZH: 古老的电梯，忘却的事情，哭泣受挫的日子
+     OLD : Heartbeat and Holy Temple, Bouquet and Heart / Ancient Elevator, Forgotten Stuff, The cried number, the disheartened number | 鼓動と神殿 花束と心臓 / 古代のエレベーター 泣いた数 挫けた数
+     NEW : Ancient Elevator, Forgotten Stuff, The cried number, the disheartened number | 古代のエレベーター 泣いた数 挫けた数
+  [22] AL: Capite Capite Taz Capite Scteus
+       ZH: 待首都 首都 首都的卫兵入睡后
+     OLD : Capital’s Capital’s Capital’s guardian, after they sleep / Exit Exit Exit, I’ll bring you there | 帝都の 帝都の 帝都の 護り神が眠ったら / 出口まで 出口まで 出口まで 送っていくよ
+     NEW : Capital’s Capital’s Capital’s guardian, after they sleep | 帝都の 帝都の 帝都の 護り神が眠ったら
+  [23] AL: Sween Lishe Senju Elie Finza
+       ZH: 逃离的出口， 我会带你到那里
+     OLD : Capital’s Capital’s Capital’s guardian, after they sleep / Exit Exit Exit, I’ll bring you there | 帝都の 帝都の 帝都の 護り神が眠ったら / 出口まで 出口まで 出口まで 送っていくよ
+     NEW : Exit Exit Exit, I’ ll bring you there | 出口まで 出口まで 出口まで 送っていくよ
+  [26] AL: Capite Capite Taz Capite Scteus
+       ZH: 待首都 首都 首都的卫兵入睡后
+     OLD : Capital’s Capital’s Capital’s guardian, after they sleep / Exit Exit Exit, I’ll bring you there | 帝都の 帝都の 帝都の 護り神が眠ったら / 出口まで 出口まで 出口まで 送っていくよ
+     NEW : Capital’s Capital’s Capital’s guardian, after they sleep | 帝都の 帝都の 帝都の 護り神が眠ったら
+  [27] AL: Sween Lishe Senju Elie Finza
+       ZH: 逃离的出口， 我会带你到那里
+     OLD : Capital’s Capital’s Capital’s guardian, after they sleep / Exit Exit Exit, I’ll bring you there | 帝都の 帝都の 帝都の 護り神が眠ったら / 出口まで 出口まで 出口まで 送っていくよ
+     NEW : Exit Exit Exit, I’ll bring you there | 出口まで 出口まで 出口まで 送っていくよ
+====================================================================================================
+### バッドエンド·シンドローム(Bad End Syndrome)   (3 changed rows)
+  [16] AL: La La La
+       ZH: 
+     OLD :  | "La La La まほろばは此処にある いつだって"
+     NEW :  | "La La La
+  [17] AL: La La La Pllardki Oli Aihel imm Bis Baly
+       ZH: "La La La, 美好世界一直在此"
+     OLD :  | "La La La まほろばは此処にある いつだって"
+     NEW :  | まほろばは此処にある いつだって"
+  [18] AL: La La La
+       ZH: 
+     OLD :  | "La La La まほろばは此処にある いつだって"
+     NEW :  | "La La La 終焉の鐘 星の上を征く 旅人たちよ"
+====================================================================================================
+### フライブルクとエンドロウル(Flyburg and the Endroll)   (10 changed rows)
+  [ 3] AL: a Ame ou Bis Sartin rin
+       ZH: 在破晓时刻诞生的孩子
+     OLD : Children born at the break of day / The town touched on magical square hatches in the course of time and carries them two | 暁の元に生まれた子ども / やがて魔方陣に触れた街は孵化をして 二人を運ぶ
+     NEW : Children born at the break of day | 暁の元に生まれた子ども
+  [ 4] AL: end Fel Swiina Fei ou Mage a Rin Asia end Stea Dis
+       ZH: 最终触及魔方阵的街道孵化出来，运送了他们俩
+     OLD : Children born at the break of day / The town touched on magical square hatches in the course of time and carries them two | 暁の元に生まれた子ども / やがて魔方陣に触れた街は孵化をして 二人を運ぶ
+     NEW : The town touched on magical square hatches in the course of time and carries them two | やがて魔方陣に触れた街は孵化をして 二人を運ぶ
+  [ 6] AL: Telly Crai Oul Labb end Terra ou Arla
+       ZH: 大大的宝箱和纯白的特拉
+     OLD : I leave you a big treasure box, completely white terra, and never-ending freedom | 大きな宝箱を 真っ白なterra を そして終りのない自由を君に預けよう
+     NEW : I leave you a big treasure box, completely white terra, | 大きな宝箱を 真っ白なterra を
+  [ 7] AL: end Mii Telly Crai Nai ou Finz Hait end Finz Hait
+       ZH: 以及无尽的自由，都托付给你吧
+     OLD : I leave you a big treasure box, completely white terra, and never-ending freedom | 大きな宝箱を 真っ白なterra を そして終りのない自由を君に預けよう
+     NEW : and never-ending freedom | そして終りのない自由を君に預けよう
+  [ 8] AL: Haol Sanz Miz Elza end Jac Verry Miz Lusia
+       ZH: 触碰的手变成羽翼，干枯的话语变成光芒
+     OLD : Touched hands become wing | 触れた手は 羽になって
+     NEW : Touched hands become wing / Dry words become light | 触れた手は 羽になって / 渇いた言葉は 光になる
+  [10] AL: a Brait Anie Miz Laila Ritto Aka Goss Pray
+       ZH: 绽放的气息化作鸟儿，飞沫送出祝福
+     OLD : Breath become birds | 咲いた息吹は 鳥になって
+     NEW : Breath become birds / Airborne droplets celebrate | 咲いた息吹は 鳥になって / 放った飛沫が 祝福をする
+  [13] AL: Telly Crai Oul Labb end Terra ou Arla
+       ZH: 大大的宝箱和纯白的特拉
+     OLD : I leave you a big treasure box, completely white terra, and never-ending freedom | 大きな宝箱を 真っ白なterra を そして終りのない自由を君に預けよう
+     NEW : I leave you a big treasure box, completely white terra, | 大きな宝箱を 真っ白なterra を
+  [14] AL: end Mii Telly Crai Nai ou Finz Hait end Finz Hait
+       ZH: 以及无尽的自由，都托付给你吧
+     OLD : I leave you a big treasure box, completely white terra, and never-ending freedom | 大きな宝箱を 真っ白なterra を そして終りのない自由を君に預けよう
+     NEW : and never-ending freedom | そして終りのない自由を君に預けよう
+  [15] AL: Haol Sanz Miz Elza end Jac Verry Miz Lusia
+       ZH: 触碰的手变成羽翼，干枯的话语变成光芒
+     OLD : Touched hands become wing | 触れた手は 羽になって
+     NEW : Touched hands become wing / Dry words become light | 触れた手は 羽になって / 渇いた言葉は 光になる
+  [17] AL: a Brait Anie Miz Laila Ritto Aka Goss Pray
+       ZH: 绽放的气息化作鸟儿，飞沫送出祝福
+     OLD : Breath become birds | 咲いた息吹は 鳥になって
+     NEW : Breath become birds / Airborne droplets celebrate | 咲いた息吹は 鳥になって / 放った飛沫が 祝福をする
+====================================================================================================
+### ワンダーシャッフェンの法則   (6 changed rows)
+  [ 3] AL: Quondlea Vala a Alter Fouzanoa
+       ZH: 映在眼前的只有城墙和怪物
+     OLD :  | 目の前にあるのは 城壁と魔物と / 取って付けたような時間だけ
+     NEW :  | 目の前にあるのは 城壁と魔物と
+  [ 4] AL: Zeit Mols Aihel Pllia Ran
+       ZH: 以及不自然的时间
+     OLD :  | 目の前にあるのは 城壁と魔物と / 取って付けたような時間だけ
+     NEW :  | 取って付けたような時間だけ
+  [ 7] AL: Elaind Ollenes Kulu Nai
+       ZH: 没错，好奇心
+     OLD :  | そう きっと好奇心から / 逃げることなんてできない
+     NEW :  | そう きっと好奇心から
+  [ 8] AL: Kerla folme Retuela Herz Foul
+       ZH: 是无法摆脱的
+     OLD :  | そう きっと好奇心から / 逃げることなんてできない
+     NEW :  | 逃げることなんてできない
+  [ 9] AL: Poet Nai Harmiy Ra
+       ZH: 牵线木偶什么的
+     OLD :  | マリオネットだなんて / とんでもない！
+     NEW :  | マリオネットだなんて
+  [10] AL: Craill o Mariotoriet
+       ZH: 别开玩笑了！
+     OLD :  | マリオネットだなんて / とんでもない！
+     NEW :  | とんでもない！
+====================================================================================================
+### 九番目の迷路(Maze No.9)   (12 changed rows)
+  [11] AL: Ijsya ou Nita imm Loqcka Graid
+       ZH: 无论是遥远夏季的香气
+     OLD : Distant summer scent, hearts that still grow apart | 遠い夏の香りも すれ違ったままの心も
+     NEW : Distant summer scent, | 遠い夏の香りも
+  [12] AL: Herz ou Briss a Geeg
+       ZH: 还是逐渐疏远的心
+     OLD : Distant summer scent, hearts that still grow apart | 遠い夏の香りも すれ違ったままの心も
+     NEW : hearts that still grow apart | すれ違ったままの心も
+  [13] AL: Ame ou Sar Minelu Nai Ieha Way
+       ZH: 都是源自于同一个星球，不需要答案
+     OLD : All of them are born from the same star / We don’t need answer, a piece of the world doesn’t have some reasons | 同じ星の子 答えなんて要らない 世界の欠片に理由なんてないよ
+     NEW : All of them are born from the same | 同じ星の子
+  [14] AL: Esp ou Shelista Nai Dilem Arsia
+       ZH: 世界的碎片没有理由
+     OLD : All of them are born from the same star / We don’t need answer, a piece of the world doesn’t have some reasons | 同じ星の子 答えなんて要らない 世界の欠片に理由なんてないよ
+     NEW : star / We don’t need answer, a piece of the world doesn’t have some reasons | 答えなんて要らない 世界の欠片に理由なんてないよ
+  [15] AL: Elize imm Krey Phier Holo Miis imm Aim
+       ZH: 所以至少在你迷失自我的时候
+     OLD : So the least you excuse yourself with smiling when you lose your way | だからせめて 迷った時 自分くらいは 笑って赦してあげてね
+     NEW : So the least you excuse yourself with | だからせめて 迷った時 自分くらいは
+  [16] AL: Taz Madie Ofa Ellif Slay
+       ZH: 请微笑着原谅自己吧
+     OLD : So the least you excuse yourself with smiling when you lose your way | だからせめて 迷った時 自分くらいは 笑って赦してあげてね
+     NEW : smiling when you lose your way | 笑って赦してあげてね
+  [21] AL: Finz ou Vinelo Mii ou Harmiy Loog
+       ZH: 无论是长久冬季的终点
+     OLD : End of long winter, hearts that aren’t linked by fate | 長かった冬の終わりも 出逢うことのなかった心も
+     NEW : End of long winter, | 長かった冬の終わりも
+  [22] AL: Herz Yiele Awte
+       ZH: 还是从未相连的心
+     OLD : End of long winter, hearts that aren’t linked by fate | 長かった冬の終わりも 出逢うことのなかった心も
+     NEW : hearts that aren’t linked by fate | 出逢うことのなかった心も
+  [23] AL: Ame ou Sar Minelu Nai Ieha Way
+       ZH: 都是源自于同一个星球，不需要答案
+     OLD : All of them are born from the same star / We don’t need answer, a piece of the world doesn’t have some reasons | 同じ星の子 答えなんて要らない 世界の欠片に理由なんてないよ
+     NEW : All of them are born from the same | 同じ星の子
+  [24] AL: Esp ou Shelista Nai Dilem Arsia
+       ZH: 世界的碎片没有理由
+     OLD : All of them are born from the same star / We don’t need answer, a piece of the world doesn’t have some reasons | 同じ星の子 答えなんて要らない 世界の欠片に理由なんてないよ
+     NEW : star / We don’t need answer, a piece of the world doesn’t have some reasons | 答えなんて要らない 世界の欠片に理由なんてないよ
+  [25] AL: Elize imm Krey Phier Holo Miis imm Aim
+       ZH: 所以至少在你迷失自我的时候
+     OLD : So the least you excuse yourself with smiling when you lose your way | だからせめて 迷った時 自分くらいは 笑って赦してあげてね
+     NEW : So the least you excuse yourself with | だからせめて 迷った時 自分くらいは
+  [26] AL: Taz Madie Ofa Ellif Slay
+       ZH: 请微笑着原谅自己吧
+     OLD : So the least you excuse yourself with smiling when you lose your way | だからせめて 迷った時 自分くらいは 笑って赦してあげてね
+     NEW : smiling when you lose your way | 笑って赦してあげてね
+====================================================================================================
+### 図鑑(Zukan)   (1 changed rows)
+  [14] AL: Mane Mane Mane
+       ZH: 总有一天，总有一天，总有一天……
+     OLD : Someday It may forgive me to think of something | 何かを想う事を いつか 赦してくれるのかもしれない
+     NEW : Someday Someday Someday… | いつか いつか いつか…
+====================================================================================================
+### 地平線のアクアツォーネ   (19 changed rows)
+  [ 0] AL: Retuel Sai end Sai ou Mono
+       ZH: 奇异之昼 无色之昼
+     OLD :  | 奇矯の朝 色のない朝
+     NEW :  | 奇矯な朝 色のない朝
+  [ 2] AL: Mii Seiren Aria end
+       ZH: 低吟的咏叹调
+     OLD :  | 囁いたアリアは 風に乗って行ってしまった
+     NEW :  | 囁いたアリアは
+  [ 3] AL: Ramiy Sar Hyuz
+       ZH: 乘风飘逝
+     OLD :  | 囁いたアリアは 風に乗って行ってしまった
+     NEW :  | 風に乗って行ってしまった
+  [ 9] AL: end Karna Awter Noll Awter Noll tie Mill Haymate
+       ZH: 为了日后能在故乡重逢
+     OLD :  | いつかまた 故郷で会えるように
+     NEW :  | いつかまた
+  [10] AL: Ah Awter Noll tie Haymate Mane
+       ZH: 在故乡重逢
+     OLD :  | いつかまた 故郷で会えるように
+     NEW :  | 故郷で会えるように
+  [11] AL: Herz Aihel Bis Koll end
+       ZH: 心还在此
+     OLD :  | 心はまだここにある 私はずっとここにいる
+     NEW :  | 心はまだここにある
+  [12] AL: Mii Aihel a Bis ah Lootaria
+       ZH: 而我一直在此
+     OLD :  | 心はまだここにある 私はずっとここにいる
+     NEW :  | 私はずっとここにいる
+  [19] AL: la la la Cliid end Aola Cliid end
+       ZH: 倾注 倾注如瀑
+     OLD :  | 降り注げ / 神明なる星座を砕いて 殊勝なる魂を宿せ
+     NEW :  | 降り注げ
+  [20] AL: Razzle Syena la la Minelu a Visc Sole
+       ZH: 击碎神化之星座 宿于殊卓之英魂
+     OLD :  | 降り注げ / 神明なる星座を砕いて 殊勝なる魂を宿せ
+     NEW :  | 神明なる星座を砕いて 殊勝なる魂を宿せ
+  [21] AL: Cliid end Aola Cliid end
+       ZH: 倾注如瀑
+     OLD :  | 降り注げ / 神明なる星座を砕いて 殊勝なる魂を宿せ
+     NEW :  | 
+  [22] AL: Razzle Syena la la Minelu a Visc Sole
+       ZH: 击碎神化之星座 宿于殊卓之英魂
+     OLD :  | 降り注げ / 神明なる星座を砕いて 殊勝なる魂を宿せ
+     NEW :  | 
+  [23] AL: Cliid end Aola Cliid end
+       ZH: 倾注如瀑
+     OLD :  | 降り注げ / 神明なる星座を砕いて 殊勝なる魂を宿せ
+     NEW :  | 
+  [24] AL: Razzle Syena la la Minelu a Visc Sole
+       ZH: 击碎神化之星座 宿于殊卓之英魂
+     OLD :  | 降り注げ / 神明なる星座を砕いて 殊勝なる魂を宿せ
+     NEW :  | 
+  [25] AL: Cliid end Aola Cliid end
+       ZH: 倾注如瀑
+     OLD :  | 降り注げ / 神明なる星座を砕いて 殊勝なる魂を宿せ
+     NEW :  | 
+  [26] AL: Razzle Syena la la la la
+       ZH: 击碎神化之星座
+     OLD :  | 降り注げ / 神明なる星座を砕いて 殊勝なる魂を宿せ
+     NEW :  | 
+  [27] AL: Mii Pray ou Liin end Herz end
+       ZH: 我，雨音与心音
+     OLD :  | 私 無限の雨音 心臓の音
+     NEW :  | 私 無限の雨音
+  [28] AL: a Pray ou Liin Herz end
+       ZH: 无尽雨音与心音
+     OLD :  | 私 無限の雨音 心臓の音
+     NEW :  | 心臓の音
+  [32] AL: Herz Aihel Bis Koll end
+       ZH: 心还在此
+     OLD :  | 心はまだここにある 私はずっとここにいる
+     NEW :  | 心はまだここにある
+  [33] AL: Mii Aihel a Bis ah Lootaria
+       ZH: 而我一直在此
+     OLD :  | 心はまだここにある 私はずっとここにいる
+     NEW :  | 私はずっとここにいる
+====================================================================================================
+### 氷の檻のトリエスタ   (3 changed rows)
+  [ 1] AL: Saus Cees Well end Mii a Swiina
+       ZH: 千年的冰栅加我于身
+     OLD :  | 千年の氷の格子は私に纏わり付いて / 心まで凍てついてしまった
+     NEW :  | 千年の氷の格子は私に纏わり付いて
+  [ 2] AL: end Cees Heart
+       ZH: 连心脏亦被冻结
+     OLD :  | 千年の氷の格子は私に纏わり付いて / 心まで凍てついてしまった
+     NEW :  | 心まで凍てついてしまった
+  [ 4] AL: ah Laiz Ranya Karna Mii
+       ZH: 呜呼，让我见一见未来
+     OLD :  | 嗚呼 太陽を見せておくれ
+     NEW :  | 嗚呼 未来を見せておくれ
+====================================================================================================
+### 空想モダニズム -Alice Schach remix-   (6 changed rows)
+  [ 0] AL: Vleid Fol Twiik Seia end Swiina Piala Syarfi
+       ZH: 脏兮兮的地板，雪白礼服的那个孩子
+     OLD :  | 薄汚れた床 真っ白なドレスのあの子 / 世界はいつも私を嘲笑う
+     NEW :  | 薄汚れた床 真っ白なドレスのあの子
+  [ 1] AL: Shelista Skelat Mii Baly
+       ZH: 世界总是嘲笑我
+     OLD :  | 薄汚れた床 真っ白なドレスのあの子 / 世界はいつも私を嘲笑う
+     NEW :  | 世界はいつも私を嘲笑う
+  [ 2] AL: Aa Wilenq Flutenoa Ailent
+       ZH: 啊，多么无聊的每一天
+     OLD :  | ああ なんてつまらない毎日 / そんな時 木箱の中 横たわるあなたを見つけたの
+     NEW :  | ああ なんてつまらない毎日
+  [ 3] AL: Oltia Taz ol Faet Cloud end Digleema imm Brai ou Sharla Daltu
+       ZH: 就在这时，我在木箱中发现了躺在那里的你
+     OLD :  | ああ なんてつまらない毎日 / そんな時 木箱の中 横たわるあなたを見つけたの
+     NEW :  | そんな時 木箱の中 横たわるあなたを見つけたの
+  [ 4] AL: La la la
+       ZH: 
+     OLD :  | La la la...
+     NEW :  | La la
+  [ 5] AL: La la la
+       ZH: La la la...
+     OLD :  | La la la...
+     NEW :  | la...
+====================================================================================================
+### 𝕆(O)   (2 changed rows)
+  [28] AL: Klleat Fimoa iy Olis Eita sii
+       ZH: 你的哭脸太可爱了
+     OLD : Your crying face is so adorable / Don't worry, you'll get used to it | 泣いている顔はとても可愛いね / そのうちきっと慣れてくるから大丈夫
+     NEW : Your crying face is so adorable | 泣いている顔はとても可愛いね
+  [29] AL: Foly Elize Vell Mins Lwei Foul
+       ZH: 别担心，你会习惯的
+     OLD : Your crying face is so adorable / Don't worry, you'll get used to it | 泣いている顔はとても可愛いね / そのうちきっと慣れてくるから大丈夫
+     NEW : Don't worry, you'll get used to it | そのうちきっと慣れてくるから大丈夫

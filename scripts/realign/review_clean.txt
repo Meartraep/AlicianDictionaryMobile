@@ -1,0 +1,320 @@
+@@ A Little Servant | S07 | K=2
+   app0: Gout Hellm o Ola Poul ail || 然而幻想中根本空无一物
+   app1: Ignai Canvie Imeila Prous Amalait || 即使我多么努力的祈祷也无用
+   EN: 0|But 1|there 2|is 3|nothing 4|in 5|illusion 6|anyway // 7|Despite 8|how 9|strong 10|I 11|wish //
+   JA: 0|けれど 1|幻は 2|結局 3|がらんどう // 4|どれほど 5|強く 6|強く 7|祈ったところでね //
+
+@@ A Little Servant | S17 | K=2
+   app0: Yiela Prous il Kolto ou Tehomea || 在深渊底部不断祈祷着
+   app1: Lef Feikeed end Piikle Xaite Herches || 就像刺穿那心脏
+   EN: 0|Pray 1|in 2|the 3|bottom 4|depths, // 5|as 6|if 7|you 8|stick 9|that 10|heart //
+   JA: 0|深淵の底で 1|祈り賜え // 2|かの心臓を 3|突き刺すように //
+
+@@ A Little Servant | S18 | K=2
+   app0: Yiela Sween Poetolt Heipe Sole ou Venesene || 在幽灵的怀抱中不断沉睡着
+   app1: Lef Yien Leimy folme Vins Hellm imm Lootaria || 就像逃离了永恒的梦魇
+   EN: 0|Sleep 1|with 2|mystical 3|cluster, // 4|as 5|if 6|you 7|escape 8|from 9|eternal 10|nightmare //
+   JA: 0|幽魂を抱いて 1|眠り賜え // 2|永遠の悪夢から 3|解放されるように //
+
+@@ ALQ | S06 | K=2
+   app0: end Mii Caty Cate || 旅人迈步前行
+   app1: end Lar ou Ail Sartain || 向天地万象迎来黎明
+   EN: <none>
+   JA: 0|旅人は步みゆく // 1|天地万象へ黎明を //
+
+@@ ALQ | S07 | K=2
+   app0: ah end Mii Caty Cate || 旅人迈步前行
+   app1: end Mii Bis Haol ou Ail || 在森罗万象的手掌心
+   EN: <none>
+   JA: 0|旅人は步みゆく // 1|森羅万象の手のひらを //
+
+@@ ALQ | S17 | K=2
+   app0: end Mii Caty Cate || 旅人迈步前行
+   app1: end Lar ou Ail Sartain || 向天地万象迎来黎明
+   EN: <none>
+   JA: 0|旅人は步みゆく // 1|天地万象へ黎明を //
+
+@@ ALQ | S18 | K=2
+   app0: ah end Mii Caty Cate || 旅人迈步前行
+   app1: end Mii Bis Haol ou Ail || 在森罗万象的手掌心
+   EN: <none>
+   JA: 0|旅人は步みゆく // 1|森羅万象の手のひらを //
+
+@@ ALQ | S19 | K=2
+   app0: Mii Cate Elie Skie Finient || 直至跨越地平
+   app1: Mii Cate Elie Skie Finient || 直至跨越地平
+   EN: <none>
+   JA: 0|地平線の向こうまで // 1|地平線の向こうまで //
+
+@@ Alice Music | S05 | K=2
+   app0: Disverry Ail Swormin || 随着魔法咒文 纷扬起飞吧
+   app1: Haol Staps Termz Floul end || 拍拍手吧
+   EN: 0|By 1|magical 2|words, 3|leave 4|on 5|each 6|trip // 7|Clap 8|our 9|hands //
+   JA: 0|さぁ魔法の呪文で 1|バラバラになって飛んでいけ // 2|手をたたこう //
+
+@@ Chocolate Missile | S02 | K=2
+   app0: Missile end Cliid a Geeg || 在倾泻而下的导弹之中
+   app1: Vell Sctution Cloud ieq Falarle folme Erel ou Bis Ildrem || （我）将成为雨伞来守护你免于这个文明的崩坏。
+   EN: 0|The 1|downpour 2|of 3|missiles, 4|I’m 5|an 6|umbrella // 7|I 8|will 9|protect 10|you 11|from 12|the 13|calamity 14|of 15|this 16|civilization //
+   JA: 0|降り注ぐミサイル // 1|私は 2|傘此の文明の勿怪から 3|あなたをお護りします //
+
+@@ Cԋιʅԃɾҽɳ ιɳ ƚԋҽ Aʂԋҽʂ(Children in the Ashes) | S15 | K=2
+   app0: Elize Shelista Fur a Leimy Zill Baly || 这个世界总是把我们抛弃
+   app1: Kueip Gete Shelista Ord Bis Haol Dou || 所以我们要用我们的双手创造一个全新的世界
+   EN: 0|The 1|world 2|has 3|always 4|abandoned 5|us, // 6|so 7|we’re 8|going 9|to 10|make 11|a 12|new 13|world 14|with 15|our 16|own 17|hands //
+   JA: 0|世界はいつも 1|僕らを見放すから // 2|この手で 3|新しい世界を作るんだ //
+
+@@ Cԋιʅԃɾҽɳ ιɳ ƚԋҽ Aʂԋҽʂ(Children in the Ashes) | S16 | K=6
+   app0: Crai Nai Anisia Bai sii || （我们不会再寂寞了）
+   app1: Hiele Lishe Klattle Haol || （来握住我们的手吧）
+   app2: Crai iy Nai Drone folme Aolu || （从今天开始，你将不再是孤单一人）
+   app3: Crai Nai Anisia Bai sii || （我们不会再寂寞了）
+   app4: Hiele Lishe Klattle Haol || （来握住我们的手吧）
+   app5: Crai iy Nai Drone folme Aolu || （从今天开始，你将不再是孤单一人）
+   EN: 0|“We’re 1|not 2|lonely 3|anymore” // 4|“Let’s 5|hold 6|our 7|hands” // 8|“You’re 9|not 10|alone 11|from 12|today 13|on” // 14|“We’re 15|not 16|lonely 17|anymore” // 18|“Let’s 19|hold 20|our 21|hands” // 22|“You’re 23|not 24|alone 25|from 26|today 27|on” //
+   JA: 0|‟もう寂しくないね” // 1|‟ほら手を繋ごう” // 2|‟今日から 3|君は独りじゃない” // 4|‟もう寂しくないね” // 5|‟ほら手を繋ごう” // 6|‟今日から 7|君は独りじゃない” //
+
+@@ End of Mythology | S01 | K=2
+   app0: Imm Finz ou Opsa Story Fie ol Inay Drone Eem Shalm || 在故事的终幕，他独自一人等待着
+   app1: Ol Kulu Nai Ranya a Leim ou Xia Story || 他感到伤心，因为直到最后都没能看到故事的结局
+   EN: 0|It 1|is 2|sad // 3|In 4|the 5|end, 6|we 7|never 8|got 9|to 10|see 11|the 12|rest 13|of 14|the 15|story //
+   JA: 0|切ないね // 1|結局 2|その話の続きは見られなかった //
+
+@@ EИDФЯPHIИ(Endorphin) | S07 | K=2
+   app0: Elize Tella a Belqua Ilis Fas || 再倒入用来涂上绚丽色彩的彩虹
+   app1: Hiele Phim Pleesa Hellsijma || 来吧，让我看看究竟是什么样的幻觉
+   EN: 0|and 1|pouring 2|a 3|rainbow 4|into 5|it, 6|so 7|now, // 8|show 9|me 10|an 11|illusion //
+   JA: 0|虹色を流し込むから // 1|ねえ 2|幻を見せて //
+
+@@ FEHLT | S03 | K=3
+   app0: Eist il Slay lar Falt Yiend Clooshe Mill Yiend Teejt || 而返回的大门早已关闭
+   app1: imm Brai ou Giinia Velidi Milliy Pliphalaineqls || 我们只是被困在金色牢笼中的被实验者们
+   app2: Pliphalaineqls Pliphalaineqls || 被实验者们，被实验者们
+   EN: 0|We 1|are 2|trapped 3|in 4|golden 5|cages, 6|the 7|human 8|subjects // 9|human 10|subjects // 11|human 12|subjects //
+   JA: 0|僕たちは 1|金色の檻に閉じ込められた 2|被験者たち // 3|被験者たち // 4|被験者たち //
+
+@@ FEHLT | S06 | K=2
+   app0: En Mii Likti Selanya a Geeg imm Hellm end || 然后，在这无法醒来的梦中
+   app1: Nai Dilem Shiita imm Lootaria Lef Mariotoriet || 我只能如同傀儡一般不断徘徊
+   EN: 0|And, 1|in 2|an 3|unwakeable 4|dream // 5|I’m 6|just 7|wandering 8|like 9|a 10|puppet //
+   JA: 0|そして 1|今もずっと覚めない夢を // 2|ただ 3|傀儡のように 4|彷徨ってるんだ //
+
+@@ FEHLT | S07 | K=2
+   app0: Antaka il Pliphasoil en || 潜入试管中，
+   app1: Wely Dooomlait Wely Dooomlait || 深深地，深深地下沉
+   EN: 0|Dive 1|into 2|a 3|test 4|tube, // 5|Sink 6|deeply 7|and 8|deeply //
+   JA: 0|試験管に潜って // 1|深く 2|深く 3|沈む //
+
+@@ Friend | S14 | K=2
+   app0: Oulayz Zote a Drone Swiina || 诸多季节 （我一直孤身一人）
+   app1: Oulayz Minai || 诸多夜空
+   EN: <none>
+   JA: 0|"ずっと孤独に包まれていた" // 1|たくさんの季節と夜空が //
+
+@@ Frozen Tree | S28 | K=3
+   app0: Rook Haol ou Di end || 松开双手
+   app1: Loog Slay a Ley Lar Crai end Baly || 你面前尚有漫漫长路
+   app2: Lar Crai end Baly end || 无论何时
+   EN: 0|The 1|hand 2|unclasped, // 3|The 4|long 5|way 6|leads 7|you // 8|anytime //
+   JA: 0|ほどいた手 // 1|君の前には長い道が続いている // 2|いつだって //
+
+@@ Frozen Tree | S31 | K=5
+   app0: Rook Haol ou Di end || 松开双手
+   app1: Loog Slay a Ley Lar Crai end Baly || 你面前尚有漫漫长路
+   app2: Lar Crai end Baly end || 无论何时
+   app3: Ley Lar Crai || 为了你
+   app4: Ley Lar Crai || 为了你
+   EN: 0|The 1|hand 2|unclasped, // 3|The 4|long 5|way 6|leads 7|you // 8|anytime // 9|For 10|you // 11|For 12|you //
+   JA: 0|はなした手 // 1|君の前には長い道が続いている // 2|いつだって // 3|君のために // 4|君のために //
+
+@@ Give Me a Nightmare | S12 | K=2
+   app0: Poutie Ani Emsa Trane Eala a Tollm Arch Fenklu || 伴随着越来越多的泪水从脸庞上流下，
+   app1: Vell Idem Entilk Ani Karna || 你将会变得更加坚强
+   EN: 0|As 1|more 2|tears 3|run 4|down 5|your 6|face, // 7|the 8|stronger 9|you 10|will 11|be //
+   JA: 0|涙がひと粒 1|頬を伝えば // 2|またひとつ強くなれる //
+
+@@ HOLIC | S15 | K=2
+   app0: Hiele Apka Mii ol Plarli Fouz Ola Stache || 看吧，从抽屉中拉出来的绳索
+   app1: Verde Apka Poetolt Drea Sto || 牵引椅子的歪曲的绳索
+   EN: 0|See, 1|a 2|rope 3|pulled 4|out 5|of 6|a 7|drawer // 8|A 9|rope 10|distorted 11|by 12|dragging 13|a 14|chair //
+   JA: 0|ほら 1|ドロワーから 2|引っ張り出した 3|ロープ // 4|椅子を引きずって 5|歪曲したロープ //
+
+@@ Maharajah | S05 | K=2
+   app0: Hal a Story Oracle end || “到时间讲个童话故事了”
+   app1: Ani Brait Door len Razzle em Carafe || 开启的门，摔落在地的玻璃瓶
+   EN: 0|“Time 1|to 2|tell 3|a 4|fairy 5|tale” // 6|An 7|open 8|door, 9|A 10|carafe 11|that 12|falls 13|and 14|breaks //
+   JA: 0|“御伽話をしよう” // 1|開いたままのドア落ちて割れるカラフェ //
+
+@@ Maharajah | S06 | K=2
+   app0: Ah Mail Shiita end a Fete || 身披宿命，享受你的命运
+   app1: ah Cate Aola Crai Lamiy end Shelista Hal a Olkei Mii || 你存活至今，必定是世界上最正确的
+   EN: 0|Clad 1|in 2|the 3|fate, 4|Glorify 5|your 6|destiny // 7|You’re 8|just 9|living 10|now, 11|You’re 12|the 13|most 14|correct 15|one 16|in 17|this 18|world //
+   JA: 0|天命を纏い 1|運命を謳歌せよ // 2|君は今 3|生きている 4|そして 5|世界で君が一番正しいんだ //
+
+@@ Maharajah | S08 | K=2
+   app0: Bllink Asta Ya Historia ou Leat ah Coffee || 闪电的光芒，未尽的历史，咖啡留在桌子上
+   app1: Dist far Age Winde Bis lan la Nouche ou Crai Bai Dis Harie || “你醒了吗？” 这是你的夜晚世界,你忘了吗
+   EN: 0|Blinking 1|light, 2|Unfinished 3|History, 4|Untouched 5|Coffee // 6|“Did 7|you 8|wake 9|up?” //
+   JA: 0|明滅する電気 1|書きかけの歴史 2|置いたままのコーヒー // 3|“目は覚めたかい” //
+
+@@ Maharajah | S10 | K=2
+   app0: Leste Hal a Story Oracle end || “到时间讲个童话故事了”
+   app1: Ani Brait Door end Razzle Carafe || 开启的门，摔落在地的玻璃瓶
+   EN: 0|“Time 1|to 2|tell 3|a 4|fairy 5|tale” // 6|An 7|open 8|door, 9|A 10|carafe 11|that 12|fell 13|and 14|broke //
+   JA: 0|“御伽話をしよう” // 1|開いたままのドア 2|落として割れたカラフェ //
+
+@@ Maharajah | S12 | K=2
+   app0: Ah Mail Shiita end a Fete || 身披宿命，享受你的命运
+   app1: ah Cate Aola Crai Lamiy end Shelista Hal a Olkei Mii || 你存活至今，必定是世界上最正确的
+   EN: 0|Clad 1|in 2|the 3|fate, 4|Glorify 5|your 6|destiny // 7|You’re 8|just 9|living 10|now, 11|You’re 12|the 13|most 14|correct 15|one 16|in 17|this 18|world //
+   JA: 0|天命を纏い 1|運命を謳歌せよ // 2|君は今 3|生きている 4|そして 5|世界で君が一番正しいんだ //
+
+@@ Maharajah | S14 | K=2
+   app0: Bllink Asta Ya Historia ou Leat ah Coffee || 闪电的光芒，未尽的历史，咖啡留在桌子上
+   app1: Dist far Age Winde Bis lan la || “你醒了吗？” 这是你的夜晚世界”
+   EN: 0|Blinking 1|light, 2|Unfinished 3|History, 4|Untouched 5|Coffee // 6|“Did 7|you 8|wake 9|up?” //
+   JA: 0|明滅する電気 1|書きかけの歴史 2|置いたままのコーヒー // 3|“目は覚めたかい” //
+
+@@ Popcorns Falling from Heaven | S08 | K=2
+   app0: Shelista ou Finz Yutul ol iy Doraid || 在终焉之日，世界一片漆黑
+   app1: Seedat weig Nai Aihel Amblu || 也丝毫没有什么指引可言
+   EN: 0|On 1|the 2|very 3|last 4|day, 5|the 6|world 7|was 8|pitch 9|black // 10|There 11|was 12|no 13|guidance 14|whatsoever //
+   JA: 0|終わりの日 1|世界は真っ暗で // 2|導きなんてどこにもなかった //
+
+@@ Under Wonder Nights | S08 | K=2
+   app0: Kolto o Meele Fiola ou Finz Ween || 底部为海，终焉的花朵
+   app1: Mii Nai Dist Crai Foul || 我绝对不会忘记你
+   EN: 0|The 1|bottom 2|is 3|the 4|sea, 5|Flower 6|of 7|the 8|end, // 9|I 10|won’t 11|forget 12|you //
+   JA: 0|底は海 1|終焉の花 // 2|君を忘れない //
+
+@@ Under Wonder Nights | S14 | K=2
+   app0: Kolto o Meele Fiola ou Finz Ween || 底部为海，终焉的花朵
+   app1: Mii Nai Dist Crai Foul || 我绝对不会忘记你
+   EN: 0|The 1|bottom 2|is 3|the 4|sea, 5|Flower 6|of 7|the 8|end, // 9|I 10|won’t 11|forget 12|you //
+   JA: 0|底は海 1|終焉の花 // 2|君を忘れない //
+
+@@ Urxbxrxs | S05 | K=2
+   app0: Mineldari Quop end Acary Seeda Herches ou Minelbli Poutie  || 由默示指引的行星系，恒星的心脏，穿过作为嬉戏的基本粒子的圆轮
+   app1: Kremsa Nache Eidarit iy Mazy ou Guidial Spay end Qtua Loos || 这是一个连任何意义都会嘲笑的，由镜子组成的迷宫
+   EN: 0|Go 1|through 2|the 3|circle 4|of 5|elementary 6|particles 7|at 8|play // 9|We 10|find 11|a 12|labyrinth 13|of 14|mirrors 15|that 16|mocks 17|even 18|every 19|meaning //
+   JA: 0|素粒子の戯れる輪を潜れば // 1|そこは 2|意味すら嘲る 3|合わせ鏡の迷路 //
+
+@@ Urxbxrxs | S18 | K=2
+   app0: Mineldari Quop end Acary Seeda Herches ou Minelbli Poutie  || 由默示指引的行星系，恒星的心脏，穿过作为嬉戏的基本粒子的圆轮
+   app1: Kremsa Nache Eidarit iy Mazy ou Guidial Spay end Qtua Loos || 这是一个连任何意义都会嘲笑的，由镜子组成的迷宫
+   EN: 0|Go 1|through 2|the 3|circle 4|of 5|elementary 6|particles 7|at 8|play // 9|We 10|find 11|a 12|labyrinth 13|of 14|mirrors 15|that 16|mocks 17|even 18|every 19|meaning //
+   JA: 0|素粒子の戯れる輪を潜れば // 1|そこは 2|意味すら嘲る 3|合わせ鏡の迷路 //
+
+@@ Wonder World Sketch | S04 | K=2
+   app0: Loog end Loog Stei Nai Mariju Viin end || 一直追寻的景色
+   app1: Nai Ranya Note || 寻遍不得的事物
+   EN: 0|The 1|view 2|I 3|sought 4|and 5|chased 6|for 7|a 8|long 9|time // 10|That 11|i 12|could 13|never 14|find //
+   JA: 0|ずっとずっと探していた 1|追いかけていた景色 // 2|見つからなかったもの //
+
+@@ Wonder World Sketch | S08 | K=2
+   app0: Talis a Jareic Rig ou Abelu || 将飘扬已久的开绽旗帜
+   app1: Karna Enaq Bis Gent end Stea Laiziin || 再度挥起，树于此处，划出航线
+   EN: 0|Hoist 1|and 2|hold 3|up 4|a 5|frayed 6|flag 7|flowed 8|in 9|ages 10|here // 11|Draw 12|the 13|sea 14|route //
+   JA: 0|長い間靡いていた 1|ほころんだ旗を // 2|もう一度かざして 3|ここに立てて 4|航路を描いて //
+
+@@ Wonder World Sketch | S10 | K=2
+   app0: Loog end Loog Laiz Nai Mariju Viin end || 一直追寻的未来
+   app1: Nai Ranya Note || 失落不见的事物
+   EN: 0|The 1|future 2|I 3|sought 4|and 5|chased 6|for 7|a 8|long 9|time // 10|That 11|i 12|could 13|never 14|find //
+   JA: 0|ずっとずっと探していた 1|追いかけていた未来 // 2|失くしてしまったもの //
+
+@@ i am always wrong | S00 | K=2
+   app0: Bertene Alfloul Zia iy Shellte Apnesia Baly || 我周围的人总是对的
+   app1: Xia iy Kysei Tepistl Wei || 这是明确无误的事实
+   EN: 0|The 1|people 2|around 3|me 4|are 5|always 6|correct // 7|That 8|is 9|the 10|unmistakable 11|truth //
+   JA: 0|まわりのひとびとは 1|いつも決まって正しいんだ // 2|それはまぎれもない事実だよ //
+
+@@ i am always wrong | S03 | K=2
+   app0: Tifijl Xia end Yien Stea ifa Enbrikardi Fas || 一个用可怕的颜色描绘的扭曲的人物，
+   app1: iy Zyte Tvulei || 是我吗。。。？
+   EN: 0|A 1|distorted 2|figure 3|depicted 4|in 5|terrifying 6|colors, // 7|Is 8|that 9|me...? //
+   JA: 0|恐ろしい色で描かれた 1|いびつな、それは // 2|僕の姿・・・? //
+
+@@ ▷ NEW GAME | S07 | K=2
+   app0: Bis iy Goriis Viizy Olis Feida Viizy || 这是一个严重的bug，非常致命的bug
+   app1: Mii Phina Colista Eivena Ofa Bis Lazz || 我们要求这一条命重开
+   EN: 0|This 1|is 2|a 3|serious 4|bug, 5|A 6|crucial 7|bug // 8|We 9|demand 10|this 11|life 12|to 13|be 14|withdrawn //
+   JA: 0|これは深刻なバグ 1|すごく致命的なバグ // 2|私たちはこの命の撤回を求めます //
+
+@@ ▷ NEW GAME | S12 | K=2
+   app0: Voi Kulu Heilim Bis osa Ord Doraid || 啊，这也能被称作是“黑暗”吧
+   app1: Elaind Harmiy Xia Bis iy Ignai Lanai || 这也没什么好奇怪的，毕竟这也不是什么乐园
+   EN: 0|Ah, 1|this 2|can 3|also 4|be 5|called 6|darkness // 7|It 8|is 9|no 10|wonder, 11|because 12|this 13|is 14|no 15|paradise //
+   JA: 0|ああ 1|これは暗闇とも呼べる // 2|それもそうだろう 3|ここは楽園などではない //
+
+@@ ▷ NEW GAME | S17 | K=2
+   app0: Bis iy Goriis Viizy Olis Feida Viizy || 这是一个严重的bug，非常致命的bug
+   app1: Mii Phina Colista Eivena Ofa Bis Lazz || 我们要求这一条命重开
+   EN: 0|This 1|is 2|a 3|serious 4|bug, 5|A 6|crucial 7|bug // 8|We 9|demand 10|this 11|life 12|to 13|be 14|withdrawn //
+   JA: 0|これは深刻なバグ 1|すごく致命的なバグ // 2|私たちはこの命の撤回を求める //
+
+@@ エリシアンズ・オールドマンズ(Elysion's Old Mans) | S08 | K=2
+   app0: Will a Shellarm Fiolaza a Herches || 心跳及圣殿， 花束与心脏
+   app1: Arupe Elled Nols end ol Kllea end ol Sjiyupe || 古老的电梯，忘却的事情，哭泣受挫的日子
+   EN: 0|Heartbeat 1|and 2|Holy 3|Temple, 4|Bouquet 5|and 6|Heart // 7|Ancient 8|Elevator, 9|Forgotten 10|Stuff, 11|The 12|cried 13|number, 14|the 15|disheartened 16|number //
+   JA: 0|鼓動と神殿 1|花束と心臓 // 2|古代のエレベーター 3|泣いた数 4|挫けた数 //
+
+@@ エリシアンズ・オールドマンズ(Elysion's Old Mans) | S21 | K=2
+   app0: Capite Capite Taz Capite Scteus || 待首都 首都 首都的卫兵入睡后
+   app1: Sween Lishe Senju Elie Finza || 逃离的出口， 我会带你到那里
+   EN: 0|Capital’s 1|Capital’s 2|Capital’s 3|guardian, 4|after 5|they 6|sleep // 7|Exit 8|Exit 9|Exit, 10|I’ 11|ll 12|bring 13|you 14|there //
+   JA: 0|帝都の 1|帝都の 2|帝都の 3|護り神が眠ったら // 4|出口まで 5|出口まで 6|出口まで 7|送っていくよ //
+
+@@ エリシアンズ・オールドマンズ(Elysion's Old Mans) | S24 | K=2
+   app0: Capite Capite Taz Capite Scteus || 待首都 首都 首都的卫兵入睡后
+   app1: Sween Lishe Senju Elie Finza || 逃离的出口， 我会带你到那里
+   EN: 0|Capital’s 1|Capital’s 2|Capital’s 3|guardian, 4|after 5|they 6|sleep // 7|Exit 8|Exit 9|Exit, 10|I’ll 11|bring 12|you 13|there //
+   JA: 0|帝都の 1|帝都の 2|帝都の 3|護り神が眠ったら // 4|出口まで 5|出口まで 6|出口まで 7|送っていくよ //
+
+@@ フライブルクとエンドロウル(Flyburg and the Endroll) | S03 | K=2
+   app0: a Ame ou Bis Sartin rin || 在破晓时刻诞生的孩子
+   app1: end Fel Swiina Fei ou Mage a Rin Asia end Stea Dis || 最终触及魔方阵的街道孵化出来，运送了他们俩
+   EN: 0|Children 1|born 2|at 3|the 4|break 5|of 6|day // 7|The 8|town 9|touched 10|on 11|magical 12|square 13|hatches 14|in 15|the 16|course 17|of 18|time 19|and 20|carries 21|them 22|two //
+   JA: 0|暁の元に生まれた子ども // 1|やがて魔方陣に触れた街は孵化をして 2|二人を運ぶ //
+
+@@ ワンダーシャッフェンの法則 | S03 | K=2
+   app0: Quondlea Vala a Alter Fouzanoa || 映在眼前的只有城墙和怪物
+   app1: Zeit Mols Aihel Pllia Ran || 以及不自然的时间
+   EN: <none>
+   JA: 0|目の前にあるのは 1|城壁と魔物と // 2|取って付けたような時間だけ //
+
+@@ ワンダーシャッフェンの法則 | S06 | K=2
+   app0: Elaind Ollenes Kulu Nai || 没错，好奇心
+   app1: Kerla folme Retuela Herz Foul || 是无法摆脱的
+   EN: <none>
+   JA: 0|そう 1|きっと好奇心から // 2|逃げることなんてできない //
+
+@@ ワンダーシャッフェンの法則 | S07 | K=2
+   app0: Poet Nai Harmiy Ra || 牵线木偶什么的
+   app1: Craill o Mariotoriet || 别开玩笑了！
+   EN: <none>
+   JA: 0|マリオネットだなんて // 1|とんでもない！ //
+
+@@ 氷の檻のトリエスタ | S01 | K=2
+   app0: Saus Cees Well end Mii a Swiina || 千年的冰栅加我于身
+   app1: end Cees Heart || 连心脏亦被冻结
+   EN: <none>
+   JA: 0|千年の氷の格子は私に纏わり付いて // 1|心まで凍てついてしまった //
+
+@@ 空想モダニズム -Alice Schach remix- | S00 | K=2
+   app0: Vleid Fol Twiik Seia end Swiina Piala Syarfi || 脏兮兮的地板，雪白礼服的那个孩子
+   app1: Shelista Skelat Mii Baly || 世界总是嘲笑我
+   EN: <none>
+   JA: 0|薄汚れた床 1|真っ白なドレスのあの子 // 2|世界はいつも私を嘲笑う //
+
+@@ 空想モダニズム -Alice Schach remix- | S01 | K=2
+   app0: Aa Wilenq Flutenoa Ailent || 啊，多么无聊的每一天
+   app1: Oltia Taz ol Faet Cloud end Digleema imm Brai ou Sharla Da || 就在这时，我在木箱中发现了躺在那里的你
+   EN: <none>
+   JA: 0|ああ 1|なんてつまらない毎日 // 2|そんな時 3|木箱の中 4|横たわるあなたを見つけたの //
+
+@@ 𝕆(O) | S28 | K=2
+   app0: Klleat Fimoa iy Olis Eita sii || 你的哭脸太可爱了
+   app1: Foly Elize Vell Mins Lwei Foul || 别担心，你会习惯的
+   EN: 0|Your 1|crying 2|face 3|is 4|so 5|adorable // 6|Don't 7|worry, 8|you'll 9|get 10|used 11|to 12|it //
+   JA: 0|泣いている顔はとても可愛いね // 1|そのうちきっと慣れてくるから大丈夫 //

@@ -1,0 +1,833 @@
+==========================================================================================
+### SONG Frozen_Tree   (app title: Frozen Tree)   stanzas=32
+S00 ORIG: Hols Ray Aola Mazy Razzle end
+    EN  : Esperance is just born, and labyrinth tumbles down
+    JA  : 希望は今生れ落ち 迷路は崩れ落ちる
+S01 ORIG: Herz Ray Aola Loog Nouche Finz
+    EN  : Heart is just born, and the end of long journey comes
+    JA  : 心は今生れ落ち 長い旅は終わる
+S02 ORIG: a Graid Ait end Mii a Fete
+    EN  : A distant memory comes to a period, here is the ending of destiny
+    JA  : 遠い記憶は途切れた ここが運命の終点
+S03 ORIG: end Luan Zote a Naits ou Spay Di
+    EN  : Suddenly jumped into the season that is on the other side of the mirror
+    JA  : 飛び込んだ季節 合わせ鏡の向こう
+S04 ORIG: Oracle end oh neu Faye
+    EN  : Miracle or fata morgana
+    JA  : 奇跡 あるいは 蜃気楼
+S05 ORIG: Lazz ou Loast Inay o Lar Crai
+    EN  : Unlimited life is just waiting for you
+    JA  : 無限の生命は ただ君を待つ,
+S06 ORIG: Oulayz Way a Oulayz Selaf o Krey Haol
+    EN  : Many answers Many truths and a small palm of the hand
+    JA  : たくさんの答え たくさんの真実 小さな手のひら
+S07 ORIG: Crai Ell Ani end Cate a Elie Bis Olis Bis Olis Talis end
+    EN  : Long long time ago, you choose only one from them, and arrived here
+    JA  : 遠い昔 君は一つ選んで手に取って ここまで来たんだよ
+S08 ORIG: Indi Eist ah Brait o Amabell end Amabell
+    EN  : The heavy door opens
+    JA  : 重い扉が開く
+S09 ORIG: " Ah . Mii Awter Cloud Am "
+    EN  : “Ah, we could meet finally”
+    JA  : “ああ やっと逢えたね”
+S10 ORIG: " Twiik Laila Twiik Hyuz Mii Cloud Arth Bis Aihel "
+    EN  : “That bird, that wind, you and me, everything and everyone is here”
+    JA  : “あの鳥も あの風も 私も君も ここにいる ここにある”
+S11 ORIG: " Leste Crai a Miz Frey Ola Aola end Vaice Lootaria "
+    EN  : “Hey, you will be happy from now, and be a witness please”
+    JA  : “さぁ、君はこれから幸せになって 永遠の証人になるんだ”
+S12 ORIG: " Telly Laiz Ail " end
+    EN  : “I give you all of my future”
+    JA  : “残りの未来は君に預けよう”
+S13 ORIG: " Ah . Mii Awter Cloud Am "
+    EN  : “Ah, we could meet finally”
+    JA  : “ああ やっと逢えたね”
+S14 ORIG: " Twiik Laila Twiik Hyuz Mii Cloud Arth Bis Aihel "
+    EN  : “That bird, that wind, you and me, everything and everyone is here”
+    JA  : “あの鳥も あの風も 私も君も ここにいる ここにある”
+S15 ORIG: " Leste Crai a Miz Frey Ola Aola end Vaice Lootaria "
+    EN  : “Hey, you will be happy from now, and be a witness please”
+    JA  : “さぁ、君はこれから幸せになって 永遠の証人になるんだ”
+S16 ORIG: " Telly Laiz Ail " end
+    EN  : “I give you all of my future”
+    JA  : “残りの未来は君に預けよう”
+S17 ORIG: Mill Awter ..
+    EN  : Until we meet again..
+    JA  : また逢う日まで..
+S18 ORIG: Hols Ray Aola Mazy Razzle end
+    EN  : Esperance is just born, and labyrinth tumbles down
+    JA  : 希望は今生れ落ち 迷路は崩れ落ちる
+S19 ORIG: Herz Ray Aola Loog Nouche Finz
+    EN  : Heart is just born, and the end of long journey comes
+    JA  : 心は今生れ落ち 長い旅は終わる
+S20 ORIG: a Graid Ait end Mii a Fete
+    EN  : A distant memory comes to a period, here is the ending of destiny
+    JA  : 遠い記憶は途切れた ここが運命の終点
+S21 ORIG: end Luan Zote a Naits ou Spay Di
+    EN  : Suddenly jumped into the season that is on the other side of the mirror
+    JA  : 飛び込んだ季節 合わせ鏡の向こう
+S22 ORIG: Oracle end oh neu Faye
+    EN  : Miracle or fata morgana
+    JA  : 奇跡 あるいは 蜃気楼
+S23 ORIG: Lazz ou Loast Inay o Lar Crai
+    EN  : Unlimited life is just waiting for you
+    JA  : 無限の生命は ただ君を待つ
+S24 ORIG: Zeit ou Fal end Zeit ou Floul end
+    EN  : The time to go back, The time swirl
+    JA  : 帰る時間 廻る時間
+S25 ORIG: Leste Luan Sai o Karna Mill
+    EN  : Let’s welcome our history again
+    JA  : さぁもう一度 歴史を迎えよう
+S26 ORIG: Ranya Shelista o Farsha Disverry
+    EN  : Coming world, Magic of resuscitation
+    JA  : 臨む世界 蘇生の魔法
+S27 ORIG: Sharla ou Graid Nai Visc Harmiy Finz end Finz a end
+    EN  : Inhabit tree of memories which never knows the end
+    JA  : 終りを知らない記憶の樹が宿る
+S28 ORIG: Rook Haol ou Di end | Loog Slay a Ley Lar Crai | end Baly | Lar Crai | end Baly end
+    EN  : The hand unclasped, // The long way leads you // anytime
+    JA  : ほどいた手 // 君の前には長い道が続いている // いつだって
+S29 ORIG: Ranya o Sartain end Cees ou Disverry
+    EN  : Coming dusk, Spell of ice wall
+    JA  : 臨む黎明 氷壁の呪文
+S30 ORIG: Doool ou Will a Nai Visc end Harmiy Finz end Finz a end
+    EN  : Inhabit spire of heart beats which never know the end
+    JA  : 終りを知らない鼓動の渦が宿る
+S31 ORIG: Rook Haol ou Di end | Loog Slay a Ley Lar Crai end Baly | Lar Crai end Baly end | Ley Lar Crai | Ley Lar Crai
+    EN  : The hand unclasped, // The long way leads you // anytime // For you // For you
+    JA  : はなした手 // 君の前には長い道が続いている // いつだって // 君のために // 君のために
+
+==========================================================================================
+### SONG O   (app title: 𝕆(O))   stanzas=31
+S00 ORIG: Hyerisq Elfalasia
+    EN  : Hey, welcome
+    JA  : やあ ようこそ
+S01 ORIG: Crait Selaf ou Wihrind Amabell Lqll
+    EN  : You've finally awakened from your reality
+    JA  : 君の現実は ようやく醒めたんだ
+S02 ORIG: Olis Faress Tilk Wei
+    EN  : I have very good news for you
+    JA  : とっても良いお知らせだよ
+S03 ORIG: " Laiz " Ignai Aihel imm Bis Oli Lqll
+    EN  : There is "no future" here
+    JA  : ここには「未来」は存在しないんだ
+S04 ORIG: Oudiq Nai Piet Likya Seez es osa Nai Gardis Feib
+    EN  : You don't have to brush your teeth, you don't have to eat any vegetables
+    JA  : めんどくさい歯磨きもいらないし 野菜を食べなくてもいい
+S05 ORIG: Olzy Nai Awter Lujes Pawqui Melp Saray
+    EN  : What's more, you are spared from seeing your family you hate
+    JA  : 大嫌いな家族とも会わなくて済むんだよ
+S06 ORIG: dam Phim Lejed Bis Dinb il Twiik Salff Naits
+    EN  : First, stack these balls up high in the sky
+    JA  : まずは このボールをあの空高く積み上げてね
+S07 ORIG: Elied Zia Endekta , Lootaria en Lootaria
+    EN  : Until I let you stop, keep doing it on and on and on
+    JA  : 僕が認めるまで ずっとずっとずっと
+S08 ORIG: Endyd Nai Kept Apnesia Apnesia Poutie noa Ail Finz
+    EN  : If you can't do it all, I'll never, never let you through
+    JA  : 全部できないと 絶対に絶対に通してあげない
+S09 ORIG: Elize Bis iy Nai Feike Trias , Poet Nai Hendikki sii
+    EN  : This isn't a lukewarm school, don't get that wrong
+    JA  : ここは生ぬるい学校じゃないんだから 勘違いしないでね
+S10 ORIG: Ginmi Elize Oltia Flea iy Bedig , Lishe Nache Saryarte
+    EN  : Never mind that, come play with me
+    JA  : やっぱりそんなのいいから 一緒に遊ぼうよ
+S11 ORIG: Poetolt Nai Olte Shiita ou Lazz weig sip
+    EN  : Don't worry about the end of life
+    JA  : 命の終わりなんて気にしないでさ
+S12 ORIG: Xia Wivd Tittri iy Olis Mout sii
+    EN  : Your distorted eyes are so beautiful
+    JA  : その歪んだ瞳はとても美しいね
+S13 ORIG: Lef Ronk end Teejt Heridiji Wei
+    EN  : They're like jewels with galaxies trapped inside
+    JA  : 銀河を閉じ込めた宝石みたいだよ
+S14 ORIG: Ajlff Liqleea Hegss Xia ifa Zyte Aniche pius
+    EN  : I might as well swap them out with mine
+    JA  : せっかくだから 僕のと取り換えっこしちゃおうかな
+S15 ORIG: E clat E clat E clat E clat E clat
+    EN  : Sparkle Sparkle Sparkle Sparkle Sparkle Sparkle
+    JA  : き ら き ら き ら き ら き ら き ら
+S16 ORIG: Hyerisq Zill Karna sii
+    EN  : Hi, again
+    JA  : やあ また会ったね
+S17 ORIG: Erikes Crait Erlim Hellm ou Wihrind Bai ?
+    EN  : Have you awakened from your long dream ?
+    JA  : 君の長い夢は もう醒めたかな?
+S18 ORIG: Fimoa Fas Tiisa Olis Vins
+    EN  : You look very pale
+    JA  : 顔色がとても悪いみたい
+S19 ORIG: Poutie Albel Bisoli , Crai Vell Idem Pils Wei
+    EN  : You'll feel easier if you rest here
+    JA  : ここで休んでいけば楽になるよ
+S20 ORIG: Wasiim Bektit Zia ? Queit Olistea Quand lar Crai
+    EN  : Why are you so afraid of me even though I'm being so nice to you ?
+    JA  : どうして僕のことを怖がるの? こんなに優しくしてるのに
+S21 ORIG: Elize Enebis iy Meila Enbrikardi a Gaujeus
+    EN  : (Humans are so much more dreadful and savage)
+    JA  : （人間のほうが とっても恐ろしくて野蛮なんだから）
+S22 ORIG: Iyldam Phim Leje Dinb esp Nache ifa Zia
+    EN  : First you stack the balls, then it's time to play with me
+    JA  : まずはボールを積んで あとは僕と一緒に遊んでね
+S23 ORIG: Elied Zia Poetorch , Lootaria en Lootaria !
+    EN  : Until I give you the signal, keep doing it, on and on and on !
+    JA  : 僕が合図するまで ずっとずっとずっと！
+S24 ORIG: Poutie Qleea Tarlia , Liqleea Aid Xia Ipsi a Polt sii
+    EN  : If you get tired, let's cut off those arms and legs
+    JA  : 疲れちゃったら その腕も足も切り落としちゃおうね
+S25 ORIG: Tolltit Veit Sarp iy Julledak Peris Lqll
+    EN  : Dripping red soup is so nourishing
+    JA  : 滴る赤いスープは栄養価抜群なんだ
+S26 ORIG: Elemie Vell Verse Heriim Imeila Diallif , Karna il Olaio Bipli
+    EN  : The pain will soon fade away // Even if you breathe your last, you're whole again
+    JA  : 痛みはすぐに消えていくよ 息絶えてもまた元通り
+S27 ORIG: Lootaria Jelipnoa Leema Olis Heip Crain ?
+    EN  : It's a never-ending loop, very funny isn't it ?
+    JA  : 永久不滅のループ とってもおもしろいでしょ?
+S28 ORIG: Klleat Fimoa iy Olis Elta sii | Foly Elize Vell Mins Lwei Foul
+    EN  : Your crying face is so adorable // Don't worry, you'll get used to it
+    JA  : 泣いている顔はとても可愛いね // そのうちきっと慣れてくるから大丈夫
+S29 ORIG: Elize Laiz weig Sinai Elay , Lishe Nache a Geeg Lootaria
+    EN  : The future never comes anyway, so just keep playing with me
+    JA  : どうせ未来なんて来ないんだから ずっと遊んでいようよ
+S30 ORIG: Loo taria Loo taria Loo taria Loo taria Loo taria Loo taria
+    EN  : On and on and on and on and on and on
+    JA  : ずっ と ずっ と ずっ と ずっ と ずっ と ずっ と
+
+==========================================================================================
+### SONG i_am_always_wrong   (app title: i am always wrong)   stanzas=24
+S00 ORIG: Bertene Alfloul Zia iy Shellte Apnesia Baly | Xia iy Kysei Tepistl Wei
+    EN  : The people around me are always correct // That is the unmistakable truth
+    JA  : まわりのひとびとは いつも決まって正しいんだ // それはまぎれもない事実だよ
+S01 ORIG: Zia iy Hyuserti imm Bale Taz
+    EN  : I am always wrong
+    JA  : 僕は いつだって 間違っている
+S02 ORIG: Poutie Uwoles Klar lid Qufit , ol Madie il Ewoldorain Pazz
+    EN  : Skipping around the circuit, i wandered into a dimly lit room
+    JA  : 回路をスキップしていると 薄暗い部屋に迷い込んだ
+S03 ORIG: Tifijl Xia end Yien Stea ifa Enbrikardi Fas , | iy Zyte Tvulei ...?
+    EN  : A distorted figure depicted in terrifying colors, // Is that me...?
+    JA  : 恐ろしい色で描かれた いびつな、それは // 僕の姿・・・?
+S04 ORIG: Zia ou Qleea Womphil Anys Biziq Foul
+    EN  : I must have swallowed imaginary poison
+    JA  : 架空の毒を飲み干してしまったんだ きっと
+S05 ORIG: Feipiot Jeari weig iy Uerisaqui sip
+    EN  : The trembling of my lips is just in my head
+    JA  : 唇の震えなんて 気のせいさ
+S06 ORIG: Gout Wasiim Blaide iy Olistea Dimea
+    EN  : But why does my heart feel so heavy?
+    JA  : だけど どうして こんなに胸が苦しいんだろう
+S07 ORIG: Luind ol iy Ail Mout a Pllardki
+    EN  : The past was all beautiful and wonderful
+    JA  : 過去は 全て 美しくて 素晴らしかった
+S08 ORIG: Fartvinst iy Waz Harris end Molda ol Forklei
+    EN  : The discomfort is just a mere error my brain spewed out
+    JA  : 居心地の悪さは 脳が吐いた ただのエラーだよ
+S09 ORIG: Elaind Zia iy Hyuserti imm Bale Taz
+    EN  : Yes, i am always wrong
+    JA  : そう 僕は いつだって 間違っている
+S10 ORIG: Rie ▓▓▓▓ ol Idem a Verse rie ▓▓▓▓ ol Idem a Verse osa
+    EN  : Eventually, xxxxx disappeared, and before long, xxxxx was gone too
+    JA  : やがて ▓▓▓▓ はいなくなった やがて ▓▓▓▓ もいなくなった
+S11 ORIG: Zill ol Yien Freikes il Leifemea Paphileeta Aniiz
+    EN  : One by one, we were thrown into an empty universe
+    JA  : 僕ら ひとりずつ 空っぽの宇宙に放り出された
+S12 ORIG: Gout Zia iy Nai Anisia Elize Ied Kesef Ail Ord Iedsit Lqll
+    EN  : But i'm not lonely // I just have to fill everything with falsehoods
+    JA  : でもさみしくないよ 偽りで埋め尽くせばいいからね
+S13 ORIG: Olm Laila end ol Yien Bijiik occia , Hiele Seiren Klar Eamis Wei
+    EN  : Look, even the torn blue bird is singing fantasies
+    JA  : 引き裂かれた青い鳥も ほら 空想をうたってるよ
+S14 ORIG: Od Eiphinr Meehellm weil Sikidorkle
+    EN  : Without knowing it, i was lost in a daydream
+    JA  : 知らぬ間に 白昼夢をながめていたんだ
+S15 ORIG: Fittou Selaf weig Ignai Aihel Amdlu
+    EN  : Strange reality doesn't exist anywhere
+    JA  : 奇妙な現実なんて どこにも存在しない
+S16 ORIG: Gout Wasiim Blaide iy Olistea dimea
+    EN  : But why does my heart feel so heavy?
+    JA  : だけど どうして こんなに胸が苦しいんだろう
+S17 ORIG: Luind ol iy Ail Mout a Pllardki
+    EN  : The past was all beautiful and wonderful
+    JA  : 過去は 全て 美しくて 素晴らしかった
+S18 ORIG: Fartvinst iy Waz Harris end Molda ol Forklei
+    EN  : The discomfort is just a mere error my brain spewed out
+    JA  : 居心地の悪さは 脳が吐いた ただのエラーだよ
+S19 ORIG: Elaind Zia iy Hyuserti imm Bale Taz
+    EN  : Yes, i am always wrong
+    JA  : そう 僕は いつだって 間違っている
+S20 ORIG: Quim Tifijl Graid Afitag Xia Fimoa
+    EN  : If distorted memories surface,
+    JA  : いびつな記憶が 顔を出したなら
+S21 ORIG: Liqleea Harledid a Tigalm es Torjest Ail
+    EN  : I should stomp them down and kill them all
+    JA  : 踏みつぶして すべて 殺してしまおう
+S22 ORIG: Imeila Olide Tiisa Velsiam
+    EN  : Even if something appears dirty to me,
+    JA  : 何かが汚く見えても
+S23 ORIG: Xia iy Elize Zyte Herz iy Porsa Friud
+    EN  : It's only because there's something wrong with my mind
+    JA  : それは 僕の心が おかしいだけなんだから
+
+==========================================================================================
+### SONG Kill_My_Fortune   (app title: ᖽᐸᓰᒪᒪ ᘻᖻ ᖴᓍᖇᖶᑘᘉᘿ(Kill My Fortune))   stanzas=23
+S00 ORIG: Leste Irdliq Phina Frait , Lend Crai Awlst ?
+    EN  : Judgment is about to begin Are you ready?
+    JA  : さぁ 審判が始まります 準備はできましたか？
+S01 ORIG: Whiil a Giidu Rova iy Edil Ani Fiem tie Clooshela
+    EN  : One black and one white robe in the closet
+    JA  : クローゼットには白と黒のローブが1枚ずつ
+S02 ORIG: Leste Irdliq Phina Frait , Lend Crai Awlst ?
+    EN  : Judgment is about to begin Are you ready?
+    JA  : さぁ 審判が始まります 準備はできましたか？
+S03 ORIG: Poutie Xia Ran Clooshe a Toubi , Crai Vell Qleea osa Miz Volp
+    EN  : After you blink those eyes, you will be one of the ghosts
+    JA  : その目を閉じて開けたなら 君もお化けになってしまいます
+S04 ORIG: Leife Leife | Mii Skyar Histipri
+    EN  : Hollow Hollow Trace the history
+    JA  : うつろ うつろ 歴史をたどる
+S05 ORIG: Herz ou Amejdimer a Heridiji Quop
+    EN  : The mind of fetus and The galaxy
+    JA  : 胎児の心と 銀河系
+S06 ORIG: Oglejmea Graid qls end Mii Ranya Doe folme Ark Sphiep
+    EN  : All those abominable memories I look down from the celestial sphere
+    JA  : 天球から見下ろす 忌まわしい記憶たちも
+S07 ORIG: Xianya iy Evila Aola
+    EN  : I think they are adorable now
+    JA  : 今では愛おしいと思うんだ
+S08 ORIG: Queit Mii ol Peil a Dist Ani Lili Holstia imm Brai ou Twiik Shelista
+    EN  : But there’s one wish that I’ve left behind in that world
+    JA  : けど 1つだけ あの世界に 置き忘れてきた願いがある
+S09 ORIG: Ani Mols , Elaind Ani Mols
+    EN  : There’s only one It’s the only one
+    JA  : たった1つ 1つだけ
+S10 ORIG: Phina Hols a Skeem Irdliq , Gout ...
+    EN  : I’d like to start the Judgment, but…
+    JA  : 審判を始めたいところですが…
+S11 ORIG: Tiisa Lef Cloud Dilem Mejkl Ekphinols
+    EN  : You seem to have a great deal of regret
+    JA  : あなたは大きな未練をお持ちのようだ
+S12 ORIG: Dia Cloud Kulu Nai Imiyl Bis
+    EN  : Then you can’t go through here
+    JA  : それではここを通ることはできません
+S13 ORIG: Meidiep Unharla Ani Plousa Mols
+    EN  : I’ll give you just one chance
+    JA  : 一度だけチャンスを与えましょう
+S14 ORIG: Wimb Phina Misiik Esp ou Xia Sole ieq Aprout
+    EN  : But I’ll keep a portion of that soul as a guarantee
+    JA  : ただし 保障としてその魂の一部を預かります
+S15 ORIG: Leste Irdliq Phina Frait , Lend Crai Awlst ?
+    EN  : Judgment is about to begin Are you ready?
+    JA  : さあ 審判が始まります 準備はできましたか？
+S16 ORIG: Whiil a Giidu Rova iy Edil Ani Fiem tie Clooshela
+    EN  : One black and one white robe in the closet
+    JA  : クローゼットには白と黒のローブが1枚ずつ
+S17 ORIG: Leste Irdliq Phina Frait , Lend Crai Awlst ?
+    EN  : Judgment is about to begin Are you ready?
+    JA  : さあ 審判が始まります 準備はできましたか？
+S18 ORIG: Poutie Xia Ran Clooshe a Toubi , iy Crai ou Volp qls ...?
+    EN  : After you blink those eyes, you will be…?
+    JA  : その目を閉じて開けたなら 君もお化けたちの・・・？
+S19 ORIG: Laila Mout Saut , Baly Yutul qls
+    EN  : Charming voice of birds Days with no big deal
+    JA  : 鳥のなまめかしい声 なんてことのない日々
+S20 ORIG: Kulu Nai Swormin , Sar Baly Sar Olaio
+    EN  : Can’t even fly in the sky, As usual, As before
+    JA  : 空も飛べずに いつも通り 元通り
+S21 ORIG: Elie Shiita Taz , Lizem Termz Karna
+    EN  : I’m going to turn the clock again until it’s time for the end
+    JA  : 終わりの時間まで また時計を進めるよ
+S22 ORIG: Gout Ticca Mols , Lishe Heimia Crai
+    EN  : But I’ll join you for a little while longer
+    JA  : でも もう少しだけ 君に付き合ってあげよう
+
+==========================================================================================
+### SONG Maze_No.9   (app title: 九番目の迷路(Maze No.9))   stanzas=22
+S00 ORIG: Klatsia Esp ou Ticcla , Esp ou Lans
+    EN  : Scattered pieces of glass, dancing pieces
+    JA  : 散らばったガラスの破片 踊る破片
+S01 ORIG: Hiele , Phier San Eclat Xia
+    EN  : Look, let’s touch their sparkle
+    JA  : ほら、その煌めきに触れてみてよ
+S02 ORIG: Minelia a Sail end Saray folme Niar Taz
+    EN  : Moon and Sun are my friends from childhood
+    JA  : 月と太陽と幼馴染
+S03 ORIG: Eem Lef Karna Harie Sel Miis
+    EN  : I could remember who one true is
+    JA  : また 本当の自分を思い出せるような気がする
+S04 ORIG: Olm Sarga , Oulayz Eist , Frait folme Bis
+    EN  : Blue sky, billions of doors, we just start from here
+    JA  : 青空 無数の扉 ここから始まるんだ
+S05 ORIG: Leste , Phier San Xia Fas
+    EN  : Come on, let’s touch their color
+    JA  : さあ、その色彩に触れてみてよ
+S06 ORIG: Hait Aihel imm Bis
+    EN  : liberty is here
+    JA  : 自由はここに在る
+S07 ORIG: Baly Crai Ied Fal il Niims Crai Nadi Olis
+    EN  : Anytime you can go back to the preterite that you want
+    JA  : いつだって 帰りたい過去に帰れば良い
+S08 ORIG: Fiea Zote , Ame Taz Graid
+    EN  : Sparkling season, my childhood
+    JA  : 眩い季節 幼い頃
+S09 ORIG: Mii Emphi Miis Nai Prifiel Ofa Arsia ou Ellif
+    EN  : I’ve missed my purpose of life
+    JA  : 一体、何のために生きているのか 判らなくなったことがあった
+S10 ORIG: Gout Ene Nai Dilem Olipha , Cate a Geeg end Lili
+    EN  : But we don’t need that purpose but just stepping forward
+    JA  : だけど 人は何のためでもなく ただ歩いてさえすれば良いんだ
+S11 ORIG: Ijsya ou Nita imm Loqcka Graid , Herz ou Briss a Geeg
+    EN  : Distant summer scent, hearts that still grow apart
+    JA  : 遠い夏の香りも すれ違ったままの心も
+S12 ORIG: Ame ou Sar Minelu , Nai Ieha Way | Esp ou Shelista Nai Dilem Arsia
+    EN  : All of them are born from the same star // We don’t need answer, a piece of the world doesn’t have some reasons
+    JA  : 同じ星の子 答えなんて要らない 世界の欠片に理由なんてないよ
+S13 ORIG: Elize imm Krey | Phier Holo Miis imm Aim Taz Madie Ofa Ellif Slay
+    EN  : So the least you excuse yourself with smiling when you lose your way
+    JA  : だからせめて 迷った時 自分くらいは 笑って赦してあげてね
+S14 ORIG: Quim Herz Nai Yien Kelletta Lootaria | Xia Mane Vell Dialoss
+    EN  : Abandoned heart will die down someday
+    JA  : 使われなくなった心は いつか 枯れてしまうから
+S15 ORIG: Fiea Zote , Ame Taz Graid
+    EN  : Sparkling season, my childhood
+    JA  : 眩い季節 幼い頃
+S16 ORIG: Mii Emphi Miis Nai Prifiel Ofa Arsia ou Ellif
+    EN  : I’ve missed my purpose of life
+    JA  : 一体、何のために生きているのか 判らなくなったことがあった
+S17 ORIG: Gout Ene Nai Dilem Olipha , Cate a Geeg end Lili
+    EN  : But we don’t need that purpose but just stepping forward
+    JA  : だけど 人は何のためでもなく ただ歩いてさえすれば良いんだ
+S18 ORIG: Finz ou Vinelo Mii ol Harmiy Loog , Herz Yiele Awte
+    EN  : End of long winter, hearts that aren’t linked by fate
+    JA  : 長かった冬の終わりも 出逢うことのなかった心も
+S19 ORIG: Ame ou Sar Minelu , Nai Ieha Way | Esp ou Shelista Nai Dilem Arsia
+    EN  : All of them are born from the same star // We don’t need answer, a piece of the world doesn’t have some reasons
+    JA  : 同じ星の子 答えなんて要らない 世界の欠片に理由なんてないよ
+S20 ORIG: Elize imm Krey | Phier Holo Miis imm Aim Taz Madie Ofa Ellif Slay
+    EN  : So the least you excuse yourself with smiling when you lose your way
+    JA  : だからせめて 迷った時 自分くらいは 笑って赦してあげてね
+S21 ORIG: Quim Herz Nai Yien Amiy Lootaria | Xia Mane Vell Diallif
+    EN  : Loveless heart will die down someday
+    JA  : 愛されなくなった心は いつか 死んでしまうから
+
+==========================================================================================
+### SONG Children_in_the_Ashes   (app title: Cԋιʅԃɾҽɳ ιɳ ƚԋҽ Aʂԋҽʂ(Children in the Ashes))   stanzas=21
+S00 ORIG: Mii Nai Dilem Harla Bai Finz Taz Joul Elay
+    EN  : I’m done // I’m so over it
+    JA  : もういいよ もうだめなんだ
+S01 ORIG: Imeila Tiag Myahalke , Vell Ignai Deet
+    EN  : My voice never reaches, no matter how many times I scream
+    JA  : 何回叫んでも 届くことはない
+S02 ORIG: Xia Nai Arth Amblu , Foul Vell Kulu Nai Rait
+    EN  : It’s nowhere to be seen // It’s never to be found
+    JA  : どこにもいない きっと見つからない
+S03 ORIG: Bisoli iy Ail ou Myte Shelista
+    EN  : This is my whole world
+    JA  : ここが 私の世界のすべて
+S04 ORIG: Cloudyte Tittri iy Lef Bis , Cloudyte Herches iy Bisoli
+    EN  : Eyes like this, heart like this
+    JA  : あなたの瞳はこうで心臓はここ
+S05 ORIG: Meidiep Cloud Gete Sole
+    EN  : I’ll give you a new soul
+    JA  : 新しい魂を授けよう
+S06 ORIG: " Crai Nai Anisia Bai sii ,"
+    EN  : “We’re not lonely anymore”
+    JA  : ‟もう寂しくないね”
+S07 ORIG: " Hiele Lishe Klattle Haol "
+    EN  : “Let’s hold our hands”
+    JA  : ‟ほら手を繋ごう”
+S08 ORIG: " Crai iy Nai Drone folme Aolu "
+    EN  : “You’re not alone from today on”
+    JA  : ‟今日から 君は独りじゃない”
+S09 ORIG: Leste Idial Sween Ollenes Poetolt Sworntie il Tone ou Jilga
+    EN  : Come, let’s get on a monster and put everyone to sleep
+    JA  : さぁ 怪獣の背中へ飛び乗って みんな眠らせてしまおう
+S10 ORIG: Tozlom Arla Piino Swiina Ail , Xia Wond Vell Fliiad
+    EN  : And when the white breath envelops everything, your wound will heal
+    JA  : 白い吐息が全てを包むとき その傷は癒えるだろう
+S11 ORIG: Olzy Nai Fiela Bai , Olzy Nai Fiela Zel Note
+    EN  : You don’t have to be afraid anymore // You don’t have to be afraid of anything
+    JA  : もう恐れなくていい 何も恐れなくていい
+S12 ORIG: Zeit end ob Stica ol Eid a Skeem Yulleia
+    EN  : The time which had been stopped began to proceed slowly
+    JA  : 止まっていた時間が ゆっくりと動き出した
+S13 ORIG: Crai ol Uarmeil Poetolt Kueip Herz Dorain
+    EN  : You dropped your head with a gloomy heart
+    JA  : 君はうつむいた こころを 真っ暗にして
+S14 ORIG: Wasiim Crai Poet Wasiim Crai Poet
+    EN  : Why, why?
+    JA  : どうして どうして
+S15 ORIG: Elize Shelista Fur a Leimy Zill Baly | Kueip Gete Shelista Ord Bis Haol Dou
+    EN  : The world has always abandoned us, // so we’re going to make a new world with our own hands
+    JA  : 世界はいつも 僕らを見放すから // この手で 新しい世界を作るんだ
+S16 ORIG: ( " Crai Nai Anisia Bai sii ," | " Hiele Lishe Klattle Haol " | " Crai iy Nai Drone folme Aolu " | " Crai Nai Anisia Bai sii ," | " Hiele Lishe Klattle Haol " | " Crai iy Nai Drone folme Aolu ")
+    EN  : “We’re not lonely anymore” // “Let’s hold our hands” // “You’re not alone from today on” // “We’re not lonely anymore” // “Let’s hold our hands” // “You’re not alone from today on”
+    JA  : ‟もう寂しくないね” // ‟ほら手を繋ごう” // ‟今日から 君は独りじゃない” // ‟もう寂しくないね” // ‟ほら手を繋ごう” // ‟今日から 君は独りじゃない”
+S17 ORIG: Leste Allss il Hellm ol Brait
+    EN  : Now, the dream eyelids are open
+    JA  : さあ 夢の瞼が開いたよ
+S18 ORIG: Ene qls end Wondilip Crai Nai Aihel Amblu | Nai Aihel Bai
+    EN  : No one in this world will hurt you // They’re all gone
+    JA  : 君を傷つけるものはどこにもいない もういない
+S19 ORIG: Poet Nai Kllea , Poet Nai Kllea , | Yiela Sween Aola Bai
+    EN  : Don’t cry, don’t cry // Sleep tight, sweetheart
+    JA  : 泣かないで 泣かないで 今はもうお眠りなさい
+S20 ORIG: Laiz end Crai Colista Elay Klar Tikelt Xiaoli
+    EN  : The future you want is just around the corner
+    JA  : 君が望む未来は すぐそこに
+
+==========================================================================================
+### SONG The_Fatal_Fantasy   (app title: The Fatal Fantasia)   stanzas=21
+S00 ORIG: Brai ou Epkejla Ewol Madiendlea
+    EN  : In my head, in a grey labyrinth
+    JA  : 頭の中 灰色の迷宮
+S01 ORIG: Pieto Lophalas Floul a Cate Thuivili
+    EN  : transparent fishes walk around with difficulty
+    JA  : 透明な魚たちが せわしなく歩き回る
+S02 ORIG: Loog end Loog Staple | Visini Estola Myte Polt
+    EN  : A long, long staircase, a devil is tangling at my feet
+    JA  : 長い長い階段 足元に悪魔が絡みついて
+S03 ORIG: Graid Mii Heipe eik Tollm Ticcarm
+    EN  : Too much memories start spilling out little by little
+    JA  : 抱えすぎた記憶が 少しずつ零れ出すよ
+S04 ORIG: Oli end Ley Nai Kolto o Meele ou Veit Sarp
+    EN  : Dead end, Sea with red soup at the bottom
+    JA  : 行き止まり 底は 赤いスープの海
+S05 ORIG: Aka Prii end Tollti Lyckellana Dijap
+    EN  : Water Drops, Crown, Deja vu
+    JA  : したたる水滴 王冠 デジャヴ
+S06 ORIG: " Leste Plist a Wely Dooom end Dooom Stica Anie en Toubi Ran Eist ou Gete Story Brait "
+    EN  : "Well, let's all sink, hold deep, // hold your breath, open your eyes, this is the beginning of a new story"
+    JA  : 「さぁ 沈んでみなよ 深く深く 息を止めて 眼を開けて ここが 新しい物語の始まり」
+S07 ORIG: " Queit Shelista o Olis Fiea , Wasiim Crai Kllea ?"
+    EN  : "Though the world is so dazzling, why are you crying?"
+    JA  : 「世界はとても眩いのに どうして君は泣いているの？」
+S08 ORIG: Selep Meele Farc o Iequim Lef Fas ou Lazz
+    EN  : The skirt dyed in the ocean is like the color of life
+    JA  : 海に染まったスカートは まるで生命の色
+S09 ORIG: Hiele Sarga Skeem a Floul en Circus end ob Sween Amil
+    EN  : Look, space start birling and the sleeping circus wakes up
+    JA  : ほら 宙が廻り出して 眠っていたサーカスが目を覚ます
+S10 ORIG: " Queit Shelista o Olis Mout , Wasiim Crai Lamie ?"
+    EN  : “Though the world is so beautiful, why are you grieving? "
+    JA  : 「世界はとても美しいのに どうして君は嘆いているの？」
+S11 ORIG: Lishe Sween Poetolt Spai imm Fassinir Lamb
+    EN  : If you welter in colorful fruits, let's sleep
+    JA  : 色とりどりの果実に溺れたら 眠りましょう
+S12 ORIG: Fiolaza end ol Yien Peil Ratatouille
+    EN  : Bunch of flowers left there, ratatouille,
+    JA  : 置かれた花束 ラタトゥイユ
+S13 ORIG: " Poet Nai Dist , Phier "
+    EN  : “Please do not forget”
+    JA  : 「どうか、忘れないで」
+S14 ORIG: " Queit Shelista o Olis Fiea , Wasiim Crai Kllea ?"
+    EN  : "Though the world is so dazzling, why are you crying?"
+    JA  : 「世界はとても眩いのに どうして君は泣いているの？」
+S15 ORIG: Selep Meele Farc o Iequim Lef Fas ou Lazz
+    EN  : The skirt dyed in the ocean is like the color of life
+    JA  : 海に染まったスカートは まるで生命の色
+S16 ORIG: Hiele Sarga Skeem a Floul en Circus end ob Sween Amil
+    EN  : Look, space start birling and the sleeping circus wakes up
+    JA  : ほら 宙が廻り出して 眠っていたサーカスが目を覚ます
+S17 ORIG: " Queit Shelista o Olis Mout , Wasiim Crai Lamie ?"
+    EN  : “Though the world is so beautiful, why are you grieving? "
+    JA  : 「世界はとても美しいのに どうして君は嘆いているの？」
+S18 ORIG: Lishe Sween Poetolt Spai imm Fassinir Lamb
+    EN  : If you welter in colorful fruits, let's sleep
+    JA  : 色とりどりの果実に溺れたら 眠りましょう
+S19 ORIG: Fiolaza end ol Yien Peil Ratatouille
+    EN  : Bunch of flowers left there, ratatouille,
+    JA  : 置かれた花束 ラタトゥイユ
+S20 ORIG: " Poet Nai Dist , Phier "
+    EN  : “Please do not forget”
+    JA  : 「どうか、忘れないで」
+
+==========================================================================================
+### SONG NEW_GAME   (app title: ▷ NEW GAME)   stanzas=20
+S00 ORIG: Hols Yien Weilla Kelasiad lait en Tikk a Feid ieq Tvulei ou Syeilla
+    EN  : Hope scatters ruthlessly and descends as an angel
+    JA  : 希望は血も涙もなくばら撒かれ 天使となって舞い降りる
+S01 ORIG: Iequim Lef Fea Edal , Mill Floul end Floul ...
+    EN  : Just like crawling on the ground, we go round and round…
+    JA  : 地を這うように 私たちは廻る 廻る…
+S02 ORIG: " Bis Mazy iy Oli end Ley Nai Laiz Nai Aihel lid Naits folme Bisoli "
+    EN  : “This maze is a dead end. There’s no future from here.”
+    JA  : 「この迷路は行き止まり ここから先に未来はない」
+S03 ORIG: " Bis Mazy iy Oli end Ley Nai Laiz Nai Aihel lid Naits "
+    EN  : “This maze is a dead end. There’s no future out there.”
+    JA  : 「この迷路は行き止まり 先に未来はない」
+S04 ORIG: Fimelesnoa Biibell Hellsijmaqls Gleetz
+    EN  : Expressionless, orderless phantoms queue up
+    JA  : 無表情 不揃いの幻影たちが並ぶ
+S05 ORIG: Olistea Filistea Oli , Kulu Nai Felia Bai !
+    EN  : It’s so suffocating here, I can’t take it anymore!
+    JA  : とっても息苦しいところ もう耐えられない！
+S06 ORIG: " Leste Phier Tlli Leste Phier Tlli Bis Holsiana Galm ! Elize Cloud Vell Nai Holt "
+    EN  : “Now, please press the reset button! You won’t regret it…”
+    JA  : 「さぁ 押してください リセットボタンを！ きっと 後悔しないから…」
+S07 ORIG: Bis iy Goriis Viizy Olis Feida Viizy Mii Phina Colista Eivena Ofa Bis Lazz
+    EN  : This is a serious bug, A crucial bug // We demand this life to be withdrawn
+    JA  : これは深刻なバグ すごく致命的なバグ // 私たちはこの命の撤回を求めます
+S08 ORIG: " Elfalasia Elfalasia il Gete Story , Mout Stei Vell Horiis Cloud "
+    EN  : “Welcome to your new story, Beautiful sceneries will welcome you”
+    JA  : 「ようこそ 新しい物語へ 美しい景色があなたを迎えてくれるでしょう」
+S09 ORIG: Mii ol Poet Via tie Erlim Nilai , tie Nilai ou Graid a Nilai ou Pelto
+    EN  : I walked through the long-lasting fog, the fog of memories and records
+    JA  : 私は旅をした 永い霧を 記憶と記録の霧を
+S10 ORIG: Mii ol Poet Via tie Erlim Nilai , Rie Poutie Eist ou Allss Brait , Vell Nai Dilem Zel Graid
+    EN  : I walked through the long-lasting fog // Eventually, when the doors of my eyelids will open, I will not remember anything
+    JA  : 私は旅をした 永い霧を やがて 瞼の扉が開いたら もう何もおぼえていない
+S11 ORIG: Entie Arch Feilihna en Skima Roofialakta , Polt Pray ou Olizes Selfe a Geeg
+    EN  : Ride on a sea horse and go through the tunnel // Someone’s footsteps wouldn’t stop
+    JA  : 海馬に乗ってくぐるトンネル 何者かの 足音が鳴り止まない
+S12 ORIG: Ah , Voi Kulu Heilim Bis osa Ord Doraid Elaind Harmiy Xia Bis iy Ignai Lanai
+    EN  : Ah, this can also be called darkness // It is no wonder, because this is no paradise
+    JA  : ああ これは暗闇とも呼べる // それもそうだろう ここは楽園などではない
+S13 ORIG: " Kulu Nai Rait Heiliam Tuklt " | " Lend Cloud Skeem Gete Liumd ?" | " Kulu Nai Rait Heiliam Tuklt " | " Lend Lend Cloud Skeem ?" | " Kulu Nai Rait Heiliam Tuklt " | " Lend Cloud Skeem Gete Liumd ?" | " Kulu Nai Rait Rait Rait Rait Rait Rait Rait Heiliam Tuklt " | " Lend Cloud Skeem Gete Liumd ?" | " Kulu Nai Rait Heiliam Tuklt " | " Lend Cloud Skeem Skeem Skeem Skeem Skeem Skeem Skeem Gete Liumd ?"
+    EN  : “SAVE DATA NOT FOUND” “START NEW GAME?” // “SAVE DATA NOT FOUND” “START?” // “SAVE DATA NOT FOUND” “START NEW GAME?” // “SAVE DATA NOT NOT NOT NOT NOT NOT FOUND” // “START NEW GAME?” “SAVE DATA NOT FOUND” // “START START START START START START NEW GAME?”
+    JA  : 「SAVE DATA がみつかりません」「NEW GAME をはじめますか？」 // 「SAVE DATA がみつかりません」「はじめますか？」 // 「SAVE DATA がみつかりません」「NEW GAME をはじめますか？」 // 「SAVE DATA がみつかり みつかり みつかり みつかり みつかり みつかり ません」 // 「NEW GAME をはじめますか？」「SAVE DATA がみつかりません」 // 「NEW GAME をはじめ はじめ はじめ はじめ はじめ はじめ ますか？」
+S14 ORIG: Fimelesnoa Biibell Hellsijmaqls Gleetz
+    EN  : Expressionless, orderless phantoms queue up
+    JA  : 無表情 不揃いの幻影たちが並ぶ
+S15 ORIG: Olistea Filistea Oli , Kulu Nai Felia Bai !
+    EN  : It’s so suffocating here, I can’t take it anymore!
+    JA  : とっても息苦しいところ もう耐えられない！
+S16 ORIG: " Leste Phier Tlli Leste Phier Tlli Bis Holsiana Galm ! Elize Cloud Vell Nai Holt "
+    EN  : “Now, please press the reset button! You won’t regret it…”
+    JA  : 「さぁ 押してください リセットボタンを！ きっと 後悔しないから…」
+S17 ORIG: Bis iy Goriis Viizy Olis Feida Viizy Mii Colista Eivena Ofa Bis Lazz
+    EN  : This is a serious bug, A crucial bug // We demand this life to be withdrawn
+    JA  : これは深刻なバグ すごく致命的なバグ // 私たちはこの命の撤回を求める
+S18 ORIG: " Leste Yiela Tlli Xia Holsiana Galm Falke ! Pllardki Shelista Vell Horiis Cloud "
+    EN  : “Now, come on, press the button! There’s a wonderful world out there waiting for you.”
+    JA  : 「さぁ 早く押しなさい そのボタンを！ 素晴らしい世界があなたを迎えてくれるでしょう」
+S19 ORIG: Iequim Lef Fea Edal , Mill Fellito end Fellito ...
+    EN  : Just like crawling on the ground, we go round and round…
+    JA  : 地を這うように 私たちは巡る 巡る…
+
+==========================================================================================
+### SONG the_white_land   (app title: The White Land)   stanzas=19
+S00 ORIG: Whiil Sarga end Whiil a Peak | Zel Nai Aihel end Zel Aihel
+    EN  : <none>
+    JA  : 白い空 白い靴 誰も居ない 誰も居ない
+S01 ORIG: Whiil Hyuz end Whiil Minelia | la la Mii Aola Drone a Mii Aola Drone
+    EN  : <none>
+    JA  : 白い風 白い月 独りぼっち 独りぼっち
+S02 ORIG: Ah Bis end Story " A "
+    EN  : <none>
+    JA  : あぁ ここは真っ白なストーリー "Ａ"
+S03 ORIG: Mii o Sween tie Loqcka
+    EN  : <none>
+    JA  : 旅人は最果てにて眠る
+S04 ORIG: Olis Loog a Zeit end Zeit ei ou Lootaria end
+    EN  : <none>
+    JA  : とても長い時間 終わりのない時間
+S05 ORIG: Arth Jamiy Canvas Bis a Wiina Termz Bis
+    EN  : <none>
+    JA  : ほころんだキャンバス まどろんだ懐中時計
+S06 ORIG: end Koll Zel Nai Aihel Shelista
+    EN  : <none>
+    JA  : まだこの世界には 何もない
+S07 ORIG: Mii Bell Amy ou Trane end Saut ou Saray | Reiz ou Di end | Cees Fei ou Minelia o World Tree
+    EN  : <none>
+    JA  : 涙の温度 友達の声 二つの足跡 凍える月のわ 聳える大樹
+S08 ORIG: Ail end Ail Bell Mii Nai Dist Aola end ...
+    EN  : <none>
+    JA  : 全部覚えている 忘れるはずなんてない だから‥
+S09 ORIG: ah Whiil Sarga end Whiil a Peak | Zel Nai Aihel end Zel Aihel
+    EN  : <none>
+    JA  : 白い空 白い靴 誰も居ない 誰も居ない
+S10 ORIG: Whiil Hyuz end Whiil Minelia | la la Mii Aola Drone a Mii Aola Drone
+    EN  : <none>
+    JA  : 白い風 白い月 独りぼっち 独りぼっち
+S11 ORIG: Ola end Story
+    EN  : <none>
+    JA  : そしてここは 真っ白なストーリー
+S12 ORIG: Luan Razzle Compass end | Disverry ou Crai Rance Bis
+    EN  : <none>
+    JA  : 廻る羅針盤と フィールドに残された君の結果
+S13 ORIG: Ani Retuel e Atherty Verry | Razzle Eist a Loast Pazz
+    EN  : <none>
+    JA  : 偏った進化論がひとつ 無限の部屋の扉を破れ
+S14 ORIG: ah Leste Bis Nacc Ola end Story " A "
+    EN  : <none>
+    JA  : ほら こここそが 真っ白なストーリー "Ａ"
+S15 ORIG: Ani Way Alter Ola Gout Mii Nai Harmiy a Geze
+    EN  : <none>
+    JA  : 呼応 透明な魔物とがらんどう でも 不安なんてここにはない
+S16 ORIG: end Mii Nai Madie o Vins Graid
+    EN  : <none>
+    JA  : 悪い記憶に惑わされるな
+S17 ORIG: Ranya Hellm a Esc Laiz ou Noll
+    EN  : <none>
+    JA  : 人の夢を覗かないで 人の夢を取り上げないで
+S18 ORIG: Leste Alista Story a end
+    EN  : <none>
+    JA  : さぁ、物語の続きを
+
+==========================================================================================
+### SONG Toys   (app title: Toys)   stanzas=18
+S00 ORIG: Krey Eist ou Allss Solte Mii Awter Graid Nouche
+    EN  : A small door behind the eyelids, the night with memories comes to me
+    JA  : 瞼の裏の小さな扉 記憶の夜が訪れる
+S01 ORIG: Ame Graid Colt Hyuz Sou Fas end Razzle Toys
+    EN  : Childhood, cold wind, color of snow, broken toys
+    JA  : 子供の頃 冷たい風 雪の色 壊れたおもちゃ
+S02 ORIG: Wond end Briss Taz
+    EN  : Scars and scratches, time passed
+    JA  : すりむいた傷 通り過ぎた時間
+S03 ORIG: Dist Verry end Nai Awter Crai
+    EN  : Words that could not be conveyed // The person that I cannot see again
+    JA  : 伝えられなかった言葉 // もう会えない人
+S04 ORIG: Ah Mii Arth tie Hellm Arth tie Hellm
+    EN  : Oh, this is an illusion
+    JA  : ああ ここは幻
+S05 ORIG: Ola Crute end a Razzle Torch a Oulayz Dejavu Aola
+    EN  : Empty intersection, traffic lights that remain the same, deja vu that has piled up
+    JA  : 空虚の交差点 止まったままの信号機 積み上げたデジャヴ
+S06 ORIG: la la Mii Arth Bis Arth Bis | ah end Crai Arth tie Bis
+    EN  : I am here alone and you are there alone
+    JA  : 私だけがここにいて // そしてあなただけがそこにいる
+S07 ORIG: Foul Mii Dist Oulayz Note tie Leat ou Loog
+    EN  : In the middle of this long road, I must have forgotten a lot of things
+    JA  : 長い道の途中 きっと 色んな事を忘れてしまったんだ
+S08 ORIG: Nouche end Sartain Esp ou Will a Graid
+    EN  : Even nights with frustration, ordinary dawn, fragment of heartbeats, and even some memories
+    JA  : 失意の夜も ささやかな夜明けも 鼓動の欠片も 思い出も
+S09 ORIG: Hey ah Fiiani ou Gete Reiz | Luan In Minelu end
+    EN  : You see, a deep breath that’s is a sign of departure, slips through the space between the stars
+    JA  : ほら 旅立ちを告げる深呼吸が 星の透き間をすり抜ける
+S10 ORIG: Karna Mii Skie a Graid ou Selaf end | ah Graid Selaf end ah Ley
+    EN  : Just like that, I go through many nights again
+    JA  : そんな風にまた 幾つもの夜を越えてゆく
+S11 ORIG: Ah Mii Arth tie Hellm Arth tie Hellm
+    EN  : Oh, this is an illusion
+    JA  : ああ ここは幻
+S12 ORIG: Ola Crute end a Razzle Torch a Oulayz Dejavu Aola
+    EN  : Empty intersection, traffic lights that remain the same, deja vu that has piled up
+    JA  : 空虚の交差点 止まったままの信号機 積み上げたデジャヴ
+S13 ORIG: la la Mii Arth Bis Arth Bis | ah end Crai Arth tie Bis
+    EN  : I am here alone and you are there alone
+    JA  : 私だけがここにいて // そしてあなただけがそこにいる
+S14 ORIG: Foul Mii Dist Oulayz Note tie Leat ou Loog
+    EN  : In the middle of this long road, I must have forgotten a lot of things
+    JA  : 長い道の途中 きっと 色んな事を忘れてしまったんだ
+S15 ORIG: Nouche end Sartain Esp ou Will a Graid
+    EN  : Even nights with frustration, ordinary dawn, fragment of heartbeats, and even some memories
+    JA  : 失意の夜も ささやかな夜明けも 鼓動の欠片も 思い出も
+S16 ORIG: Hey ah Fiiani ou Gete Reiz | Luan In Minelu end
+    EN  : You see, a deep breath that’s is a sign of departure, slips through the space between the stars
+    JA  : ほら 旅立ちを告げる深呼吸が 星の透き間をすり抜ける
+S17 ORIG: Karna Mii Skie a Graid ou Selaf end | ah Graid Selaf end ah Ley | ah Ley
+    EN  : Just like that, I go through many nights again
+    JA  : そんな風にまた 幾つもの夜を越えてゆく
+
+==========================================================================================
+### SONG under_wonder_nights   (app title: Under Wonder Nights)   stanzas=16
+S00 ORIG: Mezart a Floul Veis
+    EN  : Among the spinning needles
+    JA  : 廻る針の間
+S01 ORIG: Oulayz Saut , Verry | Kulu Nai Harie Zel Note
+    EN  : I can’t remember the myriad voices, words
+    JA  : 無数の声 言葉 何も思い出せないよ
+S02 ORIG: Koll Finz ou Kllea , Ranya a Meehellm
+    EN  : I was in a daze after I stop crying
+    JA  : 泣き止んだまま ぼうっとしていた
+S03 ORIG: Xia Kopiita Fimoa ol Verse Imblu
+    EN  : That crumbled face has gone somewhere
+    JA  : あの崩れた顔は どこかへ行ってしまった
+S04 ORIG: Madie Pisca Rustie Naits Eclat Tone
+    EN  : A lost cat, Beyond of reflection, Scintillating rear
+    JA  : 迷った猫 映った先 燦然の背
+S05 ORIG: Brait Xia Eist ?
+    EN  : Do you open the door?
+    JA  : その扉を 開けるの？
+S06 ORIG: Nouche Erlim end Brait imm Shiita Ween
+    EN  : A long night, A night blooming at the end
+    JA  : 永い夜 終わりの果てに咲く夜
+S07 ORIG: Mill Orfag | Lishe Lans imm Lootaria end Ignai Aihel
+    EN  : We snuggle against // Let’s dance on eternity that never exists
+    JA  : 私達は寄り添う // 決して存在しない 永遠の上で踊ろう
+S08 ORIG: Kolto o Meele Fiola ou Finz Ween | Mii Nai Dist Crai Foul
+    EN  : The bottom is the sea, Flower of the end, // I won’t forget you
+    JA  : 底は海 終焉の花 // 君を忘れない
+S09 ORIG: Leste Yiep Sween
+    EN  : Now go to sleep
+    JA  : さぁ 眠りなさい
+S10 ORIG: Madie Pisca Rustie Naits Eclat Tone
+    EN  : A lost cat, Beyond of reflection, Scintillating rear
+    JA  : 迷った猫 映った先 燦然の背
+S11 ORIG: Brait Xia Eist ?
+    EN  : Do you open the door?
+    JA  : その扉を 開けるの？
+S12 ORIG: Nouche Erlim end Brait imm Shiita Ween
+    EN  : A long night, A night blooming at the end
+    JA  : 永い夜 終わりの果てに咲く夜
+S13 ORIG: Mill Orfag | Lishe Lans imm Lootaria end Ignai Aihel
+    EN  : We snuggle against // Let’s dance on eternity that never exists
+    JA  : 私達は寄り添う // 決して存在しない 永遠の上で踊ろう
+S14 ORIG: Kolto o Meele Fiola ou Finz Ween | Mii Nai Dist Crai Foul
+    EN  : The bottom is the sea, Flower of the end, // I won’t forget you
+    JA  : 底は海 終焉の花 // 君を忘れない
+S15 ORIG: Leste Yiep Sween
+    EN  : Now go to sleep
+    JA  : さぁ 眠りなさい
+
+==========================================================================================
+### SONG Akasha_no_hibun   (app title: アーカーシャの碑文)   stanzas=13
+S00 ORIG: Haol end Klattle , Verry a Colls a Kampiela end ol Razzle
+    EN  : <none>
+    JA  : 繋いだ手 言葉 体温 壊れた羅針盤
+S01 ORIG: Yutul Mii Joul imisier folme Sail
+    EN  : <none>
+    JA  : 太陽とはぐれてしまった日
+S02 ORIG: end Loog end Loog Via ol Frait
+    EN  : <none>
+    JA  : それは 長い 長い 旅が始まった日
+S03 ORIG: “ Foly , Mii Harmiy Xia o Nai Loqcka Opl ! Ticca Quente Elie Akasya ”
+    EN  : <none>
+    JA  : “大丈夫、そう遠くないはずだよ！ アーカーシャまでもうちょっと"
+S04 ORIG: “ Lishe Viin Laqqarte Crai ol Pillusi Saryarte ”
+    EN  : <none>
+    JA  : “君がなくしてしまった宝物を 一緒に探そう”
+S05 ORIG: Olim Millant Ark Sphiep oh Farla Pllia Stirant
+    EN  : <none>
+    JA  : 幾憶の天球はただ 目の前に 広がっていた
+S06 ORIG: Finz Oli ou Graid , Piala Ween
+    EN  : <none>
+    JA  : 記憶の終点 真っ白な最果て
+S07 ORIG: Gout Shelista Baly Arth Diiza Crai
+    EN  : <none>
+    JA  : でも 世界はいつだって 君のそばにいる
+S08 ORIG: Foas end Yien Garve Xia o ivata end Kulu nai Rorm Chronicle Leim o nai
+    EN  : <none>
+    JA  : 掠れて読めなくなった碑文と 続きのない年代記
+S09 ORIG: Minelia ou Trane , Spitia , Poet nai Olte
+    EN  : <none>
+    JA  : 慟哭の月 螺旋 心配しないで
+S10 ORIG: Hiele Story Baly Aihel Diiza Crai
+    EN  : <none>
+    JA  : ほら 物語はいつだって 君のそばにある
+S11 ORIG: a Protia end Elie Taz Aisia Finz
+    EN  : <none>
+    JA  : 約束、感覚の果てるまで
+S12 ORIG: “ Phier Poet nai Dist Lootaria ”
+    EN  : <none>
+    JA  : “お願い ずっと忘れないでね”
+
+==========================================================================================
+### SONG Forbidden_Wonderlands   (app title: Forbidden Wonderland short ver)   stanzas=5
+S00 ORIG: Arla Klolsi Arla Klolsi
+    EN  : White Bunny White Bunny
+    JA  : 白いうさぎ 白いうさぎ
+S01 ORIG: Xia Arla Klolsi Qleea Diallif
+    EN  : The Bunny breathes one’s last breath
+    JA  : そのうさぎは 息絶えてしまう
+S02 ORIG: " Thloo , Mii o Peiti "
+    EN  : "Oh My God, be almost late"
+    JA  : “大変、遅刻だよ”
+S03 ORIG: Crai o Dronene in Lootaria
+    EN  : You will be alone to the end of the time
+    JA  : 君は ずっと独りぼっち
+S04 ORIG: Crai o Dronene in Lootaria
+    EN  : You will be alone to the end of the time
+    JA  : 君は ずっと独りぼっち

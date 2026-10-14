@@ -1,5 +1,16 @@
 """Import English/Japanese translations from alicianlabs into translated.db.
 
+!! WARNING - this import alone leaves the translations mis-aligned !!
+It matches each app sentence to the best *whole stanza* of the alicianlabs
+source, so two app sentences that belong to the same stanza both receive the
+stanza's full translation (A's row contains B's text and vice versa).
+After running this importer you MUST run the per-sentence realignment:
+
+    python scripts/realign/assemble.py
+    python scripts/realign/write_db.py --apply
+
+See scripts/realign/README.md for the full pipeline.
+
 Alignment strategy: the app lyric stores one Alician sentence per block (with
 word-by-word glosses below it).  The alicianlabs source stores the same lyric
 as blank-line-separated paragraphs which may merge several app sentences.

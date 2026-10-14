@@ -1,0 +1,442 @@
+[
+  {
+    "song": "Wanderschaffen_s_Law",
+    "stanza": 0,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "おまじない おまじない",
+    "fix": "unknown"
+  },
+  {
+    "song": "Wanderschaffen_s_Law",
+    "stanza": 1,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "私は迷子 助けてください",
+    "fix": "unknown"
+  },
+  {
+    "song": "Wanderschaffen_s_Law",
+    "stanza": 2,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "これは ある 人形の物語",
+    "fix": "unknown"
+  },
+  {
+    "song": "Wanderschaffen_s_Law",
+    "stanza": 3,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "目の前にあるのは 城壁と魔物と // 取って付けたような時間だけ",
+    "fix": "unknown"
+  },
+  {
+    "song": "Wanderschaffen_s_Law",
+    "stanza": 4,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "小さな箱の中の彼女は",
+    "fix": "unknown"
+  },
+  {
+    "song": "Wanderschaffen_s_Law",
+    "stanza": 5,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "「自由」をただみつめていた",
+    "fix": "unknown"
+  },
+  {
+    "song": "Wanderschaffen_s_Law",
+    "stanza": 6,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "そう きっと好奇心から // 逃げることなんてできない",
+    "fix": "unknown"
+  },
+  {
+    "song": "Wanderschaffen_s_Law",
+    "stanza": 7,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "マリオネットだなんて // とんでもない！",
+    "fix": "unknown"
+  },
+  {
+    "song": "Wanderschaffen_s_Law",
+    "stanza": 8,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "くるくる廻る景色を飲み込んで",
+    "fix": "unknown"
+  },
+  {
+    "song": "Wanderschaffen_s_Law",
+    "stanza": 9,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "過去を虚空へ連れ去って",
+    "fix": "unknown"
+  },
+  {
+    "song": "Wanderschaffen_s_Law",
+    "stanza": 10,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "見よう見まねの魔法 両手をかざし",
+    "fix": "unknown"
+  },
+  {
+    "song": "Wanderschaffen_s_Law",
+    "stanza": 11,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "さぁ 切り開いて",
+    "fix": "unknown"
+  },
+  {
+    "song": "Wanderschaffen_s_Law",
+    "stanza": 12,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "くるくる廻る視界を飲み込んで",
+    "fix": "unknown"
+  },
+  {
+    "song": "Wanderschaffen_s_Law",
+    "stanza": 13,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "運命を一つ選んだら",
+    "fix": "unknown"
+  },
+  {
+    "song": "Wanderschaffen_s_Law",
+    "stanza": 14,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "見よう見まねの呪文によって",
+    "fix": "unknown"
+  },
+  {
+    "song": "Wanderschaffen_s_Law",
+    "stanza": 15,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "おもちゃ箱は弾け飛ぶ",
+    "fix": "unknown"
+  },
+  {
+    "song": "Wanderschaffen_s_Law",
+    "stanza": 16,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "臨界点まで突き抜けて",
+    "fix": "unknown"
+  },
+  {
+    "song": "Wanderschaffen_s_Law",
+    "stanza": 17,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "その丸い瞳に故郷が映ったら",
+    "fix": "unknown"
+  },
+  {
+    "song": "Wanderschaffen_s_Law",
+    "stanza": 18,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "ぽつり “ありがとう”",
+    "fix": "unknown"
+  },
+  {
+    "song": "Wanderschaffen_s_Law",
+    "stanza": 19,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "そんな言葉を置いて",
+    "fix": "unknown"
+  },
+  {
+    "song": "Wanderschaffen_s_Law",
+    "stanza": 20,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "彼女は遠くへいってしまったんだ",
+    "fix": "unknown"
+  },
+  {
+    "song": "Wanderschaffen_s_Law",
+    "stanza": 21,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "おまじない おまじない",
+    "fix": "unknown"
+  },
+  {
+    "song": "Wanderschaffen_s_Law",
+    "stanza": 22,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "ひび割れた瞼 廃棄をしてください",
+    "fix": "unknown"
+  },
+  {
+    "song": "Wanderschaffen_s_Law",
+    "stanza": 23,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "これは ある 人形の物語",
+    "fix": "unknown"
+  },
+  {
+    "song": "Wanderschaffen_s_Law",
+    "stanza": 24,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "おそらくここにあったのは 贖罪か殉教",
+    "fix": "unknown"
+  },
+  {
+    "song": "Wanderschaffen_s_Law",
+    "stanza": 25,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "愛に溢れた時間だけ",
+    "fix": "unknown"
+  },
+  {
+    "song": "Wanderschaffen_s_Law",
+    "stanza": 26,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "小さな箱の中の彼女は",
+    "fix": "unknown"
+  },
+  {
+    "song": "Wanderschaffen_s_Law",
+    "stanza": 27,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "とてもとても 幸せそうに眠っていた",
+    "fix": "unknown"
+  },
+  {
+    "song": "Wanderschaffen_s_Law",
+    "stanza": 28,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "とてもとても 幸せそうに眠っていた",
+    "fix": "unknown"
+  },
+  {
+    "song": "Doppelgängers",
+    "stanza": 0,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "ドッペルゲンガーが現れて",
+    "fix": "unknown"
+  },
+  {
+    "song": "Doppelgängers",
+    "stanza": 1,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "それらは ぼくを何度も突き刺した",
+    "fix": "unknown"
+  },
+  {
+    "song": "Doppelgängers",
+    "stanza": 2,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "悪い子どもは もう 眠る時間",
+    "fix": "unknown"
+  },
+  {
+    "song": "Doppelgängers",
+    "stanza": 3,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "「誰かを愛するためには まず我々自身を愛してあげましょう」",
+    "fix": "unknown"
+  },
+  {
+    "song": "Doppelgängers",
+    "stanza": 4,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "悪意の居ない脳内では 優しい夢を見られるのでしょうか",
+    "fix": "unknown"
+  },
+  {
+    "song": "Doppelgängers",
+    "stanza": 5,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "「そうして 我々は 共に愛し合い 支え合っていくのです」",
+    "fix": "unknown"
+  },
+  {
+    "song": "Doppelgängers",
+    "stanza": 6,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "瞼の楽園は 焼け焦げていて もう思い出すこともできないよ",
+    "fix": "unknown"
+  },
+  {
+    "song": "Doppelgängers",
+    "stanza": 7,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "『お前は頭の壊れた化け物だから 幾ら潰してもいいのさ』",
+    "fix": "unknown"
+  },
+  {
+    "song": "Doppelgängers",
+    "stanza": 8,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "無垢を殴り続けられ ショートしてしまった 戻らない脳回路",
+    "fix": "unknown"
+  },
+  {
+    "song": "Doppelgängers",
+    "stanza": 9,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "『最早 人ですらないのだから 痛みを推し測る必要もないだろう』",
+    "fix": "unknown"
+  },
+  {
+    "song": "Doppelgängers",
+    "stanza": 10,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "無差別に堕とされた地獄で ぼくたちはいつしか 化け物になった",
+    "fix": "unknown"
+  },
+  {
+    "song": "Doppelgängers",
+    "stanza": 11,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "消えろ 消えろ 消えろ 消えろ 消えろ 消えろ 消えろ 消えろ",
+    "fix": "unknown"
+  },
+  {
+    "song": "Doppelgängers",
+    "stanza": 12,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "消えろ 消えろ 消えろ 消えろ 消えろ 消えろ 消えろ 消えろ",
+    "fix": "unknown"
+  },
+  {
+    "song": "Doppelgängers",
+    "stanza": 13,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "(消えろ)",
+    "fix": "unknown"
+  },
+  {
+    "song": "Doppelgängers",
+    "stanza": 14,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "こんなにもバラバラになってしまうのなら",
+    "fix": "unknown"
+  },
+  {
+    "song": "Doppelgängers",
+    "stanza": 15,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "何のために ぼくたちは生まれ そして 生き長らえていくのだろう",
+    "fix": "unknown"
+  },
+  {
+    "song": "Doppelgängers",
+    "stanza": 16,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "堕ちていく生物から 天使はその目を背けた",
+    "fix": "unknown"
+  },
+  {
+    "song": "Doppelgängers",
+    "stanza": 17,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "救いの言葉は 何の役にも立たないんだ",
+    "fix": "unknown"
+  },
+  {
+    "song": "kuusou_modernism",
+    "stanza": 0,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "薄汚れた床 真っ白なドレスのあの子 // 世界はいつも私を嘲笑う",
+    "fix": "unknown"
+  },
+  {
+    "song": "kuusou_modernism",
+    "stanza": 1,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "ああ なんてつまらない毎日 // そんな時 木箱の中 横たわるあなたを見つけたの",
+    "fix": "unknown"
+  },
+  {
+    "song": "kuusou_modernism",
+    "stanza": 2,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "La la la...",
+    "fix": "unknown"
+  },
+  {
+    "song": "kuusou_modernism",
+    "stanza": 3,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "月灯りの下 // 私の目は未来を映し出す",
+    "fix": "unknown"
+  },
+  {
+    "song": "kuusou_modernism",
+    "stanza": 4,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "掌の上のあなたが あの塔をも凌ぐ 大きな体を持ったなら",
+    "fix": "unknown"
+  },
+  {
+    "song": "kuusou_modernism",
+    "stanza": 5,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "冷たい過去に咆哮を // あなたの腕は全てを打ち砕く",
+    "fix": "unknown"
+  },
+  {
+    "song": "kuusou_modernism",
+    "stanza": 6,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "さあ 踊りましょう 張りめぐらされた機械都市で",
+    "fix": "unknown"
+  },
+  {
+    "song": "kuusou_modernism",
+    "stanza": 7,
+    "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the English and Japanese parallel texts cannot be aligned here.",
+    "en": "<none>",
+    "ja": "この美しい夜が終わらないように",
+    "fix": "unknown"
+  }
+]

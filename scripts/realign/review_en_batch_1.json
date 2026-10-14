@@ -1,0 +1,458 @@
+[
+ {
+  "song": "Wanderers",
+  "stanza": 21,
+  "issue": "EN is only the first half of this stanza: JA is '世界の理は 小さな灯は その目を覚ます' but EN stops after 'The reason for the world,'; the second half of the sentence ('a little light wakes up its eyes') was pushed into the EN slot of S22.",
+  "en": "The reason for the world,",
+  "ja": "世界の理は 小さな灯は その目を覚ます",
+  "fix": "The reason for the world, a little light wakes up its eyes"
+ },
+ {
+  "song": "Wanderers",
+  "stanza": 22,
+  "issue": "EN text belongs to S21 (it is the second half of that stanza's sentence); this stanza's own English ('Let's recite a spell with a sooty body') was merged into the EN of S23 instead.",
+  "en": "a little light wakes up its eyes",
+  "ja": "煤けた体で 呪文を唱えましょう",
+  "fix": "Let's recite a spell with a sooty body"
+ },
+ {
+  "song": "Wanderers",
+  "stanza": 23,
+  "issue": "EN merges S22's English with this stanza's English: only the final clause 'to blacken our preodained destiny' renders JA '決められた運命を 黒く塗り潰すために'.",
+  "en": "Let's recite a spell with a sooty body to blacken our preodained destiny",
+  "ja": "決められた運命を 黒く塗り潰すために",
+  "fix": "to blacken our preodained destiny"
+ },
+ {
+  "song": "Alice_Music",
+  "stanza": 21,
+  "issue": "EN missing for this stanza: JA '次の始まりが見えるまで' has no English counterpart - the source English skips this line (S20 'Everywhere you can go' is followed directly by S22 'Go through time to time'), so the whole tail of the song is one EN line short.",
+  "en": "<none>",
+  "ja": "次の始まりが見えるまで",
+  "fix": "unknown"
+ },
+ {
+  "song": "snooze_and_snooze",
+  "stanza": 0,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "今日の物語は どんな物語だった？",
+  "fix": "unknown"
+ },
+ {
+  "song": "snooze_and_snooze",
+  "stanza": 1,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "楽しい 楽しい 物語",
+  "fix": "unknown"
+ },
+ {
+  "song": "snooze_and_snooze",
+  "stanza": 2,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "明日の物語は どんな物語",
+  "fix": "unknown"
+ },
+ {
+  "song": "snooze_and_snooze",
+  "stanza": 3,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "時計のたたいて 目をこすって おはよう！",
+  "fix": "unknown"
+ },
+ {
+  "song": "snooze_and_snooze",
+  "stanza": 4,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "世界。",
+  "fix": "unknown"
+ },
+ {
+  "song": "snooze_and_snooze",
+  "stanza": 5,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "今日の物語は どんな物語だった？",
+  "fix": "unknown"
+ },
+ {
+  "song": "snooze_and_snooze",
+  "stanza": 6,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "楽しい 楽しい 物語",
+  "fix": "unknown"
+ },
+ {
+  "song": "snooze_and_snooze",
+  "stanza": 7,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "明日の物語は どんな物語",
+  "fix": "unknown"
+ },
+ {
+  "song": "snooze_and_snooze",
+  "stanza": 8,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "時計のたたいて 目をこすって おはよう！",
+  "fix": "unknown"
+ },
+ {
+  "song": "snooze_and_snooze",
+  "stanza": 9,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "世界。",
+  "fix": "unknown"
+ },
+ {
+  "song": "snooze_and_snooze",
+  "stanza": 10,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "深呼吸をして 服を着替えて",
+  "fix": "unknown"
+ },
+ {
+  "song": "snooze_and_snooze",
+  "stanza": 11,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "うーん覚えているような‥ 覚えていないような‥",
+  "fix": "unknown"
+ },
+ {
+  "song": "snooze_and_snooze",
+  "stanza": 12,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "踊る太陽に 歌う月",
+  "fix": "unknown"
+ },
+ {
+  "song": "snooze_and_snooze",
+  "stanza": 13,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "うーん 見たことあるような‥",
+  "fix": "unknown"
+ },
+ {
+  "song": "snooze_and_snooze",
+  "stanza": 14,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "まぁ、いいかな？ まぁ、いいのかな",
+  "fix": "unknown"
+ },
+ {
+  "song": "snooze_and_snooze",
+  "stanza": 15,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "眠いね 眠りたいね",
+  "fix": "unknown"
+ },
+ {
+  "song": "snooze_and_snooze",
+  "stanza": 16,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "でも、また一緒に遊んでね",
+  "fix": "unknown"
+ },
+ {
+  "song": "snooze_and_snooze",
+  "stanza": 17,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "また、大きな冒険へ",
+  "fix": "unknown"
+ },
+ {
+  "song": "snooze_and_snooze",
+  "stanza": 18,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "冒険へ‥",
+  "fix": "unknown"
+ },
+ {
+  "song": "Friend",
+  "stanza": 0,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "よく、我慢したね。",
+  "fix": "unknown"
+ },
+ {
+  "song": "Friend",
+  "stanza": 1,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "独りぼっち、この暗い世界で。",
+  "fix": "unknown"
+ },
+ {
+  "song": "Friend",
+  "stanza": 2,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "でももう大丈夫。",
+  "fix": "unknown"
+ },
+ {
+  "song": "Friend",
+  "stanza": 3,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "君に会えて良かった。",
+  "fix": "unknown"
+ },
+ {
+  "song": "Friend",
+  "stanza": 4,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "たくさんの季節と夜空が",
+  "fix": "unknown"
+ },
+ {
+  "song": "Friend",
+  "stanza": 5,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "君の傍を過ぎ去ったけれど、",
+  "fix": "unknown"
+ },
+ {
+  "song": "Friend",
+  "stanza": 6,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "私は君の友達。",
+  "fix": "unknown"
+ },
+ {
+  "song": "Friend",
+  "stanza": 7,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "\"トリエスタ。\"",
+  "fix": "unknown"
+ },
+ {
+  "song": "Friend",
+  "stanza": 8,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "\"きっと私は君に会うために、ここへやってきた。\"",
+  "fix": "unknown"
+ },
+ {
+  "song": "Friend",
+  "stanza": 9,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "\"私は、君に会うために‥\"",
+  "fix": "unknown"
+ },
+ {
+  "song": "Friend",
+  "stanza": 10,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "君は私とよく似てる。",
+  "fix": "unknown"
+ },
+ {
+  "song": "Friend",
+  "stanza": 11,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "ずっと暗い世界で、独りぼっちだった。",
+  "fix": "unknown"
+ },
+ {
+  "song": "Friend",
+  "stanza": 12,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "でももう大丈夫。",
+  "fix": "unknown"
+ },
+ {
+  "song": "Friend",
+  "stanza": 13,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "君と逢えて良かった。",
+  "fix": "unknown"
+ },
+ {
+  "song": "Friend",
+  "stanza": 14,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "\"ずっと孤独に包まれていた\" // たくさんの季節と夜空が",
+  "fix": "unknown"
+ },
+ {
+  "song": "Friend",
+  "stanza": 15,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "私たちの傍を過ぎ去ったけれど、",
+  "fix": "unknown"
+ },
+ {
+  "song": "Friend",
+  "stanza": 16,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "君はずっと、私の大切な",
+  "fix": "unknown"
+ },
+ {
+  "song": "Friend",
+  "stanza": 17,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "友達。",
+  "fix": "unknown"
+ },
+ {
+  "song": "a_Witch_of_Ice_Cage",
+  "stanza": 0,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "“暗い..暗い...”",
+  "fix": "unknown"
+ },
+ {
+  "song": "a_Witch_of_Ice_Cage",
+  "stanza": 1,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "千年の氷の格子は私に纏わり付いて // 心まで凍てついてしまった",
+  "fix": "unknown"
+ },
+ {
+  "song": "a_Witch_of_Ice_Cage",
+  "stanza": 2,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "私はこのままこの檻の中で永遠に 眠ってしまうのだろうか",
+  "fix": "unknown"
+ },
+ {
+  "song": "a_Witch_of_Ice_Cage",
+  "stanza": 3,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "嗚呼 未来を見せておくれ",
+  "fix": "unknown"
+ },
+ {
+  "song": "a_Witch_of_Ice_Cage",
+  "stanza": 4,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "広い世界を見せておくれ",
+  "fix": "unknown"
+ },
+ {
+  "song": "a_Witch_of_Ice_Cage",
+  "stanza": 5,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "あの鳥もあの風も あんなに自由に飛んでいるのに",
+  "fix": "unknown"
+ },
+ {
+  "song": "a_Witch_of_Ice_Cage",
+  "stanza": 6,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "それなのに私は ここから飛び出せずに",
+  "fix": "unknown"
+ },
+ {
+  "song": "a_Witch_of_Ice_Cage",
+  "stanza": 7,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "”ここから出して、アリス、アリス..”",
+  "fix": "unknown"
+ },
+ {
+  "song": "a_Witch_of_Ice_Cage",
+  "stanza": 8,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "嗚呼 太陽を見せておくれ",
+  "fix": "unknown"
+ },
+ {
+  "song": "a_Witch_of_Ice_Cage",
+  "stanza": 9,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "あと一度だけ見せておくれ",
+  "fix": "unknown"
+ },
+ {
+  "song": "a_Witch_of_Ice_Cage",
+  "stanza": 10,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "あの鳥もあの風も あんなに自由に飛んでいるのに",
+  "fix": "unknown"
+ },
+ {
+  "song": "a_Witch_of_Ice_Cage",
+  "stanza": 11,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "私はずっと独りぼっち",
+  "fix": "unknown"
+ },
+ {
+  "song": "a_Witch_of_Ice_Cage",
+  "stanza": 12,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "嗚呼 未来を見せておくれ",
+  "fix": "unknown"
+ },
+ {
+  "song": "a_Witch_of_Ice_Cage",
+  "stanza": 13,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "広い世界を見せておくれ",
+  "fix": "unknown"
+ },
+ {
+  "song": "a_Witch_of_Ice_Cage",
+  "stanza": 14,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "あの鳥もあの風も あんなに自由に飛んでいるのに",
+  "fix": "unknown"
+ },
+ {
+  "song": "a_Witch_of_Ice_Cage",
+  "stanza": 15,
+  "issue": "EN missing: this stanza has an official Japanese line but the EN slot is '<none>'; the whole song has no English text in the source data (EN field is empty/whitespace), so the EN and JA parallel texts cannot be aligned at this index.",
+  "en": "<none>",
+  "ja": "私はこのままこの檻の中",
+  "fix": "unknown"
+ }
+]
