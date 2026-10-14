@@ -3,6 +3,70 @@
 > Chinese release notes are shown on the GitHub Releases page. This document is
 > the dedicated English version for readers who prefer English.
 
+## v1.9.0 (2026-10-14)
+
+### Highlights
+
+- **Database updates are checked automatically at startup**: after a cold start
+  the app fetches a small published manifest from GitHub (about 300 bytes, silent
+  on failure) and, when a newer revision exists, raises a prompt and waits for the
+  user to accept the download. Choosing "Later" remembers that revision, so the
+  prompt only returns for a newer one. Downloads are verified by size and SHA-1,
+  and the installed database is backed up before it is replaced. Settings gained an
+  "auto check at startup" switch plus the local database revision and the time of
+  the last check.
+- **Official Japanese/English lyrics now align sentence by sentence**: fixed the
+  translator showing a whole stanza's translation on two adjacent lines (A
+  containing B and B containing A) — 95 blocks / 218 lines, with 266 lines corrected
+  and 3 added. Four upstream source defects were fixed as well: the Alice_Music
+  English block shifted by one stanza, killed_by_angel S02/S03 swapped, Wanderers
+  S21-S23 English split across three stanzas, and a stray `<br>` in Fehlt.
+- **Study mode asks which script to learn**: first entry into the study tab offers
+  "Alician glyphs" (glyph primer plus its recognition quiz) or "Latin transcription
+  only", which skips the glyph quiz and starts the deck right away.
+- **Translation engine recalibrated against the official Japanese lyrics**: Elize,
+  Zel, end and Loosya were re-checked against the corpus, Chinese chunking and
+  composition improved, and semantic expansions now default to on. The grammar
+  document gained corpus-attested sections 4.15-4.19 and 7.1-7.2.
+
+### Fixes
+
+- The database update action no longer points at the upstream full database, which
+  carries no official translations and would have wiped them; it is now a manual
+  "check and import upstream full database" entry with an explanatory label.
+
+### Build and toolchain
+
+- Chaquopy's pip runs with `--no-cache-dir`, fixing wheel-cache failures in
+  confined build environments.
+- `DATABASE_ASSET_VERSION` tracks the new database asset; the asset itself now
+  carries a `database_metadata` revision marker.
+
+### Verification
+
+- 37 Android unit tests pass, including 8 new `DatabaseUpdateLogicTest` cases.
+- 64 Python tests pass (`test_attested_grammar` + `test_chinese_composition`).
+- Alignment is enforced mechanically: every split fragment of the 149
+  multi-sentence stanzas rejoins the official source text verbatim, and a full
+  1279-line duplicate scan dropped adjacent duplicated blocks from 95 to 6 (the
+  remainder are lines whose Alician original is identical).
+- The published manifest and database were verified byte-for-byte (size/SHA-1) and
+  the startup decision was simulated: existing installs (v0) receive the prompt,
+  fresh installs (v1) stay silent, and "Later" silences that revision.
+
+### Technical details
+
+- Version: 1.9.0 (versionCode 13)
+- ABIs: arm64-v8a + x86_64
+
+### Release assets
+
+- `AlicianDictionary-v1.9.0.apk`: signed release APK (arm64-v8a + x86_64)
+- `AlicianDictionary-v1.9.0.apk.intoto.jsonl`: SLSA build provenance
+- `SHA256SUMS.txt`: SHA-256 checksums of the assets
+
+**Full changelog**: https://github.com/Meartraep/AlicianDictionaryMobile/compare/v1.8.1...v1.9.0
+
 ## v1.8.1 (2026-09-19)
 
 ### Fixes
