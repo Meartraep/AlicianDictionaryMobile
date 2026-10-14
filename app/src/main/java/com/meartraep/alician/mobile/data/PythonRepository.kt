@@ -475,8 +475,11 @@ class PythonRepository(private val application: Application) {
         preferences.edit { putLong("last_database_check_at", System.currentTimeMillis()) }
     }
 
-    /** Fetches the small published manifest; the database itself is only downloaded on demand. */
-    suspend fun fetchDatabaseUpdateManifest(): DatabaseUpdateManifest = withContext(Dispatchers.IO) {
+    /**
+     * Fetches the small published manifest; the database itself is only downloaded
+     * on demand. Returns null when the repository simply does not publish one yet.
+     */
+    suspend fun fetchDatabaseUpdateManifest(): DatabaseUpdateManifest? = withContext(Dispatchers.IO) {
         val connection = URL(DATABASE_MANIFEST_URL).openConnection() as HttpURLConnection
         connection.requestMethod = "GET"
         connection.connectTimeout = 8_000
@@ -485,9 +488,10 @@ class PythonRepository(private val application: Application) {
         connection.setRequestProperty("Cache-Control", "no-cache")
         connection.setRequestProperty("User-Agent", "AlicianDictionaryMobile/" + BuildConfig.VERSION_NAME)
         try {
-            val responseCode = connection.responseCode
-            if (responseCode != HttpURLConnection.HTTP_OK) {
-                throw IllegalStateException("数据库更新清单获取失败（HTTP " + responseCode + "）")
+            when (val responseCode = connection.responseCode) {
+                HttpURLConnection.HTTP_NOT_FOUND -> return@withContext null
+                HttpURLConnection.HTTP_OK -> Unit
+                else -> throw IllegalStateException("数据库更新清单获取失败（HTTP " + responseCode + "）")
             }
             val json = JSONObject(connection.inputStream.bufferedReader().use { it.readText() })
             DatabaseUpdateManifest(
