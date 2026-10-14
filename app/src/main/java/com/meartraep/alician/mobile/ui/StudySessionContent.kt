@@ -49,6 +49,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.meartraep.alician.mobile.R
 import com.meartraep.alician.mobile.StudySessionState
 import com.meartraep.alician.mobile.data.StudyCard
@@ -56,6 +57,7 @@ import com.meartraep.alician.mobile.data.StudyOverview
 import com.meartraep.alician.mobile.data.StudyRating
 import com.meartraep.alician.mobile.data.StudyRatingPreview
 import com.meartraep.alician.mobile.data.StudyScope
+import com.meartraep.alician.mobile.data.StudyScript
 import kotlin.math.roundToInt
 
 @Composable
@@ -64,6 +66,7 @@ internal fun StudySession(
     overview: StudyOverview,
     padding: PaddingValues,
     reviewing: Boolean,
+    script: StudyScript,
     ratingPreview: (StudyCard) -> List<StudyRatingPreview>,
     onReveal: () -> Unit,
     onRate: (StudyRating) -> Unit,
@@ -76,7 +79,13 @@ internal fun StudySession(
     }
 
     val card = session.currentCard ?: return
-    var showTranscription by rememberSaveable(card.item.id) { mutableStateOf(false) }
+    // Only learners who chose the original script see glyphs first; everyone else reads Latin.
+    var showGlyphs by rememberSaveable(card.item.id, script) {
+        mutableStateOf(script == StudyScript.ALICIAN)
+    }
+    var alternateRevealed by rememberSaveable(card.item.id, script) {
+        mutableStateOf(false)
+    }
     val completedFraction = session.answerCount.toFloat() /
         (session.answerCount + session.queue.size).coerceAtLeast(1)
     val previews = remember(card, session.answerRevealed) {
@@ -155,24 +164,45 @@ internal fun StudySession(
                         )
                     }
                     Text(
-                        alicianDisplayText(card.item.text, alicianFont),
-                        modifier = Modifier.fillMaxWidth(),
+                        if (showGlyphs) {
+                            alicianDisplayText(card.item.text, alicianFont)
+                        } else {
+                            AnnotatedString(card.item.text)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("study_card_text"),
                         style = MaterialTheme.typography.displaySmall,
                         color = MaterialTheme.colorScheme.primary,
                         textAlign = TextAlign.Center,
                     )
-                    if (showTranscription) {
-                        Text(
-                            "拉丁转写：${card.item.text}",
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            textAlign = TextAlign.Center,
-                        )
+                    if (alternateRevealed) {
+                        if (showGlyphs) {
+                            Text(
+                                "拉丁转写：${card.item.text}",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center,
+                            )
+                        } else {
+                            Text(
+                                "爱丽丝语字形",
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            Text(
+                                alicianDisplayText(card.item.text, alicianFont),
+                                modifier = Modifier.fillMaxWidth(),
+                                fontSize = 34.sp,
+                                color = MaterialTheme.colorScheme.primary,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
                     } else {
-                        TextButton(onClick = { showTranscription = true }) {
+                        TextButton(onClick = { alternateRevealed = true }) {
                             Icon(Icons.Outlined.Visibility, contentDescription = null)
                             Spacer(Modifier.width(6.dp))
-                            Text("查看拉丁转写")
+                            Text(if (showGlyphs) "查看拉丁转写" else "查看爱丽丝语字形")
                         }
                     }
 

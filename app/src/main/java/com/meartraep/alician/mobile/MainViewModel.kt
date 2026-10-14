@@ -21,6 +21,7 @@ import com.meartraep.alician.mobile.data.StudyOverview
 import com.meartraep.alician.mobile.data.StudyRating
 import com.meartraep.alician.mobile.data.StudyRatingPreview
 import com.meartraep.alician.mobile.data.StudyRepository
+import com.meartraep.alician.mobile.data.StudyScript
 import com.meartraep.alician.mobile.data.StudySettings
 import com.meartraep.alician.mobile.data.TranslationResult
 import com.meartraep.alician.mobile.data.UiSettings
@@ -238,6 +239,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun completeAlphabetLesson() {
         updateStudySettings(studySettings.copy(alphabetCompleted = true))
         noticeMessage = "字符入门已完成，可以开始主动回忆词卡了。"
+    }
+
+    /**
+     * Records the first-run answer to "original glyphs or Latin transcription only".
+     * Choosing Latin starts the study flow immediately without any glyph training.
+     */
+    fun chooseStudyScript(script: StudyScript) {
+        updateStudySettings(studySettings.copy(script = script))
+        noticeMessage = when (script) {
+            StudyScript.ALICIAN -> "已选择爱丽丝语原字体；先看字符对照，再通过识字小测即可开始背词。"
+            StudyScript.LATIN -> "已选择只学拉丁转写；字符小测已跳过，可以直接开始背词。"
+        }
     }
 
     fun startStudySession() {

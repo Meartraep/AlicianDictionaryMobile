@@ -22,6 +22,7 @@ class StudySchedulerTest {
         assertEquals(StudyOrder.FREQUENCY, settings.order)
         assertEquals(StudyContent.ALL, settings.content)
         assertEquals(10, settings.dailyNewLimit)
+        assertEquals(null, settings.script)
         assertEquals(false, settings.alphabetCompleted)
     }
 

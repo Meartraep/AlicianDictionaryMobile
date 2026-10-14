@@ -1,14 +1,52 @@
 package com.meartraep.alician.mobile
 
+import com.meartraep.alician.mobile.data.StudyEntry
+import com.meartraep.alician.mobile.data.StudyScript
+import com.meartraep.alician.mobile.data.StudySettings
+import com.meartraep.alician.mobile.data.leadsWithAlicianGlyphs
+import com.meartraep.alician.mobile.data.studyEntryFor
 import com.meartraep.alician.mobile.ui.buildAlphabetQuiz
 import com.meartraep.alician.mobile.ui.formatInterval
 import com.meartraep.alician.mobile.ui.millisecondsUntilNextLocalDay
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.util.Calendar
 
 class StudyUiLogicTest {
+    @Test
+    fun studyTabAsksForTheScriptBeforeAnythingElse() {
+        assertEquals(StudyEntry.SCRIPT_CHOICE, studyEntryFor(StudySettings()))
+    }
+
+    @Test
+    fun originalScriptRequiresTheRecognitionQuiz() {
+        assertEquals(
+            StudyEntry.ALPHABET_PRIMER,
+            studyEntryFor(StudySettings(script = StudyScript.ALICIAN)),
+        )
+        assertEquals(
+            StudyEntry.OVERVIEW,
+            studyEntryFor(
+                StudySettings(script = StudyScript.ALICIAN, alphabetCompleted = true),
+            ),
+        )
+    }
+
+    @Test
+    fun latinTranscriptionSkipsTheGlyphPrimerAndQuiz() {
+        val latinOnly = StudySettings(script = StudyScript.LATIN)
+
+        assertEquals(StudyEntry.OVERVIEW, studyEntryFor(latinOnly))
+        assertEquals(
+            StudyEntry.OVERVIEW,
+            studyEntryFor(latinOnly.copy(alphabetCompleted = false)),
+        )
+        assertFalse(latinOnly.leadsWithAlicianGlyphs)
+        assertTrue(StudySettings(script = StudyScript.ALICIAN).leadsWithAlicianGlyphs)
+    }
+
     @Test
     fun alphabetQuizTestsBothCasesWithValidChoices() {
         val quiz = buildAlphabetQuiz(20260801L)

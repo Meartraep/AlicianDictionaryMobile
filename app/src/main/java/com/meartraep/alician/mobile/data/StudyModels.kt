@@ -33,12 +33,52 @@ enum class StudyRating {
     EASY,
 }
 
+/**
+ * How the learner reads Alician words.
+ *
+ * [ALICIAN] starts with the glyph primer and its recognition quiz. [LATIN] reads the plain
+ * Latin transcription and never forces the original glyphs.
+ */
+enum class StudyScript {
+    ALICIAN,
+    LATIN,
+}
+
+/** The screen the study tab must show before the deck overview becomes reachable. */
+enum class StudyEntry {
+    /** Nothing is chosen yet: ask which script to learn. */
+    SCRIPT_CHOICE,
+
+    /** The learner picked the original glyphs but has not passed the recognition quiz. */
+    ALPHABET_PRIMER,
+
+    /** The deck overview; only [StudyScript.LATIN] reaches it without any glyph training. */
+    OVERVIEW,
+}
+
 data class StudySettings(
     val order: StudyOrder = StudyOrder.FREQUENCY,
     val content: StudyContent = StudyContent.ALL,
     val dailyNewLimit: Int = 10,
+    /** Null until the learner answers the first-run script question. */
+    val script: StudyScript? = null,
     val alphabetCompleted: Boolean = false,
 )
+
+/**
+ * Resolves what the study tab shows. Choosing [StudyScript.LATIN] skips the glyph primer and
+ * its quiz entirely, so the study flow starts right away.
+ */
+fun studyEntryFor(settings: StudySettings): StudyEntry = when {
+    settings.script == null -> StudyEntry.SCRIPT_CHOICE
+    settings.script == StudyScript.ALICIAN && !settings.alphabetCompleted ->
+        StudyEntry.ALPHABET_PRIMER
+    else -> StudyEntry.OVERVIEW
+}
+
+/** True when study cards lead with the Alician glyph font instead of the Latin transcription. */
+val StudySettings.leadsWithAlicianGlyphs: Boolean
+    get() = script == StudyScript.ALICIAN
 
 /**
  * Dictionary content shown by a study card.

@@ -48,9 +48,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.meartraep.alician.mobile.MainViewModel
 import com.meartraep.alician.mobile.data.StudyContent
+import com.meartraep.alician.mobile.data.StudyEntry
 import com.meartraep.alician.mobile.data.StudyOrder
 import com.meartraep.alician.mobile.data.StudyOverview
+import com.meartraep.alician.mobile.data.StudyScript
 import com.meartraep.alician.mobile.data.StudySettings
+import com.meartraep.alician.mobile.data.leadsWithAlicianGlyphs
+import com.meartraep.alician.mobile.data.studyEntryFor
 import kotlinx.coroutines.delay
 import java.util.Calendar
 import kotlin.math.roundToInt
@@ -59,9 +63,9 @@ private val studyDailyLimits = listOf(5, 10, 20, 30)
 
 @Composable
 fun StudyScreen(viewModel: MainViewModel, padding: PaddingValues) {
-    var showingAlphabet by rememberSaveable {
-        mutableStateOf(!viewModel.studySettings.alphabetCompleted)
-    }
+    var showingAlphabet by rememberSaveable { mutableStateOf(false) }
+    val settings = viewModel.studySettings
+    val entry = studyEntryFor(settings)
 
     LifecycleResumeEffect(viewModel.ready) {
         if (viewModel.ready) viewModel.refreshStudyOverview()
@@ -70,7 +74,7 @@ fun StudyScreen(viewModel: MainViewModel, padding: PaddingValues) {
 
     val showingStudyOverview = viewModel.ready &&
         viewModel.studySession == null &&
-        viewModel.studySettings.alphabetCompleted &&
+        entry == StudyEntry.OVERVIEW &&
         !showingAlphabet
     LaunchedEffect(showingStudyOverview) {
         while (showingStudyOverview) {
@@ -92,22 +96,30 @@ fun StudyScreen(viewModel: MainViewModel, padding: PaddingValues) {
             overview = viewModel.studyOverview,
             padding = padding,
             reviewing = viewModel.studyReviewing,
+            script = settings.script ?: StudyScript.LATIN,
             ratingPreview = viewModel::previewStudyRatings,
             onReveal = viewModel::revealStudyAnswer,
             onRate = viewModel::rateStudyCard,
             onClose = viewModel::closeStudySession,
         )
-        showingAlphabet || !viewModel.studySettings.alphabetCompleted -> AlphabetLesson(
+        entry == StudyEntry.SCRIPT_CHOICE -> StudyScriptChoice(
             padding = padding,
-            canGoBack = viewModel.studySettings.alphabetCompleted,
+            onChoose = viewModel::chooseStudyScript,
+        )
+        showingAlphabet || entry == StudyEntry.ALPHABET_PRIMER -> AlphabetLesson(
+            padding = padding,
+            // The quiz only gates the flow when the learner asked for the original glyphs.
+            quizRequired = entry == StudyEntry.ALPHABET_PRIMER,
+            canGoBack = entry != StudyEntry.ALPHABET_PRIMER,
             onBack = { showingAlphabet = false },
+            onDecline = { viewModel.chooseStudyScript(StudyScript.LATIN) },
             onComplete = {
                 viewModel.completeAlphabetLesson()
                 showingAlphabet = false
             },
         )
         else -> StudyOverview(
-            settings = viewModel.studySettings,
+            settings = settings,
             overview = viewModel.studyOverview,
             padding = padding,
             ready = viewModel.ready,
@@ -267,6 +279,37 @@ private fun StudyOverview(
             }
         }
 
+        item {
+            SectionHeader(
+                "学习方式",
+                if (settings.leadsWithAlicianGlyphs) {
+                    "词卡默认显示爱丽丝语原字体；切换为拉丁转写随时可以，且不需要重做识字小测。"
+                } else {
+                    "词卡只显示拉丁转写，不会要求认字形；想学原字体时会先进入字符对照与识字小测。"
+                },
+            )
+        }
+        item {
+            SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                listOf(
+                    StudyScript.ALICIAN to "原字体",
+                    StudyScript.LATIN to "拉丁转写",
+                ).forEachIndexed { index, option ->
+                    SegmentedButton(
+                        selected = settings.script == option.first,
+                        onClick = {
+                            onSettingsChanged(settings.copy(script = option.first))
+                        },
+                        shape = SegmentedButtonDefaults.itemShape(index, 2),
+                        modifier = Modifier
+                            .weight(1f)
+                            .testTag("study_script_option_${option.first.name}"),
+                        label = { Text(option.second) },
+                    )
+                }
+            }
+        }
+
         item { SectionHeader("牌组范围", "词组会和单词使用同一套复习计划") }
         item {
             SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
@@ -341,11 +384,19 @@ private fun StudyOverview(
         item {
             OutlinedButton(
                 onClick = onOpenAlphabet,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("study_open_alphabet"),
             ) {
                 Icon(Icons.Outlined.FontDownload, contentDescription = null)
                 Spacer(Modifier.width(8.dp))
-                Text("重新练习爱丽丝语字符")
+                Text(
+                    if (settings.leadsWithAlicianGlyphs) {
+                        "重新练习爱丽丝语字符"
+                    } else {
+                        "浏览爱丽丝语字符表（可选）"
+                    },
+                )
             }
         }
         item {

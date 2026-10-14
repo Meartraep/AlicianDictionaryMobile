@@ -29,6 +29,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -55,8 +56,10 @@ private const val alphabetPassScore = 8
 @Composable
 internal fun AlphabetLesson(
     padding: PaddingValues,
+    quizRequired: Boolean,
     canGoBack: Boolean,
     onBack: () -> Unit,
+    onDecline: () -> Unit,
     onComplete: () -> Unit,
 ) {
     var quizSeed by rememberSaveable { mutableStateOf<Long?>(null) }
@@ -79,6 +82,9 @@ internal fun AlphabetLesson(
         quizFinished = false
     }
 
+    // Learners who pick the original glyphs can still fall back to plain Latin at any point.
+    val declineLabel = if (quizRequired) "改用拉丁转写，直接背词" else "不用了，直接背词"
+
     if (questions.isNotEmpty()) {
         AlphabetQuiz(
             questions = questions,
@@ -87,7 +93,10 @@ internal fun AlphabetLesson(
             selectedAnswer = selectedAnswer,
             finished = quizFinished,
             padding = padding,
+            quizRequired = quizRequired,
             canGoBack = canGoBack,
+            declineLabel = declineLabel,
+            onDecline = onDecline,
             onBack = if (canGoBack) onBack else {
                 {
                     quizSeed = null
@@ -121,7 +130,9 @@ internal fun AlphabetLesson(
     val landscape = isLandscapeLayout()
     LazyVerticalGrid(
         columns = GridCells.Fixed(if (landscape) 2 else 1),
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .testTag("alphabet_lesson_list"),
         contentPadding = PaddingValues(
             start = 16.dp,
             end = 16.dp,
@@ -143,9 +154,16 @@ internal fun AlphabetLesson(
                     Spacer(Modifier.width(4.dp))
                 }
                 Column {
-                    Text("先认识爱丽丝语字符", style = MaterialTheme.typography.headlineMedium)
                     Text(
-                        "理解字形后再背词，避免把识字困难误判成遗忘。",
+                        if (quizRequired) "先认识爱丽丝语字符" else "爱丽丝语字符对照",
+                        style = MaterialTheme.typography.headlineMedium,
+                    )
+                    Text(
+                        if (quizRequired) {
+                            "你选择了学习原字体：理解字形后再背词，避免把识字困难误判成遗忘。"
+                        } else {
+                            "你选择了只学拉丁转写；这里是可选的字符对照，识字小测不做要求。"
+                        },
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -180,7 +198,11 @@ internal fun AlphabetLesson(
                         color = MaterialTheme.colorScheme.primary,
                     )
                     Text(
-                        "学习卡默认显示专用字形；需要时可点“查看拉丁转写”。",
+                        if (quizRequired) {
+                            "学习卡默认显示专用字形；需要时可点“查看拉丁转写”。"
+                        } else {
+                            "你的学习卡仍显示普通字母；想对照字形时点“查看爱丽丝语字形”。"
+                        },
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 }
@@ -209,7 +231,10 @@ internal fun AlphabetLesson(
                             tint = MaterialTheme.colorScheme.primary,
                         )
                         Spacer(Modifier.width(8.dp))
-                        Text("识字小测", style = MaterialTheme.typography.titleMedium)
+                        Text(
+                            if (quizRequired) "识字小测" else "识字小测（可选）",
+                            style = MaterialTheme.typography.titleMedium,
+                        )
                     }
                     Text(
                         "随机辨认 $alphabetQuizSize 个字形，答对 $alphabetPassScore 个即可进入词卡。" +
@@ -217,13 +242,28 @@ internal fun AlphabetLesson(
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                    if (!quizRequired) {
+                        Text(
+                            "不做小测也可以直接背词；测一次只是确认你真的认得这些字形。",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                     Button(
                         onClick = { restartQuiz() },
                         modifier = Modifier
                             .fillMaxWidth()
                             .testTag("alphabet_start_quiz"),
                     ) {
-                        Text("开始字符小测")
+                        Text(if (quizRequired) "开始字符小测" else "仍要测一测")
+                    }
+                    TextButton(
+                        onClick = onDecline,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("alphabet_decline"),
+                    ) {
+                        Text(declineLabel)
                     }
                 }
             }
@@ -277,7 +317,10 @@ private fun AlphabetQuiz(
     selectedAnswer: Char?,
     finished: Boolean,
     padding: PaddingValues,
+    quizRequired: Boolean,
     canGoBack: Boolean,
+    declineLabel: String,
+    onDecline: () -> Unit,
     onBack: () -> Unit,
     onAnswer: (Char) -> Unit,
     onNext: () -> Unit,
@@ -352,10 +395,15 @@ private fun AlphabetQuiz(
             }
             item {
                 Text(
-                    if (passed) {
-                        "字符基础已经够用了。遇到生疏字形时，词卡仍可随时显示拉丁转写。"
-                    } else {
-                        "再看一遍字符对照，然后换一组题巩固；重复辨认会比死记更牢。"
+                    when {
+                        passed && quizRequired ->
+                            "字符基础已经够用了。遇到生疏字形时，词卡仍可随时显示拉丁转写。"
+                        passed -> "认得这些字形了，已记为字符入门完成；拉丁转写模式不受影响。"
+                        quizRequired ->
+                            "再看一遍字符对照，然后换一组题巩固；重复辨认会比死记更牢。"
+                        else ->
+                            "没到 $alphabetPassScore 个也没关系：你学的是拉丁转写，" +
+                                "直接背词同样可以。"
                     },
                     style = MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center,
@@ -368,7 +416,25 @@ private fun AlphabetQuiz(
                         .fillMaxWidth()
                         .testTag(if (passed) "alphabet_complete" else "alphabet_retry"),
                 ) {
-                    Text(if (passed) "进入词卡学习" else "换一组再试")
+                    Text(
+                        when {
+                            passed && quizRequired -> "进入词卡学习"
+                            passed -> "完成字符入门，返回总览"
+                            else -> "换一组再试"
+                        },
+                    )
+                }
+            }
+            if (!passed) {
+                item {
+                    TextButton(
+                        onClick = onDecline,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("alphabet_decline"),
+                    ) {
+                        Text(declineLabel)
+                    }
                 }
             }
         } else {

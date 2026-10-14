@@ -61,13 +61,23 @@ class StudyRepository(
     private val mutex = Mutex()
 
     val settings: StudySettings
-        get() = StudySettings(
-            order = preferenceEnum(SETTING_ORDER, StudyOrder.FREQUENCY),
-            content = preferenceEnum(SETTING_CONTENT, StudyContent.ALL),
-            dailyNewLimit = preferences.getInt(SETTING_DAILY_NEW, DEFAULT_DAILY_NEW)
-                .coerceIn(MIN_DAILY_NEW, MAX_DAILY_NEW),
-            alphabetCompleted = preferences.getBoolean(SETTING_ALPHABET_COMPLETE, false),
-        )
+        get() {
+            val alphabetCompleted = preferences.getBoolean(SETTING_ALPHABET_COMPLETE, false)
+            return StudySettings(
+                order = preferenceEnum(SETTING_ORDER, StudyOrder.FREQUENCY),
+                content = preferenceEnum(SETTING_CONTENT, StudyContent.ALL),
+                dailyNewLimit = preferences.getInt(SETTING_DAILY_NEW, DEFAULT_DAILY_NEW)
+                    .coerceIn(MIN_DAILY_NEW, MAX_DAILY_NEW),
+                // Learners who already passed the glyph primer before this choice existed keep
+                // the original-script mode instead of being asked again.
+                script = preferenceScript() ?: if (alphabetCompleted) {
+                    StudyScript.ALICIAN
+                } else {
+                    null
+                },
+                alphabetCompleted = alphabetCompleted,
+            )
+        }
 
     fun saveSettings(value: StudySettings) {
         preferences.edit {
@@ -77,6 +87,8 @@ class StudyRepository(
                 SETTING_DAILY_NEW,
                 value.dailyNewLimit.coerceIn(MIN_DAILY_NEW, MAX_DAILY_NEW),
             )
+            value.script?.let { putString(SETTING_SCRIPT, it.name) }
+                ?: remove(SETTING_SCRIPT)
             putBoolean(SETTING_ALPHABET_COMPLETE, value.alphabetCompleted)
         }
     }
@@ -466,6 +478,12 @@ class StudyRepository(
         return enumValues<T>().firstOrNull { it.name == stored } ?: fallback
     }
 
+    /** Null means the learner has not answered the script question yet. */
+    private fun preferenceScript(): StudyScript? {
+        val stored = preferences.getString(SETTING_SCRIPT, null) ?: return null
+        return enumValues<StudyScript>().firstOrNull { it.name == stored }
+    }
+
     private data class StudyDaily(
         val answers: Int = 0,
         val remembered: Int = 0,
@@ -515,6 +533,7 @@ class StudyRepository(
         const val SETTING_ORDER = "order"
         const val SETTING_CONTENT = "content"
         const val SETTING_DAILY_NEW = "daily_new"
+        const val SETTING_SCRIPT = "script"
         const val SETTING_ALPHABET_COMPLETE = "alphabet_complete"
         const val DEFAULT_DAILY_NEW = 10
         const val MIN_DAILY_NEW = 5
