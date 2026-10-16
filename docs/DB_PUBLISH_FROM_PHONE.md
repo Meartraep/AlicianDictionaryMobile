@@ -59,11 +59,37 @@ P2 的做法：用 Android Keystore 生成**不可导出**的签名密钥，手�
   必然不通过）；真正的门禁是发布流水线自己的校验，且它会在 stamp 后
   用 `workflow_dispatch` 重新触发一次版本校验（`GITHUB_TOKEN` 推送不会触发工作流，
   而 `workflow_dispatch` 是例外）。
-- 建议在 ruleset 里把 `Ledger, manifest and database agree` 设为 required check；
-  若要开 auto-merge，请先上 P2 的签名门禁，否则被盗令牌即可自动发布。
 - 令牌泄露或手机丢失：立刻在 GitHub 撤销该 token（设置页"清除令牌"只影响本机）。
 
-## 5. 未包含（P2/P3）
+## 5. 必需状态检查（已启用）
+
+规则集 `Main_prot`（`~DEFAULT_BRANCH`）已把 **Ledger, manifest and database agree** 设为必需检查，
+配置由 [github_ruleset_required_check.py](../scripts/github_ruleset_required_check.py) 管理：
+
+```bash
+python scripts/github_ruleset_required_check.py --status   # 查看
+python scripts/github_ruleset_required_check.py --add      # 启用（当前状态）
+python scripts/github_ruleset_required_check.py --remove   # 取消
+```
+
+之所以用脚本而不是页面：GitHub 规则集里"添加检查"的下拉列表来自**最近运行过的检查**并带缓存，
+经常搜不到该条目。API 设置不受影响。
+
+三个必须知道的行为：
+
+1. **该工作流在所有 PR 上都会报告。** 这是必需的：带 `paths` 过滤的工作流在"未触及数据库"的
+   PR 上永远不会出现，而必需检查缺失会让 PR 卡在 *Expected — Waiting for status to be reported*。
+   每次 PR 多跑约 20 秒。
+2. **`db-publish/*` 的发布 PR 上该 job 被跳过**，GitHub 把"跳过"视为通过；发布 PR 的真正门禁是
+   发布流水线自己的校验（它会在 stamp 之后重新触发本工作流，使检查落在 stamp 提交上）。
+3. **bot 推送的提交会挂起一次运行。** stamp 提交由 `GITHUB_TOKEN` 推送，GitHub 为它创建的
+   `synchronize` 运行处于 `action_required`（需人工点一次 "Approve and run"），这是在公开仓库上
+   防止机器人绕过审查的设计。它不影响正确性（stamp 提交已由 dispatch 的运行校验），
+   但会出现在检查列表里。要彻底消除这一摩擦，需要让推送使用真人身份的令牌（P2/P3 的范围内）。
+
+由于审批数是 0，你仍可以自己合并自己开的 PR；必需检查只保证"校验没过就合不了"。
+
+## 6. 未包含（P2/P3）
 
 - 设备签名与验签（P2）
 - GitHub App 短时令牌 / 中继服务（P3）
