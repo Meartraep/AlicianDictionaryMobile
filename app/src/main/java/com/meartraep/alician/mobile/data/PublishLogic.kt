@@ -1,5 +1,6 @@
 package com.meartraep.alician.mobile.data
 
+import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -8,10 +9,10 @@ import java.util.TimeZone
 /**
  * Pure rules for publishing the database from the phone.
  *
- * The phone never chooses a version number: it uploads the database to a
- * temporary publishing branch and the CI pipeline stamps the next ledger
- * version. These helpers only decide what may be uploaded and how the request
- * looks.
+ * The phone stamps the next version itself (see the Python bridge) and signs the
+ * publication with a non-exportable Keystore key; the pipeline verifies both.
+ * These helpers decide what may be uploaded, how the request looks, and produce
+ * the exact bytes the device key signs.
  */
 object PublishLogic {
     const val BRANCH_PREFIX = "db-publish/"
@@ -92,6 +93,49 @@ object PublishLogic {
 
     /** The version a publication carries: exactly one step after the published one. */
     fun nextVersion(publishedVersion: Int): Int = publishedVersion + 1
+
+    const val SIGNATURE_HEADER = "alician-db-publish-v1"
+    const val SIGNATURE_ALGORITHM = "ECDSA-P256-SHA256"
+
+    fun notesSha256(notes: String): String =
+        MessageDigest.getInstance("SHA-256").digest(notes.toByteArray(Charsets.UTF_8))
+            .joinToString("") { byte -> "%02x".format(byte) }
+
+    /**
+     * The bytes the device key signs.
+     *
+     * Must stay byte-identical to verify_publication_signature.build_message: it
+     * binds the publication to the ledger tip it was built on (so an old signed
+     * payload cannot be replayed), to the exact database bytes, and to the release
+     * note users will see.
+     */
+    fun buildSignatureMessage(
+        previousVersion: Int,
+        previousSha1: String,
+        version: Int,
+        sha1: String,
+        size: Long,
+        publishedAt: String,
+        notes: String,
+    ): String = buildString {
+        append(SIGNATURE_HEADER).append('\n')
+        append("prev_version=").append(previousVersion).append('\n')
+        append("prev_sha1=").append(previousSha1.lowercase(Locale.US)).append('\n')
+        append("version=").append(version).append('\n')
+        append("sha1=").append(sha1.lowercase(Locale.US)).append('\n')
+        append("size=").append(size).append('\n')
+        append("published_at=").append(publishedAt).append('\n')
+        append("notes_sha256=").append(notesSha256(notes)).append('\n')
+    }
+
+    /** The small JSON file the publication commit carries next to the database. */
+    fun signatureDocument(keyId: String, signature: String): String = buildString {
+        append("{\n")
+        append("  \"algorithm\": \"").append(SIGNATURE_ALGORITHM).append("\",\n")
+        append("  \"key_id\": \"").append(keyId).append("\",\n")
+        append("  \"signature\": \"").append(signature).append("\"\n")
+        append("}\n")
+    }
 
     fun pullRequestTitle(preview: PublishPreview): String =
         "数据库发布：" + preview.localSha1.take(10) + "（" + formatMegabytes(preview.localSize) + "）"

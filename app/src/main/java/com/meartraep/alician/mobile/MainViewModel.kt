@@ -2,6 +2,7 @@ package com.meartraep.alician.mobile
 
 import android.app.Application
 import android.net.Uri
+import android.security.keystore.UserNotAuthenticatedException
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -23,6 +24,7 @@ import com.meartraep.alician.mobile.data.PublishLogic
 import com.meartraep.alician.mobile.data.PublishOutcome
 import com.meartraep.alician.mobile.data.PublishPreview
 import com.meartraep.alician.mobile.data.PublishProgress
+import com.meartraep.alician.mobile.data.PublishSigningKey
 import com.meartraep.alician.mobile.data.PublishFile
 import com.meartraep.alician.mobile.data.PublishStage
 import com.meartraep.alician.mobile.data.PullRequestState
@@ -162,6 +164,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private val databasePublisher = DatabasePublisher()
     private val publishCredentials = PublishCredentialStore(application)
+    private val publishSigningKey = PublishSigningKey(application)
+
+    var publishSigningReady by mutableStateOf(publishSigningKey.exists)
+        private set
+    var publishSigningKeyId by mutableStateOf(publishSigningKey.keyId)
+        private set
+    var publishSigningRequiresAuth by mutableStateOf(publishSigningKey.requiresAuthentication)
+        private set
+    var publishDeviceIsSecure by mutableStateOf(publishSigningKey.deviceIsSecure)
+        private set
 
     var publishCredential by mutableStateOf(
         PublishCredential(
@@ -736,6 +748,41 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /**
+     * Creates the non-exportable device key that signs publications. The returned PEM
+     * is what gets registered on main; the private half never leaves the Keystore.
+     */
+    fun createPublishSigningKey(): String? = try {
+        val pem = publishSigningKey.create()
+        publishSigningReady = publishSigningKey.exists
+        publishSigningKeyId = publishSigningKey.keyId
+        publishSigningRequiresAuth = publishSigningKey.requiresAuthentication
+        noticeMessage = if (publishSigningRequiresAuth) {
+            "已生成签名密钥（受设备锁屏保护），请把公钥登记到 main。"
+        } else {
+            "已生成签名密钥（本机未设置锁屏，未绑定用户验证），请把公钥登记到 main。"
+        }
+        pem
+    } catch (throwable: Throwable) {
+        errorMessage = throwable.message ?: "生成签名密钥失败"
+        null
+    }
+
+    fun publishSigningPublicKey(): String? = publishSigningKey.publicKeyPem()
+
+    /** The user dismissed the device-credential prompt, so nothing was published. */
+    fun reportPublishCancelled() {
+        publishError = "已取消设备验证，未发布。"
+    }
+
+    fun clearPublishSigningKey() {
+        publishSigningKey.clear()
+        publishSigningReady = false
+        publishSigningKeyId = null
+        publishSigningRequiresAuth = false
+        noticeMessage = "已删除本机签名密钥；重新生成并登记公钥之前无法发布。"
+    }
+
     fun clearPublishToken() {
         publishCredentials.clear()
         publishCredential = PublishCredential(configured = false)
@@ -781,6 +828,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             publishError = "请先配置访问令牌。"
             return
         }
+        if (!publishSigningReady) {
+            publishError = "请先生成发布签名密钥，并把公钥登记到 main。"
+            return
+        }
         if (publishProgress.stage == PublishStage.UPLOADING) return
         launchTask("正在发布数据库…") {
             publishError = null
@@ -799,6 +850,21 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     notes = notes,
                     target = stamped,
                 )
+                // Authenticate the publication with the device key: it binds this
+                // exact database, the ledger tip it was built on, and the note.
+                publishProgress = PublishProgress(PublishStage.VERIFYING, "正在用设备密钥签名…")
+                val message = PublishLogic.buildSignatureMessage(
+                    previousVersion = prepared.optInt("previous_version", 0),
+                    previousSha1 = prepared.optString("previous_sha1"),
+                    version = prepared.optInt("version", preview.nextVersion),
+                    sha1 = prepared.optString("sha1"),
+                    size = prepared.optLong("size", 0L),
+                    publishedAt = prepared.optString("published_at"),
+                    notes = notes,
+                )
+                val keyId = publishSigningKey.keyId
+                    ?: throw IllegalStateException("签名密钥不可用，请重新生成。")
+                val signature = publishSigningKey.sign(message)
                 val files = listOf(
                     PublishFile(DatabasePublisher.Paths.DATABASE, stamped.readBytes()),
                     PublishFile(
@@ -808,6 +874,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     PublishFile(
                         DatabasePublisher.Paths.MANIFEST,
                         prepared.optString("manifest_json").toByteArray(Charsets.UTF_8),
+                    ),
+                    PublishFile(
+                        DatabasePublisher.Paths.SIGNATURE,
+                        PublishLogic.signatureDocument(keyId, signature)
+                            .toByteArray(Charsets.UTF_8),
                     ),
                 )
                 val outcome = databasePublisher.publish(
@@ -826,7 +897,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             } catch (throwable: Throwable) {
                 if (throwable is CancellationException) throw throwable
                 publishProgress = PublishProgress(PublishStage.FAILED, throwable.message.orEmpty())
-                publishError = throwable.message ?: "发布失败"
+                publishError = when (throwable) {
+                    is UserNotAuthenticatedException ->
+                        "需要先验证设备锁屏才能签名，请重试并完成验证。"
+                    else -> throwable.message ?: "发布失败"
+                }
                 errorMessage = publishError
             } finally {
                 stamped?.delete()

@@ -224,11 +224,12 @@ class DatabasePublisher(
     fun ledgerUrl(): String =
         RAW_ROOT + repository + "/" + baseBranch + "/" + LEDGER_PATH
 
-    /** Paths of the three files a publication commit carries. */
+    /** Paths of the files a publication commit carries. */
     object Paths {
         const val DATABASE = "app/src/main/assets/translated.db"
         const val LEDGER = "database-versions.json"
         const val MANIFEST = "database-manifest.json"
+        const val SIGNATURE = "database-publish-signature.json"
     }
 
     private companion object {

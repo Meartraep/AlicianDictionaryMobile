@@ -1,5 +1,10 @@
 package com.meartraep.alician.mobile.ui
 
+import android.app.Activity
+import android.app.KeyguardManager
+import android.content.Context
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,7 +16,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CloudUpload
+import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material.icons.outlined.Key
+import androidx.compose.material.icons.outlined.VerifiedUser
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -32,7 +39,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -111,6 +121,86 @@ fun DatabasePublishCard(
     }
 }
 
+/** The device key that authorises publications. */
+@Composable
+fun PublishSigningCard(
+    ready: Boolean,
+    keyId: String?,
+    requiresAuth: Boolean,
+    deviceIsSecure: Boolean,
+    onCreate: () -> String?,
+    onCopy: () -> String?,
+    onClear: () -> Unit,
+) {
+    val clipboard = LocalClipboardManager.current
+    var copied by remember { mutableStateOf(false) }
+    SettingsCard {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Outlined.VerifiedUser, contentDescription = null)
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
+                Text("发布签名密钥", style = MaterialTheme.typography.titleSmall)
+                Text(
+                    if (ready) {
+                        "已生成，私钥不可导出，只存在于本机 Keystore"
+                    } else {
+                        "尚未生成，无法发布数据库"
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+        if (ready) {
+            DatabaseMetricLine("密钥指纹", keyId.orEmpty())
+            DatabaseMetricLine(
+                "签名保护",
+                if (requiresAuth) "需要设备锁屏验证" else "未绑定锁屏（本机未设置锁屏）",
+            )
+        } else if (!deviceIsSecure) {
+            Text(
+                "本机没有设置锁屏：密钥仍然不可导出，但无法要求发布前验证设备。",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error,
+            )
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedButton(
+                onClick = {
+                    val pem = if (ready) onCopy() else onCreate()
+                    if (!pem.isNullOrBlank()) {
+                        clipboard.setText(AnnotatedString(pem))
+                        copied = true
+                    }
+                },
+                modifier = Modifier.weight(1f),
+            ) {
+                Icon(Icons.Outlined.ContentCopy, contentDescription = null)
+                Spacer(Modifier.width(6.dp))
+                Text(if (ready) "复制公钥" else "生成密钥")
+            }
+            if (ready) {
+                OutlinedButton(onClick = onClear, modifier = Modifier.weight(1f)) {
+                    Text("删除密钥")
+                }
+            }
+        }
+        Text(
+            if (copied) {
+                "公钥已复制。请用一个普通 PR 提交为 .github/db-publish-pubkey.pem（CI 从 main 读取）。"
+            } else {
+                "生成后需把公钥登记到 main：CI 只接受用这把密钥签名的发布。"
+            },
+            style = MaterialTheme.typography.bodySmall,
+            color = if (copied) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            },
+        )
+    }
+}
+
 /** One-time entry of the fine-grained GitHub token. */
 @Composable
 fun PublishTokenDialog(onSave: (String) -> Unit, onDismiss: () -> Unit) {
@@ -157,11 +247,35 @@ fun PublishTokenDialog(onSave: (String) -> Unit, onDismiss: () -> Unit) {
 @Composable
 fun DatabasePublishDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
     val uriHandler = LocalUriHandler.current
+    var notes by rememberSaveable { mutableStateOf("") }
+    val context = LocalContext.current
+    val keyguard = remember {
+        context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+    }
+    // The signing key is bound to the lock screen, so publishing asks for the device
+    // credential first; without it the Keystore refuses to sign anyway.
+    val authLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult(),
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            viewModel.publishDatabase(notes)
+        } else {
+            viewModel.reportPublishCancelled()
+        }
+    }
+    val startPublish: () -> Unit = {
+        @Suppress("DEPRECATION")
+        val intent = if (viewModel.publishSigningRequiresAuth) {
+            keyguard.createConfirmDeviceCredentialIntent("验证以发布数据库", "发布需要确认设备锁屏")
+        } else {
+            null
+        }
+        if (intent != null) authLauncher.launch(intent) else viewModel.publishDatabase(notes)
+    }
     val preview = viewModel.publishPreview
     val outcome = viewModel.publishOutcome
     val progress = viewModel.publishProgress
     val pullRequest = viewModel.publishPullRequest
-    var notes by rememberSaveable { mutableStateOf("") }
     val uploading = progress.stage == PublishStage.VERIFYING ||
         progress.stage == PublishStage.UPLOADING ||
         progress.stage == PublishStage.OPENING_PULL_REQUEST
@@ -250,9 +364,9 @@ fun DatabasePublishDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
                 }
                 preview?.blockingReason != null -> Button(onClick = onDismiss) { Text("关闭") }
                 else -> Button(
-                    onClick = { viewModel.publishDatabase(notes) },
-                    enabled = !uploading && preview != null,
-                ) { Text("开始上传") }
+                    onClick = startPublish,
+                    enabled = !uploading && preview != null && viewModel.publishSigningReady,
+                ) { Text(if (viewModel.publishSigningReady) "开始上传" else "请先生成签名密钥") }
             }
         },
         dismissButton = {
