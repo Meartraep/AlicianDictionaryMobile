@@ -9,6 +9,51 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
 
+/** A form POST the device flow performs, kept separate so it can be tested. */
+data class GitHubRequest(val url: String, val body: String)
+
+/**
+ * The three calls of the device flow.
+ *
+ * The endpoints differ: the device code is requested from /login/device/code while
+ * polling and refreshing go to /login/oauth/access_token. Using the wrong one makes
+ * GitHub answer "incorrect_client_credentials", which looks like a bad Client ID.
+ */
+object DeviceFlowRequests {
+    const val DEVICE_CODE_URL = "https://github.com/login/device/code"
+    const val TOKEN_URL = "https://github.com/login/oauth/access_token"
+
+    fun deviceCode(clientId: String): GitHubRequest =
+        GitHubRequest(DEVICE_CODE_URL, form(mapOf("client_id" to clientId)))
+
+    fun poll(clientId: String, deviceCode: String): GitHubRequest = GitHubRequest(
+        TOKEN_URL,
+        form(
+            mapOf(
+                "client_id" to clientId,
+                "device_code" to deviceCode,
+                "grant_type" to "urn:ietf:params:oauth:grant-type:device_code",
+            ),
+        ),
+    )
+
+    fun refresh(clientId: String, refreshToken: String): GitHubRequest = GitHubRequest(
+        TOKEN_URL,
+        form(
+            mapOf(
+                "client_id" to clientId,
+                "grant_type" to "refresh_token",
+                "refresh_token" to refreshToken,
+            ),
+        ),
+    )
+
+    private fun form(fields: Map<String, String>): String =
+        fields.entries.joinToString("&") { (key, value) ->
+            URLEncoder.encode(key, "UTF-8") + "=" + URLEncoder.encode(value, "UTF-8")
+        }
+}
+
 /** What the user has to type into the browser to authorise this device. */
 data class DeviceCode(
     val deviceCode: String,
@@ -48,7 +93,7 @@ class GitHubDeviceFlow(private val clientId: String) {
 
     suspend fun requestCode(): DeviceCode = withContext(Dispatchers.IO) {
         val now = System.currentTimeMillis()
-        val json = post(mapOf("client_id" to clientId))
+        val json = post(DeviceFlowRequests.deviceCode(clientId))
 
         // GitHub answers 200 with an "error" object when the app is not allowed to
         // use the device flow, so report that instead of failing on a missing field.
@@ -83,26 +128,12 @@ class GitHubDeviceFlow(private val clientId: String) {
 
     /** One poll round; call again after [PublishLogic.nextPollDelaySeconds] when pending. */
     suspend fun poll(deviceCode: String): DeviceToken = withContext(Dispatchers.IO) {
-        val json = post(
-            mapOf(
-                "client_id" to clientId,
-                "device_code" to deviceCode,
-                "grant_type" to "urn:ietf:params:oauth:grant-type:device_code",
-            ),
-        )
-        interpret(json)
+        interpret(post(DeviceFlowRequests.poll(clientId, deviceCode)))
     }
 
     /** Exchanges the rotating refresh token for a fresh short-lived access token. */
     suspend fun refresh(refreshToken: String): DeviceToken = withContext(Dispatchers.IO) {
-        val json = post(
-            mapOf(
-                "client_id" to clientId,
-                "grant_type" to "refresh_token",
-                "refresh_token" to refreshToken,
-            ),
-        )
-        interpret(json)
+        interpret(post(DeviceFlowRequests.refresh(clientId, refreshToken)))
     }
 
     /** Polls until the user approves, is denied, or the code expires. */
@@ -170,11 +201,9 @@ class GitHubDeviceFlow(private val clientId: String) {
         )
     }
 
-    private fun post(fields: Map<String, String>): JSONObject {
-        val body = fields.entries.joinToString("&") { (key, value) ->
-            URLEncoder.encode(key, "UTF-8") + "=" + URLEncoder.encode(value, "UTF-8")
-        }
-        val connection = URL(TOKEN_ENDPOINT).openConnection() as HttpURLConnection
+    private fun post(request: GitHubRequest): JSONObject {
+        val body = request.body
+        val connection = URL(request.url).openConnection() as HttpURLConnection
         connection.requestMethod = "POST"
         connection.connectTimeout = 15_000
         connection.readTimeout = 20_000
@@ -209,7 +238,6 @@ class GitHubDeviceFlow(private val clientId: String) {
     }
 
     private companion object {
-        const val TOKEN_ENDPOINT = "https://github.com/login/oauth/access_token"
         const val USER_AGENT = "AlicianDictionaryMobile"
         const val DEFAULT_ACCESS_SECONDS = 8L * 60 * 60
     }
