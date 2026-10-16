@@ -16,7 +16,7 @@ import tempfile
 import threading
 import urllib.request
 import zipfile
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -541,6 +541,115 @@ def _read_database_version(path: Path) -> int:
         return 0
 
 
+PUBLICATION_FORMAT = "alician-lite"
+
+
+def _publication_manifest(entry: Dict[str, Any], database_url: str,
+                          database_format: str) -> Dict[str, Any]:
+    """Mirror of database_versioning.build_manifest (asserted by the tests).
+
+    The manifest's "url" is where clients download the database itself, not where
+    the manifest lives.
+    """
+    return {
+        "db_version": int(entry["db_version"]),
+        "published_at": entry["published_at"],
+        "notes": entry.get("notes", ""),
+        "format": database_format,
+        "size": int(entry["size"]),
+        "sha1": entry["sha1"],
+        "url": database_url,
+    }
+
+
+def _prepare_database_publication(payload: Dict[str, Any]) -> Dict[str, Any]:
+    """Stamp the next version into a copy of the local database.
+
+    The phone -- not the CI pipeline -- writes the version, so no bot commit is
+    pushed to the pull request. The pipeline still enforces that the version is
+    exactly the one after the published ledger, so a stale ledger is refused here
+    before anything is uploaded.
+
+    Returns the stamped database path plus the ledger and manifest files to commit.
+    """
+    source = Path(str(payload.get("source") or ""))
+    target = Path(str(payload.get("target") or ""))
+    database_url = str(payload.get("database_url") or "")
+    database_format = str(payload.get("format") or PUBLICATION_FORMAT)
+    notes = " ".join(str(payload.get("notes") or "").split())[:500]
+    published_at = str(payload.get("published_at") or "") or \
+        datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+    if not source.is_file():
+        raise ValueError("本地数据库不存在，无法发布。")
+    if not notes:
+        raise ValueError("请填写版本说明。")
+    try:
+        entries = json.loads(str(payload.get("ledger_json") or ""))
+    except ValueError as error:
+        raise ValueError("无法读取已发布台账：%s" % error)
+    if not isinstance(entries, list) or not entries:
+        raise ValueError("已发布台账为空，无法确定下一个版本号。")
+
+    try:
+        published_version = int(entries[-1]["db_version"])
+    except (KeyError, TypeError, ValueError):
+        raise ValueError("已发布台账的最后一条缺少版本号。")
+    expected = published_version + 1
+    requested = int(payload.get("version") or expected)
+    if requested != expected:
+        raise ValueError(
+            "台账已更新（当前 v%d），请重新检查更新后重试。" % published_version)
+
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if target.exists():
+        target.unlink()
+    source_connection = sqlite3.connect(source)
+    target_connection = sqlite3.connect(target)
+    try:
+        # SQLite's backup API copies a consistent snapshot even while the app holds
+        # the database open.
+        source_connection.backup(target_connection)
+        target_connection.execute(
+            "CREATE TABLE IF NOT EXISTS database_metadata (key TEXT PRIMARY KEY, value TEXT)")
+        for key, value in (
+            ("db_version", str(requested)),
+            ("published_at", published_at),
+            ("notes", notes),
+            ("format", database_format),
+        ):
+            target_connection.execute(
+                "INSERT OR REPLACE INTO database_metadata (key, value) VALUES (?, ?)",
+                (key, value))
+        target_connection.commit()
+    finally:
+        source_connection.close()
+        target_connection.close()
+
+    digest = hashlib.sha1(target.read_bytes()).hexdigest()
+    size = target.stat().st_size
+    entry = {
+        "db_version": requested,
+        "sha1": digest,
+        "size": size,
+        "published_at": published_at,
+        "app_tag": "",
+        "notes": notes,
+    }
+    return {
+        "ok": True,
+        "version": requested,
+        "previous_version": published_version,
+        "size": size,
+        "sha1": digest,
+        "database_path": str(target),
+        "ledger_json": json.dumps(list(entries) + [entry], ensure_ascii=False, indent=2) + "\n",
+        "manifest_json": json.dumps(
+            _publication_manifest(entry, database_url, database_format),
+            ensure_ascii=False, indent=2) + "\n",
+    }
+
+
 def _replace_database(source_path: str, expected_db_version: Optional[int] = None) -> Dict[str, Any]:
     source = Path(source_path)
     _validate_database(source)
@@ -678,6 +787,8 @@ def invoke(method: str, payload_json: str = "{}") -> str:
                 result = _check_remote_update()
             elif method == "apply_remote_update":
                 result = _apply_remote_update()
+            elif method == "prepare_database_publication":
+                result = _prepare_database_publication(payload)
             elif method == "replace_database":
                 expected = payload.get("expected_db_version")
                 result = _replace_database(

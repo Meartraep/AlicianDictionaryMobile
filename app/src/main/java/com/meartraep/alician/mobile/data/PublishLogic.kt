@@ -90,6 +90,9 @@ object PublishLogic {
         )
     }
 
+    /** The version a publication carries: exactly one step after the published one. */
+    fun nextVersion(publishedVersion: Int): Int = publishedVersion + 1
+
     fun pullRequestTitle(preview: PublishPreview): String =
         "数据库发布：" + preview.localSha1.take(10) + "（" + formatMegabytes(preview.localSize) + "）"
 

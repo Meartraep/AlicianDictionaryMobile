@@ -1,0 +1,304 @@
+long sentences (>=8 words): 349
+avg similarity: 0.374; total unknown tokens: 81
+
+===== WORST 60 =====
+
+sim=0.00 wc=16 unk=0
+A : Yiep Verse Yiep Verse Yiep Verse Yiep Verse Yiep Verse Yiep Verse Yiep Verse Yiep Verse
+REF: 走开×8
+OUT: 请消失请消失请消失请消失请消失请消失请消失请消失
+
+sim=0.00 wc=12 unk=0
+A : Loo taria Loo taria Loo taria Loo taria Loo taria Loo taria
+REF: 一直下去
+OUT: 永恒的永恒永恒的永恒永恒的永恒
+
+sim=0.00 wc=8 unk=0
+A : Oulayz Verry Olis end a Oulayz Verry Olis
+REF: 便涌现诸多记忆
+OUT: 无数的言语如此地，并无数的言语如此地
+
+sim=0.00 wc=8 unk=0
+A : la la la Cliid end Aola Cliid end
+REF: 倾注 倾注如瀑
+OUT: 啦啦啦落下，现在落下
+
+sim=0.05 wc=12 unk=0
+A : Olizes Phim Stica Herches Nai Hols a Arth weil Bistie Oli Bai
+REF: 谁能来让我咽气啊，这地方再也待不下去了
+OUT: 任何人应该停止心脏不希望并存在在这样的地点已经
+
+sim=0.05 wc=8 unk=1
+A : Liaphi Olizes end Dilem Farp Fei Nai Guit
+REF: 头上带着圆环的那些人似乎还没有意识到
+OUT: 〔Liaphi〕有圆的轮的任何人不知道
+
+sim=0.06 wc=9 unk=2
+A : Ginmi Elize Oltia Flea iy Bedig Lishe Nache Saryarte
+REF: 别介意，来和我一起玩吧
+OUT: 〔Ginmi〕，所以这样的人〔Bedig〕让玩耍一同
+
+sim=0.06 wc=11 unk=4
+A : Yien Addaer Yien Gelsiaku Ame Yien Harledid a Tigalm Hesiqlait Hesiqlait
+REF: 被挖出、嘲笑、挤压、践踏得一塌糊涂
+OUT: 被〔Addaer〕被〔Gelsiaku〕孩子被踩并压〔Hesiqlait〕〔Hesiqlait〕
+
+sim=0.07 wc=10 unk=0
+A : Poetklar Myte Herz Yien Torjest Mii Fiesmes Pillusi Ail Ienadip
+REF: 不知所措，同时无计可施
+OUT: 正在我的心被杀我完全地失去全部的计策
+
+sim=0.08 wc=9 unk=0
+A : Xia Nai Arth Amblu Foul Vell Kulu Nai Rait
+REF: 无地可寻，无法发现
+OUT: 那个绝不存在任何地方将会能够绝不找到
+
+sim=0.08 wc=16 unk=0
+A : Crai Vell Ignai Yien Rait Ord Blemenes weil Bis Pazz end ol Yien Clooshe Lef Klijka
+REF: 在这个狭小如胶囊般的小房间，无论如何也没有人能寻找到你
+OUT: 你将会决不被找到用谁在这已被关闭仿佛胶囊的房间
+
+sim=0.08 wc=9 unk=0
+A : end Oulayz Harmiy Olis end a Oulayz Harmiy Olis
+REF: 便涌现诸多情感
+OUT: 无数的感情如此地，并无数的感情如此地
+
+sim=0.09 wc=12 unk=2
+A : end Fel Swiina Fei ou Mage a Rin Asia end Stea Dis
+REF: 最终触及魔方阵的街道孵化出来，运送了他们俩
+OUT: 街道遮蔽魔力的轮并〔Rin〕〔Asia〕，描绘两人
+
+sim=0.10 wc=12 unk=0
+A : Es Luan a Tella a Eala es Luan a Kopiita a Eala
+REF: 流下，破碎
+OUT: 出发并流淌并滴落并出发并废墟并滴落
+
+sim=0.10 wc=8 unk=0
+A : Karna Mii Skie a Graid ou Selaf end
+REF: 度过好几个如此般的夜晚
+OUT: 再我穿越并真相的记忆
+
+sim=0.10 wc=8 unk=0
+A : Vig Yien Fur a Leimy Ord Shellius osa
+REF: “即使上帝也会抛弃你”
+OUT: 你被神明也丢并使离开
+
+sim=0.10 wc=8 unk=3
+A : Ajlff Liqleea Hegss Xia ifa Zyte Aniche pius
+REF: 我还不如把它们换成我的
+OUT: 〔Ajlff〕应该用我的〔Aniche〕〔pius〕交换那个
+
+sim=0.11 wc=9 unk=4
+A : Feikeed end Piikle Glazeel Yedidda es Flem Bodam Lipiq
+REF: 刺耳的咆哮声穿透了我的耳膜，扯下了假皮肤
+OUT: 刺穿，刺〔Glazeel〕〔Yedidda〕并〔Flem〕〔Bodam〕皮
+
+sim=0.11 wc=14 unk=0
+A : Xia iy Elize Zyte Herz iy Porsa Friud Zia iy Hyuserti imm Bale Taz
+REF: 只是因为我的脑子出了问题
+OUT: 那个，所以我的心只是奇怪的我错误的在什么样的时刻
+
+sim=0.12 wc=8 unk=1
+A : Elize Kulu Dist Ail Poutie Eem Wondidda Amblait
+REF: 藉由痛苦的回忆，忘却一切事物
+OUT: 所以能够忘记都当感觉痛苦〔Amblait〕
+
+sim=0.12 wc=10 unk=0
+A : Iequim Lef Kopiita Tordu Eist Naits o Nai Zel Note
+REF: 就像完全敞开大门的废墟一般，一无所有
+OUT: 仿佛破碎废墟门在前方不是任何事物
+
+sim=0.13 wc=11 unk=1
+A : Ied Piisika a Geeg imm Eiti a Xia Eiti Shelista osa
+REF: 让你们在下辈子，甚至是下下辈子都遭受永恒的折磨
+OUT: 〔Ied〕也受苦并持续在下一个和那个下一个世界
+
+sim=0.13 wc=8 unk=0
+A : Ah Mii Arth tie Hellm Arth tie Hellm
+REF: 啊，这番幻象
+OUT: 啊我存在在梦存在在梦
+
+sim=0.13 wc=8 unk=0
+A : Phim Felia Aola Mols Elize Elemie iy Apnesiaflea
+REF: 痛苦总与之相随，所以暂时忍耐吧
+OUT: 应该只忍耐现在，所以痛苦绝对的事物
+
+sim=0.14 wc=11 unk=0
+A : Erikes Kull Ranya Quand Hellm Quim weil Molda Endareries Yiele Vinsikid
+REF: 假如我们心中没有什么恶意，那我们还能做一个美梦吗？
+OUT: 恶意是否完全假如在没有看见好的梦大脑深处
+
+sim=0.15 wc=10 unk=0
+A : Elize Crai Elie Luan Ord Drone il Naits folme Bis
+REF: 那么就从这里独自前进吧
+OUT: 所以你直到用孤独到在前方从这出发
+
+sim=0.15 wc=9 unk=0
+A : Crai iy Foly Wei Elize Zia Endyd Pijsu Crai
+REF: 但别担心，我会让你精神起来的
+OUT: 你无事的，所以我一定会使振奋你
+
+sim=0.16 wc=15 unk=0
+A : Faltnoa Molda Qufit end ol Yien Abid a Geeg Xia Fiel Poetolt ol Qleea Gehnd
+REF: “天真”不断地被打击，因此脑回路持续短路直至无法复原
+OUT: 无法复原的大脑已被打击的回路并持续那个短路请已经短路
+
+sim=0.16 wc=13 unk=0
+A : Shiita Ranya il Bis imm Lootaria folme Yutul Story ol Floul a Skeem
+REF: 从故事开始的那一天起，我一直看着这里，
+OUT: 终点看见到这在永恒从一天故事已转动并开始
+
+sim=0.16 wc=9 unk=0
+A : Endyd Nai Kept Apnesia Apnesia Poutie noa Ail Finz
+REF: 如果你不能做到这一切，我永远，永远不会让你通过
+OUT: 绝不通过绝对绝对如果不全部的结局
+
+sim=0.16 wc=16 unk=0
+A : Xia o Optokia Note Oll Olzy Imiyl folme Bis Fel ou Emernes Drone Imm Finz Ween
+REF: 最后，我们每个人都会独自离开这充满谎言之地
+OUT: 那个是无用的事物大家必须离开从这骗子的街道孤单的在结局尽头
+
+sim=0.17 wc=13 unk=0
+A : Crai Ell Ani end Cate a Elie Bis Olis Bis Olis Talis end
+REF: 你在久远前亲择其一 辗转抵达此处
+OUT: 你选择一个，行进并直到这如此地这如此地久远的
+
+sim=0.17 wc=10 unk=0
+A : Osa Bell Aola a Verry Crai Hal Lef Anisia Xieti
+REF: 那时候你寂寞的话语，至今我仍然铭记在心
+OUT: 也记得现在并言语你说仿佛感到寂寞那时
+
+sim=0.17 wc=9 unk=0
+A : end Karna Awter Noll Awter Noll tie Mill Haymate
+REF: 为了日后能在故乡重逢
+OUT: 再相遇人们相遇人们在我们家乡
+
+sim=0.17 wc=11 unk=5
+A : Elgaudit Pijl Kull Nai Hede Rakqls Porsa Danb il Fol Anskalait
+REF: 飞溅的粉红色不会弄脏它们，只是徒劳地粘在地板上
+OUT: 〔Elgaudit〕〔Pijl〕完全不〔Hede〕人们只是〔Danb〕到地板〔Anskalait〕
+
+sim=0.17 wc=10 unk=0
+A : Foul Xia ou Mii a Loot end Loot end Aihel
+REF: 肯定一直都在我之中
+OUT: 一定我的那个和永恒的，永恒的，有
+
+sim=0.17 wc=10 unk=2
+A : Bisoli o Shelista end ol Yien Gejltesa Moutlait lar Emerneqls
+REF: 这是一个被骗子装饰的美丽世界
+OUT: 这里是世界，已被〔Gejltesa〕美好地向〔Emerneqls〕
+
+sim=0.17 wc=9 unk=0
+A : la la Mii Aola Drone a Mii Aola Drone
+REF: 孤身一人 孤身一人
+OUT: 啦啦我现在孤单的和我现在孤单的
+
+sim=0.17 wc=8 unk=0
+A : Foly Mii Harmiy Xia o Nai Loqcka Opl
+REF: “没关系，应该不远的！
+OUT: 无事的我认为那个不是远方应该
+
+sim=0.18 wc=9 unk=0
+A : Drone rie a Iila Brou ah Laiziin ou Stea
+REF: 直到最后，有一个孩子在画布上绘出云之航路
+OUT: 孤单的不久并少女云啊描绘的航路
+
+sim=0.18 wc=8 unk=0
+A : Gout Laiz Hal Nai Zel Cees Meele Inay
+REF: 但待我们终于抵达 未来却只是缄默以候
+OUT: 但是未来说无没有任何事物冰的海等待
+
+sim=0.18 wc=8 unk=0
+A : Erikes Wasiim Zill Rinasia es Ellif a Geeg
+REF: 那我们出生的目的，以及生存的目的又是什么？
+OUT: 是否为什么我们诞生并生存并持续
+
+sim=0.18 wc=11 unk=1
+A : Rie Poetolt Zill Cate a Skeem Lef olfe Digris Ail Hait
+REF: 不久后，像是获得了自由一般，我们迈出了步伐
+OUT: 不久随着我们行进并开始仿佛〔olfe〕获得全部的自由
+
+sim=0.18 wc=11 unk=0
+A : Oudiq Nai Hexixa Wondidda Elize Vig iy Nai Loosya Enebis Wetijka
+REF: “你已经不再是人类了，所以我甚至都没必要去猜你究竟多痛苦”
+OUT: 不得不不猜测痛苦，所以你任何人类已经
+
+sim=0.19 wc=14 unk=4
+A : Dist far Age Winde Bis lan la Nouche ou Crai Bai Dis Harie Ya
+REF: “你醒了吗？” 这是你的夜晚世界,你忘了吗
+OUT: 忘记〔far〕〔Age〕在这〔lan〕啦你的夜晚已经不记得〔Ya〕之前
+
+sim=0.19 wc=9 unk=0
+A : En Mii Likti Selanya a Geeg imm Hellm end
+REF: 然后，在这无法醒来的梦中
+OUT: 我仅仅徘徊并持续在梦
+
+sim=0.19 wc=8 unk=0
+A : Womphil Stei end Floul end Floul end Floul
+REF: 吸收那不断回响的风景
+OUT: 吞噬转动的景色，转动，转动
+
+sim=0.19 wc=11 unk=0
+A : Elize Zill Nai Nache Sis Poet Nai Eala il Rowt Koll
+REF: 先别急着下地狱，我们还没有玩完
+OUT: 所以我们不玩耍结束请别滴落到地狱还
+
+sim=0.19 wc=8 unk=0
+A : Skelat Nai Stica Ol Kulu Ranya Lef Fellusia
+REF: 嬉笑声像那星际间的以太一般，无法停止
+OUT: 嘲笑不停止已能够看见仿佛以太
+
+sim=0.20 wc=14 unk=0
+A : Dex imm Bis Oli Aola ieq Drone Iila Vell Nai Kreis imm Lootaria Zel
+REF: 永远不会相交的两个人，如今作为同一个少女出现在这里
+OUT: 右在这地点现在作为孤单的少女不会相交在永恒没有任何事物
+
+sim=0.20 wc=13 unk=0
+A : Doool ou Will a Nai Visc end Harmiy Finz end Finz a end
+REF: 孕育着无缘于终末的心跳之涡
+OUT: 心跳的漩涡并不卓越的，认为结局结局并
+
+sim=0.20 wc=9 unk=0
+A : Tone Verlivif Klar es Xia Idial Eem Ueyzij Olis
+REF: 我的背感到扭动，非常不舒服
+OUT: 背影扭动出并那个使感觉令人恼火如此地
+
+sim=0.20 wc=8 unk=1
+A : Hiele Apka Mii ol Plarli Fouz Ola Stache
+REF: 看吧，从抽屉中拉出来的绳索
+OUT: 看哪绳索我已〔Fouz〕拉透明的抽屉
+
+sim=0.21 wc=11 unk=0
+A : end Mii Telly Crai Nai ou Finz Hait end Finz Hait
+REF: 以及无尽的自由，都托付给你吧
+OUT: 我托付没有结局的你结束自由的自由
+
+sim=0.21 wc=9 unk=0
+A : Mii Nai Dilem Harla Bai Finz Taz Joul Elay
+REF: 我受够了，我已经再也无法忍受了
+OUT: 我没有希望已经结束时刻已经到来
+
+sim=0.21 wc=9 unk=0
+A : La La La Pllardki Oli Aihel imm Bis Baly
+REF: "La La La, 美好世界一直在此"
+OUT: 啦啦啦美好的地点总是在这
+
+sim=0.21 wc=8 unk=1
+A : Lef Yien Plarri Ord Elquom ou Ail Minelia
+REF: 就像被满月牵引一样，
+OUT: 仿佛被〔Plarri〕用全部的月亮的引力
+
+sim=0.21 wc=8 unk=0
+A : Yiep Quoltri il Cloudyte Ran Meila end Meila
+REF: 把这景象更深，更深地烙印在眼中
+OUT: 请烙印到你的眼睛更深地，更深地吧
+
+sim=0.21 wc=8 unk=0
+A : Bis iy Olaio Vins Raya Afitag Ail Dim
+REF: 这是所有痛苦的罪魁祸首
+OUT: 这一如既往坏的不洁之物揭露全部的痛苦
+
+sim=0.21 wc=8 unk=0
+A : Pray ou Laiscall end Mii Emphi Nai Plau
+REF: 对我而言陌生的钟声
+OUT: 钟的我曾经不听的声音

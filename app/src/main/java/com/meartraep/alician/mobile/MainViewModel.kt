@@ -23,6 +23,7 @@ import com.meartraep.alician.mobile.data.PublishLogic
 import com.meartraep.alician.mobile.data.PublishOutcome
 import com.meartraep.alician.mobile.data.PublishPreview
 import com.meartraep.alician.mobile.data.PublishProgress
+import com.meartraep.alician.mobile.data.PublishFile
 import com.meartraep.alician.mobile.data.PublishStage
 import com.meartraep.alician.mobile.data.PullRequestState
 import com.meartraep.alician.mobile.data.PythonRepository
@@ -764,6 +765,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /**
+     * Stamps the next version into a copy of the local database and commits the
+     * database, the ledger and the manifest. The pipeline verifies the result
+     * instead of writing it, so no bot commit is pushed to the pull request.
+     */
     fun publishDatabase(notes: String) {
         val preview = publishPreview ?: return
         preview.blockingReason?.let { reason ->
@@ -778,11 +784,36 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         if (publishProgress.stage == PublishStage.UPLOADING) return
         launchTask("正在发布数据库…") {
             publishError = null
+            var stamped: File? = null
             try {
+                publishProgress = PublishProgress(PublishStage.VERIFYING, "正在读取已发布台账…")
+                val ledgerJson = databasePublisher.fetchPublishedLedger()
+                stamped = File(
+                    repository.publicationScratchFile(),
+                    "translated-v" + preview.nextVersion + ".db",
+                )
+                publishProgress = PublishProgress(PublishStage.VERIFYING, "正在写入版本号…")
+                val prepared = repository.prepareDatabasePublication(
+                    ledgerJson = ledgerJson,
+                    version = preview.nextVersion,
+                    notes = notes,
+                    target = stamped,
+                )
+                val files = listOf(
+                    PublishFile(DatabasePublisher.Paths.DATABASE, stamped.readBytes()),
+                    PublishFile(
+                        DatabasePublisher.Paths.LEDGER,
+                        prepared.optString("ledger_json").toByteArray(Charsets.UTF_8),
+                    ),
+                    PublishFile(
+                        DatabasePublisher.Paths.MANIFEST,
+                        prepared.optString("manifest_json").toByteArray(Charsets.UTF_8),
+                    ),
+                )
                 val outcome = databasePublisher.publish(
                     token = token,
-                    database = repository.installedDatabaseFile(),
-                    version = preview.localVersion,
+                    files = files,
+                    databaseSize = prepared.optLong("size", 0L),
                     notes = notes,
                 ) { progress ->
                     // The upload callback runs on the IO dispatcher; hop back to main.
@@ -790,12 +821,15 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 }
                 publishOutcome = outcome
                 publishProgress = PublishProgress(PublishStage.DONE, "已创建合并请求")
-                noticeMessage = "已提交发布请求 #" + outcome.pullRequestNumber + "，等待 CI 校验通过后合并。"
+                noticeMessage = "已提交 v" + preview.nextVersion + " 的发布请求 #" +
+                    outcome.pullRequestNumber + "，CI 校验通过后即可合并。"
             } catch (throwable: Throwable) {
                 if (throwable is CancellationException) throw throwable
                 publishProgress = PublishProgress(PublishStage.FAILED, throwable.message.orEmpty())
                 publishError = throwable.message ?: "发布失败"
                 errorMessage = publishError
+            } finally {
+                stamped?.delete()
             }
         }
     }

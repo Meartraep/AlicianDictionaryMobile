@@ -1,0 +1,52 @@
+=== 1) dictionary senses / headword / per-class ===
+  id=801 hw=703 s=1 'Loosya' expl='连' class=adj. cnt=4 var=3
+      EN='every/even'
+      JP='すら'
+  [hw] 'Loosya' display='连' class=adj.
+  [adj.] 'Loosya' '连' cnt=4
+  [All_words] Loosya
+
+=== 2) every official row containing Loosya (with position) ===
+  总数: 3
+
+  offid=236 [Doppelgängers]  位置 9/11
+     左: 'Vig iy Nai'   >>> LOOSYA <<<   右: 'Enebis Wetijka'
+     AL=Oudiq Nai Hexixa Wondidda Elize Vig iy Nai Loosya Enebis Wetijka
+     JP=『最早 人ですらないのだから 痛みを推し測る必要もないだろう』
+     EN=
+
+  offid=631 [NO PARENTS]  位置 1/10
+     左: ''   >>> LOOSYA <<<   右: 'Hewvews Liiquip iy'
+     AL=Loosya Hewvews Liiquip iy Aola Feim Wranbend Yien Fims Hegglait
+     JP=ナルシストな独裁者も 今は 無様に弄ばれる 惨めなピエロ
+     EN=The narcissistic dictator is nothing but a pathetic clown now, miserably toyed with
+
+  offid=865 [Urxbxrxs]  位置 11/12
+     左: 'Spay end Qtua'   >>> LOOSYA <<<   右: 'Selti'
+     AL=Kremsa Nache Eidarit iy Mazy ou Guidial Spay end Qtua Loosya Selti
+     JP=素粒子の戯れる輪を潜れば | そこは 意味すら嘲る 合わせ鏡の迷路
+     EN=Go through the circle of elementary particles at play | We find a labyrinth of mirrors that mocks even every meaning
+
+=== 3) Chinese localization for the same lines ===
+  offid=236 sa_id=3581 C=“你已经不再是人类了，所以我甚至都没必要去猜你究竟多痛苦”
+  offid=631 sa_id=3821 C=自恋的独裁者现在只不过是一个被玩弄得很惨的可怜的小丑
+  offid=865 sa_id=3367 C=这是一个连任何意义都会嘲笑的，由镜子组成的迷宫
+  offid=865 sa_id=3380 C=这是一个连任何意义都会嘲笑的，由镜子组成的迷宫
+
+=== 4) JP sentences containing すら/さえ/も near a 'none/every' meaning ===
+  JP 行含 すら: 6
+    offid=236 AL=Oudiq Nai Hexixa Wondidda Elize Vig iy Nai Loosya Enebis Wetijka
+        JP=『最早 人ですらないのだから 痛みを推し測る必要もないだろう』
+    offid=434 AL=Lef Yien Plarri Ord Elquom ou Ail Minelia
+        JP=満月の引力に引っ張られるように 回廊の上をひたすら歩いたけれど | 結局 ここに終わりはないと知った
+    offid=435 AL=Gout ou Cate imm Lootaria Arch Sleetia
+        JP=満月の引力に引っ張られるように 回廊の上をひたすら歩いたけれど | 結局 ここに終わりはないと知った
+    offid=436 AL=Poul Ail ol Guit Ra Bis Dilem Nai Shiita
+        JP=満月の引力に引っ張られるように 回廊の上をひたすら歩いたけれど | 結局 ここに終わりはないと知った
+    offid=801 AL=
+        JP=誰もが 足早に通り過ぎていった |  | 汚れた道を 踏み設すように |  | 今日は 豪華絢爛なパレードの日 |  | 人々は群かる その光景を捉えようと |
+    offid=865 AL=Kremsa Nache Eidarit iy Mazy ou Guidial Spay end Qtua Loosya Selti
+        JP=素粒子の戯れる輪を潜れば | そこは 意味すら嘲る 合わせ鏡の迷路
+  JP 行含 さえ: 1
+    offid=621 AL=Gout Ene Nai Dilem Olipha Cate a Geeg end Lili
+        JP=だけど 人は何のためでもなく ただ歩いてさえすれば良いんだ

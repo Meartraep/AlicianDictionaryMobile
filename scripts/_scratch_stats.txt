@@ -1,0 +1,299 @@
+unique aligned: 923
+
+== end: initial=33 mid=235 final=40
+  A: Arupe Elled Nols end ol Kllea end ol Sjiyupe
+  C: 古老的电梯，忘却的事情，哭泣受挫的日子
+  A: Mairu Swii Fiiani end Eist Toubi
+  C: 换上衣服 做个深呼吸 推开门时
+  A: Laiscall ou Frait miz ei end
+  C: 初始之钟敲响
+  A: Ail Graid Skald end Anyahel
+  C: 追忆 眺望 全部融为一体
+  A: Haol Staps Termz Floul end
+  C: 拍拍手吧
+  A: Sail Lans ah Minelia Seiren Heart Karna Vivi end
+  C: 表针转动 太阳起舞 月儿歌唱 思念点亮
+
+== tie: initial=2 mid=13 final=0
+  A: Mii o Sween tie Loqcka
+  C: 旅人在尽头沉睡
+  A: end Karna Awter Noll Awter Noll tie Mill Haymate
+  C: 为了日后能在故乡重逢
+  A: Ah Awter Noll tie Haymate Mane
+  C: 在故乡重逢
+  A: Ah Mii Arth tie Hellm Arth tie Hellm
+  C: 啊，这番幻象
+  A: ah end Crai Arth tie Bis
+  C: 以及，你也在此处
+  A: Foul Mii Dist Oulayz Note tie Leat ou Loog
+  C: 在漫长的旅途中，那形形色色的事物，我一定都已忘记
+
+== weil: initial=2 mid=8 final=0
+  A: Berte ou Vlikt weil Folsiagolzid Melpisia Efiitlaw ifa Amnist Saray
+  C: 栖息之处堆积成山的尸骸，伴随昨日友人的血腥晚宴
+  A: Olizes Phim Stica Herches Nai Hols a Arth weil Bistie Oli Bai
+  C: 谁能来让我咽气啊，这地方再也待不下去了
+  A: Crai Vell Ignai Yien Rait Ord Blemenes weil Bis Pazz end ol Yien Clooshe Lef Klijka
+  C: 在这个狭小如胶囊般的小房间，无论如何也没有人能寻找到你
+  A: Ilfelieqls end Bipeid weil Tehomea ou Herz
+  C: 在内心深处游荡的亡灵
+  A: Ene end Liz weil Bis Fete iy Nai Crai
+  C: 但你并不是要突破这命运之人
+  A: Syeillaqls end iy Vijg lar Qualda weil Ranyastodd
+  C: 观众席上都是追求刺激的天使们
+
+== il: initial=3 mid=47 final=2
+  A: Lishe Goss Poetolt Ikeam Shay il Vidi ou BaBaBav
+  C: 让我们点燃“希望”的蜡烛，大肆庆祝×4
+  A: Baly Crai Ied Fal il Niims Crai Nadi Olis
+  C: 无论何时，只要你想回到过去都没有问题
+  A: Olizes Seema il Crait Selaf
+  C: 都有人能注意到真正的你
+  A: Yiep Wely il Kolto ou Tehomea
+  C: 如果只能不断沉入深渊底部
+  A: Eilent Rave o Xia Haol Cloud Telly il Mii Selaf Note
+  C: 懊恼溢流成河，你伸出了手，可那真实存在吗？
+  A: Yiela Prous il Kolto ou Tehomea
+  C: 在深渊底部不断祈祷着
+
+== ifa: initial=1 mid=13 final=0
+  A: Mill end Dikti Elize Olkemia Story ifa Bis a Xia Haol
+  C: 我们是不幸的，正因如此我们才会用这双手改写故事
+  A: Ifa Anie ou Bip Ifa Ipsi Lef Golk Zill Miz Hendi ou Glenzikle sip
+  C: 伴随昆虫般的气息和骨头般的手臂，成为祭坛的装饰品
+  A: Yiela Jedreid Mei Poinglasene end Veditt Lanai ifa Golsilipt
+  C: 崇拜他吧！巧舌如簧的宣扬乐园之理想论者
+  A: Berte ou Vlikt weil Folsiagolzid Melpisia Efiitlaw ifa Amnist Saray
+  C: 栖息之处堆积成山的尸骸，伴随昨日友人的血腥晚宴
+  A: Bis iy Ilqum end Guidialm ifa She Dooomlait
+  C: 这是一次极度神圣的仪式
+  A: Poetolt Zia Haundi Ziksiilait Poetolt Zia Sween ifa Zeit
+  C: 举止端庄，按时睡觉
+
+== es: initial=5 mid=24 final=3
+  A: es hai di es towai di es crai ni es grei ni lau
+  C: 追寻，光芒，救赎，命运
+  A: es towai di es crai ni es grei ni lau
+  C: 追寻，光芒，救赎，命运
+  A: es crai ni es grei ni lau
+  C: 追寻，光芒，救赎，命运
+  A: Sindipqls end Wendiq Jered ou Enebis Seiren Waltisala es Dikzim Lushegand
+  C: 披着人皮的鬣狗们，吟唱着赞美诗，沉醉于威望之中
+  A: Wipt Marla il Paphileeta es Wipt Marla il Paphileeta es
+  C: 向宇宙投掷骰子，向宇宙投掷骰子
+  A: Hervisme Wondist Brait es Oulayz Stegraid Aasye a Luan
+  C: 无数的伤口撕裂，好几个走马灯升起
+
+== a: initial=17 mid=169 final=2
+  A: Shiita a Shiitaria Rainya Mii Elie
+  C: 直到能望见终结的终结
+  A: a Siala Blem lar o Shelista Plentie
+  C: 那是为谁唱的？是这个世界的摄影机吗？
+  A: Rie ol Idem a Verse Rie ol Idam a Verse osa
+  C: 最终， ■■■■消失了，不久， ■■■■也消失了
+  A: Karna mil Fin a Sween
+  C: 沉眠在我手掌
+  A: a Nout Mii Ail Scape
+  C: 天涯海角皆可前往
+  A: Foul Xia ou Mii a Loot end Loot end Aihel
+  C: 肯定一直都在我之中
+
+== Elize: initial=11 mid=12 final=0
+  A: Elize imm Krey Phier Holo Miis imm Aim
+  C: 所以至少在你迷失自我的时候
+  A: Yiep Ranya Myte Molda Elize Mii Garve Nols Horlmaia Ord Bis Theek
+  C: 瞧瞧我的大脑，用这把小刀刻上公式
+  A: Mill end Dikti Elize Olkemia Story ifa Bis a Xia Haol
+  C: 我们是不幸的，正因如此我们才会用这双手改写故事
+  A: Leste Phier Tlli Leste Phier Tlli Bis Holsiana Galm Elize Cloud Vell Nai Holt
+  C: “来吧，请按下重置按钮！你绝对不会后悔的...”
+  A: Elize Kulu Dist Ail Poutie Eem Wondidda Amblait
+  C: 藉由痛苦的回忆，忘却一切事物
+  A: Elize Tella a Belqua Ilis Fas
+  C: 再倒入用来涂上绚丽色彩的彩虹
+
+== Gout: initial=14 mid=5 final=6
+  A: Gout Mii Lootaria end Loog
+  C: 我却永远无法飞离此处
+  A: Gout Mii Drone end
+  C: 我却永远孤身一人
+  A: Gout Mii Loog Bis end
+  C: 我却永远在这牢笼之中
+  A: Gout Crai Bai end Foly ah
+  C: 不过已经没事了
+  A: Crai Briss Gout
+  C: 在你身边
+  A: Gout end Gout
+  C: 不断飞逝
+
+== Poet: initial=8 mid=12 final=1
+  A: Tvulei Poet nai Hierti Farsha Bai
+  C: 就不要再继续无谓的苏生了
+  A: Poet Nai Clooshe Cloudyte Ran end
+  C: 请别垂下眼帘
+  A: Poet Nai Pellsipia imm Brai ou Epkejla Mii Qleea Torjest Craill
+  C: 这个念头别在脑子里打转了，我几乎快要把你杀了
+  A: Efok Efok Efok Poet nai Olte
+  C: 咳咳 咳咳 咳咳 请别在意
+  A: Lishe Poet Rook
+  C: 那我们就此永别吧
+  A: Foly Poet Nai Olte Gete Sai Vell Apnesia Elay
+  C: “没问题的，请别担心，新一天的朝阳一定会到来的”
+
+== Rie: initial=6 mid=8 final=1
+  A: Rie ol Idem a Verse Rie ol Idam a Verse osa
+  C: 最终， ■■■■消失了，不久， ■■■■也消失了
+  A: Eist ou Sail end a rie Cees Shelista
+  C: 太阳所抚及之处 冰壁世界潸然
+  A: Mii ol Phet Via tie Erlim Nilai Rie Poutie Eist ou Allss Brait Vell Nai Dilem Zel Graid
+  C: 我走过不散的迷雾，可最终，当我眼皮的门开启，我将不再记得任何东西
+  A: Xia Endaqlt Miz Magene end Mill Idial Swormin a Tigalm Craill Rie sii
+  C: 我早晚要成为一个魔法师，然后把你们全部吹飞
+  A: Rie sii
+  C: 早晚
+  A: Iqyur Shellius Entllphi Ra Noablem Vell Arth Rie
+  C: 神明告诉我，在不久之后每个人都不复存在
+
+== en: initial=5 mid=10 final=1
+  A: Hols Yien Weilla Kelasiad lait en Tikk a Feid ieq Tvulei ou Syeilla
+  C: 希望无情地散落，化作天使般飘零
+  A: Entie Arch Feilihea en Skima Roofialakta
+  C: 骑着海马穿过隧道
+  A: Il Eiti Minelu Sikid Pillusi Olipha en Selanya Helfigi ou Fleekijt
+  C: 到达下一个星球，意识无处可去，在次元的裂隙中徘徊
+  A: en Toubi Ran Eist ou Gete Story Brait
+  C: 睁开双眼，这就是新故事的起点”
+  A: Hiele Sarga Skeem a Floul en Circus end ob Sween Amil
+  C: 看哪，天空开始旋转，沉睡的马戏团正在苏醒
+  A: en a Gete Sai Elay end a Sai end Elay
+  C: 崭新的早晨即将来临
+
+== sip: initial=0 mid=0 final=4
+  A: Ifa Anie ou Bip Ifa Ipsi Lef Golk Zill Miz Hendi ou Glenzikle sip
+  C: 伴随昆虫般的气息和骨头般的手臂，成为祭坛的装饰品
+  A: Feipist Jeari weig iy Uerisaqui sip
+  C: 我嘴唇的颤抖就在我的脑海中
+  A: Poetolt Nai Olte Shiita ou Lazz weig sip
+  C: 不要担心生命的终结
+  A: Rie Porsa Yien Tigalm tie Dubs Xia iy Mout Mout Fete sip
+  C: 很快就会被压在卡车里，这是一个如此，如此美丽的命运
+
+== sii: initial=0 mid=0 final=10
+  A: Bistie Rowt iy Editav lar Zill Awlsijvikt Lenekle sii
+  C: 这样的地狱是如此适合我们，故事线早已规划完毕
+  A: Xia Endaqlt Miz Magene end Mill Idial Swormin a Tigalm Craill Rie sii
+  C: 我早晚要成为一个魔法师，然后把你们全部吹飞
+  A: Rie sii
+  C: 早晚
+  A: Crai Nai Anisia Bai sii
+  C: “我们不会再寂寞了，
+  A: Elzanoa Mill Vell Ignai Flojrie sii
+  C: 没有翅膀的我们，一定无法到达
+  A: Elize Bis iy Nai Feike Trias Poet Nai Hendikki sii
+  C: 这不是一所不冷不热的学校，别误会
+
+== Xia: initial=16 mid=48 final=4
+  A: Eiveri Xia Igsip Dors Morb
+  C: “我受够了你疯狂的妄想”
+  A: Ilis Leste Stea Xia Scape ah
+  C: 用七色的画具描绘吧
+  A: Foul Xia ou Mii a Loot end Loot end Aihel
+  C: 肯定一直都在我之中
+  A: San Xia Haol Gout Lantan Razzle
+  C: 我抓住了那只手 却打破了提灯
+  A: Hellm a Cat Galha Sol end Xia Rata
+  C: 幻影猫咪留下寂寞微笑后消失不见
+  A: a Xia Trico
+  C: 【那太多了】
+
+== Oli: initial=1 mid=15 final=3
+  A: Xia Oli o Vellediola ou Syeillas end ol Eala il
+  C: 那里便是堕落天使们的坟墓
+  A: Bis Oli o Vellediola ou Syeillas end ol Eala il
+  C: 这里便是堕落天使们的坟墓
+  A: Rak Velaiye Ra Miis Ellif Klar imm Bis Oli
+  C: 我本以为我依然还在此活着
+  A: Dex imm Bis Oli Aola ieq Drone Iila Vell Nai Kreis imm Lootaria Zel
+  C: 永远不会相交的两个人，如今作为同一个少女出现在这里
+  A: Ween ou Okititil a Oli end Ley Nai
+  C: 教化的结尾和旅途的终焉
+  A: Bis Mazy iy Oli end Ley Nai Laiz Nai Aihel lid Naits folme Bisoli
+  C: “这个迷宫已经是死胡同了，在这里没有未来可言”
+
+== Olis: initial=4 mid=17 final=7
+  A: Olis Leste Stea Shelista
+  C: 描绘这充盈的世界吧
+  A: Olis Crai Ailes Mii
+  C: 你和我非常相似。
+  A: Oulayz Verry Olis end a Oulayz Verry Olis
+  C: 便涌现诸多记忆
+  A: end Oulayz Harmiy Olis end a Oulayz Harmiy Olis
+  C: 便涌现诸多情感
+  A: Olis Loog a Zeit end Zeit ei ou Lootaria end
+  C: 睡过漫长时光 睡过无尽时光
+  A: Razzle Cup Olis Soup Ani Phantasm
+  C: 破损的茶杯，翻洒的汤水，某个幻影
+
+== Kulu: initial=5 mid=22 final=0
+  A: Kulu Nai Harie Zel Note
+  C: 对这一切都丝毫没有印象
+  A: ol Eem Ra Voi Kulu Awter Shellius imm Selaf
+  C: 我真的感觉我能与神明相见
+  A: Qleel Mii Verse Lef Kulu Nai Harie Zel osa
+  C: 那我应不应该消失，忘却一切事情？
+  A: Kulu Nai Ranya end Kulu Nai Prifiel Zel Note
+  C: 我什么也看不见，什么也感觉不到
+  A: Skelat Nai Stica Ol Kulu Ranya Lef Fellusia
+  C: 嬉笑声像那星际间的以太一般，无法停止
+  A: Ol Kulu Nai Ranya a Leim ou Xia Story
+  C: 他感到伤心，因为直到最后都没能看到故事的结局
+
+== Vell: initial=4 mid=35 final=0
+  A: Quim Herz Nai Yien Kelletta Lootaria Xia Mane Vell Dialoss
+  C: 无法使用的心总有一天会枯萎
+  A: Quim Herz Nai Yien Amiy Lootaria Xia Mane Vell Diallif
+  C: 不再被爱的心总有一天会死去
+  A: Arsia ou Lazz a Pysietia end Vell Nai Guit
+  C: 永远不会被人知晓的存在的理由以及使命
+  A: Vell Sctution Cloud ieq Falarle folme Erel ou Bis Ildrem
+  C: （我）将成为雨伞来守护你免于这个文明的崩坏。
+  A: Dex imm Bis Oli Aola ieq Drone Iila Vell Nai Kreis imm Lootaria Zel
+  C: 永远不会相交的两个人，如今作为同一个少女出现在这里
+  A: Foly Poet Nai Olte Gete Sai Vell Apnesia Elay
+  C: “没问题的，请别担心，新一天的朝阳一定会到来的”
+
+== Qleea: initial=2 mid=16 final=1
+  A: Qleea Yien Ledi Ord Giidu Piito qls
+  C: 黑色的羊群将带我离去
+  A: Mii Qleea Spai imm Meele ou Trane
+  C: （想到这）我的眼泪便停不下来了
+  A: Poet Nai Pellsipia imm Brai ou Epkejla Mii Qleea Torjest Craill
+  C: 这个念头别在脑子里打转了，我几乎快要把你杀了
+  A: Ah Epkejla Dizzle Mii Qleea Razzle
+  C: 啊，我的头好像裂开，马上快要坏掉了
+  A: Poutie Xia Ran Clooshe a Toubi Crai Vell Qleea osa Miz Volp
+  C: 当你眨眼之时，你将成为鬼怪的一员
+  A: Imeila Zia Qleea Verse Shelista Vell Nai Canvie Noaflea
+  C: 即使我消失了，这个世界也不会有任何改变
+
+leading end: 33, trailing end: 41
+  LEAD A: End Nout Mil Ail Scape 
+       C: 天涯海角皆可前往
+  LEAD A: End Oulayz Termz Nout Skie Leste 
+       C: 去飞越无数时光
+  LEAD A: end Fala Naits 
+       C: 朝向那彼方
+  LEAD A: end 
+       C: 那
+  LEAD A: end Droq Ani Minelu Loqcka Elie 
+       C: 一个手提包就够让我前往星辰彼方
+  TRAIL A: Laiscall ou Frait miz ei end 
+       C: 初始之钟敲响
+  TRAIL A: Haol Staps Termz Floul end 
+       C: 拍拍手吧
+  TRAIL A: Sail Lans ah Minelia Seiren Heart Karna Vivi end 
+       C: 表针转动 太阳起舞 月儿歌唱 思念点亮
+  TRAIL A: end 
+       C: 那
+  TRAIL A: Loog end Loog Stei Nai Mariju Viin end 
+       C: 一直追寻的景色

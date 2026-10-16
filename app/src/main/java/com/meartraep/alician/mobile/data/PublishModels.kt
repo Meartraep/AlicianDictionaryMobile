@@ -19,7 +19,18 @@ data class PublishPreview(
     val publishedSha1: String,
     val hasChanges: Boolean,
     val blockingReason: String? = null,
-)
+) {
+    /** The version this publication will carry; the pipeline verifies it. */
+    val nextVersion: Int get() = PublishLogic.nextVersion(publishedVersion)
+}
+
+/** One file of the publishing commit. */
+data class PublishFile(val path: String, val bytes: ByteArray) {
+    override fun equals(other: Any?): Boolean =
+        other is PublishFile && other.path == path && other.bytes.contentEquals(bytes)
+
+    override fun hashCode(): Int = 31 * path.hashCode() + bytes.contentHashCode()
+}
 
 enum class PublishStage { IDLE, VERIFYING, UPLOADING, OPENING_PULL_REQUEST, DONE, FAILED }
 

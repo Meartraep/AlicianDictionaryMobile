@@ -1,0 +1,329 @@
+
+########## lend  (rows shown=8) ##########
+  offid=530 JP=さあ 審判が始まります 準備はできましたか？
+        EN=Judgment is about to begin Are you ready?
+        AL=Leste Irdliq Phina Frait Lend Crai Awlst
+  offid=665 JP=それじゃあ 影に取り憑かれたものは?
+        EN=Then, what of those possessed by the shadows?
+        AL=Dia Lend Flea end ol Yien Vakka Ord Salah iy
+  offid=706 JP=ところで僕は何匹目?
+        EN=By the way, how many butterflies have you eaten up?
+        AL=Finka Lend Zia iy Zel Veida Poa
+  offid=707 JP=まだあなたのお腹は 満たされない?
+        EN=Is your tummy still not full?
+        AL=Lend Cloudyte Filshua Yien Nai Ailjfa
+  offid=719 JP=それじゃあ彼らが消えても同じだよね?
+        EN=Then it’s the same if they disappear, right?
+        AL=Dia Imeila Zia Qleea Verse Lend Xia iy Sar Lqll
+  offid=1140 JP=「SAVE DATA がみつかりません」「NEW GAME をはじめますか？」 | 「SAVE DATA がみつかりません」「はじめますか？」 | 「SAVE DATA がみつかりません」「N
+        EN=“SAVE DATA NOT FOUND” “START NEW GAME?” | “SAVE DATA NOT FOUND” “START?” | “SAVE DATA NOT FOUND”
+        AL=Lend Lend Cloud Skeem
+  offid=1144 JP=「SAVE DATA がみつかりません」「NEW GAME をはじめますか？」 | 「SAVE DATA がみつかりません」「はじめますか？」 | 「SAVE DATA がみつかりません」「N
+        EN=“SAVE DATA NOT FOUND” “START NEW GAME?” | “SAVE DATA NOT FOUND” “START?” | “SAVE DATA NOT FOUND”
+        AL=Lend Cloud Skeem Gete Liumd
+  offid=1146 JP=「SAVE DATA がみつかりません」「NEW GAME をはじめますか？」 | 「SAVE DATA がみつかりません」「はじめますか？」 | 「SAVE DATA がみつかりません」「N
+        EN=“SAVE DATA NOT FOUND” “START NEW GAME?” | “SAVE DATA NOT FOUND” “START?” | “SAVE DATA NOT FOUND”
+        AL=Lend Cloud Skeem Skeem Skeem Skeem Skeem Skeem Skeem Gete Liumd
+
+########## erikes  (rows shown=4) ##########
+  offid=231 JP=悪意の居ない脳内では 優しい夢を見られるのでしょうか
+        AL=Erikes Kull Ranya Quand Hellm Quim weil Molda Endareries Yiele Vinsikid
+  offid=241 JP=何のために ぼくたちは生まれ そして 生き長らえていくのだろう
+        AL=Erikes Wasiim Zill Rinasia es Ellif a Geeg
+  offid=1033 JP=夜明けまでに ぜんぶ食べられるかな
+        EN=I wonder if I can eat them up by dawn
+        AL=Erikes Kull Efitu Ail winde Sartain
+  offid=1197 JP=君の長い夢は もう醒めたかな?
+        EN=Have you awakened from your long dream ?
+        AL=Erikes Crait Erlim Hellm ol Wibrind Bai
+
+########## qleea  (rows shown=14) ##########
+  offid=18 JP=泪が止まらないよ
+        EN=I can’t stop crying
+        AL=Mii Qleea Spai imm Meele ou Trane
+  offid=209 JP=あぁ 頭が割れる 壊れてしまいそうだ
+        EN=Oh, my head will split, might be broken
+        AL=Ah Epkejla Dizzle Mii Qleea Razzle
+  offid=235 JP=無垢を殴り続けられ ショートしてしまった 戻らない脳回路
+        AL=Faltnoa Molda Qufit end ol Yien Abid a Geeg Xia Fiel Poetolt ol Qleea Gehnd
+  offid=240 JP=こんなにもバラバラになってしまうのなら
+        AL=Quim Qleea Miz Olistea Biibell
+  offid=305 JP=こんな汚い体 さっさと壊してしまえ
+        EN=Such a filthy body, just break it
+        AL=Yiep Qleea Razzid Oltia Velsiam Coll Falke
+  offid=323 JP=あの楽園に帰ることができるなら
+        EN=we can return to that paradise
+        AL=Qleea Weliim en Mii Kulu Fal il Twiik Lanai
+  offid=363 JP=そのうさぎは 息絶えてしまう
+        EN=The Bunny breathes one’s last breath
+        AL=Xia Arla Klolsi Qleea Diallif
+  offid=461 JP=頭の中をウロウロしないで 殺してしまいそう
+        EN=Don’t walk around in my head, it seems like I am going to kill you
+        AL=Poet Nai Pellsipia imm Brai ou Epkejla Mii Qleea Torjest Craill
+  offid=505 JP=黒い羊たちに連れ去られてしまう
+        EN=Black sheep are going to take me away
+        AL=Qleea Yien Ledi Ord Giidu Piito qls
+  offid=515 JP=その目を閉じて開けたなら 君もお化けになってしまいます
+        EN=After you blink those eyes, you will be one of the ghosts
+        AL=Poutie Xia Ran Clooshe a Toubi Crai Vell Qleea osa Miz Volp
+  offid=672 JP=いい加減 認めてしまったらどうだい
+        EN=Why don’t you just admit it?
+        AL=Fevla Crai Qleea Endekta Bai
+  offid=718 JP=僕が消えても 世界は何一つ変わりはしない
+        EN=The world didn’t change one bit when I disappeared
+        AL=Imeila Zia Qleea Verse Shelista Vell Nai Canvie Noaflea
+  offid=719 JP=それじゃあ彼らが消えても同じだよね?
+        EN=Then it’s the same if they disappear, right?
+        AL=Dia Imeila Zia Qleea Verse Lend Xia iy Sar Lqll
+  offid=929 JP=そんな言葉を置いて
+        AL=en Seia ol Qleea
+
+########## hiele  (rows shown=14) ##########
+  offid=21 JP=神様 もう離してよ
+        EN=Oh god, please let me go
+        AL=Hiele Shellius Yiep Leimy Bai
+  offid=26 JP=ほら 底は泪の海 枯れることのない海
+        EN=Look, the bottom is a sea of tears, the never perishing sea
+        AL=Hiele Meele ou Trane Farla
+  offid=101 JP=ほら 物語はいつだって 君のそばにある
+        AL=Hiele Story Baly Aihel Diiza Crai
+  offid=172 JP="ほら 幻なんて云わないで"
+        AL=Hiele Poet Nai Seek Ra Bis Shelista o Hellm
+  offid=194 JP=‟もう寂しくないね” | ‟ほら手を繋ごう” | ‟今日から 君は独りじゃない” | ‟もう寂しくないね” | ‟ほら手を繋ごう” | ‟今日から 君は独りじゃない”
+        EN=“We’re not lonely anymore” | “Let’s hold our hands” | “You’re not alone from today on” | “We’re 
+        AL=Hiele Lishe Klattle Haol
+  offid=309 JP=虹色を流し込むから | ねえ 幻を見せて
+        EN=and pouring a rainbow into it, so now, | show me an illusion
+        AL=Hiele Phim Pleesa Hellsijma
+  offid=320 JP=「ほら お腹が空いたでしょう?」
+        EN=“Come on, aren’t you hungry?”
+        AL=Hiele Dilem Ola Filshua Crain
+  offid=467 JP=壊れるほど ねぇ ねぇ
+        EN=Enough to waste, look look!
+        AL=Bis Herz Voi Razzle Hiele end Hiele
+  offid=473 JP=ほら ドロワーから 引っ張り出した ロープ | 椅子を引きずって 歪曲したロープ
+        EN=See, a rope pulled out of a drawer | A rope distorted by dragging a chair
+        AL=Hiele Apka Mii ol Plarli Fouz Ola Stache
+  offid=602 JP=ほら、その煌めきに触れてみてよ
+        EN=Look, let’s touch their sparkle
+        AL=Hiele Phier San Eclat Xia
+  offid=669 JP=ほら 誰も助けてくれやしない
+        EN=You see, there’s no one to help you
+        AL=Hiele Noablem Etuse Crai
+  offid=708 JP=ねえ もういい加減 放してよ
+        EN=Come on, let go of me now
+        AL=Hiele Phim Leimy Piisa Bai
+  offid=796 JP=ほら 宙が廻り出して 眠っていたサーカスが目を覚ます
+        EN=Look, space start birling and the sleeping circus wakes up
+        AL=Hiele Sarga Skeem a Floul en Circus end ob Sween Amil
+  offid=859 JP=ねえ この首を絞める 君は誰
+        EN=Hey, who are you to strangle me?
+        AL=Hiele Blem iy Crai end Aldaltia Myte Fiakli
+
+########## tie  (rows shown=14) ##########
+  offid=5 JP=萎れた花 赤いドレス 大きなソファ 城壁 鉄格子 散らかったクローゼット 割れた爪
+        EN=Withered flower, Red dress, Big sofa, Castellated wall, Iron bars, Messy closet, Broken nail
+        AL=Klautie end ol Dizzle
+  offid=8 JP=それはきっと 愛のない唄 誰が為の唄
+        EN=The song may be without love This is for whom?
+        AL=a Siala Blem lar o Shelista Plentie
+  offid=62 JP=いつかまた 故郷で会えるように
+        AL=end Karna Awter Noll Awter Noll tie Mill Haymate
+  offid=63 JP=いつかまた 故郷で会えるように
+        AL=Ah Awter Noll tie Haymate Mane
+  offid=182 JP=さぁ 怪獣の背中へ飛び乗って みんな眠らせてしまおう
+        EN=Come, let’s get on a monster and put everyone to sleep
+        AL=Leste Idial Sween Ollenes Poetolt Sworntie il Tone ou Jilga
+  offid=230 JP=「誰かを愛するためには まず我々自身を愛してあげましょう」
+        AL=Eifijb Amiy Olizes Iyldam Lishe Endyd Amiy Qllsiimtiel
+  offid=306 JP=痛い思いをすれば 全てを忘れられるから
+        EN=Pain lets me forget everything
+        AL=Elize Kulu Dist Ail Poutie Eem Wondidda Amblait
+  offid=327 JP=映写機のように 何度も頭の中で流れるんだよ
+        EN=It’s been shown in my head many times like a projector
+        AL=imm Brai ou Epkejla Myahalke Lef Plenptie
+  offid=421 JP=誰か息の根を止めてよ もうこんな所にいたくないよ
+        EN=Somebody take my breath away | I don’t want to be in this place anymore
+        AL=Olizes Phim Stica Herches Nai Hols a Arth weil Bistie Oli Bai
+  offid=422 JP=自画像が塗りつぶされていく
+        EN=My self-portrait is being painted over
+        AL=Fotzob Miistiel Luan a Yien Hiip a Tigalm
+  offid=423 JP=祀りたまえ！ アンチノミーな万物の創造主を
+        EN=Worship him! The antinomic creator of all things
+        AL=Yiela Egdrea Mei Wiziliq Arlistielim ou Eadalam
+  offid=426 JP=こんな地獄は僕達にぴったり 筋書き通りのストーリーだね
+        EN=This hell is perfect for us | The storyline is just as plotted out
+        AL=Bistie Rowt iy Editav lar Zill Awlsijvikt Lenekle sii
+  offid=430 JP=朝影に映る 散らかった記憶に根を張ったまま
+        EN=While I took root in disorderly memory reflecting on the water in the morning
+        AL=Meisem Graid end Yien Rustie il Salah ou Sai Koll Olfeis Nol imm Xia
+  offid=432 JP=扉を思い切り閉めると 彗星が降り注いだ
+        EN=When I closed the door roundly, a comet fell
+        AL=Poutie Mii Clooshe Eist Ord
+
+########## weil  (rows shown=11) ##########
+  offid=231 JP=悪意の居ない脳内では 優しい夢を見られるのでしょうか
+        AL=Erikes Kull Ranya Quand Hellm Quim weil Molda Endareries Yiele Vinsikid
+  offid=237 JP=無差別に堕とされた地獄で ぼくたちはいつしか 化け物になった
+        AL=Weil Rowt endil Zill ol Yien Obeylaes Fiqsyndelait Zill ol Idem Pefidqls Eave
+  offid=259 JP=ゆっくり溶けていけばいい この粘膜のゆりかごで
+        EN=Just slowly melt away in this mucous cradle
+        AL=Weil Bis Darli Kewv Crai Ied Luan a Weliim Yulleia
+  offid=304 JP=カプセルみたいに閉ざされたこの部屋で 君はもう誰にも見つけられない
+        EN=In this room, closed up like a capsule, no one can find you anymore
+        AL=Crai Vell Ignai Yien Rait Ord Blemenes weil Bis Pazz end ol Yien Clooshe Lef Klijka
+  offid=413 JP=棲みかには骸の山 昨日の友と 血まみれの晩餐会
+        EN=A pile of corpses in their dwelling, a bloody dinner party with yesterday’s friends
+        AL=Berte ou Vlikt weil Folsiagolzid Melpisia Efiitlaw ifa Amnist Saray
+  offid=421 JP=誰か息の根を止めてよ もうこんな所にいたくないよ
+        EN=Somebody take my breath away | I don’t want to be in this place anymore
+        AL=Olizes Phim Stica Herches Nai Hols a Arth weil Bistie Oli Bai
+  offid=656 JP=この運命を進むのは 君じゃない
+        EN=You’re not the one who’s going through this fate
+        AL=Ene end Liz weil Bis Fete iy Nai Crai
+  offid=676 JP=観覧席には 刺激に飢えた天使たち
+        EN=Angels in the bleachers, hungry for stimulation
+        AL=Syeillaqls end iy Vijg lar Qualda weil Ranyastodd
+  offid=695 JP=心の奥深くで うごめく亡霊たち
+        EN=The ghosts that roam deep in our hearts
+        AL=Ilfelieqls end Bipeid weil Tehomea ou Herz
+  offid=1015 JP=ぼろぼろのまま 暗闇へ捨てられて
+        EN=Thrown into the darkness in tatters
+        AL=Koll Miz Jareic Yiep Fur weil Doraid
+  offid=1121 JP=希望は血も涙もなくばら撒かれ 天使となって舞い降りる
+        EN=Hope scatters ruthlessly and descends as an angel
+        AL=Hols Yien Weilla Kelasiad lait en Tikk a Feid ieq Tvulei ou Syeilla
+
+########## ol  (rows shown=14) ##########
+  offid=1 JP=トロイメライ トロイメライ 独りだけ聞こえる フィナーレ
+        EN=Traumerei Traumerei Finale only heard by me
+        AL=Hellmeila Hellmeila Lar imm Miis Mols
+  offid=2 JP=萎れた花 赤いドレス 大きなソファ 城壁 鉄格子 散らかったクローゼット 割れた爪
+        EN=Withered flower, Red dress, Big sofa, Castellated wall, Iron bars, Messy closet, Broken nail
+        AL=Finzo a Fiola end ol Melnaid
+  offid=3 JP=萎れた花 赤いドレス 大きなソファ 城壁 鉄格子 散らかったクローゼット 割れた爪
+        EN=Withered flower, Red dress, Big sofa, Castellated wall, Iron bars, Messy closet, Broken nail
+        AL=Veit Syarfi Oul Solien Vala ou Quondlea
+  offid=5 JP=萎れた花 赤いドレス 大きなソファ 城壁 鉄格子 散らかったクローゼット 割れた爪
+        EN=Withered flower, Red dress, Big sofa, Castellated wall, Iron bars, Messy closet, Broken nail
+        AL=Klautie end ol Dizzle
+  offid=10 JP=幻に浮かんだ船 とっても深い海
+        EN=A ship floating on illusion, enormously deep sea
+        AL=Porta end Flous imm Hellm Olis Dooom Meele
+  offid=11 JP=本当は 神様に逢える気がした
+        EN=I really felt like I could come across god
+        AL=ol Eem Ra Voi Kulu Awter Shellius imm Selaf
+  offid=12 JP=けれど 幻は 結局 がらんどう | どれほど 強く 強く 祈ったところでね
+        EN=But there is nothing in illusion anyway | Despite how strong I wish
+        AL=Gout Hellm o Ola Poul ail
+  offid=14 JP=深淵の底へ沈んでしまえ
+        EN=Just sink in the bottom depth
+        AL=Yiep Wely il Kolto ou Tehomea
+  offid=16 JP=幽魂を抱いて沈んでしまえ
+        EN=Just sink in with mystical cluster
+        AL=Yiep Wely Poetolt Heipe Sole ou Venesene
+  offid=17 JP=まるで 最初から居なかったみたいに 消え去ってしまおうか
+        EN=Should I vanish away, as if I wasn’t there from beginning
+        AL=Qleel Mii Verse Iequim Lef Nai Aihel folme Talis
+  offid=19 JP=差し出した その手は 本物なの？
+        EN=You held out your hand, but is that real?
+        AL=Eilent Rave o Xia Haol Cloud Telly il Mii Selaf Note
+  offid=22 JP=深淵の底で 祈り賜え | かの心臓を 突き刺すように
+        EN=Pray in the bottom depths, | as if you stick that heart
+        AL=Yiela Prous il Kolto ou Tehomea
+  offid=24 JP=幽魂を抱いて 眠り賜え | 永遠の悪夢から 解放されるように
+        EN=Sleep with mystical cluster, | as if you escape from eternal nightmare
+        AL=Yiela Sween Poetolt Heipe Sole ou Venesene
+  offid=25 JP=幽魂を抱いて 眠り賜え | 永遠の悪夢から 解放されるように
+        EN=Sleep with mystical cluster, | as if you escape from eternal nightmare
+        AL=Lef Yien Leimy folme Vins Hellm imm Lootaria
+
+########## iy  (rows shown=14) ##########
+  offid=40 JP=目が覚めた旅人は 何を思う
+        AL=Ran Harmiy Viazulu a Harmiy Zel
+  offid=56 JP=囁いたアリアは 風に乗って行ってしまった
+        AL=Ramiy Sar Hyuz
+  offid=84 JP=とても懐かしい気がしたよ
+        AL=end Mii Harmiy Luina end Luina
+  offid=93 JP=“大丈夫、そう遠くないはずだよ！ アーカーシャまでもうちょっと"
+        AL=Foly Mii Harmiy Xia o Nai Loqcka Opl
+  offid=164 JP=まごうことなき 永遠はそこにあるのに
+        AL=Mii Harmiy Ra Epite Lootaria Aihel imm Xia Oli Queit Wasiim
+  offid=176 JP=ここが 私の世界のすべて
+        EN=This is my whole world
+        AL=Bisoli iy Ail ou Myte Shelista
+  offid=177 JP=あなたの瞳はこうで心臓はここ
+        EN=Eyes like this, heart like this
+        AL=Cloudyte Tittri iy Lef Bis Cloudyte Herches iy Bisoli
+  offid=195 JP=‟もう寂しくないね” | ‟ほら手を繋ごう” | ‟今日から 君は独りじゃない” | ‟もう寂しくないね” | ‟ほら手を繋ごう” | ‟今日から 君は独りじゃない”
+        EN=“We’re not lonely anymore” | “Let’s hold our hands” | “You’re not alone from today on” | “We’re 
+        AL=Crai iy Nai Drone folme Aolu
+  offid=230 JP=「誰かを愛するためには まず我々自身を愛してあげましょう」
+        AL=Eifijb Amiy Olizes Iyldam Lishe Endyd Amiy Qllsiimtiel
+  offid=232 JP=「そうして 我々は 共に愛し合い 支え合っていくのです」
+        AL=Endjulf Qllsiim Vell Luan a Og Amiy a Fpikartm Saryarte
+  offid=233 JP=瞼の楽園は 焼け焦げていて もう思い出すこともできないよ
+        AL=Elize Lanai ou Allss iy Pigaldi Zia Kull Nai Harie Xia Bai
+  offid=234 JP=『お前は頭の壊れた化け物だから 幾ら潰してもいいのさ』
+        AL=Alikkyteri Pileknoa Tigalm Elize Vig iy Pefid end Epkejla Razzle Klar
+  offid=236 JP=『最早 人ですらないのだから 痛みを推し測る必要もないだろう』
+        AL=Oudiq Nai Hexixa Wondidda Elize Vig iy Nai Loosya Enebis Wetijka
+  offid=243 JP=救いの言葉は 何の役にも立たないんだ
+        AL=Verry ou Hesserie iy Jedleqnoa
+
+########## ah  (rows shown=14) ##########
+  offid=6 JP=トロイメライ トロイメライ ああ 司祭さま
+        EN=Traumerei Traumerei Oh, Rev. Msgr.
+        AL=Hellmeila Hellmeila Ah Salie Proula
+  offid=49 JP=旅人は步みゆく | 森羅万象の手のひらを
+        AL=ah end Mii Caty Cate
+  offid=59 JP=ああ 懐かしい音がした
+        AL=Ah Mii Plau Luina Pray
+  offid=63 JP=いつかまた 故郷で会えるように
+        AL=Ah Awter Noll tie Haymate Mane
+  offid=71 JP=囁いたアリアは もう、
+        AL=Mii Seiren Aria ah Bai
+  offid=82 JP="さぁ、返事をしておくれ！"
+        AL=Ah Leste Hal
+  offid=86 JP=心はまだここにある 私はずっとここにいる
+        AL=Mii Aihel a Bis ah Lootaria
+  offid=88 JP=そして君も ここへ戻ってくる
+        AL=end Crai Fal Bis ah Mane
+  offid=107 JP=追憶 眺望 全てはひとつになって
+        EN=Reminiscing, Prospection,
+        AL=Ail Graid Skald end Anyahel
+  offid=119 JP=時計が回って 太陽は踊り 月が歌って 想いは燈る
+        EN=Turning the hands of clock, The sun dancing,
+        AL=Sail Lans ah Minelia Seiren Heart Karna Vivi end
+  offid=137 JP=サーカスの夜はとても長い夜 張り巡るシナプスが足に絡みついた
+        EN=The circus night is really long, scattered synapse tangle in legs
+        AL=Circus ou Nouche Olis Loog Nouche Synapse ah Estola
+  offid=154 JP=瞳の影 瞳の奥の水面
+        AL=Salah ou Tittri Akarche Uleim Tittri
+  offid=174 JP=何回叫んでも 届くことはない
+        EN=My voice never reaches, no matter how many times I scream
+        AL=Imeila Tiag Myahalke Vell Ignai Deet
+  offid=209 JP=あぁ 頭が割れる 壊れてしまいそうだ
+        EN=Oh, my head will split, might be broken
+        AL=Ah Epkejla Dizzle Mii Qleea Razzle
+
+
+=== what are lend/erikes glossed as now? ===
+  ah        啊            interj. cnt=72   en='1. And (if connecting two nouns together' jp='at the beginning)/Imperative comma'
+  Erikes    是否           conj.  cnt=4    en='' jp=''
+  Hiele     看哪           interj. cnt=20   en='look! <interjection>' jp='ほら'
+  iy        是(不与o混用)     v.     cnt=95   en='' jp='sentence breaker, or topic marker'
+  Laiz      未来           n.     cnt=27   en='future (未来) / To lose' jp='失くす) / acts like だろう'
+  Laiz      动词+a Laiz变为将来时 n.     cnt=27   en='future (未来) / To lose' jp='失くす) / acts like だろう'
+  Lend      是否           conj.  cnt=14   en='are (Interrogative)' jp='か'
+  Qleea     将会           v.     cnt=23   en='completely' jp='〜てしまう'
+  Rie       不久           adv.   cnt=18   en='eventually' jp='やがて'
+  Rie       早晚           adv.   cnt=18   en='eventually' jp='やがて'
+  tie       在(?)         prep.  cnt=23   en='Inside' jp='中'
+  weil      在            prep.  cnt=10   en='inside' jp='で'
+  rie       不久           adv.   cnt=18   en='eventually' jp='やがて'
+  rie       早晚           adv.   cnt=18   en='eventually' jp='やがて'
+  ob        助动词          v.     cnt=7    en='continuous past conjugation' jp='ていた'
+  ob        用于过去完成时(?)   v.     cnt=7    en='continuous past conjugation' jp='ていた'
+  ol        助动词          v.     cnt=100  en='Past tense' jp='た'
+  ol        用于过去时及现在完成时  v.     cnt=100  en='Past tense' jp='た'

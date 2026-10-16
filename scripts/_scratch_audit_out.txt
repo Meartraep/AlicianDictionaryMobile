@@ -1,0 +1,64 @@
+translator hard-coded glosses harvested: 16
+
+=== word | translator gloss | dict explanation | dict EN | dict JP ===
+  a          和        (coordinator)
+        expl=表并列 / 和 / 表动作同时进行 / 并 / 补足音节，不译
+        EN  =1. And (if connecting two nouns together) 2. Interjectory phrase
+        JP  =at the beginning)/Imperative command
+  dou                 (semantically_light_particle)   ** 词典无此词 **
+  en                  (semantically_light_particle)
+        expl=连接作用 / 无实义
+        EN  =and/then
+        JP  =
+  endil               (semantically_light_particle)
+        expl=引导地点状语从句
+        EN  =
+        JP  =
+  erikes     是否       (yes_no_question_marker)
+        expl=是否
+        EN  =
+        JP  =
+  es         和        (coordinator)
+        expl=表并列
+        EN  =and/then
+        JP  =
+  forle      在        (clausal_circumfix_marker)
+        expl=在......之前
+        EN  =before
+        JP  =前に
+  lait                (unbound_morphology_marker)
+        expl=后缀 / 形容词变副词 / 也可分开写
+        EN  =to modify an adjective to adverb
+        JP  =-ly
+  lend       是否       (yes_no_question_marker)
+        expl=是否
+        EN  =are (Interrogative)
+        JP  =か
+  qls                 (unbound_morphology_marker)
+        expl=用在单数名词后 / 变为复数名词。也常作为后缀
+        EN  =suffix to indicate plurality
+        JP  =たち
+  sii                 (semantically_light_particle)
+        expl=语气词
+        EN  =right/y'know
+        JP  =ね
+  sip                 (semantically_light_particle)
+        expl=语气词(?)
+        EN  =
+        JP  =
+  ta                  (semantically_light_particle)
+        expl=语气词
+        EN  =
+        JP  =
+  wei                 (semantically_light_particle)
+        expl=语气词
+        EN  =particle adding assertion
+        JP  =よ
+  weiy                (semantically_light_particle)
+        expl=提示一个动作的结果(?)
+        EN  =
+        JP  =
+  winde      在        (clausal_circumfix_marker)
+        expl=在......之前(?)
+        EN  =
+        JP  =

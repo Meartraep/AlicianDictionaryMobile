@@ -16,7 +16,7 @@ import hashlib
 import json
 import sqlite3
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 ROOT = Path(__file__).resolve().parents[1]
 DB = ROOT / 'app/src/main/assets/translated.db'
@@ -80,10 +80,13 @@ def write_database_marker(path: Path, values: Dict[str, str]) -> None:
         conn.close()
 
 
-def load_ledger() -> List[Dict[str, Any]]:
-    if not LEDGER.is_file():
+def load_ledger(path: Optional[Path] = None) -> List[Dict[str, Any]]:
+    # Resolved per call (not as a default argument) so callers and tests that
+    # rebind the module-level paths keep working.
+    path = Path(path) if path is not None else LEDGER
+    if not path.is_file():
         return []
-    entries = json.loads(LEDGER.read_text(encoding='utf-8'))
+    entries = json.loads(path.read_text(encoding='utf-8'))
     if not isinstance(entries, list):
         raise VersioningError('database-versions.json must contain a JSON array')
     return entries
@@ -155,30 +158,36 @@ def validate_ledger(entries: List[Dict[str, Any]]) -> List[str]:
     return problems
 
 
-def check_asset_matches_ledger() -> List[str]:
+def check_asset_matches_ledger(
+    db_path: Optional[Path] = None,
+    ledger_path: Optional[Path] = None,
+    manifest_path: Optional[Path] = None,
+) -> List[str]:
     """The bundled database must be exactly the ledger's newest entry."""
+    db_path = Path(db_path) if db_path is not None else DB
+    manifest_path = Path(manifest_path) if manifest_path is not None else MANIFEST
     problems: List[str] = []
-    entries = load_ledger()
+    entries = load_ledger(ledger_path)
     ledger_problems = validate_ledger(entries)
     if ledger_problems:
         return ledger_problems
     last = entries[-1]
-    size, digest = file_identity(DB)
+    size, digest = file_identity(db_path)
     if size != int(last['size']) or digest != str(last['sha1']).lower():
         problems.append(
             'translated.db differs from the newest ledger entry (v%s): file size=%d sha1=%s, '
             'ledger size=%s sha1=%s. Publish it with '
             'python scripts/update_database_manifest.py --bump'
             % (last['db_version'], size, digest, last['size'], last['sha1']))
-    marker = read_database_metadata(DB)
+    marker = read_database_metadata(db_path)
     if int(marker.get('db_version', '0') or 0) != int(last['db_version']):
         problems.append('database marker db_version=%s does not match ledger v%s'
                         % (marker.get('db_version', '0'), last['db_version']))
     if marker.get('published_at') and marker.get('published_at') != last['published_at']:
         problems.append('database marker published_at=%s does not match ledger %s'
                         % (marker.get('published_at'), last['published_at']))
-    if MANIFEST.is_file():
-        manifest = json.loads(MANIFEST.read_text(encoding='utf-8'))
+    if Path(manifest_path).is_file():
+        manifest = json.loads(Path(manifest_path).read_text(encoding='utf-8'))
         expected = build_manifest(last)
         for key in ('db_version', 'sha1', 'size', 'published_at'):
             if manifest.get(key) != expected[key]:

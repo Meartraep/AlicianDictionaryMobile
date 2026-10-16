@@ -13,10 +13,10 @@ import java.net.URL
  * Publishes the local database to a temporary "db-publish" branch and opens a
  * pull request.
  *
- * Deliberately narrow: it writes exactly one file (the database) to a throw-away
- * branch. The version number, the ledger and the manifest are produced by the
- * repository's CI pipeline, which also refuses paths outside the publishing
- * allowlist.
+ * Deliberately narrow: it writes only the database, the ledger and the manifest to
+ * a throw-away branch. The version is stamped by the phone before uploading (see
+ * the Python bridge), and the pipeline verifies that it is exactly the next one
+ * and that nothing outside the publishing allowlist changed.
  */
 class DatabasePublisher(
     private val repository: String = DEFAULT_REPOSITORY,
@@ -40,10 +40,36 @@ class DatabasePublisher(
         )
     }
 
+    /** The published ledger: the version the phone has to build on. */
+    suspend fun fetchPublishedLedger(): String = withContext(Dispatchers.IO) {
+        val connection = URL(ledgerUrl()).openConnection() as HttpURLConnection
+        connection.requestMethod = "GET"
+        connection.connectTimeout = 8_000
+        connection.readTimeout = 15_000
+        connection.setRequestProperty("Cache-Control", "no-cache")
+        connection.setRequestProperty("User-Agent", USER_AGENT)
+        try {
+            if (connection.responseCode != HttpURLConnection.HTTP_OK) {
+                throw IllegalStateException(
+                    "无法获取已发布台账（HTTP " + connection.responseCode + "）。")
+            }
+            connection.inputStream.bufferedReader().use { it.readText() }
+        } catch (error: java.io.IOException) {
+            throw IllegalStateException(
+                "无法获取已发布台账：" + (error.message ?: "网络不可用"), error)
+        } finally {
+            connection.disconnect()
+        }
+    }
+
+    /**
+     * Commits [files] on a publishing branch and opens the pull request. The version
+     * is already stamped into them, so the pipeline only verifies.
+     */
     suspend fun publish(
         token: String,
-        database: File,
-        version: Int,
+        files: List<PublishFile>,
+        databaseSize: Long,
         notes: String,
         onProgress: (PublishProgress) -> Unit,
     ): PublishOutcome = withContext(Dispatchers.IO) {
@@ -59,24 +85,26 @@ class DatabasePublisher(
         val baseTree = request(token, "GET", "/repos/" + repository + "/git/commits/" + baseSha)
             .getJSONObject("tree").getString("sha")
 
-        onProgress(PublishProgress(PublishStage.UPLOADING, "正在上传数据库（" +
-            PublishLogic.formatMegabytes(database.length()) + "）…"))
-        val blobSha = request(
-            token,
-            "POST",
-            "/repos/" + repository + "/git/blobs",
-            JSONObject()
-                .put("content", Base64.encodeToString(database.readBytes(), Base64.NO_WRAP))
-                .put("encoding", "base64"),
-        ).getString("sha")
-
-        val tree = JSONArray().put(
-            JSONObject()
-                .put("path", DATABASE_PATH)
-                .put("mode", "100644")
-                .put("type", "blob")
-                .put("sha", blobSha),
-        )
+        onProgress(PublishProgress(PublishStage.UPLOADING, "正在上传（" +
+            PublishLogic.formatMegabytes(databaseSize) + "）…"))
+        val tree = JSONArray()
+        for (file in files) {
+            val blobSha = request(
+                token,
+                "POST",
+                "/repos/" + repository + "/git/blobs",
+                JSONObject()
+                    .put("content", Base64.encodeToString(file.bytes, Base64.NO_WRAP))
+                    .put("encoding", "base64"),
+            ).getString("sha")
+            tree.put(
+                JSONObject()
+                    .put("path", file.path)
+                    .put("mode", "100644")
+                    .put("type", "blob")
+                    .put("sha", blobSha),
+            )
+        }
         val treeSha = request(
             token,
             "POST",
@@ -107,7 +135,7 @@ class DatabasePublisher(
             "POST",
             "/repos/" + repository + "/pulls",
             JSONObject()
-                .put("title", "数据库发布：" + PublishLogic.formatMegabytes(database.length()))
+                .put("title", "数据库发布：" + PublishLogic.formatMegabytes(databaseSize))
                 .put("head", branch)
                 .put("base", baseBranch)
                 .put("body", PublishLogic.pullRequestBody(notes)),
@@ -192,11 +220,24 @@ class DatabasePublisher(
         return if (detail.isBlank()) hint else hint + "（" + detail + "）"
     }
 
+    /** Where the ledger lives for the configured repository and branch. */
+    fun ledgerUrl(): String =
+        RAW_ROOT + repository + "/" + baseBranch + "/" + LEDGER_PATH
+
+    /** Paths of the three files a publication commit carries. */
+    object Paths {
+        const val DATABASE = "app/src/main/assets/translated.db"
+        const val LEDGER = "database-versions.json"
+        const val MANIFEST = "database-manifest.json"
+    }
+
     private companion object {
         const val API_ROOT = "https://api.github.com"
+        const val RAW_ROOT = "https://raw.githubusercontent.com/"
         const val DEFAULT_REPOSITORY = "Meartraep/AlicianDictionaryMobile"
         const val DEFAULT_BASE_BRANCH = "main"
-        const val DATABASE_PATH = "app/src/main/assets/translated.db"
-        const val COMMIT_MESSAGE = "chore(database): 手机端上传数据库"
+        const val LEDGER_PATH = "database-versions.json"
+        const val COMMIT_MESSAGE = "chore(database): 手机端发布数据库"
+        const val USER_AGENT = "AlicianDictionaryMobile"
     }
 }

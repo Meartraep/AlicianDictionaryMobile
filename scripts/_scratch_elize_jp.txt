@@ -1,0 +1,158 @@
+=== song_translations rows containing Elize: 23 ===
+
+--- offid=188 song='Cԋιʅԃɾҽɳ ιɳ ƚԋҽ Aʂԋҽʂ(Children in the Ashes)' pos=INITIAL
+    ALICIAN : Elize Shelista Fur a Leimy Zill Baly
+    JP      : 世界はいつも 僕らを見放すから
+この手で 新しい世界を作るんだ
+    EN      : The world has always abandoned us,
+so we’re going to make a new world with our own hands
+    KR      : 
+
+--- offid=233 song='Doppelgängers' pos=INITIAL
+    ALICIAN : Elize Lanai ou Allss iy Pigaldi Zia Kull Nai Harie Xia Bai
+    JP      : 瞼の楽園は 焼け焦げていて もう思い出すこともできないよ
+    EN      : 
+    KR      : 
+
+--- offid=234 song='Doppelgängers' pos=MID(4/11)
+    ALICIAN : Alikkyteri Pileknoa Tigalm Elize Vig iy Pefid end Epkejla Razzle Klar
+    JP      : 『お前は頭の壊れた化け物だから 幾ら潰してもいいのさ』
+    EN      : 
+    KR      : 
+
+--- offid=236 song='Doppelgängers' pos=MID(5/11)
+    ALICIAN : Oudiq Nai Hexixa Wondidda Elize Vig iy Nai Loosya Enebis Wetijka
+    JP      : 『最早 人ですらないのだから 痛みを推し測る必要もないだろう』
+    EN      : 
+    KR      : 
+
+--- offid=258 song='EAT YOU UP' pos=MID(5/9)
+    ALICIAN : Crai iy Foly Wei Elize Zia Endyd Pijsu Crai
+    JP      : だいじょうぶだよ ぼくがあたためてあげるから
+    EN      : But don't worry, I'll warm you up
+    KR      : 
+
+--- offid=262 song='EAT YOU UP' pos=MID(5/8)
+    ALICIAN : Phim Felia Aola Mols Elize Elemie iy Apnesiaflea
+    JP      : 痛みは付き物だから 今は我慢していてね
+    EN      : Pain always comes with it, so bear with it for now
+    KR      : 
+
+--- offid=297 song='End of Mythology' pos=MID(4/11)
+    ALICIAN : Mill end Dikti Elize Olkemia Story ifa Bis a Xia Haol
+    JP      : 私たちは不幸だ だから物語を書き換えるんだ
+この手で その手で
+    EN      : We are unfortunate, that’s why we are rewriting the story,
+with this hands, with that hands
+    KR      : 
+
+--- offid=306 song='EИDФЯPHIИ(Endorphin)' pos=INITIAL
+    ALICIAN : Elize Kulu Dist Ail Poutie Eem Wondidda Amblait
+    JP      : 痛い思いをすれば 全てを忘れられるから
+    EN      : Pain lets me forget everything
+    KR      : 
+
+--- offid=308 song='EИDФЯPHIИ(Endorphin)' pos=INITIAL
+    ALICIAN : Elize Tella a Belqua Ilis Fas
+    JP      : 虹色を流し込むから
+ねえ 幻を見せて
+    EN      : and pouring a rainbow into it, so now,
+show me an illusion
+    KR      : 
+
+--- offid=429 song='Give Me a Nightmare' pos=INITIAL
+    ALICIAN : Elize Xia ou Tiisa Lef Harlanoa Olistea
+    JP      : それは とてもとても絶望的に見えたから
+    EN      : Because it looked really really hopeless
+    KR      : 
+
+--- offid=439 song='Give Me a Nightmare' pos=INITIAL
+    ALICIAN : Elize Crai Elie Luan Ord Drone il Naits folme Bis
+    JP      : だから ここから先は 一人で行った方がいいの
+    EN      : So go forward alone from here
+    KR      : 
+
+--- offid=455 song='HOLIC' pos=MID(5/12)
+    ALICIAN : Yiep Ranya Myte Molda Elize Mii Garve Nols Horlmaia Ord Bis Theek
+    JP      : 私の脳みそを見て このナイフで 数式を刻むから
+    EN      : Look at my brain, and I’m going to carve a formula by this knife
+    KR      : 
+
+--- offid=639 song='NO PARENTS' pos=INITIAL
+    ALICIAN : Elize Zill Nai Nache Sis Poet Nai Eala il Rowt Koll
+    JP      : 地獄へ落ちないで 僕ら まだ遊び足りないんだから
+    EN      : Don't fall into hell just yet, we're not done playing
+    KR      : 
+
+--- offid=988 song='i am always wrong' pos=MID(6/12)
+    ALICIAN : Gout Zia iy Nai Anisia Elize Iem Kesef Ail Ord Iedsit Lqll
+    JP      : でもさみしくないよ 偽りで埋め尽くせばいいからね
+    EN      : But i'm not lonely
+I just have to fill everything with falsehoods
+    KR      : 
+
+--- offid=999 song='i am always wrong' pos=MID(3/14)
+    ALICIAN : Xia iy Elize Zyte Herz iy Porsa Friud Zia iy Hyuserti imm Bale Taz
+    JP      : それは 僕の心が おかしいだけなんだから
+    EN      : It's only because there's something wrong with my mind
+    KR      : 
+
+--- offid=1149 song='▷ NEW GAME' pos=MID(10/14)
+    ALICIAN : Leste Phier Tlli Leste Phier Tlli Bis Holsiana Galm Elize Cloud Vell Nai Holt
+    JP      : 「さぁ 押してください リセットボタンを！ きっと 後悔しないから…」
+    EN      : “Now, please press the reset button! You won’t regret it…”
+    KR      : 
+
+--- offid=163 song='バッドエンド·シンドローム(Bad End Syndrome)' pos=MID(4/14)
+    ALICIAN : Poet Dooom Anie Elize Mii Vell Kulu Ignai Fal il Bis Oli Kpul Bai
+    JP      : 深呼吸 深呼吸 もう二度と 帰って来られないのだから
+    EN      : 
+    KR      : 
+
+--- offid=626 song='九番目の迷路(Maze No.9)' pos=INITIAL
+    ALICIAN : Elize imm Krey Phier Holo Miis imm Aim
+    JP      : だからせめて 迷った時 自分くらいは 笑って赦してあげてね
+    EN      : So the least you excuse yourself with smiling when you lose your way
+    KR      : 
+
+--- offid=1189 song='𝕆(O)' pos=INITIAL
+    ALICIAN : Elize Bis iy Nai Feike Trias Poet Nai Hendikki sii
+    JP      : ここは生ぬるい学校じゃないんだから 勘違いしないでね
+    EN      : This isn't a lukewarm school, don't get that wrong
+    KR      : 
+
+--- offid=1190 song='𝕆(O)' pos=MID(2/9)
+    ALICIAN : Ginmi Elize Oltia Flea iy Bedig Lishe Nache Saryarte
+    JP      : やっぱりそんなのいいから 一緒に遊ぼうよ
+    EN      : Never mind that, come play with me
+    KR      : 
+
+--- offid=1201 song='𝕆(O)' pos=INITIAL
+    ALICIAN : Elize Enebis iy Meilt Enbrikardi a Gaujeus
+    JP      : （人間のほうが とっても恐ろしくて野蛮なんだから）
+    EN      : (Humans are so much more dreadful and savage)
+    KR      : 
+
+--- offid=1209 song='𝕆(O)' pos=MID(2/6)
+    ALICIAN : Foly Elize Vell Mins Lwei Foul
+    JP      : 泣いている顔はとても可愛いね
+そのうちきっと慣れてくるから大丈夫
+    EN      : Your crying face is so adorable
+Don't worry, you'll get used to it
+    KR      : 
+
+--- offid=1210 song='𝕆(O)' pos=INITIAL
+    ALICIAN : Elize Laiz weig Sinai Elay Lishe Nache a Geeg Lootaria
+    JP      : どうせ未来なんて来ないんだから ずっと遊んでいようよ
+    EN      : The future never comes anyway, so just keep playing with me
+    KR      : 
+
+=== how many song_translations rows exist per Elize song ===
+    𝕆(O) 32
+    Popcorns Falling from Heaven 30
+    ワンダーシャッフェンの法則 28
+    A Little Servant 27
+    地平線のアクアツォーネ 27
+    Give Me a Nightmare 26
+    The White Land 25
+    Frozen Tree 24

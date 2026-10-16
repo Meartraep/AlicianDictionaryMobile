@@ -1,0 +1,130 @@
+=== A) CORRECTED classification of all Elize rows ===
+  offid=163   因为(から)         | 深呼吸 深呼吸 もう二度と 帰って来られないのだから
+  offid=188   无から            | 世界はいつも 僕らを見放すから | この手で 新しい世界を作るんだ
+  offid=233   无から            | 瞼の楽園は 焼け焦げていて もう思い出すこともできないよ
+  offid=234   因为(だ+から)       | 『お前は頭の壊れた化け物だから 幾ら潰してもいいのさ』
+  offid=236   因为(だ+から)       | 『最早 人ですらないのだから 痛みを推し測る必要もないだろう』
+  offid=258   因为(から)         | だいじょうぶだよ ぼくがあたためてあげるから
+  offid=262   因为(だ+から)       | 痛みは付き物だから 今は我慢していてね
+  offid=297   所以(だから分)       | 私たちは不幸だ だから物語を書き換えるんだ | この手で その手で
+  offid=306   因为(から)         | 痛い思いをすれば 全てを忘れられるから
+  offid=308   无から            | 虹色を流し込むから | ねえ 幻を見せて
+  offid=429   因为(から)         | それは とてもとても絶望的に見えたから
+  offid=439   所以(だから分)       | だから ここから先は 一人で行った方がいいの
+  offid=455   因为(から)         | 私の脳みそを見て このナイフで 数式を刻むから
+  offid=626   所以(だから分)       | だからせめて 迷った時 自分くらいは 笑って赦してあげてね
+  offid=639   因为(から)         | 地獄へ落ちないで 僕ら まだ遊び足りないんだから
+  offid=988   因为(から)         | でもさみしくないよ 偽りで埋め尽くせばいいからね
+  offid=999   因为(から)         | それは 僕の心が おかしいだけなんだから
+  offid=1149  无から            | 「さぁ 押してください リセットボタンを！ きっと 後悔しないから…」
+  offid=1189  因为(だ+から)       | ここは生ぬるい学校じゃないんだから 勘違いしないでね
+  offid=1190  无から            | やっぱりそんなのいいから 一緒に遊ぼうよ
+  offid=1201  因为(だ+から)       | （人間のほうが とっても恐ろしくて野蛮なんだから）
+  offid=1209  无から            | 泣いている顔はとても可愛いね | そのうちきっと慣れてくるから大丈夫
+  offid=1210  因为(だ+から)       | どうせ未来なんて来ないんだから ずっと遊んでいようよ
+  TOTALS: {'因为(から)': 8, '无から': 6, '因为(だ+から)': 6, '所以(だから分)': 3}
+
+=== B) Elize followed by which Alician clause? (verify から-host mapping) ===
+  offid=163   BEFORE=[Poet Dooom Anie]  ELIZE  AFTER=[Mii Vell Kulu Ignai Fal il Bis Oli Kpul Bai]
+  offid=188   BEFORE=[]  ELIZE  AFTER=[Shelista Fur a Leimy Zill Baly]
+  offid=233   BEFORE=[]  ELIZE  AFTER=[Lanai ou Allss iy Pigaldi Zia Kull Nai Harie Xia Bai]
+  offid=234   BEFORE=[Alikkyteri Pileknoa Tigalm]  ELIZE  AFTER=[Vig iy Pefid end Epkejla Razzle Klar]
+  offid=236   BEFORE=[Oudiq Nai Hexixa Wondidda]  ELIZE  AFTER=[Vig iy Nai Loosya Enebis Wetijka]
+  offid=258   BEFORE=[Crai iy Foly Wei]  ELIZE  AFTER=[Zia Endyd Pijsu Crai]
+  offid=262   BEFORE=[Phim Felia Aola Mols]  ELIZE  AFTER=[Elemie iy Apnesiaflea]
+  offid=297   BEFORE=[Mill end Dikti]  ELIZE  AFTER=[Olkemia Story ifa Bis a Xia Haol]
+  offid=306   BEFORE=[]  ELIZE  AFTER=[Kulu Dist Ail Poutie Eem Wondidda Amblait]
+  offid=308   BEFORE=[]  ELIZE  AFTER=[Tella a Belqua Ilis Fas]
+  offid=429   BEFORE=[]  ELIZE  AFTER=[Xia ou Tiisa Lef Harlanoa Olistea]
+  offid=439   BEFORE=[]  ELIZE  AFTER=[Crai Elie Luan Ord Drone il Naits folme Bis]
+  offid=455   BEFORE=[Yiep Ranya Myte Molda]  ELIZE  AFTER=[Mii Garve Nols Horlmaia Ord Bis Theek]
+  offid=626   BEFORE=[]  ELIZE  AFTER=[imm Krey Phier Holo Miis imm Aim]
+  offid=639   BEFORE=[]  ELIZE  AFTER=[Zill Nai Nache Sis Poet Nai Eala il Rowt Koll]
+  offid=988   BEFORE=[Gout Zia iy Nai Anisia]  ELIZE  AFTER=[Iem Kesef Ail Ord Iedsit Lqll]
+  offid=999   BEFORE=[Xia iy]  ELIZE  AFTER=[Zyte Herz iy Porsa Friud Zia iy Hyuserti imm Bale Taz]
+  offid=1149  BEFORE=[Leste Phier Tlli Leste Phier Tlli Bis Holsiana Galm]  ELIZE  AFTER=[Cloud Vell Nai Holt]
+  offid=1189  BEFORE=[]  ELIZE  AFTER=[Bis iy Nai Feike Trias Poet Nai Hendikki sii]
+  offid=1190  BEFORE=[Ginmi]  ELIZE  AFTER=[Oltia Flea iy Bedig Lishe Nache Saryarte]
+  offid=1201  BEFORE=[]  ELIZE  AFTER=[Enebis iy Meilt Enbrikardi a Gaujeus]
+  offid=1209  BEFORE=[Foly]  ELIZE  AFTER=[Vell Mins Lwei Foul]
+  offid=1210  BEFORE=[]  ELIZE  AFTER=[Laiz weig Sinai Elay Lishe Nache a Geeg Lootaria]
+
+=== C) AUDIT: my other changed rules vs OFFICIAL JP ===
+
+--- Poetklar 正在 ('Poetklar') ---
+  offid=311
+    ALICIAN=Poetklar Yien Renz il Giila Wipsam
+    JP     =鋭い視線に 晒されながら
+    EN     =Exposed to penetrating stares
+  offid=654
+    ALICIAN=Poetklar Eiphinr Oulayz Tim end Luan a Eala
+    JP     =堕ちていく幾つもの灯りを 眺めながら
+    EN     =Watching the countless lights fall down
+  offid=677
+    ALICIAN=Tigalm Erlim Zeit Poetklar Efitu Blawpelee
+    JP     =ポップコーンを食べながら 永い時間の憂さ晴らし
+    EN     =Eating popcorn and venting their stress for their long lasting life
+  offid=868
+    ALICIAN=Poetklar Myte Herz Yien Torjest Mii Fiesmes Pillusi Ail Ienadip
+    JP     =打ちひしがれながら | 成す術もない
+    EN     =Overwhelmed and at loss
+  offid=902
+    ALICIAN=Poetklar Heipe a Dilem Doraid Yiep Liz Yiep Liz
+    JP     =暗闇を抱きかかえながら 進め 進め
+    EN     =Holding darkness in our arms, Go on, Go one
+
+--- end 枚举 ('end ol Kllea') ---
+  offid=273
+    ALICIAN=Arupe Elled Nols end ol Kllea end ol Sjiyupe
+    JP     =鼓動と神殿 花束と心臓 | 古代のエレベーター 泣いた数 挫けた数
+    EN     =Heartbeat and Holy Temple, Bouquet and Heart | Ancient Elevator, Forgotten Stuff, The cried number, the disheartened number
+
+--- ifa 前置 ('ifa') ---
+  offid=297
+    ALICIAN=Mill end Dikti Elize Olkemia Story ifa Bis a Xia Haol
+    JP     =私たちは不幸だ だから物語を書き換えるんだ | この手で その手で
+    EN     =We are unfortunate, that’s why we are rewriting the story, | with this hands, with that hands
+  offid=314
+    ALICIAN=Poetolt Zia Haundi Ziksiilait Poetolt Zia Sween ifa Zeit
+    JP     =お行儀よくして | 時間通りに眠って | 毎日のルーティーン | 良い子でいましょう
+    EN     =Be well-behaved | Sleep on time | My daily routines | Always trying to be a good boy
+  offid=413
+    ALICIAN=Berte ou Vlikt weil Folsiagolzid Melpisia Efiitlaw ifa Amnist Saray
+    JP     =棲みかには骸の山 昨日の友と 血まみれの晩餐会
+    EN     =A pile of corpses in their dwelling, a bloody dinner party with yesterday’s friends
+  offid=424
+    ALICIAN=Ifa Anie ou Bip Ifa Ipsi Lef Golk Zill Miz Hendi ou Glenzikle sip
+    JP     =虫の息で 骨みたいな腕で 祭壇の装飾となるのさ
+    EN     =With breath like a insect and arms like bones, we’ll be altar decorations
+  offid=425
+    ALICIAN=Yiela Jedreid Mei Poinglasene end Veditt Lanai ifa Golsilipt
+    JP     =崇めたまえ！ 二枚舌で楽園を説く理想論者を
+    EN     =Glorify him! The idealist who preaches paradise with a forked tongue
+  offid=449
+    ALICIAN=en Ied Geeg a Cate ifa Xia imm Loog Loog Slay
+    JP     =長い長い道を 一緒に歩いていけばいいんだ
+    EN     =And foot it together on the long long journey
+  offid=662
+    ALICIAN=Ollenes ol Rinasia ifa Amie
+    JP     =誰しもが愛と共に産まれてきたと
+    EN     =“Everyone is born with love”
+  offid=709
+    ALICIAN=Bis iy Ilqum end Guidialm ifa She Dooomlait
+    JP     =これはとても神聖な儀式
+    EN     =This is a very sacred ritual
+
+=== D) specific lines ===
+
+  ALICIAN=Arupe Elled Nols end ol Kllea end ol Sjiyupe
+     offid=273 JP=鼓動と神殿 花束と心臓 | 古代のエレベーター 泣いた数 挫けた数
+            EN=Heartbeat and Holy Temple, Bouquet and Heart | Ancient Elevator, Forgotten Stuff, The cried number, the disheartened number
+
+  ALICIAN=Kulu Nai Ranya Zel Note
+     (no official row)
+
+  ALICIAN=Tifijl Xia end Yien Stea ifa Enbrikardi Fas
+     offid=975 JP=恐ろしい色で描かれた いびつな、それは | 僕の姿・・・?
+            EN=A distorted figure depicted in terrifying colors, | Is that me...?
+
+  ALICIAN=Poetklar Myte Herz Yien Torjest Mii
+     (no official row)

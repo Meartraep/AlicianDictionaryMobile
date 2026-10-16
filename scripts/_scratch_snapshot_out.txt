@@ -1,0 +1,71 @@
+=== dictionary + dictionary_headwords + per-class table ===
+
+########## Qllsiim
+  [dictionary] id=1054 hw=932 sense=1 class=pron. cnt=1 expl='人们'
+  [headwords] id=932 class=pron. display='人们'
+  [pron.] translation='人们' cnt=1
+
+########## Qllsiimtiel
+  [dictionary] id=1055 hw=933 sense=1 class=pron. cnt=1 expl='它自己(?)'
+  [headwords] id=933 class=pron. display='它自己(?)'
+  [pron.] translation='它自己(?)' cnt=1
+
+########## Xianya
+  [dictionary] id=1432 hw=1270 sense=1 class=n. cnt=5 expl='那个'
+  [dictionary] id=1433 hw=1270 sense=2 class=n. cnt=5 expl='它(作主语)'
+  [headwords] id=1270 class=n. display='那个，它(作主语)'
+  [n.] translation='那个，它(作主语)' cnt=5
+
+########## Salah
+  [dictionary] id=1113 hw=983 sense=1 class=n. cnt=4 expl='阴影'
+  [dictionary] id=1114 hw=983 sense=2 class=n. cnt=4 expl='水面(?)'
+  [headwords] id=983 class=n. display='(1)阴影(2)水面(?)'
+  [n.] translation='(1)阴影(2)水面(?)' cnt=4
+
+########## Rinasia
+  [dictionary] id=1095 hw=968 sense=1 class=v. cnt=9 expl='诞生'
+  [dictionary] id=1096 hw=968 sense=2 class=v. cnt=9 expl='产生。也可以写作Rin或Rin Asia(?)'
+  [headwords] id=968 class=v. display='诞生，产生。也可以写作Rin或Rin Asia(?)'
+  [v.] translation='诞生，产生。也可以写作Rin或Rin Asia(?)' cnt=9
+
+########## Loosya
+  [dictionary] id=801 hw=703 sense=1 class=adj. cnt=4 expl='任何(?)'
+  [headwords] id=703 class=adj. display='任何(?)'
+  [adj.] translation='任何(?)' cnt=4
+
+########## ob
+  [dictionary] id=1494 hw=1322 sense=1 class=v. cnt=7 expl='助动词'
+  [dictionary] id=1495 hw=1322 sense=2 class=v. cnt=7 expl='用于过去完成时(?)'
+  [headwords] id=1322 class=v. display='助动词，用于过去完成时(?)'
+  [v.] translation='助动词，用于过去完成时(?)' cnt=7
+
+########## Coll
+  [dictionary] id=186 hw=153 sense=1 class=n. cnt=8 expl='身躯(?)'
+  [headwords] id=153 class=n. display='身躯(?)'
+  [n.] translation='身躯(?)' cnt=8
+
+########## tie
+  [dictionary] id=1270 hw=1122 sense=1 class=prep. cnt=23 expl='在(?)'
+  [headwords] id=1122 class=prep. display='在(?)'
+  [prep.] translation='在(?)' cnt=23
+
+########## Mail
+  [dictionary] id=828 hw=725 sense=1 class=v. cnt=4 expl='披上'
+  [dictionary] id=829 hw=725 sense=2 class=n. cnt=4 expl='衣服(?)'
+  [headwords] id=725 class=v. display='披上 n. 衣服(?)'
+  [v.] translation='披上 n. 衣服(?)' cnt=4
+
+=== where does 水面 live? ===
+  Akarche        '水面' n. cnt=2
+  Nol            '水面(?)' n. cnt=1
+  Salah          '水面(?)' n. cnt=4
+  [n.] Akarche        '水面'
+  [n.] Nol            '水面(?)'
+  [n.] Salah          '(1)阴影(2)水面(?)'
+  [hw] Akarche        '水面'
+  [hw] Nol            '水面(?)'
+  [hw] Salah          '(1)阴影(2)水面(?)'
+
+=== entries whose explanation contains a sentence/note (would leak as surface) ===
+  qls            '变为复数名词。也常作为后缀'
+  Rinasia        '产生。也可以写作Rin或Rin Asia(?)'
