@@ -469,8 +469,35 @@ class PythonRepository(private val application: Application) {
         file.length() to (if (file.isFile) sha1Of(file) else "")
     }
 
-    /** The installed database file; publishing uploads exactly this file. */
+    /** The installed database file; publishing uploads a stamped copy of it. */
     fun installedDatabaseFile(): File = databaseFile
+
+    /** Scratch directory holding the stamped copy that gets uploaded. */
+    fun publicationScratchFile(): File =
+        File(application.cacheDir, "publication").apply { mkdirs() }
+
+    /**
+     * Stamps the next version into a copy of the installed database and returns the
+     * ledger and manifest the phone commits, so the pipeline only has to verify
+     * instead of writing a commit of its own.
+     */
+    suspend fun prepareDatabasePublication(
+        ledgerJson: String,
+        version: Int,
+        notes: String,
+        target: File,
+    ): JSONObject = withContext(Dispatchers.IO) {
+        invoke(
+            "prepare_database_publication",
+            JSONObject()
+                .put("source", databaseFile.absolutePath)
+                .put("target", target.absolutePath)
+                .put("ledger_json", ledgerJson)
+                .put("version", version)
+                .put("notes", notes)
+                .put("database_url", DATABASE_RAW_URL),
+        )
+    }
 
     fun setAutoDatabaseUpdateCheck(enabled: Boolean) {
         preferences.edit { putBoolean("auto_database_update_check", enabled) }

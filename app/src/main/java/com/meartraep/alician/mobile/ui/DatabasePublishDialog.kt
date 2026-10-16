@@ -68,7 +68,7 @@ fun DatabasePublishCard(
             Column(Modifier.weight(1f)) {
                 Text("发布数据库到 GitHub", style = MaterialTheme.typography.titleSmall)
                 Text(
-                    "只上传本地数据库；版本号、台账与清单由 CI 自动生成",
+                    "手机写入版本号并提交数据库、台账与清单；CI 只做校验",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -193,7 +193,8 @@ fun DatabasePublishDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
                 preview?.let { value ->
                     Text(
                         "本地数据库 v" + value.localVersion + " · " +
-                            PublishLogic.formatMegabytes(value.localSize),
+                            PublishLogic.formatMegabytes(value.localSize) +
+                            " → 将发布为 v" + value.nextVersion,
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     Text(
@@ -220,9 +221,8 @@ fun DatabasePublishDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
                         style = MaterialTheme.typography.titleSmall,
                     )
                     Text(
-                        "CI 会为该数据库分配下一个版本号（v" +
-                            ((preview?.publishedVersion ?: 0) + 1) +
-                            "）、追加台账并校验全部不变式。通过后合并即可对所有客户端生效。",
+                        "数据库已按 v" + (preview?.nextVersion ?: 0) + " 写入版本号并追加台账；" +
+                            "CI 会校验版本号必须正好是下一个、且只改动了这三个文件。合并后对所有客户端生效。",
                         style = MaterialTheme.typography.bodySmall,
                     )
                     pullRequest?.let { state ->

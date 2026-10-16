@@ -1,0 +1,231 @@
+{
+  "rows_scored": 515,
+  "reference_split": {
+    "jp": 515,
+    "en": 0,
+    "none": 0
+  },
+  "overall": {
+    "cases": 555,
+    "hits": 555,
+    "accuracy": 1.0
+  },
+  "per_word": {
+    "mols": {
+      "cases": 8,
+      "hits": 8,
+      "accuracy": 1.0,
+      "chance": 0.038834951456310676,
+      "lift": 25.750000000000004,
+      "weak_marker": false
+    },
+    "ol": {
+      "cases": 71,
+      "hits": 71,
+      "accuracy": 1.0,
+      "chance": 0.21941747572815534,
+      "lift": 4.557522123893805,
+      "weak_marker": true
+    },
+    "foul": {
+      "cases": 13,
+      "hits": 13,
+      "accuracy": 1.0,
+      "chance": 0.04854368932038835,
+      "lift": 20.6,
+      "weak_marker": false
+    },
+    "gout": {
+      "cases": 18,
+      "hits": 18,
+      "accuracy": 1.0,
+      "chance": 0.04854368932038835,
+      "lift": 20.6,
+      "weak_marker": false
+    },
+    "il": {
+      "cases": 10,
+      "hits": 10,
+      "accuracy": 1.0,
+      "chance": 0.14563106796116504,
+      "lift": 6.866666666666667,
+      "weak_marker": false
+    },
+    "ou": {
+      "cases": 145,
+      "hits": 145,
+      "accuracy": 1.0,
+      "chance": 0.6854368932038835,
+      "lift": 1.4589235127478755,
+      "weak_marker": true
+    },
+    "zel": {
+      "cases": 13,
+      "hits": 13,
+      "accuracy": 1.0,
+      "chance": 0.11262135922330097,
+      "lift": 8.879310344827587,
+      "weak_marker": true
+    },
+    "osa": {
+      "cases": 11,
+      "hits": 11,
+      "accuracy": 1.0,
+      "chance": 0.027184466019417475,
+      "lift": 36.785714285714285,
+      "weak_marker": true
+    },
+    "nai": {
+      "cases": 97,
+      "hits": 97,
+      "accuracy": 1.0,
+      "chance": 0.36310679611650487,
+      "lift": 2.7540106951871657,
+      "weak_marker": false
+    },
+    "kulu": {
+      "cases": 18,
+      "hits": 18,
+      "accuracy": 1.0,
+      "chance": 0.229126213592233,
+      "lift": 4.364406779661017,
+      "weak_marker": false
+    },
+    "folme": {
+      "cases": 20,
+      "hits": 20,
+      "accuracy": 1.0,
+      "chance": 0.04271844660194175,
+      "lift": 23.40909090909091,
+      "weak_marker": false
+    },
+    "hiele": {
+      "cases": 13,
+      "hits": 13,
+      "accuracy": 1.0,
+      "chance": 0.13203883495145632,
+      "lift": 7.573529411764705,
+      "weak_marker": false
+    },
+    "baly": {
+      "cases": 15,
+      "hits": 15,
+      "accuracy": 1.0,
+      "chance": 0.031067961165048542,
+      "lift": 32.1875,
+      "weak_marker": false
+    },
+    "phier": {
+      "cases": 5,
+      "hits": 5,
+      "accuracy": 1.0,
+      "chance": 0.09320388349514563,
+      "lift": 10.729166666666666,
+      "weak_marker": false
+    },
+    "elize": {
+      "cases": 22,
+      "hits": 22,
+      "accuracy": 1.0,
+      "chance": 0.05048543689320388,
+      "lift": 19.80769230769231,
+      "weak_marker": false
+    },
+    "vell": {
+      "cases": 6,
+      "hits": 6,
+      "accuracy": 1.0,
+      "chance": 0.10097087378640776,
+      "lift": 9.903846153846155,
+      "weak_marker": false
+    },
+    "ob": {
+      "cases": 3,
+      "hits": 3,
+      "accuracy": 1.0,
+      "chance": 0.06796116504854369,
+      "lift": 14.714285714285715,
+      "weak_marker": false
+    },
+    "yiela": {
+      "cases": 5,
+      "hits": 5,
+      "accuracy": 1.0,
+      "chance": 0.09514563106796116,
+      "lift": 10.510204081632654,
+      "weak_marker": false
+    },
+    "lishe": {
+      "cases": 7,
+      "hits": 7,
+      "accuracy": 1.0,
+      "chance": 0.04466019417475728,
+      "lift": 22.39130434782609,
+      "weak_marker": false
+    },
+    "quim": {
+      "cases": 4,
+      "hits": 4,
+      "accuracy": 1.0,
+      "chance": 0.021359223300970873,
+      "lift": 46.81818181818182,
+      "weak_marker": false
+    },
+    "qleea": {
+      "cases": 3,
+      "hits": 3,
+      "accuracy": 1.0,
+      "chance": 0.3067961165048544,
+      "lift": 3.2594936708860756,
+      "weak_marker": false
+    },
+    "rie": {
+      "cases": 10,
+      "hits": 10,
+      "accuracy": 1.0,
+      "chance": 0.05048543689320388,
+      "lift": 19.80769230769231,
+      "weak_marker": false
+    },
+    "ifa": {
+      "cases": 12,
+      "hits": 12,
+      "accuracy": 1.0,
+      "chance": 0.10485436893203884,
+      "lift": 9.537037037037036,
+      "weak_marker": true
+    },
+    "poutie": {
+      "cases": 12,
+      "hits": 12,
+      "accuracy": 1.0,
+      "chance": 0.04854368932038835,
+      "lift": 20.6,
+      "weak_marker": true
+    },
+    "poetklar": {
+      "cases": 5,
+      "hits": 5,
+      "accuracy": 1.0,
+      "chance": 0.02524271844660194,
+      "lift": 39.61538461538462,
+      "weak_marker": false
+    },
+    "lend": {
+      "cases": 5,
+      "hits": 5,
+      "accuracy": 1.0,
+      "chance": 0.02330097087378641,
+      "lift": 42.916666666666664,
+      "weak_marker": true
+    },
+    "laiz": {
+      "cases": 4,
+      "hits": 4,
+      "accuracy": 1.0,
+      "chance": 0.10097087378640776,
+      "lift": 9.903846153846155,
+      "weak_marker": false
+    }
+  }
+}

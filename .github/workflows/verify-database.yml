@@ -13,9 +13,10 @@ on:
       - "scripts/verify_database_manifest.py"
       - "scripts/verify_database_versions.py"
       - "app/src/test/python/test_database_versioning.py"
-      - "app/src/test/python/test_publish_from_branch.py"
-      - "scripts/publish_database_from_branch.py"
+      - "app/src/test/python/test_verify_published_database.py"
+      - "scripts/verify_published_database.py"
       - ".github/workflows/verify-database.yml"
+      - ".github/workflows/verify-published-database.yml"
   # Deliberately unfiltered: this job is meant to be a required status check, and a
   # path filter would leave pull requests that do not touch the database waiting for a
   # check that never reports. It takes about 20 seconds.
@@ -32,10 +33,9 @@ concurrency:
 jobs:
   verify:
     name: Ledger, manifest and database agree
-    # A publishing pull request intentionally carries a database the ledger does not
-    # know yet; the publishing pipeline stamps it and re-runs this workflow on the
-    # stamped commit, so skipping here keeps a required check from blocking it.
-    if: ${{ github.event_name != 'pull_request' || !startsWith(github.head_ref, 'db-publish/') }}
+    # Runs on every pull request, including db-publish/* ones: the phone stamps the
+    # version before opening the pull request, so a publishing branch is already a
+    # consistent state and must pass exactly like any other change.
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -68,4 +68,4 @@ jobs:
         run: |
           set -euo pipefail
           python -m unittest test_database_versioning
-          python -m unittest test_publish_from_branch
+          python -m unittest test_verify_published_database

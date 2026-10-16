@@ -1,0 +1,125 @@
+==============================================================================
+A) 官方日文里作为【副助词】的 すら（排除 ひたすら / すらり 等词内出现）
+==============================================================================
+
+  offid=236 [副助词] 上下文=['『最早 人ですらないのだから']
+     AL=Oudiq Nai Hexixa Wondidda Elize Vig iy Nai Loosya Enebis Wetijka
+     JP=『最早 人ですらないのだから 痛みを推し測る必要もないだろう』
+     EN=
+     含 Loosya: True
+
+  offid=434 [词内(排除)] 上下文=[]
+     AL=Lef Yien Plarri Ord Elquom ou Ail Minelia
+     JP=満月の引力に引っ張られるように 回廊の上をひたすら歩いたけれど 結局 ここに終わりはないと知った
+     EN=I just walked on the corridor as if I was pulled by the full moon's attraction, but finally found that it was endless
+     含 Loosya: False
+
+  offid=435 [词内(排除)] 上下文=[]
+     AL=Gout ou Cate imm Lootaria Arch Sleetia
+     JP=満月の引力に引っ張られるように 回廊の上をひたすら歩いたけれど 結局 ここに終わりはないと知った
+     EN=I just walked on the corridor as if I was pulled by the full moon's attraction, but finally found that it was endless
+     含 Loosya: False
+
+  offid=436 [词内(排除)] 上下文=[]
+     AL=Poul Ail ol Guit Ra Bis Dilem Nai Shiita
+     JP=満月の引力に引っ張られるように 回廊の上をひたすら歩いたけれど 結局 ここに終わりはないと知った
+     EN=I just walked on the corridor as if I was pulled by the full moon's attraction, but finally found that it was endless
+     含 Loosya: False
+
+  offid=801 [副助词] 上下文=['世界ではそれすら笑えたらいい']
+     AL=
+     JP=誰もが 足早に通り過ぎていった  汚れた道を 踏み設すように  今日は 豪華絢爛なパレードの日  人々は群かる その光景を捉えようと  両足がすくんだ このまま 空へ飛んでいけたらいいのに  両足がすくんだ このまま 空へ飛んでいけたらいいのに  こんな物語の幕切れは美しくないけれど  次の世界ではそれすら笑えたらいい  広場に響き渡る　喚き叫ぶ声  もうすぺてが　戯言に聞こえるよ  自らの毒に侵されたものは　何もわからなまま 晦冥を巡る  夜の霭を抜けると 幻の姿が 優しく笑みを浮かべた  君に訊きたいことが　もっと話したいことがあったんだ  どうしてこんなことになってしまったんたろう  憂鬱な朝が また僕を襲うんだ  憂鬱な朝が また僕を襲うんだ  太陽の光に照らされても 希望が目覚めることはない  身動きも取れず 夜に閉じ込められたまま  虚栄が聳え立つ世界のなかで  真実を視るものは その眼を抉り出されてしまう  青く染められた空ヘ ブリキの笛が響き  騒がしいパレードが始まる  騒がしいパレードが始まる
+     EN=
+     含 Loosya: False
+
+  offid=865 [副助词] 上下文=['そこは 意味すら嘲る 合わせ']
+     AL=Kremsa Nache Eidarit iy Mazy ou Guidial Spay end Qtua Loosya Selti
+     JP=素粒子の戯れる輪を潜れば そこは 意味すら嘲る 合わせ鏡の迷路
+     EN=Go through the circle of elementary particles at play | We find a labyrinth of mirrors that mocks even every meaning
+     含 Loosya: True
+
+==============================================================================
+B) 反向检验：官方日文含【副助词】すら 的行中，Alician 侧出现哪些词
+==============================================================================
+  offid=236: ['elize', 'enebis', 'hexixa', 'iy', 'loosya', 'nai', 'oudiq', 'vig', 'wetijka', 'wondidda']
+  offid=801: []
+  offid=865: ['eidarit', 'end', 'guidial', 'iy', 'kremsa', 'loosya', 'mazy', 'nache', 'ou', 'qtua', 'selti', 'spay']
+
+  所有含 すら 的行共有的 Alician 词: []
+
+==============================================================================
+C) 排除法：为 ① offid=236 的每个 Alician 词在【其它官方行】里找出日文对应
+==============================================================================
+
+  Enebis: 与 ('人', '人間', 'ヒト') 共现的官方行 3 条（示 4 条）
+    offid=236
+       AL=oudiq nai hexixa wondidda elize vig iy nai loosya enebis wetijka
+       JP=『最早 人ですらないのだから 痛みを推し測る必要もないだろう』
+    offid=411
+       AL=sindipqls end wendiq jered ou enebis seiren waltisala es dikzim lushegand
+       JP=人の皮を被ったハイエナ達 讃美歌を歌い 威光に酔いしれる
+    offid=1201
+       AL=elize enebis iy meilt enbrikardi a gaujeus
+       JP=（人間のほうが とっても恐ろしくて野蛮なんだから）
+
+  Nai: 与 ('ない', 'ません', 'ぬ') 共现的官方行 88 条（示 4 条）
+    offid=15
+       AL=qleel mii verse lef kulu nai harie zel osa
+       JP=何も思い出せないように 消え去ってしまおうか
+    offid=20
+       AL=kulu nai ranya end kulu nai prifiel zel note
+       JP=何も 見えない 何も 判らない
+    offid=93
+       AL=foly mii harmiy xia o nai loqcka opl
+       JP=“大丈夫、そう遠くないはずだよ！ アーカーシャまでもうちょっと"
+    offid=99
+       AL=foas end yien garve xia o ivata end kulu nai rorm chronicle leim o nai
+       JP=掠れて読めなくなった碑文と 続きのない年代記
+
+  iy: 与 ('です', 'だ', 'は', 'である') 共现的官方行 58 条（示 4 条）
+    offid=177
+       AL=cloudyte tittri iy lef bis cloudyte herches iy bisoli
+       JP=あなたの瞳はこうで心臓はここ
+    offid=195
+       AL=crai iy nai drone folme aolu
+       JP=‟もう寂しくないね” | ‟ほら手を繋ごう” | ‟今日から 君は独りじゃない” | ‟もう寂しくないね” | ‟ほら手を繋ごう” | ‟今日から 君は独りじゃない”
+    offid=233
+       AL=elize lanai ou allss iy pigaldi zia kull nai harie xia bai
+       JP=瞼の楽園は 焼け焦げていて もう思い出すこともできないよ
+    offid=234
+       AL=alikkyteri pileknoa tigalm elize vig iy pefid end epkejla razzle klar
+       JP=『お前は頭の壊れた化け物だから 幾ら潰してもいいのさ』
+
+  Vig: 与 ('君', 'あなた', 'お前', 'きみ') 共现的官方行 3 条（示 4 条）
+    offid=234
+       AL=alikkyteri pileknoa tigalm elize vig iy pefid end epkejla razzle klar
+       JP=『お前は頭の壊れた化け物だから 幾ら潰してもいいのさ』
+    offid=1018
+       AL=vig yien fur a leimy ord shellius osa
+       JP=“お前は神からも見離されるんだ”
+    offid=1021
+       AL=vig vell kulu nai san rinasia a canvied zia
+       JP=お前は触れることもできないだろう 生まれ変わった僕に
+
+==============================================================================
+D) ② offid=631 的 も 对位；以及全部 3 条 Loosya 行的精确邻接
+==============================================================================
+
+  offid=236
+    AL=Oudiq Nai Hexixa Wondidda Elize Vig iy Nai Loosya Enebis Wetijka
+    Loosya 后紧跟: ['Enebis', 'Wetijka']
+    JP=『最早 人ですらないのだから 痛みを推し測る必要もないだろう』
+    EN=
+
+  offid=631
+    AL=Loosya Hewvews Liiquip iy Aola Feim Wranbend Yien Fims Hegglait
+    Loosya 后紧跟: ['Hewvews', 'Liiquip']
+    JP=ナルシストな独裁者も 今は 無様に弄ばれる 惨めなピエロ
+    EN=The narcissistic dictator is nothing but a pathetic clown now, miserably toyed with
+
+  offid=865
+    AL=Kremsa Nache Eidarit iy Mazy ou Guidial Spay end Qtua Loosya Selti
+    Loosya 后紧跟: ['Selti']
+    JP=素粒子の戯れる輪を潜れば | そこは 意味すら嘲る 合わせ鏡の迷路
+    EN=Go through the circle of elementary particles at play
+We find a labyrinth of mirrors that mocks even every meaning
