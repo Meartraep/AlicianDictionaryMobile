@@ -49,14 +49,37 @@ class GitHubDeviceFlow(private val clientId: String) {
     suspend fun requestCode(): DeviceCode = withContext(Dispatchers.IO) {
         val now = System.currentTimeMillis()
         val json = post(mapOf("client_id" to clientId))
+
+        // GitHub answers 200 with an "error" object when the app is not allowed to
+        // use the device flow, so report that instead of failing on a missing field.
+        val error = json.optString("error")
+        if (error.isNotEmpty()) {
+            throw IllegalStateException(describeError(error, json.optString("error_description")))
+        }
+        val deviceCode = json.optString("device_code")
+        if (deviceCode.isBlank()) {
+            throw IllegalStateException(
+                "GitHub 返回了意外响应（缺少 device_code）：" + preview(json.toString()))
+        }
         DeviceCode(
-            deviceCode = json.getString("device_code"),
+            deviceCode = deviceCode,
             userCode = json.optString("user_code"),
             verificationUri = json.optString("verification_uri", "https://github.com/login/device"),
             intervalSeconds = json.optInt("interval", 5),
             expiresAtMillis = PublishLogic.tokenExpiry(json.optLong("expires_in", 900L), now),
         )
     }
+
+    /** Human readable reason plus GitHub's own wording, never a bare JSON exception. */
+    private fun describeError(error: String, description: String): String {
+        val base = PublishLogic.deviceFlowMessage(error)
+        val detail = description.takeIf { it.isNotBlank() }?.let { "（" + it + "）" } ?: ""
+        val code = if (base.contains(error)) "" else "（error: " + error + "）"
+        return base + detail + code
+    }
+
+    private fun preview(text: String): String =
+        text.replace(Regex("\\s+"), " ").trim().take(300)
 
     /** One poll round; call again after [PublishLogic.nextPollDelaySeconds] when pending. */
     suspend fun poll(deviceCode: String): DeviceToken = withContext(Dispatchers.IO) {
@@ -168,10 +191,15 @@ class GitHubDeviceFlow(private val clientId: String) {
                 ?.bufferedReader()?.use { it.readText() }.orEmpty()
             if (code !in 200..299) {
                 throw IllegalStateException(
-                    "GitHub 设备流请求失败（HTTP " + code + "）。请检查网络后重试。",
-                )
+                    "GitHub 设备流请求失败（HTTP " + code + "）：" + preview(text))
             }
-            return if (text.isBlank()) JSONObject() else JSONObject(text)
+            return try {
+                if (text.isBlank()) JSONObject() else JSONObject(text)
+            } catch (error: org.json.JSONException) {
+                // A captive portal or an interception proxy answers with HTML/plain text.
+                throw IllegalStateException(
+                    "GitHub 返回了非 JSON 响应（HTTP " + code + "）：" + preview(text), error)
+            }
         } catch (error: java.io.IOException) {
             throw IllegalStateException(
                 "无法连接 GitHub：" + (error.message ?: "网络不可用"), error)
