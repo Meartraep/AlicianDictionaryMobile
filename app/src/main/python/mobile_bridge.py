@@ -640,6 +640,8 @@ def _prepare_database_publication(payload: Dict[str, Any]) -> Dict[str, Any]:
         "ok": True,
         "version": requested,
         "previous_version": published_version,
+        "previous_sha1": str(entries[-1]["sha1"]).lower(),
+        "published_at": published_at,
         "size": size,
         "sha1": digest,
         "database_path": str(target),

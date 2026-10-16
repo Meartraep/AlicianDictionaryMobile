@@ -46,12 +46,43 @@
 | 发布前本地预检 + 指纹对比，避免误发"没有改动"的库 | [PublishLogic.buildPreview](../app/src/main/java/com/meartraep/alician/mobile/data/PublishLogic.kt) |
 | 只能写临时分支，不能写 main / tag | GitHub ruleset `Main_prot`（deletion、non_fast_forward、pull_request、required_status_checks） |
 | 发布后线上字节与台账比对 | release 流水线的 `--remote` 校验 |
+| **每次发布都必须由设备密钥签名（P2）** | [PublishSigningKey.kt](../app/src/main/java/com/meartraep/alician/mobile/data/PublishSigningKey.kt)、[verify_publication_signature.py](../scripts/verify_publication_signature.py) |
 
-### 仍存在的风险（P2 要解决）
+### P2：设备签名（已启用）
 
-**令牌即信任**：拿到令牌的人可以推一个 `db-publish/*` 分支并开 PR。CI 会拒绝不一致的
-版本号与越界路径，但**无法判断内容是不是你写的**。P2 用 Android Keystore 里不可导出的
-签名密钥给发布请求签名，CI 验签后才接受；P3 再把长期令牌换成 GitHub App 短时令牌。
+**解决了什么**：在此之前"令牌即信任"——拿到令牌的人推一个 `db-publish/*` 分支就能发布。
+现在 CI 只接受用**登记在 main 上的公钥**对应的私钥签名的发布，而那把私钥
+（Android Keystore，不可导出）永远不离开手机。
+
+签名内容（两边实现必须逐字节一致，测试互相钉住）：
+
+```
+alician-db-publish-v1
+prev_version=<签名时台账末条版本>
+prev_sha1=<签名时台账末条 sha1>
+version=<新版本>
+sha1=<新数据库字节 sha1>
+size=<字节数>
+published_at=<发布日期>
+notes_sha256=<版本说明的 sha256>
+```
+
+- 绑定 `prev_*` ⇒ **旧签名无法重放**（台账已前进，消息就对不上）。
+- 绑定 `sha1`/`size` ⇒ 签名只对**这一份字节**有效。
+- 绑定 `notes_sha256` ⇒ 有令牌的人也无法改写已签名发布的说明文字。
+- 公钥**从目标分支读取**，发布 PR 不得修改它（不在白名单内）⇒ 攻击者不能"自带权威"。
+
+设备侧细节：
+
+- 私钥由 Android Keystore 生成（EC P-256 / SHA-256），不可导出。
+- 设备设置了锁屏时，密钥额外要求**用户验证**后才能签名（签名前弹设备凭据确认），
+  因此"捡到一台已解锁手机"也不足以发布；界面会显示当前是哪种模式。
+- 密钥指纹（公钥 SPKI 的 sha256 前 16 位）会写进发布提交，CI 用它比对登记的公钥。
+
+**一次性配置**：App → 设置 → 手机端发布 → 生成密钥 → 复制公钥 → 用**普通 PR** 把内容提交为
+`.github/db-publish-pubkey.pem` 并合并。之后才能发布；换手机或删除密钥后需要重新登记。
+
+**仍未覆盖**：P3（GitHub App 短时令牌 / 中继服务）用于彻底去掉手机上的长期令牌。
 
 ## 4. 运维要点
 
@@ -60,6 +91,8 @@
 - 台账在你读取与 CI 校验之间被别人更新时，CI 会以"版本号必须是 last+1"拒绝，
   App 里重新点一次发布即可（bridge 也会先拒绝过期台账）。
 - 令牌泄露或手机丢失：立刻在 GitHub 撤销该 token（设置页"清除令牌"只影响本机）。
+  令牌泄露本身已不足以发布：缺少设备签名时 CI 会拒绝。
+- 换手机 / 删除签名密钥后：重新生成并登记公钥（旧公钥随之替换），否则发布一律被拒。
 
 ## 5. 必需状态检查
 
@@ -77,8 +110,8 @@ python scripts/github_ruleset_required_check.py --remove   # 取消
 该工作流在**所有 PR** 上都会报告（这是必需的：带 `paths` 过滤的检查在"未触及数据库"的 PR 上
 永远不会出现，PR 会卡在 *Expected — Waiting for status to be reported*）。每次 PR 约 20 秒。
 
-## 6. 未包含（P2/P3）
+## 6. 未包含（P3）
 
-- 设备签名与验签（P2）
-- GitHub App 短时令牌 / 中继服务（P3）
+- GitHub App 短时令牌 / 中继服务（彻底不在设备上放长期令牌）
 - 提交者身份区分（当前用令牌所属账号；P3 可换成专用机器账号）
+- 密钥轮换/多把在册公钥（当前每次替换公钥需要一次普通 PR；如需并行可用多行 PEM 或加 key_id 列表）

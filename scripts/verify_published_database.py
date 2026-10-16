@@ -44,13 +44,21 @@ from database_versioning import (  # noqa: E402
     read_database_version,
     validate_ledger,
 )
+from verify_publication_signature import (  # noqa: E402
+    SIGNATURE_PATH,
+    check_publication_signature,
+    load_signature,
+)
 
 # Only these paths may differ in a publishing pull request; everything else --
 # code, workflows, scripts -- would turn a data update into a supply-chain change.
+# The registered public key is deliberately absent: it may never be swapped by a
+# publishing pull request.
 ALLOWED_PATHS = frozenset({
     'app/src/main/assets/translated.db',
     'database-versions.json',
     'database-manifest.json',
+    SIGNATURE_PATH,
 })
 
 MAX_NOTES_LENGTH = 500
@@ -145,6 +153,11 @@ def main() -> int:
                         help='ledger of the target branch (fetched from main)')
     parser.add_argument('--changed-files', nargs='*', default=[],
                         help='paths changed by the pull request (allowlist check)')
+    # Required on purpose: authentication must never be skippable by accident.
+    parser.add_argument('--public-key', required=True,
+                        help='publishing public key registered on the target branch')
+    parser.add_argument('--signature', required=True,
+                        help='device signature committed by the phone')
     args = parser.parse_args()
 
     violations = check_allowlist(args.changed_files)
@@ -161,6 +174,23 @@ def main() -> int:
             Path(args.base_ledger) if args.base_ledger else None)
         if not problems:
             problems = check_asset_matches_ledger(Path(args.db), Path(args.ledger), Path(args.manifest))
+
+        # Authentication is checked independently of the structural checks, so a
+        # missing signature is reported even when the publication looks consistent.
+        base_entries = json.loads(Path(args.base_ledger).read_text(encoding='utf-8')) \
+            if args.base_ledger and Path(args.base_ledger).is_file() else []
+        entries = load_ledger(Path(args.ledger))
+        public_key_path = Path(args.public_key)
+        public_key_pem = public_key_path.read_text(encoding='utf-8') \
+            if public_key_path.is_file() else None
+        signature_path = Path(args.signature)
+        signature_document = load_signature(signature_path) if signature_path.is_file() else None
+        if base_entries and entries:
+            problems = problems + check_publication_signature(
+                public_key_pem, signature_document, base_entries[-1], entries[-1])
+        else:
+            problems = list(problems) + [
+                '无法确定本次发布的版本区间，无法校验签名：缺少目标分支台账或新台账条目']
     except (OSError, ValueError, VersioningError, json.JSONDecodeError) as error:
         print('FAIL: %s' % error, file=sys.stderr)
         return 1
@@ -171,7 +201,7 @@ def main() -> int:
         return 1
 
     entry = load_ledger(Path(args.ledger))[-1]
-    print('OK: v%s verified (%d bytes, sha1 %s)'
+    print('OK: v%s verified and signed by the device key (%d bytes, sha1 %s)'
           % (entry['db_version'], entry['size'], str(entry['sha1'])[:12]))
     return 0
 

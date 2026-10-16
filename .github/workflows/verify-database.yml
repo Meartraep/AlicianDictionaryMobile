@@ -69,3 +69,10 @@ jobs:
           set -euo pipefail
           python -m unittest test_database_versioning
           python -m unittest test_verify_published_database
+
+      - name: Publication signature tests
+        run: |
+          set -euo pipefail
+          python -m pip install --no-cache-dir cryptography==50.0.2
+          cd app/src/test/python
+          PYTHONPATH="../../../scripts:../../../app/src/main/python:." python -m unittest test_publication_signature

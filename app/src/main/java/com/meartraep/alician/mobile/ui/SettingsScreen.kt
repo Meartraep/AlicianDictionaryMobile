@@ -245,7 +245,18 @@ fun SettingsScreen(viewModel: MainViewModel, padding: PaddingValues) {
         item {
             SectionHeader(
                 "手机端发布",
-                "只上传本地数据库；版本号由 CI 从台账分配",
+                "手机写入版本号并用设备密钥签名；CI 只做校验",
+            )
+        }
+        item {
+            PublishSigningCard(
+                ready = viewModel.publishSigningReady,
+                keyId = viewModel.publishSigningKeyId,
+                requiresAuth = viewModel.publishSigningRequiresAuth,
+                deviceIsSecure = viewModel.publishDeviceIsSecure,
+                onCreate = viewModel::createPublishSigningKey,
+                onCopy = viewModel::publishSigningPublicKey,
+                onClear = viewModel::clearPublishSigningKey,
             )
         }
         item {

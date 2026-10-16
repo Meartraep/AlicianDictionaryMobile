@@ -45,7 +45,10 @@ jobs:
         with:
           python-version: "3.14"
 
-      - name: Collect the changed paths and the ledger of the target branch
+      - name: Install the signature dependency
+        run: python -m pip install --no-cache-dir cryptography==50.0.2
+
+      - name: Collect the changed paths, the ledger and the registered key
         shell: bash
         env:
           BASE_REF: ${{ github.base_ref }}
@@ -54,8 +57,24 @@ jobs:
           git fetch --no-tags origin "refs/heads/${BASE_REF}:refs/remotes/origin/${BASE_REF}"
           git diff --name-only "origin/${BASE_REF}...HEAD" > changed.txt
           git show "origin/${BASE_REF}:database-versions.json" > base-ledger.json
+          # The key comes from the target branch, never from the pull request, so a
+          # publication cannot bring its own authority with it.
+          if git show "origin/${BASE_REF}:.github/db-publish-pubkey.pem" > db-publish-pubkey.pem 2>/dev/null; then
+            echo "registered key:" && head -n 1 db-publish-pubkey.pem
+          else
+            echo "no publishing key registered on ${BASE_REF} yet"
+            rm -f db-publish-pubkey.pem
+          fi
           echo "changed paths:" && cat changed.txt
           echo "target branch ledger:" && python -c "import json;print([e['db_version'] for e in json.load(open('base-ledger.json',encoding='utf-8'))])"
+
+      - name: Signature guard tests
+        env:
+          PYTHONPATH: scripts:app/src/main/python:app/src/test/python
+        run: |
+          set -euo pipefail
+          cd app/src/test/python
+          python -m unittest test_publication_signature
 
       - name: Verify the publication
         shell: bash
@@ -67,4 +86,6 @@ jobs:
           done < changed.txt
           python scripts/verify_published_database.py \
             --base-ledger base-ledger.json \
-            --changed-files "${changed[@]}"
+            --changed-files "${changed[@]}" \
+            --public-key db-publish-pubkey.pem \
+            --signature database-publish-signature.json
