@@ -463,6 +463,15 @@ class PythonRepository(private val application: Application) {
         invoke("database_metadata").optInt("database_version", 0)
     }
 
+    /** Size and SHA-1 of the installed database, used by the publishing preview. */
+    suspend fun localDatabaseIdentity(): Pair<Long, String> = withContext(Dispatchers.IO) {
+        val file = databaseFile
+        file.length() to (if (file.isFile) sha1Of(file) else "")
+    }
+
+    /** The installed database file; publishing uploads exactly this file. */
+    fun installedDatabaseFile(): File = databaseFile
+
     fun setAutoDatabaseUpdateCheck(enabled: Boolean) {
         preferences.edit { putBoolean("auto_database_update_check", enabled) }
     }

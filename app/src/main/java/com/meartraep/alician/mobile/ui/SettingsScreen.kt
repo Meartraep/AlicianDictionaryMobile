@@ -96,6 +96,8 @@ fun SettingsScreen(viewModel: MainViewModel, padding: PaddingValues) {
     }
 
     var confirmReset by remember { mutableStateOf(false) }
+    var showPublishTokenDialog by rememberSaveable { mutableStateOf(false) }
+    var showPublishDialog by rememberSaveable { mutableStateOf(false) }
     val uriHandler = LocalUriHandler.current
     val importLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocument(),
@@ -242,6 +244,23 @@ fun SettingsScreen(viewModel: MainViewModel, padding: PaddingValues) {
         }
         item {
             SectionHeader(
+                "手机端发布",
+                "只上传本地数据库；版本号由 CI 从台账分配",
+            )
+        }
+        item {
+            DatabasePublishCard(
+                credential = viewModel.publishCredential,
+                onConfigure = { showPublishTokenDialog = true },
+                onClear = viewModel::clearPublishToken,
+                onPublish = {
+                    viewModel.prepareDatabasePublish()
+                    showPublishDialog = true
+                },
+            )
+        }
+        item {
+            SectionHeader(
                 "上游完整数据库",
                 "Meartraep/Alician_dictionary 的全量数据，不含官方日/英译词",
             )
@@ -353,6 +372,24 @@ fun SettingsScreen(viewModel: MainViewModel, padding: PaddingValues) {
                 viewModel.resetDatabase()
             },
             onDismiss = { confirmReset = false },
+        )
+    }
+    if (showPublishTokenDialog) {
+        PublishTokenDialog(
+            onSave = { token ->
+                showPublishTokenDialog = false
+                viewModel.savePublishToken(token)
+            },
+            onDismiss = { showPublishTokenDialog = false },
+        )
+    }
+    if (showPublishDialog) {
+        DatabasePublishDialog(
+            viewModel = viewModel,
+            onDismiss = {
+                showPublishDialog = false
+                viewModel.dismissPublishDialog()
+            },
         )
     }
     viewModel.remoteComparison?.let { comparison ->
@@ -495,7 +532,7 @@ private fun AppUpdateCard(
 }
 
 @Composable
-private fun SettingsCard(content: @Composable () -> Unit) {
+internal fun SettingsCard(content: @Composable () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -512,7 +549,7 @@ private fun SettingsCard(content: @Composable () -> Unit) {
 }
 
 @Composable
-private fun DatabaseMetricLine(label: String, value: String) {
+internal fun DatabaseMetricLine(label: String, value: String) {
     Row(Modifier.fillMaxWidth()) {
         Text(
             label,

@@ -37,6 +37,10 @@ concurrency:
 jobs:
   verify:
     name: Ledger, manifest and database agree
+    # A publishing pull request intentionally carries a database the ledger does not
+    # know yet; the publishing pipeline stamps it and re-runs this workflow on the
+    # stamped commit, so skipping here keeps a required check from blocking it.
+    if: ${{ github.event_name != 'pull_request' || !startsWith(github.head_ref, 'db-publish/') }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
