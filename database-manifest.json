@@ -1,9 +1,9 @@
 {
-  "db_version": 1,
-  "published_at": "2026-10-14",
-  "notes": "官方日/英译逐句对齐：修复同一段落 A/B 两句互相包含整段译文的问题",
+  "db_version": 2,
+  "published_at": "2026-10-16",
+  "notes": "演练：在必需检查开启后，确认发布 PR 的检查与可合并状态。",
   "format": "alician-lite",
-  "size": 2854912,
-  "sha1": "5f5cb1389bae746327ce385b2f5b7d6c010aff82",
+  "size": 2859008,
+  "sha1": "fb8e50258d76f242012a2a351b029a4b197d455c",
   "url": "https://raw.githubusercontent.com/Meartraep/AlicianDictionaryMobile/main/app/src/main/assets/translated.db"
 }
