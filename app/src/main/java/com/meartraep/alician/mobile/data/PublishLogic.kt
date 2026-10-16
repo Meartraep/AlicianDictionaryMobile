@@ -121,8 +121,12 @@ object PublishLogic {
         "slow_down" -> "GitHub 要求降低轮询频率，继续等待…"
         "expired_token" -> "设备码已过期，请重新发起登录。"
         "access_denied" -> "授权被拒绝。"
-        "device_flow_disabled" -> "该 GitHub App 未启用 Device Flow。"
-        "incorrect_client_credentials" -> "Client ID 不正确。"
+        "device_flow_disabled" ->
+            "该 GitHub App 没有启用 Device Flow：在 App 设置页 Identifying and authorizing users " +
+                "里勾选 Enable Device Flow 后重试。"
+        "incorrect_client_credentials" -> "Client ID 不正确（请核对 App 页面上的 Client ID）。"
+        "unsupported_grant_type", "incorrect_device_code" -> "设备码无效，请重新发起登录。"
+        "not_found" -> "找不到该 Client ID 对应的 App。"
         else -> "登录失败。"
     }
 
