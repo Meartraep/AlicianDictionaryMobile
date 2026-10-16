@@ -3,6 +3,58 @@
 > Chinese release notes are shown on the GitHub Releases page. This document is
 > the dedicated English version for readers who prefer English.
 
+## v1.10.0 (2026-10-17)
+
+### Highlights
+
+- **Publish the database from the phone.** Settings now has a publishing section: the
+  app reads the published ledger, takes the next version, stamps it into a copy of the
+  local database, appends `database-versions.json`, re-projects
+  `database-manifest.json`, commits those three files on a `db-publish/*` branch and
+  opens a pull request. The pipeline only verifies: the changed paths must be within
+  the publishing allowlist, the new version must be exactly the one after the published
+  ledger tip, and sha1, size, the marker inside the database and the manifest must all
+  agree.
+- **Every publication is signed by a device key.** A non-exportable EC P-256 key is
+  generated in the Android Keystore; when the device has a screen lock, signing asks
+  for the device credential first. CI verifies the signature against the public key
+  registered at `.github/db-publish-pubkey.pem` on the target branch, which a
+  publishing pull request may never modify. The signed message binds the previous
+  version and hash (so an old signature cannot be replayed), the exact database bytes
+  and a digest of the release note, so a stolen GitHub token can no longer publish
+  anything on its own.
+- **GitHub App sign-in (device flow).** Instead of a long-lived personal access token
+  the app can hold only a rotating refresh token and mint access tokens that last about
+  eight hours, refreshed shortly before they expire. Uninstalling the app revokes
+  access for every device at once; the personal token path still works as a fallback.
+- **Database version uniqueness is enforced end to end.** `database-versions.json` is
+  an append-only ledger with strictly increasing versions and unique hashes, the
+  manifest is a projection of its newest entry, CI verifies the invariants on every
+  pull request and before a tagged build, and the release pipeline compares the
+  published bytes with the ledger. `Ledger, manifest and database agree` is a required
+  status check on `main`.
+- **Release metadata is gated.** The signed-APK workflow refuses to build a tag whose
+  database, manifest and ledger do not agree, and re-verifies the published bytes
+  afterwards.
+
+### Fixes
+
+- The GitHub App device flow requested its device code from the token endpoint, so
+  GitHub answered `incorrect_client_credentials` and the app reported it as a wrong
+  Client ID. The three calls now use their own endpoints, with regression tests.
+- Device-flow failures no longer surface as a bare JSON parse error; they show a
+  Chinese explanation plus GitHub's error code and response excerpt.
+
+### Verification
+
+- 51 Android unit tests, 116 Python tests (version guards 12, publication verification
+  15, signature 16, publication preparation 9, grammar and composition 64).
+- End-to-end drills on the real repository: a stamped publication opens a pull request
+  whose required check turns green with no manual approval; an unsigned publication is
+  refused; a tampered signature, a different key and a rewritten release note are all
+  refused.
+- Registered publishing key fingerprint: `6324261ecd9114a0`.
+
 ## v1.9.0 (2026-10-14)
 
 ### Highlights
