@@ -1,0 +1,115 @@
+name: Publish database from phone
+
+# The phone can only upload app/src/main/assets/translated.db to a db-publish/* branch.
+# This workflow owns the version number: it stamps the next one from the ledger,
+# appends database-versions.json, re-projects database-manifest.json and verifies
+# every invariant before the pull request can be merged.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+    paths:
+      - "app/src/main/assets/translated.db"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-database-${{ github.event.pull_request.number }}
+  cancel-in-progress: false
+
+jobs:
+  stamp:
+    name: Stamp the uploaded database
+    if: >
+      startsWith(github.head_ref, 'db-publish/') &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      actions: write
+
+    steps:
+      - name: Check out the publishing branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - name: Set up Python 3.14
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.14"
+
+      - name: Collect the changed paths and the release note
+        shell: bash
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin "refs/heads/${BASE_REF}:refs/remotes/origin/${BASE_REF}"
+          git diff --name-only "origin/${BASE_REF}...HEAD" > changed.txt
+          echo "changed paths:" && cat changed.txt
+          printf '%s' "${PR_BODY}" > notes.txt
+
+      - name: Stamp the next database version
+        id: stamp
+        shell: bash
+        run: |
+          set -euo pipefail
+          changed=()
+          while IFS= read -r line; do
+            if [ -n "${line}" ]; then changed+=("${line}"); fi
+          done < changed.txt
+          python scripts/publish_database_from_branch.py             --notes-file notes.txt             --changed-files "${changed[@]}"
+
+      - name: Commit the stamped version back to the branch
+        if: steps.stamp.outputs.needs_commit == 'true'
+        shell: bash
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          set -euo pipefail
+          git config user.name "alician-database-bot"
+          git config user.email "alician-database-bot@users.noreply.github.com"
+          git add app/src/main/assets/translated.db database-versions.json database-manifest.json
+          git commit -m "chore(database): 发布 v${{ steps.stamp.outputs.db_version }}（手机端上传）"
+          git push origin "HEAD:${HEAD_REF}"
+
+      - name: Verify the invariants on the stamped tree
+        run: |
+          set -euo pipefail
+          python scripts/verify_database_manifest.py
+          python scripts/verify_database_versions.py
+
+      - name: Re-run the versioning check on the stamped commit
+        if: steps.stamp.outputs.needs_commit == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_REF: ${{ github.head_ref }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          # Commits pushed with GITHUB_TOKEN do not trigger other workflows, so the
+          # stamped commit is re-checked explicitly (workflow_dispatch is exempt).
+          gh api --method POST \
+            "repos/${REPOSITORY}/actions/workflows/verify-database.yml/dispatches" \
+            -f ref="${HEAD_REF}"
+
+      - name: Summarize the outcome
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "### 手机端数据库发布"
+            echo ""
+            echo "- 目标版本：v${{ steps.stamp.outputs.db_version }}"
+            echo "- 是否已写入新版本：${{ steps.stamp.outputs.needs_commit }}"
+            echo ""
+            echo "合并后所有客户端将在下次启动时收到更新提示。"
+          } >> "$GITHUB_STEP_SUMMARY"

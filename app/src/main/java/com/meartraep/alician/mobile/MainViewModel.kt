@@ -9,6 +9,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.meartraep.alician.mobile.data.AppUpdateInfo
 import com.meartraep.alician.mobile.data.DatabaseInfo
+import com.meartraep.alician.mobile.data.DatabasePublisher
 import com.meartraep.alician.mobile.data.DatabaseUpdateLogic
 import com.meartraep.alician.mobile.data.DatabaseUpdateManifest
 import com.meartraep.alician.mobile.data.DbTablePage
@@ -16,6 +17,14 @@ import com.meartraep.alician.mobile.data.DictionaryResult
 import com.meartraep.alician.mobile.data.ExampleResult
 import com.meartraep.alician.mobile.data.GlobalMatch
 import com.meartraep.alician.mobile.data.LookupResult
+import com.meartraep.alician.mobile.data.PublishCredential
+import com.meartraep.alician.mobile.data.PublishCredentialStore
+import com.meartraep.alician.mobile.data.PublishLogic
+import com.meartraep.alician.mobile.data.PublishOutcome
+import com.meartraep.alician.mobile.data.PublishPreview
+import com.meartraep.alician.mobile.data.PublishProgress
+import com.meartraep.alician.mobile.data.PublishStage
+import com.meartraep.alician.mobile.data.PullRequestState
 import com.meartraep.alician.mobile.data.PythonRepository
 import com.meartraep.alician.mobile.data.RemoteComparison
 import com.meartraep.alician.mobile.data.StudyCard
@@ -144,6 +153,32 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var autoDatabaseUpdateCheck by mutableStateOf(repository.autoDatabaseUpdateCheck)
         private set
     var lastDatabaseCheckAt by mutableStateOf(repository.lastDatabaseCheckAt)
+        private set
+
+    /** Newest manifest seen, even when the installed database is already current. */
+    var latestPublishedManifest by mutableStateOf<DatabaseUpdateManifest?>(null)
+        private set
+
+    private val databasePublisher = DatabasePublisher()
+    private val publishCredentials = PublishCredentialStore(application)
+
+    var publishCredential by mutableStateOf(
+        PublishCredential(
+            configured = publishCredentials.hasCredential,
+            maskedToken = publishCredentials.maskedToken,
+            verifiedAt = publishCredentials.verifiedAt,
+        ),
+    )
+        private set
+    var publishPreview by mutableStateOf<PublishPreview?>(null)
+        private set
+    var publishProgress by mutableStateOf(PublishProgress())
+        private set
+    var publishOutcome by mutableStateOf<PublishOutcome?>(null)
+        private set
+    var publishError by mutableStateOf<String?>(null)
+        private set
+    var publishPullRequest by mutableStateOf<PullRequestState?>(null)
         private set
 
     var studySettings by mutableStateOf(studyRepository.settings)
@@ -615,6 +650,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         try {
             localDatabaseVersion = repository.databaseVersion()
             val manifest = repository.fetchDatabaseUpdateManifest()
+            latestPublishedManifest = manifest
             repository.recordDatabaseCheck()
             lastDatabaseCheckAt = repository.lastDatabaseCheckAt
             databaseUpdate = manifest?.takeIf { candidate ->
@@ -676,6 +712,132 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 refreshDatabaseUpdate(showFeedback = false)
             }
         }
+    }
+
+    // ---- publishing the database from the phone -------------------------------
+
+    /** Validates the token against GitHub before storing it in the Keystore. */
+    fun savePublishToken(token: String) {
+        val trimmed = token.trim()
+        if (trimmed.isEmpty()) {
+            errorMessage = "请粘贴 GitHub 访问令牌。"
+            return
+        }
+        launchTask("正在校验访问令牌…") {
+            val credential = databasePublisher.verify(trimmed)
+            publishCredentials.save(trimmed)
+            publishCredential = credential.copy(verifiedAt = publishCredentials.verifiedAt)
+            if (credential.canPush) {
+                noticeMessage = "令牌已保存并校验通过。"
+            } else {
+                errorMessage = credential.message
+            }
+        }
+    }
+
+    fun clearPublishToken() {
+        publishCredentials.clear()
+        publishCredential = PublishCredential(configured = false)
+        publishPreview = null
+        publishOutcome = null
+        publishError = null
+        publishPullRequest = null
+        noticeMessage = "已清除本机保存的访问令牌。"
+    }
+
+    /** Local pre-flight: what would be published, and whether anything changed. */
+    fun prepareDatabasePublish() {
+        viewModelScope.launch {
+            publishError = null
+            publishOutcome = null
+            publishPullRequest = null
+            publishProgress = PublishProgress()
+            val (size, sha1) = repository.localDatabaseIdentity()
+            val manifest = latestPublishedManifest
+            publishPreview = PublishLogic.buildPreview(
+                localVersion = repository.databaseVersion(),
+                localSize = size,
+                localSha1 = sha1,
+                publishedVersion = manifest?.dbVersion ?: 0,
+                publishedSha1 = manifest?.sha1.orEmpty(),
+            )
+        }
+    }
+
+    fun publishDatabase(notes: String) {
+        val preview = publishPreview ?: return
+        preview.blockingReason?.let { reason ->
+            publishError = reason
+            return
+        }
+        val token = publishCredentials.load()
+        if (token.isNullOrBlank()) {
+            publishError = "请先配置访问令牌。"
+            return
+        }
+        if (publishProgress.stage == PublishStage.UPLOADING) return
+        launchTask("正在发布数据库…") {
+            publishError = null
+            try {
+                val outcome = databasePublisher.publish(
+                    token = token,
+                    database = repository.installedDatabaseFile(),
+                    version = preview.localVersion,
+                    notes = notes,
+                ) { progress ->
+                    // The upload callback runs on the IO dispatcher; hop back to main.
+                    viewModelScope.launch { publishProgress = progress }
+                }
+                publishOutcome = outcome
+                publishProgress = PublishProgress(PublishStage.DONE, "已创建合并请求")
+                noticeMessage = "已提交发布请求 #" + outcome.pullRequestNumber + "，等待 CI 校验通过后合并。"
+            } catch (throwable: Throwable) {
+                if (throwable is CancellationException) throw throwable
+                publishProgress = PublishProgress(PublishStage.FAILED, throwable.message.orEmpty())
+                publishError = throwable.message ?: "发布失败"
+                errorMessage = publishError
+            }
+        }
+    }
+
+    /** Reads the pipeline state of the created pull request. */
+    fun refreshPublishPullRequest() {
+        val number = publishOutcome?.pullRequestNumber ?: return
+        val token = publishCredentials.load()
+        if (token.isNullOrBlank()) {
+            publishError = "请先配置访问令牌。"
+            return
+        }
+        viewModelScope.launch {
+            try {
+                publishPullRequest = databasePublisher.pullRequestState(token, number)
+            } catch (throwable: Throwable) {
+                if (throwable is CancellationException) throw throwable
+                publishError = throwable.message ?: "无法获取合并请求状态"
+            }
+        }
+    }
+
+    fun mergePublishPullRequest() {
+        val number = publishOutcome?.pullRequestNumber ?: return
+        val token = publishCredentials.load()
+        if (token.isNullOrBlank()) {
+            publishError = "请先配置访问令牌。"
+            return
+        }
+        launchTask("正在合并发布请求…") {
+            noticeMessage = databasePublisher.merge(token, number)
+            publishPullRequest = databasePublisher.pullRequestState(token, number)
+            viewModelScope.launch { refreshDatabaseUpdate(showFeedback = false) }
+        }
+    }
+
+    fun dismissPublishDialog() {
+        publishPreview = null
+        publishOutcome = null
+        publishProgress = PublishProgress()
+        publishError = null
+        publishPullRequest = null
     }
 
     fun checkAppUpdate() {
