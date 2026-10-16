@@ -11,6 +11,10 @@ import androidx.lifecycle.viewModelScope
 import com.meartraep.alician.mobile.data.AppUpdateInfo
 import com.meartraep.alician.mobile.data.DatabaseInfo
 import com.meartraep.alician.mobile.data.DatabasePublisher
+import com.meartraep.alician.mobile.data.DeviceCode
+import com.meartraep.alician.mobile.data.DeviceToken
+import com.meartraep.alician.mobile.data.GitHubDeviceFlow
+import com.meartraep.alician.mobile.data.PublishAuth
 import com.meartraep.alician.mobile.data.DatabaseUpdateLogic
 import com.meartraep.alician.mobile.data.DatabaseUpdateManifest
 import com.meartraep.alician.mobile.data.DbTablePage
@@ -165,6 +169,17 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val databasePublisher = DatabasePublisher()
     private val publishCredentials = PublishCredentialStore(application)
     private val publishSigningKey = PublishSigningKey(application)
+    private val publishAuth = PublishAuth(publishCredentials)
+
+    /** "app" (GitHub App device flow), "token" (personal token) or "none". */
+    var publishAuthMode by mutableStateOf("none")
+        private set
+    var deviceFlowCode by mutableStateOf<DeviceCode?>(null)
+        private set
+    var deviceFlowMessage by mutableStateOf("")
+        private set
+    var deviceFlowRunning by mutableStateOf(false)
+        private set
 
     var publishSigningReady by mutableStateOf(publishSigningKey.exists)
         private set
@@ -206,6 +221,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         private set
 
     init {
+        refreshPublishAuthMode()
         launchTask("正在初始化词典…") {
             val bootstrap = repository.initialize()
             applyBootstrap(bootstrap)
@@ -729,6 +745,68 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     // ---- publishing the database from the phone -------------------------------
 
+    private fun refreshPublishAuthMode() {
+        publishAuthMode = when {
+            publishCredentials.hasAppCredential -> "app"
+            publishCredentials.hasCredential -> "token"
+            else -> "none"
+        }
+    }
+
+    val publishClientId: String get() = publishCredentials.appClientId
+
+    /** Starts the GitHub App device flow: the user approves once in a browser. */
+    fun startDeviceFlowLogin(clientId: String) {
+        val trimmed = clientId.trim()
+        if (trimmed.isEmpty()) {
+            errorMessage = "请填写 GitHub App 的 Client ID。"
+            return
+        }
+        publishCredentials.saveAppClientId(trimmed)
+        launchTask("正在向 GitHub 申请设备码…") {
+            val flow = GitHubDeviceFlow(trimmed)
+            val code = flow.requestCode()
+            deviceFlowCode = code
+            deviceFlowMessage = "在浏览器打开 " + code.verificationUri + "，输入代码 " + code.userCode
+            deviceFlowRunning = true
+            try {
+                val result = flow.awaitGrant(code) { message ->
+                    viewModelScope.launch { deviceFlowMessage = message }
+                }
+                when (result) {
+                    is DeviceToken.Granted -> {
+                        publishCredentials.saveAppTokens(
+                            refreshToken = result.refreshToken,
+                            refreshExpiresAt = result.refreshExpiresAt,
+                            accessToken = result.accessToken,
+                            accessTokenExpiresAt = result.accessTokenExpiresAt,
+                        )
+                        refreshPublishAuthMode()
+                        noticeMessage = "已通过 GitHub App 登录：手机不再保存长期访问令牌。"
+                    }
+                    is DeviceToken.Denied -> errorMessage = result.message
+                    else -> errorMessage = "登录未完成，请重试。"
+                }
+            } finally {
+                deviceFlowRunning = false
+                deviceFlowCode = null
+            }
+        }
+    }
+
+    fun cancelDeviceFlowLogin() {
+        deviceFlowRunning = false
+        deviceFlowCode = null
+        deviceFlowMessage = ""
+    }
+
+    /** Forgets the app installation on this device (uninstall it on GitHub to revoke). */
+    fun signOutPublishApp() {
+        publishCredentials.clearApp()
+        refreshPublishAuthMode()
+        noticeMessage = "已清除本机的 GitHub App 登录；彻底吊销请在 GitHub 卸载该 App。"
+    }
+
     /** Validates the token against GitHub before storing it in the Keystore. */
     fun savePublishToken(token: String) {
         val trimmed = token.trim()
@@ -740,6 +818,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             val credential = databasePublisher.verify(trimmed)
             publishCredentials.save(trimmed)
             publishCredential = credential.copy(verifiedAt = publishCredentials.verifiedAt)
+            refreshPublishAuthMode()
             if (credential.canPush) {
                 noticeMessage = "令牌已保存并校验通过。"
             } else {
@@ -790,7 +869,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         publishOutcome = null
         publishError = null
         publishPullRequest = null
-        noticeMessage = "已清除本机保存的访问令牌。"
+        refreshPublishAuthMode()
+        noticeMessage = "已清除本机保存的凭据（访问令牌与 App 登录）。"
     }
 
     /** Local pre-flight: what would be published, and whether anything changed. */
@@ -823,9 +903,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             publishError = reason
             return
         }
-        val token = publishCredentials.load()
-        if (token.isNullOrBlank()) {
-            publishError = "请先配置访问令牌。"
+        if (!publishAuth.hasCredential) {
+            publishError = "请先用 GitHub App 登录，或配置访问令牌。"
             return
         }
         if (!publishSigningReady) {
@@ -837,6 +916,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             publishError = null
             var stamped: File? = null
             try {
+                // GitHub App tokens are refreshed on demand; a personal token keeps
+                // working for setups that have not moved over yet.
+                val token = publishAuth.accessToken()
+                    ?: throw IllegalStateException("登录已失效，请重新用 GitHub App 登录。")
                 publishProgress = PublishProgress(PublishStage.VERIFYING, "正在读取已发布台账…")
                 val ledgerJson = databasePublisher.fetchPublishedLedger()
                 stamped = File(
@@ -912,13 +995,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     /** Reads the pipeline state of the created pull request. */
     fun refreshPublishPullRequest() {
         val number = publishOutcome?.pullRequestNumber ?: return
-        val token = publishCredentials.load()
-        if (token.isNullOrBlank()) {
-            publishError = "请先配置访问令牌。"
-            return
-        }
         viewModelScope.launch {
             try {
+                val token = publishAuth.accessToken()
+                    ?: throw IllegalStateException("登录已失效，请重新用 GitHub App 登录。")
                 publishPullRequest = databasePublisher.pullRequestState(token, number)
             } catch (throwable: Throwable) {
                 if (throwable is CancellationException) throw throwable
@@ -929,12 +1009,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun mergePublishPullRequest() {
         val number = publishOutcome?.pullRequestNumber ?: return
-        val token = publishCredentials.load()
-        if (token.isNullOrBlank()) {
-            publishError = "请先配置访问令牌。"
-            return
-        }
         launchTask("正在合并发布请求…") {
+            val token = publishAuth.accessToken()
+                ?: throw IllegalStateException("登录已失效，请重新用 GitHub App 登录。")
             noticeMessage = databasePublisher.merge(token, number)
             publishPullRequest = databasePublisher.pullRequestState(token, number)
             viewModelScope.launch { refreshDatabaseUpdate(showFeedback = false) }

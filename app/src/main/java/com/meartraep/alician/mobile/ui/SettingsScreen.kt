@@ -97,6 +97,7 @@ fun SettingsScreen(viewModel: MainViewModel, padding: PaddingValues) {
 
     var confirmReset by remember { mutableStateOf(false) }
     var showPublishTokenDialog by rememberSaveable { mutableStateOf(false) }
+    var showPublishAppDialog by rememberSaveable { mutableStateOf(false) }
     var showPublishDialog by rememberSaveable { mutableStateOf(false) }
     val uriHandler = LocalUriHandler.current
     val importLauncher = rememberLauncherForActivityResult(
@@ -262,7 +263,10 @@ fun SettingsScreen(viewModel: MainViewModel, padding: PaddingValues) {
         item {
             DatabasePublishCard(
                 credential = viewModel.publishCredential,
+                authMode = viewModel.publishAuthMode,
                 onConfigure = { showPublishTokenDialog = true },
+                onAppLogin = { showPublishAppDialog = true },
+                onAppSignOut = viewModel::signOutPublishApp,
                 onClear = viewModel::clearPublishToken,
                 onPublish = {
                     viewModel.prepareDatabasePublish()
@@ -392,6 +396,19 @@ fun SettingsScreen(viewModel: MainViewModel, padding: PaddingValues) {
                 viewModel.savePublishToken(token)
             },
             onDismiss = { showPublishTokenDialog = false },
+        )
+    }
+    if (showPublishAppDialog) {
+        PublishAppLoginDialog(
+            clientId = viewModel.publishClientId,
+            code = viewModel.deviceFlowCode,
+            message = viewModel.deviceFlowMessage,
+            running = viewModel.deviceFlowRunning,
+            onStart = viewModel::startDeviceFlowLogin,
+            onDismiss = {
+                showPublishAppDialog = false
+                viewModel.cancelDeviceFlowLogin()
+            },
         )
     }
     if (showPublishDialog) {

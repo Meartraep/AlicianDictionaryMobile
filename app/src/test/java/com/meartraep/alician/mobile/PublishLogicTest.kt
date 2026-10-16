@@ -121,6 +121,30 @@ class PublishLogicTest {
     }
 
     @Test
+    fun accessTokensAreRefreshedBeforeTheyExpire() {
+        val now = 1_000_000L
+        // A minute left is inside the skew, so it must be refreshed.
+        assertTrue(PublishLogic.tokenNeedsRefresh(PublishLogic.tokenExpiry(60, now), now))
+        assertFalse(PublishLogic.tokenNeedsRefresh(PublishLogic.tokenExpiry(3600, now), now))
+        assertTrue(PublishLogic.tokenNeedsRefresh(0L, now))
+        assertEquals(now + 7_200_000L, PublishLogic.tokenExpiry(7200, now))
+    }
+
+    @Test
+    fun slowDownWidensThePollingInterval() {
+        assertEquals(5, PublishLogic.nextPollDelaySeconds(null, 5))
+        assertEquals(5, PublishLogic.nextPollDelaySeconds("authorization_pending", 5))
+        assertEquals(10, PublishLogic.nextPollDelaySeconds("slow_down", 5))
+    }
+
+    @Test
+    fun deviceFlowErrorsAreExplained() {
+        assertTrue(PublishLogic.deviceFlowMessage("expired_token").contains("过期"))
+        assertTrue(PublishLogic.deviceFlowMessage("device_flow_disabled").contains("Device Flow"))
+        assertTrue(PublishLogic.deviceFlowMessage("something_else").isNotEmpty())
+    }
+
+    @Test
     fun signatureDocumentIsTheJsonTheServerParses() {
         val document = PublishLogic.signatureDocument("ab12cd34ef56ab78", "MEUCIQ==")
         assertTrue(document, document.startsWith("{"))

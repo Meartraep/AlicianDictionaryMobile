@@ -101,6 +101,31 @@ object PublishLogic {
         MessageDigest.getInstance("SHA-256").digest(notes.toByteArray(Charsets.UTF_8))
             .joinToString("") { byte -> "%02x".format(byte) }
 
+    // ---- GitHub App device flow -----------------------------------------
+
+    /** An access token this close to expiry is refreshed before it is used. */
+    const val TOKEN_REFRESH_SKEW_MILLIS = 5L * 60 * 1000
+
+    fun tokenExpiry(expiresInSeconds: Long, nowMillis: Long): Long =
+        nowMillis + expiresInSeconds * 1000L
+
+    fun tokenNeedsRefresh(expiresAtMillis: Long, nowMillis: Long): Boolean =
+        expiresAtMillis <= 0L || expiresAtMillis - nowMillis <= TOKEN_REFRESH_SKEW_MILLIS
+
+    /** GitHub asks for a longer interval after a "slow_down"; every other round keeps it. */
+    fun nextPollDelaySeconds(error: String?, intervalSeconds: Int): Int =
+        if (error == "slow_down") intervalSeconds + 5 else intervalSeconds
+
+    fun deviceFlowMessage(error: String): String = when (error) {
+        "authorization_pending" -> "等待你在浏览器中确认…"
+        "slow_down" -> "GitHub 要求降低轮询频率，继续等待…"
+        "expired_token" -> "设备码已过期，请重新发起登录。"
+        "access_denied" -> "授权被拒绝。"
+        "device_flow_disabled" -> "该 GitHub App 未启用 Device Flow。"
+        "incorrect_client_credentials" -> "Client ID 不正确。"
+        else -> "登录失败。"
+    }
+
     /**
      * The bytes the device key signs.
      *

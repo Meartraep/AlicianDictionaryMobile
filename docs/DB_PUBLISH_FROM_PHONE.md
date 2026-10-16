@@ -110,8 +110,42 @@ python scripts/github_ruleset_required_check.py --remove   # 取消
 该工作流在**所有 PR** 上都会报告（这是必需的：带 `paths` 过滤的检查在"未触及数据库"的 PR 上
 永远不会出现，PR 会卡在 *Expected — Waiting for status to be reported*）。每次 PR 约 20 秒。
 
-## 6. 未包含（P3）
+## 6. P3：GitHub App 设备流（已实现，需一次性创建 App）
 
-- GitHub App 短时令牌 / 中继服务（彻底不在设备上放长期令牌）
-- 提交者身份区分（当前用令牌所属账号；P3 可换成专用机器账号）
-- 密钥轮换/多把在册公钥（当前每次替换公钥需要一次普通 PR；如需并行可用多行 PEM 或加 key_id 列表）
+**解决了什么**：手机不再保存长期仓库凭证。之前是一个有效期数月的 fine-grained PAT；
+现在是一个 **GitHub App**：手机上只留下**可轮换的刷新令牌**，访问令牌约 8 小时有效、
+临近过期自动刷新（[GitHubDeviceFlow.kt](../app/src/main/java/com/meartraep/alician/mobile/data/GitHubDeviceFlow.kt)、
+[PublishAuth.kt](../app/src/main/java/com/meartraep/alician/mobile/data/PublishAuth.kt)）。
+在 GitHub 卸载该 App，**所有设备一次性失效**；权限也只有该 installation 授予的那些。
+
+**与 P2 的关系（重要）**：两者解决不同问题，P3 **不能替代设备签名**。
+
+| | 解决的问题 | 没有它会怎样 |
+|---|---|---|
+| P2 设备签名 | **谁有权发布内容** | 任何拿到有效令牌的人（哪怕只有 1 小时）都能发一版恶意数据库 |
+| P3 GitHub App | **凭证的寿命与撤销面** | 手机上长期存在一个可用数月的仓库写凭证 |
+
+因此发布仍然要求：目标分支上登记了公钥 + 每次发布由设备密钥签名。
+
+### 创建 App（一次性，约 2 分钟）
+
+1. 打开 <https://github.com/settings/apps/new>
+2. **GitHub App name**：`Alician DB Publisher`（可自取，全局唯一）
+   **Homepage URL**：`https://github.com/Meartraep/AlicianDictionaryMobile`
+3. 取消勾选 **Active**（Webhook），不需要回调地址
+4. **Repository permissions** → **Contents: Read and write**（其余保持 No access）
+5. **Where can this GitHub App be installed?** → *Only on this account* → **Create GitHub App**
+6. 创建后在该 App 页面：**Identifying and authorizing users** → 勾选 **Enable Device Flow** → **Save changes**
+7. 同一页面点 **Install App** → 选择 `AlicianDictionaryMobile`
+8. 复制页面上的 **Client ID**（公开信息，可以随便发）
+
+然后：App → 设置 → 手机端发布 → **用 GitHub App 登录** → 填入 Client ID → 按提示在浏览器
+输入用户码并批准。登录成功后卡片会显示"GitHub App（短时令牌，自动刷新）"。
+
+已有的长期 PAT 仍然可用（作为回退）；切到 App 登录后可点"清除全部凭据"把 PAT 删掉。
+
+### 仍未包含
+
+- 中继服务（把 App 私钥放在服务端，设备完全不持有任何 GitHub 凭据）——当前设备流不需要它
+- 提交者身份区分（发布提交署名仍是令牌所属账号）
+- 多把在册公钥并行（当前替换公钥需要一次普通 PR）
