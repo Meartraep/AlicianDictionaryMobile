@@ -168,6 +168,18 @@ class PublicationSignatureTests(unittest.TestCase):
             PREVIOUS, ENTRY)
         self.assertIn('P-256', ' '.join(problems))
 
+    # ---- registered key -------------------------------------------------
+    def test_registered_key_is_a_usable_p256_public_key(self) -> None:
+        """Guards the registration step: a broken key would block every publish."""
+        path = REPO / '.github' / 'db-publish-pubkey.pem'
+        if not path.is_file():
+            self.skipTest('no publishing key registered on this branch yet')
+        pem = path.read_text(encoding='utf-8')
+        key = serialization.load_pem_public_key(pem.encode('utf-8'))
+        self.assertIsInstance(key, ec.EllipticCurvePublicKey)
+        self.assertEqual('secp256r1', key.curve.name)
+        self.assertEqual(16, len(signature.key_id(pem)))
+
     # ---- allowlist ------------------------------------------------------
     def test_signature_file_may_change_but_the_public_key_may_not(self) -> None:
         self.assertEqual(verify.check_allowlist([
