@@ -47,6 +47,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.meartraep.alician.mobile.MainViewModel
+import com.meartraep.alician.mobile.data.DeviceCode
 import com.meartraep.alician.mobile.data.PublishCredential
 import com.meartraep.alician.mobile.data.PublishLogic
 import com.meartraep.alician.mobile.data.PublishStage
@@ -67,7 +68,10 @@ private fun formatVerifiedAt(timestamp: Long): String =
 @Composable
 fun DatabasePublishCard(
     credential: PublishCredential,
+    authMode: String,
     onConfigure: () -> Unit,
+    onAppLogin: () -> Unit,
+    onAppSignOut: () -> Unit,
     onClear: () -> Unit,
     onPublish: () -> Unit,
 ) {
@@ -84,41 +88,127 @@ fun DatabasePublishCard(
                 )
             }
         }
+        DatabaseMetricLine(
+            "登录方式",
+            when (authMode) {
+                "app" -> "GitHub App（短时令牌，自动刷新）"
+                "token" -> "长期访问令牌"
+                else -> "未登录"
+            },
+        )
         if (credential.configured) {
             DatabaseMetricLine("访问令牌", credential.maskedToken.ifBlank { "已保存" })
             DatabaseMetricLine("上次校验", formatVerifiedAt(credential.verifiedAt))
         }
         Text(
-            if (credential.configured) {
-                "令牌以 Android Keystore 加密保存在本机，不会随备份同步。"
-            } else {
-                "需要一次性配置细粒度访问令牌（仅本仓库、仅 Contents 读写）。"
+            when (authMode) {
+                "app" -> "手机只保存可轮换的刷新令牌；在 GitHub 卸载该 App 即可一次性吊销。"
+                "token" -> "凭据以 Android Keystore 加密保存在本机，不会随备份同步。"
+                else -> "推荐用 GitHub App 登录（无需长期令牌）；也可以配置细粒度访问令牌。"
             },
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            if (authMode == "app") {
+                OutlinedButton(onClick = onAppSignOut, modifier = Modifier.weight(1f)) {
+                    Text("退出 App 登录")
+                }
+            } else {
+                OutlinedButton(onClick = onAppLogin, modifier = Modifier.weight(1f)) {
+                    Icon(Icons.Outlined.VerifiedUser, contentDescription = null)
+                    Spacer(Modifier.width(6.dp))
+                    Text("用 GitHub App 登录")
+                }
+            }
             OutlinedButton(onClick = onConfigure, modifier = Modifier.weight(1f)) {
                 Icon(Icons.Outlined.Key, contentDescription = null)
                 Spacer(Modifier.width(6.dp))
                 Text(if (credential.configured) "更换令牌" else "配置令牌")
             }
-            if (credential.configured) {
-                OutlinedButton(onClick = onClear, modifier = Modifier.weight(1f)) {
-                    Text("清除令牌")
-                }
-            }
         }
         Button(
             onClick = onPublish,
             modifier = Modifier.fillMaxWidth(),
-            enabled = credential.configured,
+            enabled = authMode != "none",
         ) {
             Icon(Icons.Outlined.CloudUpload, contentDescription = null)
             Spacer(Modifier.width(8.dp))
             Text("发布新版本")
         }
+        if (authMode != "none") {
+            OutlinedButton(onClick = onClear, modifier = Modifier.fillMaxWidth()) {
+                Text("清除全部凭据")
+            }
+        }
     }
+}
+
+/**
+ * GitHub App device flow: the user approves the app once in a browser; afterwards
+ * the phone only holds short-lived tokens and a rotating refresh token.
+ */
+@Composable
+fun PublishAppLoginDialog(
+    clientId: String,
+    code: DeviceCode?,
+    message: String,
+    running: Boolean,
+    onStart: (String) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    var field by rememberSaveable { mutableStateOf(clientId) }
+    val uriHandler = LocalUriHandler.current
+    AlertDialog(
+        onDismissRequest = { if (!running) onDismiss() },
+        icon = { Icon(Icons.Outlined.VerifiedUser, contentDescription = null) },
+        title = { Text(if (code == null) "用 GitHub App 登录" else "在浏览器中确认") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (code == null) {
+                    Text(
+                        "填入 GitHub App 的 Client ID（公开信息）。App 需要 Contents: Read and write " +
+                            "权限，并已安装到本仓库。",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    OutlinedTextField(
+                        value = field,
+                        onValueChange = { field = it },
+                        label = { Text("Client ID") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                } else {
+                    Text("在浏览器输入这个用户码：", style = MaterialTheme.typography.bodySmall)
+                    Text(code.userCode, style = MaterialTheme.typography.headlineSmall)
+                    Text(message, style = MaterialTheme.typography.bodySmall)
+                    OutlinedButton(
+                        onClick = { uriHandler.openUri(code.verificationUri) },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text("打开 " + code.verificationUri)
+                    }
+                    if (running) {
+                        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            if (code == null) {
+                Button(onClick = { onStart(field) }, enabled = field.isNotBlank()) { Text("获取设备码") }
+            } else {
+                TextButton(onClick = onDismiss, enabled = !running) { Text("完成") }
+            }
+        },
+        dismissButton = {
+            if (code == null) {
+                TextButton(onClick = onDismiss) { Text("取消") }
+            } else {
+                TextButton(onClick = { uriHandler.openUri(code.verificationUri) }) { Text("重新打开") }
+            }
+        },
+    )
 }
 
 /** The device key that authorises publications. */
