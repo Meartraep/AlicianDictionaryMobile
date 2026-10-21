@@ -20,13 +20,18 @@ Set `sdk.dir` in `local.properties`, then run:
 ```
 
 For a signed release, create `keystore.properties` using the keys referenced in
-`app/build.gradle.kts`, then run `.\gradlew.bat assembleRelease`.
+`app/build.gradle.kts`, then run `.\gradlew.bat assembleRelease` (both ABIs by
+default). The release workflow builds two single-ABI APKs with
+`-PtargetAbi=arm64-v8a` and `-PtargetAbi=x86_64`.
 
 ## Verifiable releases
 
-Pushing a `v*` tag builds the signed APK on a GitHub-hosted runner and publishes
-Sigstore-signed SLSA build provenance for the final APK. Repository secret setup,
-the release procedure, and strict consumer verification are documented in
+Pushing a `v*` tag builds two signed, per-ABI APKs on a GitHub-hosted runner and
+publishes one Sigstore-signed SLSA build provenance bundle covering both. The
+release contains `AlicianDictionary-<tag>-arm64-v8a.apk`,
+`AlicianDictionary-<tag>-x86_64.apk`, `SHA256SUMS.txt` and
+`AlicianDictionary-<tag>.intoto.jsonl`. Repository secret setup, the release
+procedure, and strict consumer verification are documented in
 [`docs/SUPPLY_CHAIN.md`](docs/SUPPLY_CHAIN.md).
 
 ## Semantic alias data

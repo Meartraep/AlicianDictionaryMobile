@@ -55,7 +55,7 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
 
-      - name: Test and build the signed release APK
+      - name: Test and build the signed ABI-specific release APKs
         shell: bash
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -80,41 +80,68 @@ jobs:
           printf '%s' "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$ANDROID_KEYSTORE_PATH"
           chmod 600 "$ANDROID_KEYSTORE_PATH"
           trap 'rm -f "$ANDROID_KEYSTORE_PATH"' EXIT
-          ./gradlew --no-daemon clean testDebugUnitTest lintRelease assembleRelease
+          ./gradlew --no-daemon clean testDebugUnitTest lintRelease
 
-      - name: Verify and package the signed APK
+          # AGP 9 cannot combine splits.abi with the ndk.abiFilters setting that
+          # Chaquopy 17 requires, so each published APK is a separate build.
+          safe_tag="${GITHUB_REF_NAME//[^A-Za-z0-9._-]/_}"
+          mkdir -p dist
+          for abi in arm64-v8a x86_64; do
+            ./gradlew --no-daemon assembleRelease -PtargetAbi="$abi"
+            cp app/build/outputs/apk/release/app-release.apk \
+              "dist/AlicianDictionary-${safe_tag}-${abi}.apk"
+          done
+
+      - name: Verify and package the signed APKs
         id: package
         shell: bash
         run: |
           set -euo pipefail
-          source_apk="app/build/outputs/apk/release/app-release.apk"
-          test -f "$source_apk"
-
           safe_tag="${GITHUB_REF_NAME//[^A-Za-z0-9._-]/_}"
-          apk_name="AlicianDictionary-${safe_tag}.apk"
-          mkdir -p dist
-          cp "$source_apk" "dist/$apk_name"
+          expected_abis="arm64-v8a x86_64"
+          for abi in $expected_abis; do
+            apk="dist/AlicianDictionary-${safe_tag}-${abi}.apk"
+            if [[ ! -f "$apk" ]]; then
+              echo "::error::Missing release APK: ${apk}"
+              exit 1
+            fi
+          done
+          # Fail on leftovers from an earlier run of the same tag (for example the
+          # former single universal APK), so a release never mixes both layouts.
+          unexpected="$(find dist -maxdepth 1 -type f -name '*.apk' \
+            ! -name "AlicianDictionary-${safe_tag}-arm64-v8a.apk" \
+            ! -name "AlicianDictionary-${safe_tag}-x86_64.apk" -print)"
+          if [[ -n "$unexpected" ]]; then
+            echo "::error::Unexpected APK files in dist:"
+            echo "$unexpected"
+            exit 1
+          fi
 
           apksigner="$({ find "$ANDROID_HOME/build-tools" -type f -name apksigner -print0 || true; } | xargs -0 -r ls -1v | tail -n 1)"
           if [[ -z "$apksigner" ]]; then
             echo "::error::apksigner was not found in the Android SDK"
             exit 1
           fi
-          "$apksigner" verify --verbose --print-certs "dist/$apk_name"
+          for abi in $expected_abis; do
+            apk="dist/AlicianDictionary-${safe_tag}-${abi}.apk"
+            "$apksigner" verify --verbose --print-certs "$apk"
+            # Guards the ABI split, the trimmed jieba archive and the size budget.
+            python scripts/verify_release_apk.py "$apk" --abi "$abi"
+          done
 
           (
             cd dist
-            sha256sum "$apk_name" > SHA256SUMS.txt
+            sha256sum *.apk > SHA256SUMS.txt
+            cat SHA256SUMS.txt
           )
-          echo "apk-path=${GITHUB_WORKSPACE}/dist/${apk_name}" >> "$GITHUB_OUTPUT"
-          echo "apk-name=${apk_name}" >> "$GITHUB_OUTPUT"
           echo "safe-tag=${safe_tag}" >> "$GITHUB_OUTPUT"
 
       - name: Generate signed SLSA build provenance
         id: attest
         uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4
         with:
-          subject-path: ${{ steps.package.outputs.apk-path }}
+          # One attestation covers both ABI-specific APKs.
+          subject-path: "dist/*.apk"
 
       - name: Package the provenance bundle
         shell: bash
@@ -123,7 +150,7 @@ jobs:
         run: |
           set -euo pipefail
           cp "$ATTESTATION_BUNDLE" \
-            "dist/${{ steps.package.outputs.apk-name }}.intoto.jsonl"
+            "dist/AlicianDictionary-${{ steps.package.outputs.safe-tag }}.intoto.jsonl"
 
       - name: Retain the attested release files in the workflow run
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
