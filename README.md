@@ -21,13 +21,15 @@
 ```
 
 如需签名发布版，请根据 `app/build.gradle.kts` 中引用的密钥创建
-`keystore.properties`，然后运行 `.\gradlew.bat assembleRelease`。
+`keystore.properties`，然后运行 `.\gradlew.bat assembleRelease`（默认包含
+arm64-v8a 与 x86_64）。正式发布由 CI 使用 `-PtargetAbi=arm64-v8a` 与
+`-PtargetAbi=x86_64` 分别构建两个单 ABI 安装包。
 
 ## 可验证的发布
 
-推送 `v*` 标签后，GitHub 托管的 runner 会构建签名 APK，并为最终 APK 发布
-Sigstore 签名的 SLSA 构建溯源凭证。仓库密钥配置、发布流程以及严格的消费者
-验证方式详见 [`docs/SUPPLY_CHAIN.md`](docs/SUPPLY_CHAIN.md)。
+推送 `v*` 标签后，GitHub 托管的 runner 会构建两个按 ABI 拆分的签名 APK，
+并为这两个 APK 发布一份 Sigstore 签名的 SLSA 构建溯源凭证。仓库密钥配置、
+发布流程以及严格的消费者验证方式详见 [`docs/SUPPLY_CHAIN.md`](docs/SUPPLY_CHAIN.md)。
 
 ## 语义别名数据
 

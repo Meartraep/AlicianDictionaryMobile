@@ -3,6 +3,38 @@
 > Chinese release notes are shown on the GitHub Releases page. This document is
 > the dedicated English version for readers who prefer English.
 
+## v1.11.0 (2026-10-21)
+
+### Highlights
+
+- **Much smaller download: one APK per ABI.** Releases now publish
+  `AlicianDictionary-<tag>-arm64-v8a.apk` for phones and
+  `AlicianDictionary-<tag>-x86_64.apk` for emulators and x86 Chromebooks instead of
+  one universal APK. Each download is about 25.8 MB instead of 57.7 MB, and the
+  single Sigstore-signed SLSA provenance bundle covers both APKs.
+- **The bundled `jieba` is trimmed to what the app uses.** The optional
+  `lac_small` (Paddle LAC model), `posseg` (part-of-speech tables) and `analyse`
+  (TF-IDF/TextRank data) directories are never imported at runtime, but Chaquopy
+  used to pack all of them into the uncompressed requirements archive (~19 MB). The
+  build now removes them while keeping `dict.txt`, `finalseg` and the dist-info
+  metadata, cutting the archive to about 2.6 MB without changing segmentation.
+- **Release guards.** The release workflow now rejects an APK containing more than
+  one ABI, a jieba archive over 3 MiB, or an APK over 28 MB, so size regressions
+  fail the release instead of shipping silently.
+
+### Technical details
+
+- Version: 1.11.0 (versionCode 15)
+- ABIs: arm64-v8a and x86_64, one signed APK each
+- Database: unchanged (db_version 1)
+
+### Release assets
+
+- `AlicianDictionary-v1.11.0-arm64-v8a.apk`: signed APK for Android devices
+- `AlicianDictionary-v1.11.0-x86_64.apk`: signed APK for emulators / x86 Chromebooks
+- `AlicianDictionary-v1.11.0.intoto.jsonl`: SLSA build provenance covering both APKs
+- `SHA256SUMS.txt`: asset checksums
+
 ## v1.10.0 (2026-10-17)
 
 ### Highlights

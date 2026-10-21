@@ -1,5 +1,11 @@
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
+import java.util.Collections
 import java.util.Properties
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
+import java.util.zip.ZipOutputStream
 
 plugins {
     id("com.android.application")
@@ -22,6 +28,18 @@ val hasCiSigningConfig = ciSigningStoreFile?.isFile == true &&
     !ciSigningKeyAlias.isNullOrBlank() &&
     !ciSigningKeyPassword.isNullOrBlank()
 val hasLocalSigningConfig = signingPropertiesFile.isFile
+
+// The release workflow publishes one APK per ABI and passes -PtargetAbi=<abi> to
+// keep each download to a single architecture. Local builds keep both ABIs, so
+// an emulator (x86_64) and a phone (arm64-v8a) both work without extra flags.
+// AGP 9 forbids combining splits.abi with the abiFilters setting which Chaquopy 17
+// requires, so per-ABI builds are separate invocations rather than one split build.
+val targetAbi: String? = providers.gradleProperty("targetAbi").orNull
+if (targetAbi != null) {
+    require(targetAbi in setOf("arm64-v8a", "x86_64")) {
+        "targetAbi must be one of: arm64-v8a, x86_64 (got: $targetAbi)"
+    }
+}
 
 val chaquopyPythonVersion = "3.14"
 val githubRunnerPython = System.getenv("RUNNER_TOOL_CACHE")
@@ -49,11 +67,11 @@ android {
         applicationId = "com.meartraep.alician.mobile"
         minSdk = 24
         targetSdk = 36
-        versionCode = 14
-        versionName = "1.10.0"
+        versionCode = 15
+        versionName = "1.11.0"
 
         ndk {
-            abiFilters += listOf("arm64-v8a", "x86_64")
+            abiFilters += targetAbi?.let(::listOf) ?: listOf("arm64-v8a", "x86_64")
         }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
@@ -184,3 +202,121 @@ tasks.matching {
     .configureEach {
         dependsOn(ensureChaquopyProguardRules)
     }
+
+// ---------------------------------------------------------------------------
+// Trim jieba down to what the runtime uses
+// ---------------------------------------------------------------------------
+// jieba 0.42.1 ships optional components which this app never imports:
+//   * jieba/lac_small/  Paddle LAC neural model (~12.4 MiB)
+//   * jieba/posseg/     part-of-speech tables (~8.5 MiB; only the developer-only
+//                       scripts/semantic_aliases generator uses them, and that
+//                       directory is not packaged into the APK)
+//   * jieba/analyse/    TF-IDF/TextRank data (~5.9 MiB)
+// The runtime only calls Tokenizer().cut(..., HMM=True), so jieba/dict.txt,
+// jieba/finalseg and the core modules are sufficient (see
+// webui_backend/translation_data.py). Chaquopy packs the whole installed
+// distribution into requirements-common.imy, which is stored uncompressed in
+// the APK: removing the unused directories takes the archive from ~19 MiB to
+// ~2.6 MiB without changing segmentation behaviour.
+val unusedJiebaModulePrefixes = listOf(
+    "jieba/lac_small/",
+    "jieba/posseg/",
+    "jieba/analyse/",
+)
+
+fun trimUnusedJiebaModules(archive: File) {
+    if (!archive.isFile) {
+        println("jieba trim: $archive does not exist, skipped")
+        return
+    }
+
+    val removed = mutableListOf<ZipEntry>()
+    val trimmed = File(archive.parentFile, "${archive.name}.trimmed")
+    ZipFile(archive).use { source ->
+        val entries = Collections.list(source.entries())
+        entries.filterTo(removed) { entry ->
+            unusedJiebaModulePrefixes.any { prefix -> entry.name.startsWith(prefix) }
+        }
+        if (removed.isEmpty()) {
+            return
+        }
+        ZipOutputStream(trimmed.outputStream().buffered()).use { sink ->
+            entries.forEach { entry ->
+                if (unusedJiebaModulePrefixes.any { prefix -> entry.name.startsWith(prefix) }) {
+                    return@forEach
+                }
+                val kept = ZipEntry(entry.name)
+                if (entry.time >= 0) {
+                    kept.time = entry.time
+                }
+                sink.putNextEntry(kept)
+                source.getInputStream(entry).use { it.copyTo(sink) }
+                sink.closeEntry()
+            }
+        }
+    }
+
+    val originalSize = archive.length()
+    Files.move(trimmed.toPath(), archive.toPath(), StandardCopyOption.REPLACE_EXISTING)
+
+    ZipFile(archive).use { trimmedZip ->
+        val names = Collections.list(trimmedZip.entries()).map { it.name }
+        check(unusedJiebaModulePrefixes.none { prefix -> names.any { it.startsWith(prefix) } }) {
+            "jieba trim left unused modules in ${archive.name}"
+        }
+        if ("jieba/dict.txt" in names) {
+            check("jieba/finalseg/prob_emit.pyc" in names) {
+                "jieba trim removed the finalseg HMM model required by cut(HMM = true)"
+            }
+            check(names.any { it.startsWith("jieba-") && it.endsWith(".dist-info/METADATA") }) {
+                "jieba trim removed dist-info; pkg_resources needs it to find dict.txt in the .imy"
+            }
+        }
+    }
+
+    println(
+        "jieba trim: removed ${removed.size} entries from ${archive.name} " +
+            "(${originalSize / 1024} KiB -> ${archive.length() / 1024} KiB)"
+    )
+}
+
+fun hasUnusedJiebaModules(archive: File): Boolean {
+    if (!archive.isFile) {
+        return false
+    }
+    return ZipFile(archive).use { zip ->
+        Collections.list(zip.entries()).any { entry ->
+            unusedJiebaModulePrefixes.any { prefix -> entry.name.startsWith(prefix) }
+        }
+    }
+}
+
+// The merged asset tree (rather than Chaquopy's generated requirement archive)
+// is what gets packaged, so prune it in place at the end of the merge task.
+// This keeps the change inside the task's own outputs, which Gradle supports:
+// the recorded output snapshot is already trimmed, so incremental builds stay
+// correct. The generated archive is declared as an extra input because
+// Chaquopy's generated asset directory is not tracked by the merge task's
+// up-to-date check; without it a jieba upgrade could leave a stale archive in
+// the APK. The up-to-date rule additionally forces one merge for build
+// directories that still contain an untrimmed archive from before this rule.
+android.buildTypes.names.forEach { buildType ->
+    val capitalized = buildType.replaceFirstChar { it.uppercaseChar() }
+    val generatedArchive = layout.buildDirectory.file(
+        "python/assets/requirements/$buildType/chaquopy/requirements-common.imy",
+    )
+    val mergedArchive = layout.buildDirectory.file(
+        "intermediates/assets/$buildType/merge${capitalized}Assets/chaquopy/requirements-common.imy",
+    )
+    tasks.matching { it.name == "merge${capitalized}Assets" }.configureEach {
+        dependsOn("generate${capitalized}PythonRequirementsAssets")
+        inputs.files(generatedArchive)
+        outputs.upToDateWhen {
+            val archive = mergedArchive.get().asFile
+            archive.isFile && !hasUnusedJiebaModules(archive)
+        }
+        doLast {
+            trimUnusedJiebaModules(mergedArchive.get().asFile)
+        }
+    }
+}
