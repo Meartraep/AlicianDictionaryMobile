@@ -245,6 +245,42 @@ data class DbTablePage(
     val limit: Int,
 )
 
+/** One table shown in the dictionary's data workspace. */
+data class DataTableInfo(
+    val name: String,
+    val label: String,
+    val editable: Boolean = false,
+    val note: String = "",
+    val display: List<String> = emptyList(),
+)
+
+/** Curated table group (core / lyric / semantic / system / legacy). */
+data class DataTableGroup(
+    val group: String,
+    val title: String,
+    val note: String = "",
+    val tables: List<DataTableInfo> = emptyList(),
+)
+
+/** One server-side page of a table plus the metadata the UI needs. */
+data class DataTablePage(
+    val table: String,
+    val label: String,
+    val group: String,
+    val editable: Boolean,
+    val display: List<String>,
+    val fields: List<String>,
+    val rows: List<Map<String, String>>,
+    val total: Int,
+    val offset: Int,
+    val limit: Int,
+) {
+    val pageIndex: Int get() = if (limit <= 0) 0 else offset / limit
+    val pageCount: Int get() = if (limit <= 0) 0 else (total + limit - 1) / limit
+    val canGoPrevious: Boolean get() = offset > 0
+    val canGoNext: Boolean get() = offset + limit < total
+}
+
 data class GlobalMatch(
     val table: String,
     val id: Long,

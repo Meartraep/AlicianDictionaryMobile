@@ -17,6 +17,8 @@ import com.meartraep.alician.mobile.data.GitHubDeviceFlow
 import com.meartraep.alician.mobile.data.PublishAuth
 import com.meartraep.alician.mobile.data.DatabaseUpdateLogic
 import com.meartraep.alician.mobile.data.DatabaseUpdateManifest
+import com.meartraep.alician.mobile.data.DataTableGroup
+import com.meartraep.alician.mobile.data.DataTablePage
 import com.meartraep.alician.mobile.data.DbTablePage
 import com.meartraep.alician.mobile.data.DictionaryResult
 import com.meartraep.alician.mobile.data.DictionarySense
@@ -145,6 +147,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         private set
     var globalMatches by mutableStateOf<List<GlobalMatch>>(emptyList())
         private set
+
+    /** Curated table registry for the dictionary data workspace (P1). */
+    var dataTableGroups by mutableStateOf<List<DataTableGroup>>(emptyList())
+        private set
+    var dataTablePage by mutableStateOf<DataTablePage?>(null)
+        private set
+    private var dataTablesLoaded = false
 
     var databaseInfo by mutableStateOf(DatabaseInfo())
         private set
@@ -637,6 +646,34 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             if (selected != null) {
                 dbPage = repository.getTablePage(selected, keyword, exact, offset)
             }
+        }
+    }
+
+    /**
+     * Loads the curated table registry (core / lyric / semantic / system / legacy).
+     * Cached until [force] or a database replacement, because it only changes with
+     * the database schema.
+     */
+    fun loadDataTables(force: Boolean = false) {
+        if (!ready) return
+        if (dataTablesLoaded && !force) return
+        launchTask("正在读取数据表…") {
+            dataTableGroups = repository.dataTables()
+            dataTablesLoaded = true
+        }
+    }
+
+    /** Loads one server-side page of a curated table. */
+    fun loadDataTablePage(
+        table: String,
+        keyword: String,
+        exact: Boolean,
+        offset: Int,
+        limit: Int = 50,
+    ) {
+        if (!ready || table.isBlank()) return
+        launchTask("正在读取数据表…") {
+            dataTablePage = repository.dataPage(table, keyword, exact, offset, limit)
         }
     }
 
@@ -1221,6 +1258,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         writingResult = null
         invalidateTranslation()
         globalMatches = emptyList()
+        dataTablesLoaded = false
+        dataTableGroups = emptyList()
+        dataTablePage = null
         dbTables = repository.getTables()
         dbPage = null
         refreshDatabaseInfo()

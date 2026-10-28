@@ -69,11 +69,15 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.meartraep.alician.mobile.MainViewModel
 import com.meartraep.alician.mobile.R
+import com.meartraep.alician.mobile.data.DataTableGroup
+import com.meartraep.alician.mobile.data.DataTableInfo
+import com.meartraep.alician.mobile.data.DataTablePage
 import com.meartraep.alician.mobile.data.DictionaryEntry
 import com.meartraep.alician.mobile.data.DictionarySense
 import com.meartraep.alician.mobile.data.ExampleResult
@@ -92,6 +96,16 @@ fun DictionaryScreen(viewModel: MainViewModel, padding: PaddingValues) {
     var exact by rememberSaveable { mutableStateOf(false) }
     var position by rememberSaveable { mutableStateOf("any") }
     var editingEntry by remember { mutableStateOf<DictionaryEntry?>(null) }
+
+    // 数据工作区（P1 只读）：工作区、数据组/表、关键词与分页偏移。
+    var workspace by rememberSaveable { mutableStateOf("search") }
+    var dataGroup by rememberSaveable { mutableStateOf("core") }
+    var dataTable by rememberSaveable { mutableStateOf("") }
+    var dataKeyword by rememberSaveable { mutableStateOf("") }
+    var dataExact by rememberSaveable { mutableStateOf(false) }
+    var dataOffset by rememberSaveable { mutableIntStateOf(0) }
+    val dataPageLimit = 50
+
     val focusManager = LocalFocusManager.current
     val alicianFont = if (viewModel.alicianFontEnabled) {
         FontFamily(Font(R.font.alician_regular))
@@ -105,82 +119,241 @@ fun DictionaryScreen(viewModel: MainViewModel, padding: PaddingValues) {
         top = padding.calculateTopPadding() + if (landscape) 12.dp else 18.dp,
         bottom = padding.calculateBottomPadding() + if (landscape) 16.dp else 24.dp,
     )
+    // 竖屏时工作区切换固定在列表上方，列表自身只需要内容间距。
+    val portraitListPadding = PaddingValues(
+        start = 16.dp,
+        end = 16.dp,
+        top = 8.dp,
+        bottom = padding.calculateBottomPadding() + 24.dp,
+    )
 
-    val searchPane: @Composable () -> Unit = {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = panePadding,
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            dictionarySearchItems(
-                query = query,
-                onQueryChanged = { query = it },
-                exact = exact,
-                onExactChanged = { exact = it },
-                position = position,
-                onPositionChanged = { position = it },
-                viewModel = viewModel,
-                alicianFont = alicianFont,
-                onSearch = {
-                    focusManager.clearFocus()
-                    viewModel.searchDictionary(it, exact, position)
-                },
-            )
+    // ---- 数据工作区回调：只在明确的用户动作（进工作区/换组/换表/搜索/翻页）时查库 ----
+    val onDataGroupChanged: (DataTableGroup) -> Unit = { group ->
+        dataGroup = group.group
+        dataOffset = 0
+        val table = preferredDataTable(group)
+        if (table == null) {
+            dataTable = ""
+        } else {
+            dataTable = table.name
+            viewModel.loadDataTablePage(table.name, dataKeyword, dataExact, 0, dataPageLimit)
         }
     }
-    val resultPane: @Composable () -> Unit = {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = panePadding,
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            dictionaryResultItems(
-                viewModel = viewModel,
-                alicianFont = alicianFont,
-                includePageHeader = landscape,
-                onQueryChanged = { query = it },
-                exact = exact,
-                position = position,
-                onEditEntry = { editingEntry = it },
-            )
+    val onDataTableChanged: (DataTableInfo) -> Unit = { table ->
+        dataTable = table.name
+        dataOffset = 0
+        viewModel.loadDataTablePage(table.name, dataKeyword, dataExact, 0, dataPageLimit)
+    }
+    val onDataSearch: () -> Unit = {
+        focusManager.clearFocus()
+        dataOffset = 0
+        if (dataTable.isNotBlank()) {
+            viewModel.loadDataTablePage(dataTable, dataKeyword, dataExact, 0, dataPageLimit)
         }
+    }
+    val onDataPrevious: () -> Unit = {
+        val offset = ((viewModel.dataTablePage?.offset ?: dataOffset) - dataPageLimit)
+            .coerceAtLeast(0)
+        dataOffset = offset
+        if (dataTable.isNotBlank()) {
+            viewModel.loadDataTablePage(dataTable, dataKeyword, dataExact, offset, dataPageLimit)
+        }
+    }
+    val onDataNext: () -> Unit = {
+        val offset = (viewModel.dataTablePage?.offset ?: dataOffset) + dataPageLimit
+        dataOffset = offset
+        if (dataTable.isNotBlank()) {
+            viewModel.loadDataTablePage(dataTable, dataKeyword, dataExact, offset, dataPageLimit)
+        }
+    }
+    val onOpenInDictionary: (String) -> Unit = { value ->
+        workspace = "search"
+        query = value
+        focusManager.clearFocus()
+        viewModel.searchDictionary(value, exact = false, position = "any")
+    }
+
+    // 进入数据工作区才读取表清单（ViewModel 侧带缓存，重复进入不会重复查库）。
+    // ready 作为 key：初始化未完成时 loadDataTables 会直接返回，就绪后需要补一次。
+    LaunchedEffect(workspace, viewModel.ready) {
+        if (workspace == "data") viewModel.loadDataTables()
+    }
+    // 表清单就绪后自动选中第一个可编辑表（无则第一个表）并加载第一页；
+    // 若清单因换库重建，则按当前条件重载已选表（换库后 page 才会是 null）。
+    LaunchedEffect(workspace, viewModel.dataTableGroups) {
+        if (workspace != "data") return@LaunchedEffect
+        val groups = viewModel.dataTableGroups
+        if (groups.isEmpty()) return@LaunchedEffect
+        val group = groups.firstOrNull { it.group == dataGroup } ?: groups.firstOrNull()
+            ?: return@LaunchedEffect
+        val current = group.tables.firstOrNull { it.name == dataTable }
+        if (current != null && viewModel.dataTablePage != null) return@LaunchedEffect
+        val table = current ?: preferredDataTable(group) ?: return@LaunchedEffect
+        dataGroup = group.group
+        dataTable = table.name
+        if (current == null) dataOffset = 0
+        viewModel.loadDataTablePage(
+            table = table.name,
+            keyword = dataKeyword,
+            exact = dataExact,
+            offset = if (current == null) 0 else dataOffset,
+            limit = dataPageLimit,
+        )
     }
 
     if (landscape) {
         LandscapeTwoPane(
-            primary = searchPane,
-            secondary = resultPane,
+            primary = {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = panePadding,
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    item {
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            DictionaryHeader()
+                            Spacer(Modifier.height(10.dp))
+                            WorkspaceSwitcher(
+                                workspace = workspace,
+                                onWorkspaceChanged = { workspace = it },
+                            )
+                        }
+                    }
+                    if (workspace == "search") {
+                        dictionarySearchItems(
+                            query = query,
+                            onQueryChanged = { query = it },
+                            exact = exact,
+                            onExactChanged = { exact = it },
+                            position = position,
+                            onPositionChanged = { position = it },
+                            viewModel = viewModel,
+                            alicianFont = alicianFont,
+                            onSearch = {
+                                focusManager.clearFocus()
+                                viewModel.searchDictionary(it, exact, position)
+                            },
+                        )
+                    } else {
+                        dataControlsItems(
+                            viewModel = viewModel,
+                            dataGroup = dataGroup,
+                            dataTable = dataTable,
+                            dataKeyword = dataKeyword,
+                            dataExact = dataExact,
+                            dataPageLimit = dataPageLimit,
+                            onGroupChanged = onDataGroupChanged,
+                            onTableChanged = onDataTableChanged,
+                            onKeywordChanged = { dataKeyword = it },
+                            onExactChanged = { dataExact = it },
+                            onSearch = onDataSearch,
+                        )
+                    }
+                }
+            },
+            secondary = {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = panePadding,
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    if (workspace == "search") {
+                        dictionaryResultItems(
+                            viewModel = viewModel,
+                            alicianFont = alicianFont,
+                            includePageHeader = true,
+                            onQueryChanged = { query = it },
+                            exact = exact,
+                            position = position,
+                            onEditEntry = { editingEntry = it },
+                        )
+                    } else {
+                        dataRowsItems(
+                            page = viewModel.dataTablePage,
+                            alicianFont = alicianFont,
+                            onOpenInDictionary = onOpenInDictionary,
+                            onPrevious = onDataPrevious,
+                            onNext = onDataNext,
+                        )
+                    }
+                }
+            },
             primaryWeight = 0.44f,
         )
     } else {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = panePadding,
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            dictionarySearchItems(
-                query = query,
-                onQueryChanged = { query = it },
-                exact = exact,
-                onExactChanged = { exact = it },
-                position = position,
-                onPositionChanged = { position = it },
-                viewModel = viewModel,
-                alicianFont = alicianFont,
-                onSearch = {
-                    focusManager.clearFocus()
-                    viewModel.searchDictionary(it, exact, position)
-                },
+        Column(modifier = Modifier.fillMaxSize()) {
+            DictionaryHeader(
+                modifier = Modifier.padding(
+                    start = 16.dp,
+                    end = 16.dp,
+                    top = padding.calculateTopPadding() + 18.dp,
+                ),
             )
-            dictionaryResultItems(
-                viewModel = viewModel,
-                alicianFont = alicianFont,
-                includePageHeader = false,
-                onQueryChanged = { query = it },
-                exact = exact,
-                position = position,
-                onEditEntry = { editingEntry = it },
+            WorkspaceSwitcher(
+                workspace = workspace,
+                onWorkspaceChanged = { workspace = it },
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 10.dp),
             )
+            Box(modifier = Modifier.weight(1f)) {
+                if (workspace == "search") {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = portraitListPadding,
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        dictionarySearchItems(
+                            query = query,
+                            onQueryChanged = { query = it },
+                            exact = exact,
+                            onExactChanged = { exact = it },
+                            position = position,
+                            onPositionChanged = { position = it },
+                            viewModel = viewModel,
+                            alicianFont = alicianFont,
+                            onSearch = {
+                                focusManager.clearFocus()
+                                viewModel.searchDictionary(it, exact, position)
+                            },
+                        )
+                        dictionaryResultItems(
+                            viewModel = viewModel,
+                            alicianFont = alicianFont,
+                            includePageHeader = false,
+                            onQueryChanged = { query = it },
+                            exact = exact,
+                            position = position,
+                            onEditEntry = { editingEntry = it },
+                        )
+                    }
+                } else {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = portraitListPadding,
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        dataControlsItems(
+                            viewModel = viewModel,
+                            dataGroup = dataGroup,
+                            dataTable = dataTable,
+                            dataKeyword = dataKeyword,
+                            dataExact = dataExact,
+                            dataPageLimit = dataPageLimit,
+                            onGroupChanged = onDataGroupChanged,
+                            onTableChanged = onDataTableChanged,
+                            onKeywordChanged = { dataKeyword = it },
+                            onExactChanged = { dataExact = it },
+                            onSearch = onDataSearch,
+                        )
+                        dataRowsItems(
+                            page = viewModel.dataTablePage,
+                            alicianFont = alicianFont,
+                            onOpenInDictionary = onOpenInDictionary,
+                            onPrevious = onDataPrevious,
+                            onNext = onDataNext,
+                        )
+                    }
+                }
+            }
         }
     }
 
@@ -212,6 +385,19 @@ fun DictionaryScreen(viewModel: MainViewModel, padding: PaddingValues) {
     }
 }
 
+/** 词典标题（检索/数据工作区共用）；标题只在这里渲染。 */
+@Composable
+private fun DictionaryHeader(modifier: Modifier = Modifier) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        Text("爱丽丝语词典", style = MaterialTheme.typography.headlineMedium)
+        Text(
+            "Lite 本地词典 · 支持中文反查、拼写建议和歌词上下文",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
 private fun LazyListScope.dictionarySearchItems(
     query: String,
     onQueryChanged: (String) -> Unit,
@@ -223,14 +409,6 @@ private fun LazyListScope.dictionarySearchItems(
     alicianFont: FontFamily,
     onSearch: (String) -> Unit,
 ) {
-        item {
-            Text("爱丽丝语词典", style = MaterialTheme.typography.headlineMedium)
-            Text(
-                "Lite 本地词典 · 支持中文反查、拼写建议和歌词上下文",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
         item {
             OutlinedTextField(
                 value = query,
@@ -383,6 +561,310 @@ private fun LazyListScope.dictionaryResultItems(
                 }
             }
         }
+}
+
+/** 顶部「检索 | 数据」工作区切换：竖屏固定在列表上方，横屏放在左栏顶部。 */
+@Composable
+private fun WorkspaceSwitcher(
+    workspace: String,
+    onWorkspaceChanged: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        FilterChip(
+            selected = workspace == "search",
+            onClick = { onWorkspaceChanged("search") },
+            label = { Text("检索") },
+        )
+        FilterChip(
+            selected = workspace == "data",
+            onClick = { onWorkspaceChanged("data") },
+            label = { Text("数据") },
+        )
+    }
+}
+
+/** 数据组内默认展示的表：优先可编辑表，没有可编辑表时用第一张表。 */
+private fun preferredDataTable(group: DataTableGroup): DataTableInfo? =
+    group.tables.firstOrNull { it.editable } ?: group.tables.firstOrNull()
+
+/**
+ * 「数据」工作区上栏：数据组/数据表选择、关键词与只读提示。
+ * 这里只发出用户动作，真正的查询全部由 DictionaryScreen 传进来的回调触发。
+ */
+private fun LazyListScope.dataControlsItems(
+    viewModel: MainViewModel,
+    dataGroup: String,
+    dataTable: String,
+    dataKeyword: String,
+    dataExact: Boolean,
+    dataPageLimit: Int,
+    onGroupChanged: (DataTableGroup) -> Unit,
+    onTableChanged: (DataTableInfo) -> Unit,
+    onKeywordChanged: (String) -> Unit,
+    onExactChanged: (Boolean) -> Unit,
+    onSearch: () -> Unit,
+) {
+    item { SectionHeader("数据表", "按数据组浏览；系统与遗留表只读") }
+
+    val groups = viewModel.dataTableGroups
+    if (groups.isEmpty()) {
+        item { InfoBanner("正在读取数据表…") }
+        return
+    }
+
+    val currentGroup = groups.firstOrNull { it.group == dataGroup } ?: groups.first()
+    item {
+        SelectField(
+            label = "数据组",
+            value = currentGroup,
+            options = groups,
+            display = { it.title },
+            onSelected = onGroupChanged,
+        )
+    }
+
+    val currentTable = currentGroup.tables.firstOrNull { it.name == dataTable }
+        ?: preferredDataTable(currentGroup)
+    if (currentTable == null) {
+        item { InfoBanner("「${currentGroup.title}」暂无可浏览的数据表。") }
+    } else {
+        item {
+            SelectField(
+                label = "数据表",
+                value = currentTable,
+                options = currentGroup.tables,
+                display = { "${it.label}（${it.name}）" },
+                onSelected = onTableChanged,
+            )
+        }
+    }
+
+    item {
+        OutlinedTextField(
+            value = dataKeyword,
+            onValueChange = onKeywordChanged,
+            modifier = Modifier.fillMaxWidth(),
+            label = { Text("搜索当前表") },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+            keyboardActions = KeyboardActions(onSearch = { onSearch() }),
+        )
+    }
+    item {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            FilterChip(
+                selected = dataExact,
+                onClick = { onExactChanged(!dataExact) },
+                label = { Text("精确") },
+            )
+            Button(onClick = onSearch) { Text("搜索") }
+        }
+    }
+
+    if (currentTable != null && !currentTable.editable) {
+        item {
+            InfoBanner("「${currentTable.label}」为只读表：可以浏览，不能在此修改。")
+        }
+    }
+
+    val page = viewModel.dataTablePage
+    val pageLabel = page?.takeIf { it.total > 0 }
+        ?.let { "${it.pageIndex + 1}/${it.pageCount}" }
+        ?: "0"
+    item {
+        MetricRow(
+            "记录" to (page?.total?.toString() ?: "0"),
+            "页码" to pageLabel,
+            "每页" to dataPageLimit.toString(),
+        )
+    }
+}
+
+/** 「数据」工作区下栏：只读行卡片 + 上一页/下一页（服务端分页）。 */
+private fun LazyListScope.dataRowsItems(
+    page: DataTablePage?,
+    alicianFont: FontFamily,
+    onOpenInDictionary: (String) -> Unit,
+    onPrevious: () -> Unit,
+    onNext: () -> Unit,
+) {
+    if (page == null) {
+        item {
+            EmptyState(
+                icon = Icons.AutoMirrored.Outlined.LibraryBooks,
+                title = "选择数据表",
+                detail = "左侧选择数据组与数据表后即可按页浏览。",
+            )
+        }
+        return
+    }
+    if (page.total == 0) {
+        item {
+            EmptyState(
+                icon = Icons.Outlined.Search,
+                title = "没有记录",
+                detail = "可清空关键词后重试。",
+            )
+        }
+        return
+    }
+    itemsIndexed(
+        page.rows,
+        key = { index, row -> "${page.table}:${row["id"] ?: row["rowid"] ?: index}" },
+    ) { index, row ->
+        DataRowCard(
+            page = page,
+            index = index,
+            row = row,
+            alicianFont = alicianFont,
+            onOpenInDictionary = onOpenInDictionary,
+        )
+    }
+    item {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            OutlinedButton(onClick = onPrevious, enabled = page.canGoPrevious) {
+                Text("上一页")
+            }
+            Text(
+                "第 ${page.pageIndex + 1} / ${page.pageCount} 页",
+                style = MaterialTheme.typography.labelLarge,
+            )
+            OutlinedButton(onClick = onNext, enabled = page.canGoNext) {
+                Text("下一页")
+            }
+        }
+    }
+}
+
+/** 一行数据的只读卡片；词典类表带「在词典中查看」入口。 */
+@Composable
+private fun DataRowCard(
+    page: DataTablePage,
+    index: Int,
+    row: Map<String, String>,
+    alicianFont: FontFamily,
+    onOpenInDictionary: (String) -> Unit,
+) {
+    val titleField = page.display.firstOrNull()
+    val title = titleField?.let { row[it] }.orEmpty()
+        .ifBlank { "记录 ${page.offset + index + 1}" }
+    val lookupValue = dataDictionaryLookupField(page.table)?.let { row[it] }.orEmpty()
+    // 只有爱丽丝语字段用自定义字体；歌名、系统表等仍用默认字体。
+    val titleFont = if (titleField != null && alicianDataFields.contains(titleField)) {
+        alicianFont
+    } else {
+        FontFamily.Default
+    }
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+        ),
+    ) {
+        Column(Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Top,
+            ) {
+                Text(
+                    title,
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontFamily = titleFont,
+                )
+                row["id"]?.let {
+                    Text(
+                        " #$it",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+            page.display.drop(1).forEach { field ->
+                val value = row[field].orEmpty()
+                if (value.isNotBlank()) {
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        "${dataFieldLabel(field)}：$value",
+                        style = MaterialTheme.typography.bodyMedium,
+                        maxLines = 4,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+            Spacer(Modifier.height(8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    "${page.offset + index + 1} / ${page.total}",
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                if (lookupValue.isNotBlank()) {
+                    TextButton(onClick = { onOpenInDictionary(lookupValue) }) {
+                        Text("在词典中查看")
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** 数据表里能直接回到词典检索的查询字段。 */
+private fun dataDictionaryLookupField(table: String): String? = when (table) {
+    "dictionary_headwords", "dictionary" -> "words"
+    "phrase" -> "PHRASE"
+    "songs" -> "title"
+    else -> null
+}
+
+/** 爱丽丝语字段，展示时使用自定义字体。 */
+private val alicianDataFields = setOf("words", "PHRASE", "alician_sentence")
+
+/** 数据表字段的中文显示名；未登记的字段原样显示。 */
+private fun dataFieldLabel(field: String): String = when (field) {
+    "id" -> "编号"
+    "words" -> "词形"
+    "display_explanation" -> "展示释义"
+    "display_class" -> "词性"
+    "explanation" -> "释义"
+    "english_gloss" -> "英文"
+    "japanese_gloss" -> "日文"
+    "count" -> "词频"
+    "variety" -> "泛度"
+    "PHRASE" -> "词组"
+    "title" -> "歌名"
+    "Album" -> "专辑"
+    "lyric" -> "歌词"
+    "song_title" -> "歌曲"
+    "alician_sentence" -> "爱丽丝语句"
+    "chinese_translation" -> "中文"
+    "sentence" -> "原句"
+    "english" -> "英文"
+    "japanese" -> "日文"
+    "korean" -> "韩文"
+    "headword_id" -> "词头编号"
+    "sense_order" -> "义项序号"
+    "class" -> "词性"
+    "sense_id" -> "义项编号"
+    "db_version" -> "版本"
+    "key" -> "键"
+    "value" -> "值"
+    else -> field
 }
 
 @Composable

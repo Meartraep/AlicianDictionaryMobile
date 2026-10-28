@@ -392,6 +392,46 @@ class PythonRepository(private val application: Application) {
             .put("limit", limit),
     ).toDbTablePage()
 
+    suspend fun dataTables(): List<DataTableGroup> =
+        invoke("data_tables").let { json ->
+            val groupsJson = json.optJSONArray("groups") ?: JSONArray()
+            List(groupsJson.length()) { index ->
+                val group = groupsJson.getJSONObject(index)
+                val tablesJson = group.optJSONArray("tables") ?: JSONArray()
+                DataTableGroup(
+                    group = group.optString("group"),
+                    title = group.optString("title"),
+                    note = group.optString("note"),
+                    tables = List(tablesJson.length()) { tableIndex ->
+                        val table = tablesJson.getJSONObject(tableIndex)
+                        DataTableInfo(
+                            name = table.optString("name"),
+                            label = table.optString("label"),
+                            editable = table.optBoolean("editable"),
+                            note = table.optString("note"),
+                            display = (table.optJSONArray("display") ?: JSONArray()).stringList(),
+                        )
+                    },
+                )
+            }
+        }
+
+    suspend fun dataPage(
+        table: String,
+        keyword: String,
+        exact: Boolean,
+        offset: Int,
+        limit: Int = 50,
+    ): DataTablePage = invoke(
+        "data_page",
+        JSONObject()
+            .put("table", table)
+            .put("keyword", keyword)
+            .put("exact", exact)
+            .put("offset", offset)
+            .put("limit", limit),
+    ).toDataTablePage()
+
     suspend fun addRecord(table: String, values: Map<String, String>): String =
         invoke(
             "db_add",
@@ -1041,6 +1081,27 @@ private fun JSONObject.toTranslationResult(): TranslationResult {
         semanticExpansionsAvailable = optBoolean("semantic_expansions_available"),
         semanticExpansionCount = optInt("semantic_expansion_count"),
         message = optString("message"),
+    )
+}
+
+private fun JSONObject.toDataTablePage(): DataTablePage {
+    val fields = (optJSONArray("fields") ?: JSONArray()).stringList()
+    val rowsJson = optJSONArray("rows") ?: JSONArray()
+    return DataTablePage(
+        table = optString("table"),
+        label = optString("label"),
+        group = optString("group"),
+        editable = optBoolean("editable"),
+        display = (optJSONArray("display") ?: JSONArray()).stringList(),
+        fields = fields,
+        rows = List(rowsJson.length()) { index ->
+            rowsJson.getJSONObject(index).let { row ->
+                fields.associateWith { row.optValue(it) }
+            }
+        },
+        total = optInt("total"),
+        offset = optInt("offset"),
+        limit = optInt("limit", 50),
     )
 }
 

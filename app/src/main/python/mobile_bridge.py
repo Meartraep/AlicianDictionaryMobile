@@ -689,6 +689,37 @@ def _replace_database(source_path: str, expected_db_version: Optional[int] = Non
     )
 
 
+def _data_page(payload: Dict[str, Any]) -> Dict[str, Any]:
+    """Server-side paginated table page with the table's UI metadata."""
+    from webui_backend import data_schema
+    from webui_backend.data_core import DataError
+
+    table = str(payload.get("table") or "")
+    keyword = str(payload.get("keyword") or "")
+    exact = bool(payload.get("exact", False))
+    offset = max(0, int(payload.get("offset", 0)))
+    limit = max(1, min(200, int(payload.get("limit", 50))))
+    try:
+        page = _data_core.page(
+            table, keyword=keyword, exact=exact, offset=offset, limit=limit
+        )
+    except DataError as error:
+        return {"ok": False, "message": str(error)}
+    spec = data_schema.spec_for(page["table"])
+    return _ok(
+        table=page["table"],
+        label=spec.label,
+        group=spec.group,
+        editable=bool(spec.editable),
+        display=list(spec.display),
+        fields=page["fields"],
+        rows=page["rows"],
+        total=page["total"],
+        offset=page["offset"],
+        limit=page["limit"],
+    )
+
+
 def _restore_backup(payload: Dict[str, Any]) -> Dict[str, Any]:
     """Restore a recovery point: validate, snapshot the current state, replace atomically."""
     from webui_backend.data_core import (
@@ -851,6 +882,8 @@ def invoke(method: str, payload_json: str = "{}") -> str:
                 )
             elif method == "data_diagnose":
                 result = _data_core.diagnose()
+            elif method == "data_page":
+                result = _data_page(payload)
             elif method == "gov_backups":
                 backups = _data_core.backup_list()
                 result = _ok(backups=backups, count=len(backups))

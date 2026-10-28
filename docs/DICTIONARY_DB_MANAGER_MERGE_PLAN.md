@@ -592,3 +592,34 @@ python -m unittest test_database_versioning test_verify_published_database   # 2
 真库诊断结果：`integrity=ok`、`foreign_key_violations=0`、
 孤儿 4 项中仅 `song_translations` = 1；恢复点创建/列举/校验/原子恢复往返通过；
 词典与数据层共用同一连接（`DictionaryService.db_handler.conn is DataCore.conn`）。
+
+### P1 数据工作区（只读）—— 已完成（2026-10-29）
+
+落地内容：
+
+| 层 | 变化 |
+|---|---|
+| Python bridge | 新增 `data_page`：服务端分页 + 表元数据（label/group/editable/display），未知表返回中文错误 |
+| `Models.kt` / `PythonRepository.kt` | `DataTableInfo` / `DataTableGroup` / `DataTablePage`（含 `pageIndex`/`pageCount`/`canGoPrevious`/`canGoNext`）；`dataTables()` / `dataPage()` |
+| `MainViewModel.kt` | `dataTableGroups` / `dataTablePage` 状态；`loadDataTables()`（带缓存，换库后失效）、`loadDataTablePage()` |
+| `DictionaryScreen.kt` | 顶部固定 `DictionaryHeader` + `[检索 \| 数据]` 切换器（竖屏/横屏一致）；数据区：数据组/数据表选择、关键词+精确+搜索、只读提示、`MetricRow(记录/页码/每页)`、只读行卡片、「在词典中查看」跳回检索、服务端上一页/下一页 |
+
+关键行为：
+
+- 只在明确动作时查库：进入数据工作区、换组、换表、点搜索/IME、翻页；输入关键词不发请求。
+- 切回检索不会触发数据加载（`LaunchedEffect` 以 workspace 为键并提前返回）。
+- 行卡片在 `dictionary_headwords` / `dictionary` / `phrase` / `songs` 上提供「在词典中查看」，
+  跳转后自动用该值执行词典检索。
+- 系统表与遗留表可浏览但只读（P2 才引入写入口）。
+
+验收记录：
+
+```pwsh
+.\gradlew.bat :app:compileDebugKotlin :app:testDebugUnitTest   # BUILD SUCCESSFUL
+cd app/src/test/python; $env:PYTHONPATH = '<repo>/app/src/main/python'
+python -m unittest test_data_guard test_backup_restore          # 77 OK（P0 回归）
+python -m unittest test_dictionary_search                       # 14 OK
+```
+
+`data_page` 实测：词头 50 行 = 6.8 KB；`sentence_alignments` 默认 50 行 = 62 KB、
+上限 200 行 = 250 KB；未知表被拒；旧 `db_table_page` 返回形状不变（旧 DatabaseScreen 不受影响）。
