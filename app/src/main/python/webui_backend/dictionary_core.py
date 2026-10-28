@@ -97,6 +97,19 @@ class DatabaseHandler:
         self.conn: Optional[sqlite3.Connection] = None
         self.cursor: Optional[sqlite3.Cursor] = None
         self.last_error = ""
+        # False when the connection is shared with a DataCore owner (single-writer
+        # mode): closing this handler must not close somebody else's connection.
+        self._owns_connection = True
+
+    def attach(self, core: Any) -> bool:
+        """Share an existing :class:`DataCore` connection (single-writer mode)."""
+        if getattr(core, "conn", None) is None:
+            return False
+        self.conn = core.conn
+        self.cursor = self.conn.cursor()
+        self._owns_connection = False
+        self.db_name = str(getattr(core, "db_path", self.db_name))
+        return True
 
     def connect(self) -> bool:
         try:
@@ -113,6 +126,7 @@ class DatabaseHandler:
 
             self.close()
             self.conn = sqlite3.connect(self.db_name, check_same_thread=False)
+            self._owns_connection = True
             self.conn.execute("PRAGMA cache_size = -1000")
             self.conn.execute("PRAGMA synchronous = OFF")
             self.cursor = self.conn.cursor()
@@ -626,10 +640,10 @@ class DatabaseHandler:
         return result if result else None
 
     def close(self) -> None:
-        if self.conn:
+        if self.conn is not None and self._owns_connection:
             self.conn.close()
-            self.conn = None
-            self.cursor = None
+        self.conn = None
+        self.cursor = None
 
 
 class TextProcessor:

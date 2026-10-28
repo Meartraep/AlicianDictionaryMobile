@@ -15,6 +15,8 @@ on:
       - "app/src/test/python/test_database_versioning.py"
       - "app/src/test/python/test_verify_published_database.py"
       - "app/src/test/python/test_dictionary_search.py"
+      - "app/src/test/python/test_data_guard.py"
+      - "app/src/test/python/test_backup_restore.py"
       - "app/src/main/python/**"
       - "app/src/main/java/**"
       - "scripts/verify_published_database.py"
@@ -72,6 +74,14 @@ jobs:
           set -euo pipefail
           python -m unittest test_database_versioning
           python -m unittest test_verify_published_database
+
+      - name: P0 data layer tests
+        env:
+          PYTHONPATH: app/src/main/python:app/src/test/python
+        run: |
+          set -euo pipefail
+          python -m unittest test_data_guard
+          python -m unittest test_backup_restore
 
       - name: Dictionary feature tests
         env:

@@ -408,7 +408,7 @@ CREATE TABLE local_edits (
 |---|---|
 | `search()` | < 20 ms（现状 1–12 ms） |
 | 单行编辑（含校验+事务+事件） | < 150 ms（不含翻译器重建） |
-| 表分页（任意表） | 服务端分页，单页 payload < 200 KB（`sentence_alignments` 禁止全量） |
+| 表分页（任意表） | 服务端分页；默认 50 行/页（`sentence_alignments` 约 62 KB）；上限 200 行仅用于旧 UI 兼容，单页约 250 KB |
 | 批量编辑 100 行 | 单事务 + 一次翻译器重建 |
 | 数据库信息刷新 | 不再每次编辑整库 SHA-256；`sha` 懒计算 + 编辑后标记 stale |
 
@@ -548,3 +548,47 @@ git diff --check
 | 恢复点 | 本机文件级快照（`translated_*.db` + 元数据），可回退 |
 | 本地修改 | 用户编辑造成、但尚未成为发布基线的字节变化 |
 | 策展编辑 | 按 schema 校验、带级联与预览的表单式编辑，不是通用表格 |
+
+---
+
+## 9. 实施记录
+
+### P0 地基 —— 已完成（2026-10-29）
+
+落地内容：
+
+| 文件 | 变化 |
+|---|---|
+| `webui_backend/data_schema.py`（新） | 33 张表的分组、可写性、必填/唯一/长度/级联规则、UI 摘要字段 |
+| `webui_backend/data_core.py`（新） | 单写者连接、写守卫、服务端分页、本地修改台账、恢复点、诊断、原子替换、备份校验 |
+| `webui_backend/dbmanager_service.py` | 从"第二个写连接"改为 `DataCore` 适配器；旧方法名/返回形状保留，但写路径全部过校验 |
+| `webui_backend/dictionary_core.py` | `DatabaseHandler.attach()` + 连接所有权标记，可复用 `DataCore` 连接 |
+| `webui_backend/dictionary_service.py` | `DictionaryService(..., core=...)` 单写者模式 |
+| `mobile_bridge.py` | `_data_core` 生命周期；写后事件统一失效翻译缓存；`_table_page` 走服务端分页；新增 `data_tables` / `data_diagnose` / `gov_backups` / `gov_backup_create` / `gov_backup_restore`；词典/歌词编辑写入本地修改台账 |
+| `app/src/test/python/test_data_guard.py`、`test_backup_restore.py`（新） | 真库副本回归测试；并入 CI |
+
+与方案的偏差（均有理由，需评审确认）：
+
+1. **不启用 WAL**，改用 `journal_mode=delete` + `synchronous=FULL`。
+   原因：App 有两条既有文件级路径——Kotlin 直接复制 `.db` 导出、Android 云备份规则只列 `translated.db`；
+   WAL 会让这些副本缺 `-wal` 数据。单写者已消除写-写竞争，`busy_timeout` 覆盖读-写竞争。
+2. **`local_edits` 惰性建表**（首次成功写入时才建）。
+   原因：若 `connect()` 就建表，全新安装的库字节立刻偏离官方版本，
+   会削弱发布守卫"必须包含真实改动才能发布"。
+3. **孤儿数据修复延期到 P5**：`song_translations` 的 1 条孤儿需要改资产库，
+   而改资产库会触发台账/清单/CI 的 bump 流程；P0 先用 `data_diagnose` 暴露它。
+   `foreign_keys=ON` 对既有数据无副作用（只约束新写入）。
+
+验收记录（可重跑）：
+
+```pwsh
+cd app/src/test/python
+$env:PYTHONPATH = '<repo>/app/src/main/python'
+python -m unittest test_dictionary_search -v            # 14 tests OK
+python -m unittest test_data_guard test_backup_restore -v
+python -m unittest test_database_versioning test_verify_published_database   # 27 tests OK
+```
+
+真库诊断结果：`integrity=ok`、`foreign_key_violations=0`、
+孤儿 4 项中仅 `song_translations` = 1；恢复点创建/列举/校验/原子恢复往返通过；
+词典与数据层共用同一连接（`DictionaryService.db_handler.conn is DataCore.conn`）。

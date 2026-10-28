@@ -42,12 +42,19 @@ except Exception:
 
 
 class DictionaryService:
-    def __init__(self, enable_semantic: bool | None = None) -> None:
+    def __init__(
+        self, enable_semantic: bool | None = None, core: Any | None = None
+    ) -> None:
         self._lock = threading.RLock()
         self.enable_fuzzy = True
         self.enable_semantic = (not is_lite_build()) if enable_semantic is None else bool(enable_semantic)
         self.db_handler = DatabaseHandler(DictionaryConfig.CURRENT_DB)
-        if not self.db_handler.connect():
+        if core is not None:
+            # Single-writer mode: reuse the DataCore connection so the app never
+            # has two independent writers on the same file.
+            if not self.db_handler.attach(core):
+                raise RuntimeError("无法复用数据库连接。")
+        elif not self.db_handler.connect():
             raise RuntimeError(f"Failed to connect to dictionary database: {DictionaryConfig.CURRENT_DB}")
         self.history_manager = HistoryManager()
         self.similarity_matcher = self._create_similarity_matcher() if self.enable_semantic else None
