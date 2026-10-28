@@ -478,14 +478,31 @@ def _check_remote_update() -> Dict[str, Any]:
         with remote.open("wb") as handle:
             shutil.copyfileobj(response, handle)
     _validate_database(remote)
-    local_sha = hashlib.sha1(Path(_db_path).read_bytes()).hexdigest()
+    local_path = Path(_db_path)
+    local_sha = hashlib.sha1(local_path.read_bytes()).hexdigest()
     remote_sha = hashlib.sha1(remote.read_bytes()).hexdigest()
-    up_to_date = local_sha == remote_sha
+    local_version = _read_database_version(local_path)
+    remote_version = _read_database_version(remote)
+    if local_version > 0 and remote_version > 0:
+        # The version marker is the database identity; the byte hash additionally
+        # changes whenever the user edits a word locally, and comparing hashes
+        # alone used to make the app report "update available" forever.
+        up_to_date = local_version >= remote_version
+    else:
+        up_to_date = local_sha == remote_sha
+    local_modified = up_to_date and local_sha != remote_sha
     _remote_candidate = str(remote)
+    if up_to_date:
+        message = "本地词条有手工修改，云端数据库为同一版本。" if local_modified else "已是最新数据库。"
+    else:
+        message = "发现新的云端数据库。"
     return _ok(
         up_to_date=up_to_date,
+        local_modified=local_modified,
         local_sha1=local_sha,
         remote_sha1=remote_sha,
+        local_db_version=local_version,
+        remote_db_version=remote_version,
         comparison=_compare_database_counts(remote),
         diff=(
             {
@@ -495,9 +512,9 @@ def _check_remote_update() -> Dict[str, Any]:
                 "total_field_changes": 0,
                 "tables": [],
             }
-            if up_to_date else _build_database_diff(Path(_db_path), remote)
+            if up_to_date else _build_database_diff(local_path, remote)
         ),
-        message="已是最新数据库。" if up_to_date else "发现新的云端数据库。",
+        message=message,
     )
 
 
@@ -699,12 +716,30 @@ def invoke(method: str, payload_json: str = "{}") -> str:
                     str(payload.get("query") or ""),
                     bool(payload.get("exact", False)),
                     str(payload.get("position") or "any"),
+                    record_history=bool(payload.get("record_history", True)),
                 )
             elif method == "dictionary_examples":
                 result = _dictionary.get_examples(
                     str(payload.get("word") or ""),
                     str(payload.get("position") or "any"),
                 )
+            elif method == "dictionary_song_lyrics":
+                result = _dictionary.get_song_lyrics(
+                    str(payload.get("title") or ""),
+                    str(payload.get("album") or ""),
+                )
+            elif method == "dictionary_update_word":
+                result = _dictionary.update_word_entry(
+                    payload.get("headword_id"),
+                    str(payload.get("original_word") or ""),
+                    str(payload.get("word") or ""),
+                    str(payload.get("display_explanation") or ""),
+                    payload.get("senses") or [],
+                )
+                if result.get("ok"):
+                    # The translator keeps the dictionary in memory; a word edit
+                    # stays invisible to translate() until that cache is rebuilt.
+                    _reload_translator_if_needed(["dictionary"])
             elif method == "lyric_translations":
                 result = _dictionary.get_lyric_translations(
                     str(payload.get("title") or ""),

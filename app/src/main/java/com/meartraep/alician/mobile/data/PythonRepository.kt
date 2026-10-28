@@ -282,10 +282,15 @@ class PythonRepository(private val application: Application) {
         query: String,
         exact: Boolean,
         position: String,
+        recordHistory: Boolean = true,
     ): DictionaryResult {
         val json = invoke(
             "dictionary_search",
-            JSONObject().put("query", query).put("exact", exact).put("position", position),
+            JSONObject()
+                .put("query", query)
+                .put("exact", exact)
+                .put("position", position)
+                .put("record_history", recordHistory),
         )
         return json.toDictionaryResult()
     }
@@ -296,6 +301,39 @@ class PythonRepository(private val application: Application) {
             JSONObject().put("word", word).put("position", position),
         )
         return json.toExampleResult()
+    }
+
+    suspend fun dictionarySongLyrics(title: String, album: String): ExampleResult =
+        invoke("dictionary_song_lyrics", JSONObject().put("title", title).put("album", album))
+            .toExampleResult()
+
+    suspend fun updateDictionaryEntry(
+        headwordId: Int,
+        originalWord: String,
+        word: String,
+        displayExplanation: String,
+        senses: List<DictionarySense>,
+    ): String {
+        val sensesJson = JSONArray().apply {
+            senses.forEach { sense ->
+                put(
+                    JSONObject()
+                        .put("id", sense.id)
+                        .put("explanation", sense.explanation)
+                        .put("english", sense.englishGloss)
+                        .put("japanese", sense.japaneseGloss),
+                )
+            }
+        }
+        return invoke(
+            "dictionary_update_word",
+            JSONObject()
+                .put("headword_id", headwordId)
+                .put("original_word", originalWord)
+                .put("word", word)
+                .put("display_explanation", displayExplanation)
+                .put("senses", sensesJson),
+        ).optString("message")
     }
 
     suspend fun updateLyric(title: String, album: String, lyric: String): String =
@@ -794,6 +832,10 @@ private fun JSONObject.toDictionaryResult(): DictionaryResult {
                         variety = it.optInt("variety"),
                         englishGloss = it.optString("english_gloss"),
                         japaneseGloss = it.optString("japanese_gloss"),
+                        headwordId = it.optInt("headword_id"),
+                        album = it.optString("album"),
+                        songTitle = it.optString("song_title"),
+                        senses = it.toDictionarySenses(),
                     )
                 }
             },
@@ -821,6 +863,21 @@ private fun JSONObject.toDictionaryResult(): DictionaryResult {
         history = (optJSONArray("history") ?: JSONArray()).stringList(),
         message = optString("message"),
     )
+}
+
+private fun JSONObject.toDictionarySenses(): List<DictionarySense> {
+    val sensesJson = optJSONArray("senses") ?: JSONArray()
+    return List(sensesJson.length()) { index ->
+        sensesJson.getJSONObject(index).let { sense ->
+            DictionarySense(
+                id = sense.optInt("id"),
+                explanation = sense.optString("explanation"),
+                wordClass = sense.optString("class"),
+                englishGloss = sense.optString("english_gloss"),
+                japaneseGloss = sense.optString("japanese_gloss"),
+            )
+        }
+    }
 }
 
 private fun JSONObject.toExampleResult(): ExampleResult {

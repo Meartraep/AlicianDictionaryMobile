@@ -19,6 +19,7 @@ import com.meartraep.alician.mobile.data.DatabaseUpdateLogic
 import com.meartraep.alician.mobile.data.DatabaseUpdateManifest
 import com.meartraep.alician.mobile.data.DbTablePage
 import com.meartraep.alician.mobile.data.DictionaryResult
+import com.meartraep.alician.mobile.data.DictionarySense
 import com.meartraep.alician.mobile.data.ExampleResult
 import com.meartraep.alician.mobile.data.GlobalMatch
 import com.meartraep.alician.mobile.data.LookupResult
@@ -113,8 +114,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         private set
     var dictionaryExamples by mutableStateOf<ExampleResult?>(null)
         private set
+
+    /** True while [dictionaryExamples] shows a whole song instead of sentence hits. */
+    var dictionaryExamplesFullLyric by mutableStateOf(false)
+        private set
     var history by mutableStateOf<List<String>>(emptyList())
         private set
+
+    /** Song currently shown as a whole lyric (title to album), null outside full-lyric mode. */
+    private var songLyricContext: Pair<String, String>? = null
+
+    /** Last executed dictionary search (query, exact, position), replayed after a sense edit. */
+    private var dictionarySearchParams: Triple<String, Boolean, String>? = null
 
     var writingResult by mutableStateOf<WritingResult?>(null)
         private set
@@ -439,27 +450,110 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun searchDictionary(query: String, exact: Boolean, position: String) {
         if (query.isBlank()) return
+        val trimmed = query.trim()
+        dictionarySearchParams = Triple(trimmed, exact, position)
         launchTask("正在查询…") {
-            dictionaryResult = repository.dictionarySearch(query.trim(), exact, position)
+            dictionaryResult = repository.dictionarySearch(trimmed, exact, position)
             history = dictionaryResult?.history ?: history
         }
     }
 
     fun loadExamples(word: String, position: String) {
+        dictionaryExamplesFullLyric = false
+        songLyricContext = null
         launchTask("正在查找歌词例句…") {
             dictionaryExamples = repository.dictionaryExamples(word, position)
         }
     }
 
+    /**
+     * Shows a whole song. The full-lyric flag and the song context are kept for the
+     * whole lifetime of the dialog so editing the lyric keeps addressing that song.
+     * On failure both are reset so the error can be shown normally.
+     */
+    fun loadSongLyrics(title: String, album: String) {
+        dictionaryExamplesFullLyric = true
+        songLyricContext = title to album
+        dictionaryExamples = null
+        launchTask("正在读取整首歌词…") {
+            try {
+                dictionaryExamples = repository.dictionarySongLyrics(title, album)
+            } catch (throwable: Throwable) {
+                dictionaryExamplesFullLyric = false
+                songLyricContext = null
+                throw throwable
+            }
+        }
+    }
+
     fun closeExamples() {
         dictionaryExamples = null
+        dictionaryExamplesFullLyric = false
+        songLyricContext = null
     }
 
     fun updateLyric(title: String, album: String, lyric: String) {
         launchTask("正在保存歌词…") {
-            noticeMessage = repository.updateLyric(title, album, lyric)
-            dictionaryExamples = dictionaryExamples?.let {
-                repository.dictionaryExamples(it.word, it.positionFilter)
+            val context = songLyricContext
+            noticeMessage = if (context != null && dictionaryExamplesFullLyric) {
+                repository.updateLyric(context.first, context.second, lyric)
+            } else {
+                repository.updateLyric(title, album, lyric)
+            }
+            // A failed refresh must not hide the successful save: only drop the sheet.
+            runCatching {
+                if (context != null && dictionaryExamplesFullLyric) {
+                    repository.dictionarySongLyrics(context.first, context.second)
+                } else {
+                    dictionaryExamples?.let {
+                        repository.dictionaryExamples(it.word, it.positionFilter)
+                    }
+                }
+            }.onSuccess { refreshed ->
+                if (refreshed != null) dictionaryExamples = refreshed
+            }.onFailure {
+                dictionaryExamples = null
+            }
+            refreshDatabaseInfo()
+        }
+    }
+
+    /**
+     * Saves one headword and its edited senses, then replays the last search with the
+     * same filters (without polluting the query history) so the result list is fresh.
+     */
+    fun updateDictionaryEntry(
+        headwordId: Int,
+        originalWord: String,
+        word: String,
+        displayExplanation: String,
+        senses: List<DictionarySense>,
+    ) {
+        launchTask("正在保存词条…") {
+            noticeMessage = repository.updateDictionaryEntry(
+                headwordId = headwordId,
+                originalWord = originalWord,
+                word = word,
+                displayExplanation = displayExplanation,
+                senses = senses,
+            )
+            val params = dictionarySearchParams
+            if (params != null) {
+                val (query, exact, position) = params
+                val currentQuery = dictionaryResult?.query.orEmpty().ifBlank { query }
+                val nextQuery = if (currentQuery.equals(originalWord, ignoreCase = true)) {
+                    word
+                } else {
+                    currentQuery
+                }
+                val result = repository.dictionarySearch(
+                    query = nextQuery,
+                    exact = exact,
+                    position = position,
+                    recordHistory = false,
+                )
+                dictionaryResult = result
+                history = result.history
             }
             refreshDatabaseInfo()
         }
@@ -1122,6 +1216,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         refreshStudyAfterDeckChanged()
         dictionaryResult = null
         dictionaryExamples = null
+        dictionaryExamplesFullLyric = false
+        songLyricContext = null
         writingResult = null
         invalidateTranslation()
         globalMatches = emptyList()

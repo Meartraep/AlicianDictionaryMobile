@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -58,8 +59,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.AnnotatedString
@@ -74,6 +75,7 @@ import androidx.compose.ui.window.DialogProperties
 import com.meartraep.alician.mobile.MainViewModel
 import com.meartraep.alician.mobile.R
 import com.meartraep.alician.mobile.data.DictionaryEntry
+import com.meartraep.alician.mobile.data.DictionarySense
 import com.meartraep.alician.mobile.data.ExampleResult
 import com.meartraep.alician.mobile.data.LyricExample
 import com.meartraep.alician.mobile.data.LyricLineTranslation
@@ -89,6 +91,7 @@ fun DictionaryScreen(viewModel: MainViewModel, padding: PaddingValues) {
     var query by rememberSaveable { mutableStateOf("") }
     var exact by rememberSaveable { mutableStateOf(false) }
     var position by rememberSaveable { mutableStateOf("any") }
+    var editingEntry by remember { mutableStateOf<DictionaryEntry?>(null) }
     val focusManager = LocalFocusManager.current
     val alicianFont = if (viewModel.alicianFontEnabled) {
         FontFamily(Font(R.font.alician_regular))
@@ -138,6 +141,7 @@ fun DictionaryScreen(viewModel: MainViewModel, padding: PaddingValues) {
                 onQueryChanged = { query = it },
                 exact = exact,
                 position = position,
+                onEditEntry = { editingEntry = it },
             )
         }
     }
@@ -175,6 +179,7 @@ fun DictionaryScreen(viewModel: MainViewModel, padding: PaddingValues) {
                 onQueryChanged = { query = it },
                 exact = exact,
                 position = position,
+                onEditEntry = { editingEntry = it },
             )
         }
     }
@@ -182,9 +187,27 @@ fun DictionaryScreen(viewModel: MainViewModel, padding: PaddingValues) {
     viewModel.dictionaryExamples?.let { examples ->
         ExamplesSheet(
             result = examples,
+            fullLyric = viewModel.dictionaryExamplesFullLyric,
             alicianFont = alicianFont,
             onDismiss = viewModel::closeExamples,
             onUpdateLyric = viewModel::updateLyric,
+        )
+    }
+
+    editingEntry?.let { entry ->
+        DictionaryEntryEditDialog(
+            entry = entry,
+            onDismiss = { editingEntry = null },
+            onSave = { word, displayExplanation, senses ->
+                viewModel.updateDictionaryEntry(
+                    headwordId = entry.headwordId,
+                    originalWord = entry.word,
+                    word = word,
+                    displayExplanation = displayExplanation,
+                    senses = senses,
+                )
+                editingEntry = null
+            },
         )
     }
 }
@@ -287,6 +310,7 @@ private fun LazyListScope.dictionaryResultItems(
     onQueryChanged: (String) -> Unit,
     exact: Boolean,
     position: String,
+    onEditEntry: (DictionaryEntry) -> Unit,
 ) {
         if (includePageHeader) {
             item { SectionHeader("查询结果", "筛选区与结果区可独立滚动") }
@@ -339,8 +363,13 @@ private fun LazyListScope.dictionaryResultItems(
                         alicianFont = alicianFont,
                         onClick = {
                             onQueryChanged(entry.word)
-                            viewModel.loadExamples(entry.word, position)
+                            if (entry.kind == "song") {
+                                viewModel.loadSongLyrics(entry.word, entry.album)
+                            } else {
+                                viewModel.loadExamples(entry.word, position)
+                            }
                         },
+                        onEdit = onEditEntry,
                     )
                 }
             }
@@ -361,6 +390,7 @@ private fun DictionaryEntryCard(
     entry: DictionaryEntry,
     alicianFont: FontFamily,
     onClick: () -> Unit,
+    onEdit: (DictionaryEntry) -> Unit,
 ) {
     Card(
         modifier = Modifier
@@ -376,7 +406,8 @@ private fun DictionaryEntryCard(
                     entry.word,
                     modifier = Modifier.weight(1f),
                     style = MaterialTheme.typography.titleLarge,
-                    fontFamily = alicianFont,
+                    // 歌曲标题不是爱丽丝语，用默认字体避免字符错位。
+                    fontFamily = if (entry.kind == "song") FontFamily.Default else alicianFont,
                     color = MaterialTheme.colorScheme.primary,
                 )
                 if (entry.wordClass.isNotBlank()) {
@@ -422,142 +453,290 @@ private fun DictionaryEntryCard(
                 }
             }
             Spacer(Modifier.height(10.dp))
-            Text(
-                "词频 ${entry.count} · 泛度 ${entry.variety}　点按查看歌词例句",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    entry.footerText(),
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                if (entry.kind == "alice" || entry.kind == "chinese") {
+                    TextButton(onClick = { onEdit(entry) }) { Text("修改") }
+                }
+            }
         }
     }
+}
+
+private fun DictionaryEntry.footerText(): String = when (kind) {
+    "translation" -> if (songTitle.isBlank()) {
+        "点按查看歌词上下文"
+    } else {
+        "歌词英/日译命中 · $songTitle · 点按查看歌词上下文"
+    }
+    "song" -> "歌曲标题命中 · 点按查看完整歌词"
+    else -> "词频 $count · 泛度 $variety　点按查看歌词例句"
+}
+
+/**
+ * 词条与义项编辑器：义项逐条提交，保存时不会覆盖未提交的义项（见契约 §0.1/§3）。
+ * 根 Column 可滚动并限制最大高度，键盘弹出时不会顶出对话框。
+ */
+@Composable
+private fun DictionaryEntryEditDialog(
+    entry: DictionaryEntry,
+    onDismiss: () -> Unit,
+    onSave: (String, String, List<DictionarySense>) -> Unit,
+) {
+    var word by remember(entry) { mutableStateOf(entry.word) }
+    var displayExplanation by remember(entry) { mutableStateOf(entry.explanation) }
+    var senses by remember(entry) { mutableStateOf(entry.senses) }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("修改词条") },
+        text = {
+            Column(
+                modifier = Modifier
+                    .heightIn(max = 380.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                OutlinedTextField(
+                    value = word,
+                    onValueChange = { word = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("原文") },
+                    singleLine = true,
+                )
+                OutlinedTextField(
+                    value = displayExplanation,
+                    onValueChange = { displayExplanation = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    label = { Text("展示释义") },
+                    minLines = 2,
+                    maxLines = 2,
+                )
+                if (senses.isEmpty()) {
+                    Text(
+                        "该词条没有返回义项数据，保存时只更新原文与展示释义。",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                } else {
+                    Text(
+                        "义项（逐条保存，不会覆盖其他义项）",
+                        style = MaterialTheme.typography.titleSmall,
+                    )
+                }
+                senses.forEachIndexed { index, sense ->
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                        ),
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            Text(
+                                "#${index + 1}",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            OutlinedTextField(
+                                value = sense.explanation,
+                                onValueChange = { value ->
+                                    senses = senses.withSense(index) {
+                                        it.copy(explanation = value)
+                                    }
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                label = { Text("中文释义") },
+                                minLines = 1,
+                            )
+                            OutlinedTextField(
+                                value = sense.englishGloss,
+                                onValueChange = { value ->
+                                    senses = senses.withSense(index) {
+                                        it.copy(englishGloss = value)
+                                    }
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                label = { Text("英文") },
+                                minLines = 1,
+                            )
+                            OutlinedTextField(
+                                value = sense.japaneseGloss,
+                                onValueChange = { value ->
+                                    senses = senses.withSense(index) {
+                                        it.copy(japaneseGloss = value)
+                                    }
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                label = { Text("日文") },
+                                minLines = 1,
+                            )
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = { onSave(word.trim(), displayExplanation, senses) },
+                enabled = word.isNotBlank() && displayExplanation.isNotBlank(),
+            ) { Text("保存") }
+        },
+        dismissButton = {
+            OutlinedButton(onClick = onDismiss) { Text("取消") }
+        },
+    )
+}
+
+private fun List<DictionarySense>.withSense(
+    index: Int,
+    transform: (DictionarySense) -> DictionarySense,
+): List<DictionarySense> = mapIndexed { senseIndex, sense ->
+    if (senseIndex == index) transform(sense) else sense
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ExamplesSheet(
     result: ExampleResult,
+    fullLyric: Boolean,
     alicianFont: FontFamily,
     onDismiss: () -> Unit,
     onUpdateLyric: (String, String, String) -> Unit,
 ) {
-    var contextIndex by rememberSaveable(result.word) { mutableIntStateOf(-1) }
+    var contextIndex by rememberSaveable(result.word, fullLyric) {
+        mutableIntStateOf(if (fullLyric) 0 else -1)
+    }
     var editingIndex by rememberSaveable(result.word) { mutableIntStateOf(-1) }
-    ModalBottomSheet(onDismissRequest = onDismiss) {
-        LazyColumn(
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 36.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            item {
-                Text(
-                    "${result.word} 的歌词例句",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontFamily = alicianFont,
-                )
-                Text(
-                    "歌曲 ${result.songStats.size} 首 · 去重前 ${result.totalBefore} · " +
-                        "去重后 ${result.totalAfter} · 去重率 " +
-                        "${"%.1f".format(result.deduplicationRate)}%",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-            }
-            if (result.message.isNotBlank()) {
-                item { InfoBanner(result.message, isError = result.examples.isEmpty()) }
-            }
-            if (result.examples.isNotEmpty()) {
-                item { SectionHeader("全部例句", "点按可在整首歌词中自动定位") }
-            }
-            items(
-                count = result.examples.size,
-                key = { index ->
-                    result.examples[index].let { "${it.album}:${it.title}:${it.id}:$index" }
-                },
-            ) { index ->
-                val example = result.examples[index]
-                Card(
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                    ),
-                ) {
-                    Column(Modifier.padding(16.dp)) {
-                        Text(example.title, style = MaterialTheme.typography.titleMedium)
-                        Text(
-                            example.album,
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                        Spacer(Modifier.height(10.dp))
-                        val paragraphLines = example.paragraph.split('\n')
-                        val sentence = paragraphLines.firstOrNull { it.isNotBlank() }.orEmpty()
-                        val glossLines = paragraphLines.filter { it.isNotBlank() }.drop(1)
-                        Text(
-                            highlightedText(
-                                text = sentence,
-                                word = result.word,
-                                background = MaterialTheme.colorScheme.errorContainer,
-                                foreground = MaterialTheme.colorScheme.onErrorContainer,
-                            ),
-                            fontFamily = alicianFont,
-                            style = MaterialTheme.typography.bodyLarge,
-                        )
-                        if (glossLines.isNotEmpty()) {
-                            Spacer(Modifier.height(6.dp))
+
+    // 整首歌词模式只显示全文对话框；其余模式保留例句列表，空结果也显示后端提示。
+    if (!fullLyric) {
+        ModalBottomSheet(onDismissRequest = onDismiss) {
+            LazyColumn(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 36.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                item {
+                    Text(
+                        "${result.word} 的歌词例句",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontFamily = alicianFont,
+                    )
+                    Text(
+                        "歌曲 ${result.songStats.size} 首 · 去重前 ${result.totalBefore} · " +
+                            "去重后 ${result.totalAfter} · 去重率 " +
+                            "${"%.1f".format(result.deduplicationRate)}%",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
+                if (result.message.isNotBlank()) {
+                    item { InfoBanner(result.message, isError = result.examples.isEmpty()) }
+                }
+                if (result.examples.isNotEmpty()) {
+                    item { SectionHeader("全部例句", "点按可在整首歌词中自动定位") }
+                }
+                items(
+                    count = result.examples.size,
+                    key = { index ->
+                        result.examples[index].let { "${it.album}:${it.title}:${it.id}:$index" }
+                    },
+                ) { index ->
+                    val example = result.examples[index]
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                        ),
+                    ) {
+                        Column(Modifier.padding(16.dp)) {
+                            Text(example.title, style = MaterialTheme.typography.titleMedium)
                             Text(
-                                glossLines.joinToString("\n"),
-                                style = MaterialTheme.typography.bodySmall,
+                                example.album,
+                                style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
-                        }
-                        if (
-                            example.poeticTranslation.isNotBlank() ||
-                            example.japaneseTranslation.isNotBlank() ||
-                            example.englishTranslation.isNotBlank() ||
-                            example.koreanTranslation.isNotBlank()
-                        ) {
-                            Spacer(Modifier.height(8.dp))
-                            LyricTranslationsBlock(
-                                poetic = example.poeticTranslation,
-                                japanese = example.japaneseTranslation,
-                                english = example.englishTranslation,
-                                korean = example.koreanTranslation,
+                            Spacer(Modifier.height(10.dp))
+                            val paragraphLines = example.paragraph.split('\n')
+                            val sentence = paragraphLines.firstOrNull { it.isNotBlank() }.orEmpty()
+                            val glossLines = paragraphLines.filter { it.isNotBlank() }.drop(1)
+                            Text(
+                                highlightedText(
+                                    text = sentence,
+                                    word = result.word,
+                                    background = MaterialTheme.colorScheme.errorContainer,
+                                    foreground = MaterialTheme.colorScheme.onErrorContainer,
+                                ),
+                                fontFamily = alicianFont,
+                                style = MaterialTheme.typography.bodyLarge,
                             )
-                        }
-                        Spacer(Modifier.height(8.dp))
-                        TextButton(onClick = { contextIndex = index }) {
-                            Text("查看整首歌词并定位")
+                            if (glossLines.isNotEmpty()) {
+                                Spacer(Modifier.height(6.dp))
+                                Text(
+                                    glossLines.joinToString("\n"),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                            if (
+                                example.poeticTranslation.isNotBlank() ||
+                                example.japaneseTranslation.isNotBlank() ||
+                                example.englishTranslation.isNotBlank() ||
+                                example.koreanTranslation.isNotBlank()
+                            ) {
+                                Spacer(Modifier.height(8.dp))
+                                LyricTranslationsBlock(
+                                    poetic = example.poeticTranslation,
+                                    japanese = example.japaneseTranslation,
+                                    english = example.englishTranslation,
+                                    korean = example.koreanTranslation,
+                                )
+                            }
+                            Spacer(Modifier.height(8.dp))
+                            TextButton(onClick = { contextIndex = index }) {
+                                Text("查看整首歌词并定位")
+                            }
                         }
                     }
                 }
-            }
-            if (result.examples.isEmpty()) {
-                item {
-                    EmptyState(
-                        icon = Icons.AutoMirrored.Outlined.LibraryBooks,
-                        title = "没有符合条件的歌词",
-                        detail = "可切换到“任意位置”后重新查询。",
-                    )
+                if (result.examples.isEmpty()) {
+                    item {
+                        EmptyState(
+                            icon = Icons.AutoMirrored.Outlined.LibraryBooks,
+                            title = "没有符合条件的歌词",
+                            detail = "可切换到“任意位置”后重新查询。",
+                        )
+                    }
                 }
-            }
-            if (result.songStats.isNotEmpty()) {
-                item { SectionHeader("例句来源分布", "查重前 / 查重后") }
-                items(
-                    result.songStats,
-                    key = { "${it.album}:${it.title}" },
-                ) { stats ->
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        Column(Modifier.weight(1f)) {
-                            Text(stats.title, style = MaterialTheme.typography.titleSmall)
+                if (result.songStats.isNotEmpty()) {
+                    item { SectionHeader("例句来源分布", "查重前 / 查重后") }
+                    items(
+                        result.songStats,
+                        key = { "${it.album}:${it.title}" },
+                    ) { stats ->
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            Column(Modifier.weight(1f)) {
+                                Text(stats.title, style = MaterialTheme.typography.titleSmall)
+                                Text(
+                                    stats.album,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
                             Text(
-                                stats.album,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                "${stats.before} / ${stats.after}",
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.primary,
                             )
                         }
-                        Text(
-                            "${stats.before} / ${stats.after}",
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
                     }
                 }
             }
@@ -565,16 +744,19 @@ private fun ExamplesSheet(
     }
 
     if (contextIndex in result.examples.indices) {
+        val currentIndex = contextIndex
         LyricContextDialog(
             result = result,
-            currentIndex = contextIndex,
+            currentIndex = currentIndex,
+            fullLyric = fullLyric,
             alicianFont = alicianFont,
             onIndexChanged = { contextIndex = it },
             onEdit = {
-                editingIndex = contextIndex
-                contextIndex = -1
+                // 整首歌模式不能把 contextIndex 置 -1，否则对话框会在编辑期间失效。
+                if (!fullLyric) contextIndex = -1
+                editingIndex = currentIndex
             },
-            onDismiss = { contextIndex = -1 },
+            onDismiss = { if (fullLyric) onDismiss() else contextIndex = -1 },
         )
     }
 
@@ -614,12 +796,16 @@ private fun ExamplesSheet(
 private fun LyricContextDialog(
     result: ExampleResult,
     currentIndex: Int,
+    fullLyric: Boolean,
     alicianFont: FontFamily,
     onIndexChanged: (Int) -> Unit,
     onEdit: () -> Unit,
     onDismiss: () -> Unit,
 ) {
     val example = result.examples[currentIndex]
+    val lyricSentenceCount = remember(example.lyric) {
+        buildLyricBlocks(example.lyric).size
+    }
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false),
@@ -644,34 +830,46 @@ private fun LyricContextDialog(
                     "${example.album} - ${example.title}",
                     style = MaterialTheme.typography.titleMedium,
                 )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    OutlinedButton(
-                        onClick = { onIndexChanged(currentIndex - 1) },
-                        enabled = currentIndex > 0,
-                    ) {
-                        Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = null)
-                        Spacer(Modifier.width(5.dp))
-                        Text("上一句")
-                    }
+                if (fullLyric) {
                     Text(
-                        "${currentIndex + 1} / ${result.examples.size}",
-                        modifier = Modifier.padding(vertical = 12.dp),
+                        "歌词共 $lyricSentenceCount 句",
+                        modifier = Modifier.padding(vertical = 8.dp),
                         style = MaterialTheme.typography.labelLarge,
                     )
-                    OutlinedButton(
-                        onClick = { onIndexChanged(currentIndex + 1) },
-                        enabled = currentIndex < result.examples.lastIndex,
+                } else {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
-                        Text("下一句")
-                        Spacer(Modifier.width(5.dp))
-                        Icon(Icons.AutoMirrored.Outlined.ArrowForward, contentDescription = null)
+                        OutlinedButton(
+                            onClick = { onIndexChanged(currentIndex - 1) },
+                            enabled = currentIndex > 0,
+                        ) {
+                            Icon(Icons.AutoMirrored.Outlined.ArrowBack, contentDescription = null)
+                            Spacer(Modifier.width(5.dp))
+                            Text("上一句")
+                        }
+                        Text(
+                            "${currentIndex + 1} / ${result.examples.size}",
+                            modifier = Modifier.padding(vertical = 12.dp),
+                            style = MaterialTheme.typography.labelLarge,
+                        )
+                        OutlinedButton(
+                            onClick = { onIndexChanged(currentIndex + 1) },
+                            enabled = currentIndex < result.examples.lastIndex,
+                        ) {
+                            Text("下一句")
+                            Spacer(Modifier.width(5.dp))
+                            Icon(Icons.AutoMirrored.Outlined.ArrowForward, contentDescription = null)
+                        }
                     }
                 }
                 Text(
-                    "红色为查询词，整块底色为当前例句；切换上一句/下一句可跨歌曲跳转。",
+                    if (fullLyric) {
+                        "红色为查询词；整首歌词按歌曲顺序排列，可点按「编辑歌词」修改全文。"
+                    } else {
+                        "红色为查询词，整块底色为当前例句；切换上一句/下一句可跨歌曲跳转。"
+                    },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )

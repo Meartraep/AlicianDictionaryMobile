@@ -63,6 +63,14 @@ data class UiSettings(
     val alicianFont: Boolean = false,
 )
 
+data class DictionarySense(
+    val id: Int,
+    val explanation: String,
+    val wordClass: String,
+    val englishGloss: String,
+    val japaneseGloss: String,
+)
+
 data class DictionaryEntry(
     val word: String,
     val explanation: String,
@@ -72,6 +80,10 @@ data class DictionaryEntry(
     val variety: Int,
     val englishGloss: String = "",
     val japaneseGloss: String = "",
+    val headwordId: Int = 0,
+    val album: String = "",
+    val songTitle: String = "",
+    val senses: List<DictionarySense> = emptyList(),
 )
 
 data class DictionarySection(

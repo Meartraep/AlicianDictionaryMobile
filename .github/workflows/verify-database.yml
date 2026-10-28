@@ -14,6 +14,9 @@ on:
       - "scripts/verify_database_versions.py"
       - "app/src/test/python/test_database_versioning.py"
       - "app/src/test/python/test_verify_published_database.py"
+      - "app/src/test/python/test_dictionary_search.py"
+      - "app/src/main/python/**"
+      - "app/src/main/java/**"
       - "scripts/verify_published_database.py"
       - ".github/workflows/verify-database.yml"
       - ".github/workflows/verify-published-database.yml"
@@ -69,6 +72,12 @@ jobs:
           set -euo pipefail
           python -m unittest test_database_versioning
           python -m unittest test_verify_published_database
+
+      - name: Dictionary feature tests
+        env:
+          PYTHONPATH: app/src/main/python
+        run: python -m unittest test_dictionary_search -v
+        working-directory: app/src/test/python
 
       - name: Publication signature tests
         run: |
