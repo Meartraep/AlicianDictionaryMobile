@@ -676,14 +676,11 @@ private fun DictionaryHeader(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text("爱丽丝语词典", style = MaterialTheme.typography.headlineMedium)
-            Text(
-                "Lite 本地词典 · 支持中文反查、拼写建议和歌词上下文",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
+        Text(
+            "爱丽丝语词典",
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.typography.headlineMedium,
+        )
         if (onCreateWord != null) {
             TextButton(onClick = onCreateWord) { Text("+ 新增词条") }
         }
@@ -706,8 +703,8 @@ private fun LazyListScope.dictionarySearchItems(
                 value = query,
                 onValueChange = onQueryChanged,
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("爱丽丝语或中文") },
-                placeholder = { Text("例如 Xia、爱、世界") },
+                label = { Text("词条、歌词译文或歌名") },
+                placeholder = { Text("例如 Xia、爱、world、Alice Music") },
                 leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null) },
                 trailingIcon = {
                     IconButton(
