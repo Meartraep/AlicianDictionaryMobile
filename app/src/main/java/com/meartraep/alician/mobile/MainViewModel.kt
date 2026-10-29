@@ -25,7 +25,6 @@ import com.meartraep.alician.mobile.data.DataMutation
 import com.meartraep.alician.mobile.data.DataReferenceOption
 import com.meartraep.alician.mobile.data.DataTableGroup
 import com.meartraep.alician.mobile.data.DataTablePage
-import com.meartraep.alician.mobile.data.DbTablePage
 import com.meartraep.alician.mobile.data.DictionaryEntry
 import com.meartraep.alician.mobile.data.DictionaryResult
 import com.meartraep.alician.mobile.data.DictionarySense
@@ -147,13 +146,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var translationResult by mutableStateOf<TranslationResult?>(null)
         private set
     var translationResultRevision by mutableStateOf(0L)
-        private set
-
-    var dbTables by mutableStateOf<List<String>>(emptyList())
-        private set
-    var dbPage by mutableStateOf<DbTablePage?>(null)
-        private set
-    var globalMatches by mutableStateOf<List<GlobalMatch>>(emptyList())
         private set
 
     /** Curated table registry for the dictionary data workspace (P1). */
@@ -676,16 +668,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         translationResult = null
     }
 
-    fun loadDatabase(table: String? = null, keyword: String = "", exact: Boolean = false, offset: Int = 0) {
-        launchTask("正在读取数据库…") {
-            if (dbTables.isEmpty()) dbTables = repository.getTables()
-            val selected = table ?: dbPage?.table ?: dbTables.firstOrNull()
-            if (selected != null) {
-                dbPage = repository.getTablePage(selected, keyword, exact, offset)
-            }
-        }
-    }
-
     /**
      * Loads the curated table registry (core / lyric / semantic / system / legacy).
      * Cached until [force] or a database replacement, because it only changes with
@@ -920,66 +902,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun deleteDataRow(table: String, key: Long) {
         submitDataMutation {
             repository.dataDelete(table, key)
-        }
-    }
-
-    fun addRecord(table: String, values: Map<String, String>) {
-        launchTask("正在新增记录…") {
-            noticeMessage = repository.addRecord(table, values)
-            if (affectsStudyDeck(table)) refreshStudyAfterDeckChanged()
-            dbPage = repository.getTablePage(table, "", false, dbPage?.offset ?: 0)
-            refreshDatabaseInfo()
-        }
-    }
-
-    fun updateRecord(table: String, id: Long, values: Map<String, String>) {
-        launchTask("正在保存记录…") {
-            noticeMessage = repository.updateRecord(table, id, values)
-            if (affectsStudyDeck(table)) refreshStudyAfterDeckChanged()
-            dbPage = repository.getTablePage(table, "", false, dbPage?.offset ?: 0)
-            refreshDatabaseInfo()
-        }
-    }
-
-    fun deleteRecord(table: String, id: Long) {
-        launchTask("正在删除记录…") {
-            noticeMessage = repository.deleteRecord(table, id)
-            if (affectsStudyDeck(table)) refreshStudyAfterDeckChanged()
-            dbPage = repository.getTablePage(table, "", false, dbPage?.offset ?: 0)
-            refreshDatabaseInfo()
-        }
-    }
-
-    fun globalSearch(keyword: String, exact: Boolean) {
-        if (keyword.isBlank()) return
-        launchTask("正在跨表搜索…") {
-            globalMatches = repository.globalSearch(keyword, exact)
-        }
-    }
-
-    fun globalReplace(keyword: String, replacement: String, selected: List<GlobalMatch>) {
-        launchTask("正在批量替换…") {
-            val studyDeckChanged = selected.any { affectsStudyDeck(it.table) }
-            noticeMessage = repository.globalReplace(keyword, replacement, selected)
-            if (studyDeckChanged) refreshStudyAfterDeckChanged()
-            globalMatches = repository.globalSearch(keyword, false)
-            loadDatabase()
-        }
-    }
-
-    fun updateWordCount() {
-        launchTask("正在更新词频与泛度，可能需要片刻…") {
-            noticeMessage = repository.updateWordCount()
-            refreshStudyAfterDeckChanged()
-            refreshDatabaseInfo()
-        }
-    }
-
-    fun classifyWords() {
-        launchTask("正在更新词性统计表…") {
-            noticeMessage = repository.classifyWords()
-            dbTables = repository.getTables()
-            refreshDatabaseInfo()
         }
     }
 
@@ -1609,7 +1531,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         songLyricContext = null
         writingResult = null
         invalidateTranslation()
-        globalMatches = emptyList()
         dataTablesLoaded = false
         dataTableGroups = emptyList()
         dataTablePage = null
@@ -1619,8 +1540,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         dataMutation = null
         dictionaryEditEntry = null
         dataQuery = null
-        dbTables = repository.getTables()
-        dbPage = null
         refreshDatabaseInfo()
     }
 }

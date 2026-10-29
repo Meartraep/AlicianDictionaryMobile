@@ -28,7 +28,6 @@ _data_dir = ""
 _dictionary = None
 _writing = None
 _translator = None
-_dbmanager = None
 _data_core = None
 _remote_candidate = ""
 _MAX_DIFF_DETAILS = 2000
@@ -73,9 +72,9 @@ def _ok(**kwargs: Any) -> Dict[str, Any]:
 
 
 def _close_services() -> None:
-    global _dictionary, _writing, _translator, _dbmanager, _data_core
+    global _dictionary, _writing, _translator, _data_core
     # The dictionary handler shares DataCore's connection, so DataCore closes last.
-    for service in (_dictionary, _writing, _translator, _dbmanager, _data_core):
+    for service in (_dictionary, _writing, _translator, _data_core):
         if service is not None:
             try:
                 service.close()
@@ -91,7 +90,7 @@ def _close_services() -> None:
         DatabaseManager().close_connection()
     except Exception:
         pass
-    _dictionary = _writing = _translator = _dbmanager = _data_core = None
+    _dictionary = _writing = _translator = _data_core = None
 
 
 def _on_data_write(tables: Any) -> None:
@@ -100,14 +99,13 @@ def _on_data_write(tables: Any) -> None:
 
 
 def _open_services() -> None:
-    global _dictionary, _writing, _translator, _dbmanager, _data_core
+    global _dictionary, _writing, _translator, _data_core
     from webui_backend.dictionary_core import DictionaryConfig
     from webui_backend.dictionary_service import DictionaryService
     from webui_backend.data_core import DataCore
     from webui_backend.writing_database import DatabaseManager
     from webui_backend.writing_service import WritingAssistantService
     from webui_backend.translation_service import TranslationService
-    from webui_backend.dbmanager_service import DatabaseManagerService
 
     DictionaryConfig.DB_NAME = _db_path
     DictionaryConfig.CURRENT_DB = _db_path
@@ -120,7 +118,6 @@ def _open_services() -> None:
     _dictionary = DictionaryService(enable_semantic=False, core=_data_core)
     _writing = WritingAssistantService()
     _translator = TranslationService(_db_path, enable_fallback_matching=False)
-    _dbmanager = DatabaseManagerService(core=_data_core)
 
 
 def _reload_translator_if_needed(table_names: Any) -> None:
@@ -165,7 +162,7 @@ def initialize(db_path: str, data_dir: str) -> str:
 
 
 def _ensure_ready() -> None:
-    if not all((_dictionary, _writing, _translator, _dbmanager, _data_core)):
+    if not all((_dictionary, _writing, _translator, _data_core)):
         raise RuntimeError("移动端服务尚未初始化。")
 
 
@@ -250,30 +247,6 @@ def _gov_identity() -> Dict[str, Any]:
     )
 
 
-def _table_page(payload: Dict[str, Any]) -> Dict[str, Any]:
-    from webui_backend.data_core import DataError
-
-    table = str(payload.get("table") or "")
-    keyword = str(payload.get("keyword") or "")
-    exact = bool(payload.get("exact", False))
-    offset = max(0, int(payload.get("offset", 0)))
-    limit = max(1, min(200, int(payload.get("limit", 50))))
-    try:
-        page = _data_core.page(
-            table, keyword=keyword, exact=exact, offset=offset, limit=limit
-        )
-    except DataError as error:
-        return {"ok": False, "message": str(error)}
-    return _ok(
-        table=page["table"],
-        fields=page["fields"],
-        data=page["rows"],
-        total=page["total"],
-        offset=page["offset"],
-        limit=page["limit"],
-    )
-
-
 def _export_csv_zip(path: str) -> Dict[str, Any]:
     output = Path(path)
     output.parent.mkdir(parents=True, exist_ok=True)
@@ -311,14 +284,9 @@ def _run_maintenance(kind: str) -> Dict[str, Any]:
     backup = _create_recovery_point(f"before_maintenance_{kind}")
     _close_services()
     try:
-        if kind == "word_count":
-            from update_word_count import main
-            main(verbose=False)
-            message = "词频与泛度已按 songs.lyric 重新统计。"
-        else:
-            from classify_words import classify_words
-            classify_words()
-            message = "词性统计表已更新。"
+        from update_word_count import main
+        main(verbose=False)
+        message = "词频与泛度已按 songs.lyric 重新统计。"
     finally:
         _open_services()
     return _ok(message=message, backup=backup, database=_database_info())
@@ -987,39 +955,6 @@ def invoke(method: str, payload_json: str = "{}") -> str:
                     str(payload.get("direction") or "auto"),
                     bool(payload.get("use_semantic_expansions", False)),
                 )
-            elif method == "db_tables":
-                result = _ok(tables=_dbmanager.get_tables())
-            elif method == "db_table_page":
-                result = _table_page(payload)
-            elif method == "db_add":
-                table = str(payload.get("table") or "")
-                result = _dbmanager.add_record(
-                    table, payload.get("values") or {}
-                )
-            elif method == "db_update":
-                table = str(payload.get("table") or "")
-                result = _dbmanager.update_record(
-                    table,
-                    int(payload.get("id") or 0),
-                    payload.get("values") or {},
-                )
-            elif method == "db_delete":
-                table = str(payload.get("table") or "")
-                result = _dbmanager.delete_records(
-                    table, payload.get("ids") or []
-                )
-            elif method == "db_global_search":
-                result = _dbmanager.global_search(
-                    str(payload.get("keyword") or ""),
-                    bool(payload.get("exact", False)),
-                )
-            elif method == "db_global_replace":
-                records = payload.get("records") or []
-                result = _dbmanager.global_replace(
-                    str(payload.get("keyword") or ""),
-                    str(payload.get("replacement") or ""),
-                    records,
-                )
             elif method == "data_tables":
                 from webui_backend import data_schema
 
@@ -1113,8 +1048,6 @@ def invoke(method: str, payload_json: str = "{}") -> str:
                 result = _restore_backup(payload)
             elif method == "update_word_count":
                 result = _run_maintenance("word_count")
-            elif method == "classify_words":
-                result = _run_maintenance("classify")
             elif method == "export_csv_zip":
                 result = _export_csv_zip(str(payload.get("path") or ""))
             elif method == "database_info":

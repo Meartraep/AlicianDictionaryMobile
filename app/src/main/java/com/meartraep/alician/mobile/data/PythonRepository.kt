@@ -363,25 +363,6 @@ class PythonRepository(private val application: Application) {
                 .put("use_semantic_expansions", useSemanticExpansions),
         ).toTranslationResult()
 
-    suspend fun getTables(): List<String> =
-        invoke("db_tables").getJSONArray("tables").stringList()
-
-    suspend fun getTablePage(
-        table: String,
-        keyword: String,
-        exact: Boolean,
-        offset: Int,
-        limit: Int = 50,
-    ): DbTablePage = invoke(
-        "db_table_page",
-        JSONObject()
-            .put("table", table)
-            .put("keyword", keyword)
-            .put("exact", exact)
-            .put("offset", offset)
-            .put("limit", limit),
-    ).toDbTablePage()
-
     suspend fun dataTables(): List<DataTableGroup> =
         invoke("data_tables").let { json ->
             val groupsJson = json.optJSONArray("groups") ?: JSONArray()
@@ -507,71 +488,6 @@ class PythonRepository(private val application: Application) {
             "dictionary_delete_headword",
             JSONObject().put("headword_id", headwordId).put("word", word),
         ).optString("message")
-
-    suspend fun addRecord(table: String, values: Map<String, String>): String =
-        invoke(
-            "db_add",
-            JSONObject().put("table", table).put("values", JSONObject(values)),
-        ).optString("message")
-
-    suspend fun updateRecord(table: String, id: Long, values: Map<String, String>): String =
-        invoke(
-            "db_update",
-            JSONObject().put("table", table).put("id", id).put("values", JSONObject(values)),
-        ).optString("message")
-
-    suspend fun deleteRecord(table: String, id: Long): String =
-        invoke(
-            "db_delete",
-            JSONObject().put("table", table).put("ids", JSONArray(listOf(id))),
-        ).optString("message")
-
-    suspend fun globalSearch(keyword: String, exact: Boolean): List<GlobalMatch> {
-        val array = invoke(
-            "db_global_search",
-            JSONObject().put("keyword", keyword).put("exact", exact),
-        ).getJSONArray("results")
-        return List(array.length()) { index ->
-            array.getJSONObject(index).let {
-                GlobalMatch(
-                    table = it.optString("table"),
-                    id = it.optLong("id"),
-                    field = it.optString("field"),
-                    value = it.optValue("value"),
-                )
-            }
-        }
-    }
-
-    suspend fun globalReplace(
-        keyword: String,
-        replacement: String,
-        records: List<GlobalMatch>,
-    ): String {
-        val jsonRecords = JSONArray().apply {
-            records.forEach {
-                put(
-                    JSONObject()
-                        .put("table", it.table)
-                        .put("id", it.id)
-                        .put("field", it.field)
-                        .put("value", it.value),
-                )
-            }
-        }
-        val result = invoke(
-            "db_global_replace",
-            JSONObject()
-                .put("keyword", keyword)
-                .put("replacement", replacement)
-                .put("records", jsonRecords),
-        )
-        return "已替换 ${result.optInt("replaced_count")} 个字段。"
-    }
-
-    suspend fun updateWordCount(): String = invoke("update_word_count").optString("message")
-
-    suspend fun classifyWords(): String = invoke("classify_words").optString("message")
 
     // ---- P3b maintenance ---------------------------------------------------
 
@@ -1409,23 +1325,6 @@ private fun JSONObject.toDataTablePage(): DataTablePage {
         group = optString("group"),
         editable = optBoolean("editable"),
         display = (optJSONArray("display") ?: JSONArray()).stringList(),
-        fields = fields,
-        rows = List(rowsJson.length()) { index ->
-            rowsJson.getJSONObject(index).let { row ->
-                fields.associateWith { row.optValue(it) }
-            }
-        },
-        total = optInt("total"),
-        offset = optInt("offset"),
-        limit = optInt("limit", 50),
-    )
-}
-
-private fun JSONObject.toDbTablePage(): DbTablePage {
-    val fields = (optJSONArray("fields") ?: JSONArray()).stringList()
-    val rowsJson = optJSONArray("data") ?: JSONArray()
-    return DbTablePage(
-        table = optString("table"),
         fields = fields,
         rows = List(rowsJson.length()) { index ->
             rowsJson.getJSONObject(index).let { row ->

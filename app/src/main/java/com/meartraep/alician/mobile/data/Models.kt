@@ -236,15 +236,6 @@ data class TranslationResult(
     val message: String,
 )
 
-data class DbTablePage(
-    val table: String,
-    val fields: List<String>,
-    val rows: List<Map<String, String>>,
-    val total: Int,
-    val offset: Int,
-    val limit: Int,
-)
-
 /** One table shown in the dictionary's data workspace. */
 data class DataTableInfo(
     val name: String,
