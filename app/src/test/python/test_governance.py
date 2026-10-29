@@ -67,10 +67,10 @@ import mobile_bridge  # noqa: E402
 ASSET_SHA256 = hashlib.sha256(ASSET_DB.read_bytes()).hexdigest()
 
 #: Real shipped-data facts re-checked in the tests.
-EXPECTED_DB_VERSION = 1
+EXPECTED_DB_VERSION = 2
 EXPECTED_WORDS = 1339
 EXPECTED_SONGS = 53
-EXPECTED_BUSINESS_TABLES = 32
+EXPECTED_BUSINESS_TABLES = 13
 REAL_EDIT_WORD = "Finz"
 
 

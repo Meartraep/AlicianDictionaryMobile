@@ -851,7 +851,7 @@ class BridgeEditingTests(ResultMixin, unittest.TestCase):
         self.assertEqual(self.alice_entries(word), [], "restore must remove the created word")
         metadata = self.call("database_metadata")
         self.assertTrue(metadata["ok"], metadata.get("message"))
-        self.assertEqual(metadata["database_version"], 1, "version marker must stay 1 after restore")
+        self.assertEqual(metadata["database_version"], 2, "version marker must stay 2 after restore")
 
         # Services keep working after the atomic replace + reconnect.
         self.assertIsNotNone(mobile_bridge._data_core)

@@ -214,7 +214,7 @@ class SchemaRegistryTests(RealDatabaseTestCase):
             ["local_edits"],
             "only the auto-created local_edits table may be registered without being shipped",
         )
-        self.assertEqual(len(SHIPPED_TABLES), 32, "real database has 32 business tables")
+        self.assertEqual(len(SHIPPED_TABLES), 13, "real database has 13 business tables")
 
     def test_named_tables_have_contract_group_and_editability(self):
         expected = {
@@ -231,13 +231,6 @@ class SchemaRegistryTests(RealDatabaseTestCase):
             "Signature": (data_schema.GROUP_SYSTEM, False),
             "local_edits": (data_schema.GROUP_SYSTEM, False),
             "raw": (data_schema.GROUP_LEGACY, False),
-            "Album1": (data_schema.GROUP_LEGACY, False),
-            "Album2": (data_schema.GROUP_LEGACY, False),
-            "Album3": (data_schema.GROUP_LEGACY, False),
-            "Single": (data_schema.GROUP_LEGACY, False),
-            "All_words": (data_schema.GROUP_LEGACY, False),
-            "Unknown": (data_schema.GROUP_LEGACY, False),
-            "test": (data_schema.GROUP_LEGACY, False),
             "no_class": (data_schema.GROUP_LEGACY, False),
         }
         for table, (group, editable) in expected.items():
@@ -247,12 +240,8 @@ class SchemaRegistryTests(RealDatabaseTestCase):
             self.assertEqual(spec.editable, editable, table)
             self.assertTrue(str(spec.label).strip(), "table %r needs a UI label" % table)
 
-        pos_tables = [table for table in SHIPPED_TABLES if table.endswith(".")]
-        self.assertGreaterEqual(len(pos_tables), 12)
-        for table in pos_tables:
-            spec = data_schema.TABLES[table]
-            self.assertEqual(spec.group, data_schema.GROUP_LEGACY, table)
-            self.assertFalse(spec.editable, table)
+        # v2 dropped the 12 reader-less part-of-speech tables; only no_class stays.
+        self.assertEqual([table for table in SHIPPED_TABLES if table.endswith(".")], [])
 
     def test_spec_for_unregistered_table_is_readonly_legacy(self):
         spec = data_schema.spec_for("future_table_not_in_db")
@@ -499,13 +488,13 @@ class PageTests(RealDatabaseTestCase):
         self.assertEqual([row["id"] for row in page["rows"]], expected_ids)
 
     def test_table_without_id_column_uses_rowid(self):
-        page = self.core.page("Album1", limit=5)
-        self.assertEqual(page["total"], 247)
+        page = self.core.page("no_class", limit=5)
+        self.assertEqual(page["total"], 30)
         self.assertEqual(len(page["rows"]), 5)
         names = field_names(page["fields"])
         self.assertEqual(names[0], "rowid", "tables without id must key on rowid (CONTRACT page)")
         self.assertIn("rowid", page["rows"][0])
-        row = self.core.row("Album1", 1)
+        row = self.core.row("no_class", 1)
         self.assertIsNotNone(row)
         self.assertEqual(row["rowid"], 1)
 
@@ -575,8 +564,7 @@ class ReadonlyTests(RealDatabaseTestCase):
             "semantic_alias_metadata",
             "adverb_position_stats",
             "raw",
-            "Album1",
-            "n.",
+            "no_class",
         ):
             spec = data_schema.spec_for(table)
             self.assertFalse(spec.editable, table)
@@ -1040,7 +1028,7 @@ class DiagnoseTests(RealDatabaseTestCase):
             "dictionary_headwords": 1339,
             "songs": 53,
             "sentence_alignments": 1286,
-            "song_translations": 929,
+            "song_translations": 928,
         }
         for table, rows in expected_rows.items():
             self.assertIn(table, tables, "diagnose() tables must include %r" % table)
@@ -1060,8 +1048,8 @@ class DiagnoseTests(RealDatabaseTestCase):
                 self.assertIn(key, entry, "orphan entry must expose %r (CONTRACT diagnose)" % key)
             self.assertTrue(str(entry["label"]).strip())
             counts[str(entry["table"])] = int(entry["count"])
-        self.assertEqual(counts.get("song_translations"), 1,
-                         "real data has exactly one orphaned song_translations.song_title")
+        self.assertEqual(counts.get("song_translations"), 0,
+                         "v2 removed the last orphaned song_translations.song_title")
         for table in ("dictionary", "sentence_alignments", "dictionary_semantic_aliases"):
             self.assertEqual(counts.get(table), 0, table)
 

@@ -6,5 +6,13 @@
     "published_at": "2026-10-14",
     "app_tag": "v1.9.0",
     "notes": "官方日/英译逐句对齐：修复同一段落 A/B 两句互相包含整段译文的问题"
+  },
+  {
+    "db_version": 2,
+    "sha1": "81d9a5762cc8910b6b58cca9ed21793efa5fce6a",
+    "size": 2596864,
+    "published_at": "2026-10-29",
+    "app_tag": "v1.11.1",
+    "notes": "清理无读者的 12 张词性表、遗留 test/Album1-3/Single/All_words/Unknown 表，删除 1 条无对应歌曲的译文孤儿行并 VACUUM（2854912→约 2.69MB）；业务表 32→13。"
   }
 ]

@@ -511,10 +511,10 @@ CREATE TABLE local_edits (
 
 | 项 | 现状 | 处理 |
 |---|---|---|
-| `song_translations` 孤儿 | 1 条标题在 `songs` 中不存在 | P0 审计时删除或补歌 |
+| `song_translations` 孤儿 | 1 条标题在 `songs` 中不存在 | **已修（db v2）**：随 bump 删除 |
 | 外键未启用 | 3 条 FK 声明形同虚设 | P0 开启 `foreign_keys=ON` |
 | 双正文源 | `songs.lyric` vs `raw.lyric_raw` | P3 定 `songs` 为唯一正文源 |
-| `test` / `Signature` / `Album*` 等遗留表 | 32 张表混在一起 | P5 随 bump 清理（保留 `Signature`） |
+| `test` / `Signature` / `Album*` 等遗留表 | 32 张表混在一起 | **已修（db v2）**：删 12 张词性表 + `test`/`Album1-3`/`Single`/`All_words`/`Unknown`；保留 `raw`/`Signature`/`no_class`。业务表 32→13 |
 | 备份无元数据 | 文件名即全部信息 | P0 新增 sidecar JSON |
 
 ### B. 验收命令（每阶段都要跑）
@@ -693,4 +693,6 @@ python -m unittest test_database_versioning test_verify_published_database      
 | 旧模块删除 | `DatabaseScreen.kt`（312 行）、`dbmanager_service.py`（136 行）、`db_*` 七个桥方法、`_table_page`、`classify_words` 维护分支；VM/Repo 旧面 9 个方法、`DbTablePage` 模型全部移除（净 −714 行） |
 | 验证 | `compileDebugKotlin + testDebugUnitTest` BUILD SUCCESSFUL；六套件合跑 125 tests OK；`git grep` 确认旧符号零残留 |
 | polish | 创建恢复点/恢复/恢复内置库的确认框不再复用通用恢复点提示，改为各自语义文案；三个发布对话框补 `Modifier.imePadding()` |
-| 待办 | 13 张词性表随数据库 bump 清理（改资产库+台账+清单+CI，单独发布流程）；`song_translations` 1 条孤儿同批修；推送/PR 时机由用户决定 |
+| 数据 bump（db v2） | 删除 12 张词性表 + 遗留 `test`/`Album1-3`/`Single`/`All_words`/`Unknown`（业务表 32→13）、删除 1 条孤儿译文行、VACUUM；`update_database_manifest.py --bump --tag v1.11.1` 写入库内 marker、追加台账、重写清单；体积 2,854,912→2,596,864 字节（−258,048）；台账 sha1 `81d9a576…`，资产 sha256 `ADDBEAE3…` |
+| 数据验收 | `verify_database_versions.py` / `verify_database_manifest.py` OK；版本测试 27 OK；全量 pytest 248 passed；模拟器 v1→v2：治理页显示「v2 · 2026-10-29 · 1339/53/13 · 2.5 MB」，恢复内置库自动安全备份、无 FATAL（17.png） |
+| 待办 | 推送/开 PR 时机由用户决定；推送后跑 `verify_database_versions.py --remote` 校验线上字节 |

@@ -298,26 +298,7 @@ TABLES: Dict[str, TableSpec] = {
     ),
     # ---- legacy (read-only) ---------------------------------------------
     "raw": _spec("raw", GROUP_LEGACY, "原始导入存档", note="导入期原始歌词，统计脚本的历史输入"),
-    "Album1": _spec("Album1", GROUP_LEGACY, "旧专辑 1"),
-    "Album2": _spec("Album2", GROUP_LEGACY, "旧专辑 2"),
-    "Album3": _spec("Album3", GROUP_LEGACY, "旧专辑 3"),
-    "Single": _spec("Single", GROUP_LEGACY, "旧单曲表"),
-    "All_words": _spec("All_words", GROUP_LEGACY, "旧全词表"),
-    "Unknown": _spec("Unknown", GROUP_LEGACY, "旧未分类词表"),
     "no_class": _spec("no_class", GROUP_LEGACY, "无词性词表", note="翻译器仍会读取"),
-    "test": _spec("test", GROUP_LEGACY, "测试表", note="历史遗留，可随下次数据库版本删除"),
-    "n.": _spec("n.", GROUP_LEGACY, "名词表"),
-    "v.": _spec("v.", GROUP_LEGACY, "动词表"),
-    "adj.": _spec("adj.", GROUP_LEGACY, "形容词表"),
-    "adv.": _spec("adv.", GROUP_LEGACY, "副词表"),
-    "art.": _spec("art.", GROUP_LEGACY, "冠词表"),
-    "conj.": _spec("conj.", GROUP_LEGACY, "连词表"),
-    "interj.": _spec("interj.", GROUP_LEGACY, "感叹词表"),
-    "num.": _spec("num.", GROUP_LEGACY, "数词表"),
-    "prep.": _spec("prep.", GROUP_LEGACY, "介词表"),
-    "pron.": _spec("pron.", GROUP_LEGACY, "代词表"),
-    "vi.": _spec("vi.", GROUP_LEGACY, "不及物动词表"),
-    "vt.": _spec("vt.", GROUP_LEGACY, "及物动词表"),
 }
 
 

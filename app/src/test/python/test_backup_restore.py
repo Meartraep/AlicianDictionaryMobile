@@ -125,7 +125,7 @@ class BackupCreateTests(RealDatabaseTestCase):
         self.assertTrue(backup["ok"])
         self.assertEqual(backup["reason"], "p0test")
         self.assertEqual(backup["source"], "installed")
-        self.assertEqual(backup["db_version"], 1)
+        self.assertEqual(backup["db_version"], 2)
 
         path = Path(backup["path"])
         self.assertTrue(path.is_file(), "backup file must exist")
@@ -142,7 +142,7 @@ class BackupCreateTests(RealDatabaseTestCase):
             self.assertIn(key, sidecar, "sidecar must carry %r" % key)
         self.assertEqual(sidecar["sha1"], backup["sha1"])
         self.assertEqual(sidecar["size"], backup["size"])
-        self.assertEqual(sidecar["db_version"], 1)
+        self.assertEqual(sidecar["db_version"], 2)
         self.assertEqual(sidecar["reason"], "p0test")
         self.assertEqual(sidecar["source"], "installed")
         datetime.fromisoformat(sidecar["created_at"])  # must be an ISO timestamp
@@ -151,7 +151,7 @@ class BackupCreateTests(RealDatabaseTestCase):
         backup = self.core.backup_create("p0snapshot")
         validated = validate_database_file(backup["path"])
         self.assertTrue(validated["ok"])
-        self.assertEqual(validated["db_version"], 1)
+        self.assertEqual(validated["db_version"], 2)
         self.assertEqual(validated["sha1"], backup["sha1"])
         self.assertEqual(
             sql_on(backup["path"], "SELECT COUNT(*) FROM dictionary")[0][0], 1515
@@ -279,7 +279,7 @@ class ValidateDatabaseFileTests(RealDatabaseTestCase):
         copy = self.copy_asset("valid.db")
         result = validate_database_file(copy)
         self.assertTrue(result["ok"])
-        self.assertEqual(result["db_version"], 1)
+        self.assertEqual(result["db_version"], 2)
         self.assertEqual(result["size"], copy.stat().st_size)
         self.assertEqual(result["sha1"], sha1_file(copy))
 

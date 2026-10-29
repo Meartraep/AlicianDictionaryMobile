@@ -463,8 +463,8 @@ class BridgeMaintenanceTests(RealDatabaseTestCase):
             for key in ("table", "label", "count"):
                 self.assertIn(key, entry)
             counts[str(entry["table"])] = int(entry["count"])
-        self.assertEqual(counts.get("song_translations"), 1,
-                         "real data has one orphaned song_translations.song_title")
+        self.assertEqual(counts.get("song_translations"), 0,
+                         "v2 has no orphaned song_translations.song_title")
         for table in ("dictionary", "sentence_alignments", "dictionary_semantic_aliases"):
             self.assertEqual(counts.get(table), 0, table)
 
