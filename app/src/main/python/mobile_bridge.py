@@ -7,6 +7,7 @@ small and every result can be logged and regression-tested independently.
 from __future__ import annotations
 
 import csv
+import contextlib
 import hashlib
 import json
 import os
@@ -41,6 +42,20 @@ _TRANSLATOR_TABLES = {
 }
 
 
+@contextlib.contextmanager
+def _connect(path: Any):
+    """sqlite3's own context manager commits but never closes; this one closes.
+
+    A leaked connection keeps the database file locked on Windows, which makes
+    the atomic replace used by backup restore / database import fail.
+    """
+    connection = sqlite3.connect(str(path))
+    try:
+        yield connection
+    finally:
+        connection.close()
+
+
 def _json_default(value: Any) -> Any:
     if isinstance(value, set):
         return sorted(value)
@@ -66,6 +81,16 @@ def _close_services() -> None:
                 service.close()
             except Exception:
                 pass
+    # The writing assistant owns a process-wide SQLite singleton that survives
+    # service.close().  On Windows an open handle makes the file replace used by
+    # backup restore / database import fail with "替换数据库文件失败。", so it must
+    # be released here as well.
+    try:
+        from webui_backend.writing_database import DatabaseManager
+
+        DatabaseManager().close_connection()
+    except Exception:
+        pass
     _dictionary = _writing = _translator = _dbmanager = _data_core = None
 
 
@@ -151,7 +176,7 @@ def _database_info() -> Dict[str, Any]:
     word_count = 0
     song_count = 0
     if path.is_file():
-        with sqlite3.connect(path) as conn:
+        with _connect(path) as conn:
             table_count = conn.execute(
                 "SELECT COUNT(*) FROM sqlite_master WHERE type='table' "
                 "AND name NOT LIKE 'sqlite_%'"
@@ -194,6 +219,37 @@ def _database_metadata() -> Dict[str, Any]:
     return _ok(database_version=version, metadata=values)
 
 
+def _gov_identity() -> Dict[str, Any]:
+    """Everything the database-governance screen needs in one read-only call."""
+    info = _database_info()
+    metadata = _database_metadata()
+    values = metadata.get("metadata", {})
+    local_edits = 0
+    backups: list = []
+    try:
+        local_edits = int(_data_core.local_edits_count())
+        backups = _data_core.backup_list()
+    except Exception:  # noqa: BLE001 - identity must still render without a ledger
+        local_edits = local_edits or 0
+        backups = backups or []
+    return _ok(
+        db_version=int(metadata.get("database_version", 0)),
+        published_at=str(values.get("published_at", "")),
+        notes=str(values.get("notes", "")),
+        format=str(values.get("format", "")),
+        sha256=str(info.get("sha256", "")),
+        size=int(info.get("size", 0)),
+        modified=str(info.get("modified", "")),
+        word_count=int(info.get("word_count", 0)),
+        song_count=int(info.get("song_count", 0)),
+        table_count=int(info.get("table_count", 0)),
+        local_edits=local_edits,
+        local_modified=local_edits > 0,
+        backup_count=len(backups),
+        latest_backup=(backups[0] if backups else None),
+    )
+
+
 def _table_page(payload: Dict[str, Any]) -> Dict[str, Any]:
     from webui_backend.data_core import DataError
 
@@ -223,7 +279,7 @@ def _export_csv_zip(path: str) -> Dict[str, Any]:
     output.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(dir=_data_dir) as temp_dir:
         temp_root = Path(temp_dir)
-        with sqlite3.connect(_db_path) as conn:
+        with _connect(_db_path) as conn:
             tables = [
                 row[0] for row in conn.execute(
                     "SELECT name FROM sqlite_master WHERE type='table' "
@@ -270,7 +326,7 @@ def _run_maintenance(kind: str) -> Dict[str, Any]:
 
 def _validate_database(path: Path) -> None:
     required = {"dictionary", "dictionary_headwords", "songs", "phrase", "raw"}
-    with sqlite3.connect(path) as conn:
+    with _connect(path) as conn:
         present = {
             row[0] for row in conn.execute(
                 "SELECT name FROM sqlite_master WHERE type='table'"
@@ -285,7 +341,7 @@ def _validate_database(path: Path) -> None:
 def _compare_database_counts(remote_path: Path) -> Dict[str, Any]:
     summary = {}
     for label, path in (("local", Path(_db_path)), ("remote", remote_path)):
-        with sqlite3.connect(path) as conn:
+        with _connect(path) as conn:
             summary[label] = {
                 "words": conn.execute("SELECT COUNT(*) FROM dictionary_headwords").fetchone()[0],
                 "senses": conn.execute("SELECT COUNT(*) FROM dictionary").fetchone()[0],
@@ -363,7 +419,7 @@ def _build_database_diff(local_path: Path, remote_path: Path) -> Dict[str, Any]:
         "total_field_changes": 0,
         "tables": [],
     }
-    with sqlite3.connect(local_path) as local_conn, sqlite3.connect(remote_path) as remote_conn:
+    with _connect(local_path) as local_conn, _connect(remote_path) as remote_conn:
         local_tables = _database_tables(local_conn)
         remote_tables = _database_tables(remote_conn)
         for table in sorted(local_tables | remote_tables):
@@ -1041,6 +1097,8 @@ def invoke(method: str, payload_json: str = "{}") -> str:
                     )
                     outcome["backup"] = backup
                 result = outcome
+            elif method == "gov_identity":
+                result = _gov_identity()
             elif method == "gov_backups":
                 backups = _data_core.backup_list()
                 result = _ok(backups=backups, count=len(backups))
