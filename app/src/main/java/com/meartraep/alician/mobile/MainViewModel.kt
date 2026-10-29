@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.meartraep.alician.mobile.data.AppUpdateInfo
+import com.meartraep.alician.mobile.data.BackupEntry
 import com.meartraep.alician.mobile.data.DatabaseInfo
 import com.meartraep.alician.mobile.data.DatabasePublisher
 import com.meartraep.alician.mobile.data.DeviceCode
@@ -30,6 +31,7 @@ import com.meartraep.alician.mobile.data.DictionaryResult
 import com.meartraep.alician.mobile.data.DictionarySense
 import com.meartraep.alician.mobile.data.ExampleResult
 import com.meartraep.alician.mobile.data.GlobalMatch
+import com.meartraep.alician.mobile.data.GovIdentity
 import com.meartraep.alician.mobile.data.LookupResult
 import com.meartraep.alician.mobile.data.PublishCredential
 import com.meartraep.alician.mobile.data.PublishCredentialStore
@@ -185,6 +187,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private var mutationSerial = 0L
 
     var databaseInfo by mutableStateOf(DatabaseInfo())
+        private set
+
+    /** P4 governance state: installed-database identity and recovery points. */
+    var govIdentity by mutableStateOf<GovIdentity?>(null)
+        private set
+    var govBackups by mutableStateOf<List<BackupEntry>>(emptyList())
         private set
     var remoteComparison by mutableStateOf<RemoteComparison?>(null)
         private set
@@ -1083,6 +1091,54 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun dismissRemoteComparison() {
         remoteComparison = null
+    }
+
+    // ---------------------------------------------------------- P4 governance
+
+    /** Reads the installed-database identity plus local-edit/backup counters. */
+    fun refreshGovIdentity() {
+        if (!ready) return
+        launchTask("正在读取数据库信息…") {
+            govIdentity = repository.govIdentity()
+        }
+    }
+
+    /** Reads the recovery-point list (newest first). */
+    fun refreshGovBackups() {
+        if (!ready) return
+        launchTask("正在读取恢复点…") {
+            govBackups = repository.govBackups()
+        }
+    }
+
+    /** Creates one manual recovery point, then refreshes the governance counters. */
+    fun createGovBackup() {
+        submitDataMutation {
+            val message = repository.govBackupCreate("manual")
+            refreshGovernanceState()
+            message
+        }
+    }
+
+    /**
+     * Restores one recovery point. The bridge snapshots the current database first;
+     * after the swap the in-memory caches must be rebuilt like any database replacement.
+     */
+    fun restoreGovBackup(path: String) {
+        if (path.isBlank()) return
+        submitDataMutation {
+            val message = repository.govBackupRestore(path)
+            runCatching { afterDatabaseChanged() }
+            refreshGovernanceState()
+            message
+        }
+    }
+
+    /** Best-effort re-read of everything the governance screen shows. */
+    private suspend fun refreshGovernanceState() {
+        runCatching { repository.govIdentity() }.onSuccess { govIdentity = it }
+        runCatching { repository.govBackups() }.onSuccess { govBackups = it }
+        runCatching { repository.databaseInfo() }.onSuccess { databaseInfo = it }
     }
 
     /** Manual "check now" from the settings screen; always reports the outcome. */

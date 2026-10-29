@@ -1,7 +1,5 @@
 package com.meartraep.alician.mobile.ui
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -13,40 +11,27 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.OpenInNew
-import androidx.compose.material.icons.outlined.CloudDownload
 import androidx.compose.material.icons.outlined.ChevronRight
-import androidx.compose.material.icons.outlined.FolderOpen
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.NewReleases
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.Refresh
-import androidx.compose.material.icons.outlined.RestartAlt
-import androidx.compose.material.icons.outlined.Save
 import androidx.compose.material.icons.outlined.Storage
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,26 +41,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import com.meartraep.alician.mobile.BuildConfig
 import com.meartraep.alician.mobile.MainViewModel
 import com.meartraep.alician.mobile.data.AppUpdateInfo
 import com.meartraep.alician.mobile.data.ColorPalette
-import com.meartraep.alician.mobile.data.DatabaseRowDiff
-import com.meartraep.alician.mobile.data.DatabaseTableDiff
-import com.meartraep.alician.mobile.data.RemoteComparison
 import com.meartraep.alician.mobile.data.ThemeMode
 import com.meartraep.alician.mobile.data.TypographySize
 import com.meartraep.alician.mobile.data.UiSettings
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
+/**
+ * 设置页：界面设置 + 档案版本信息。
+ * 数据库相关的一切（版本/更新/恢复点/发布/数据来源）已合并进「数据库」治理页。
+ */
 @Composable
 fun SettingsScreen(viewModel: MainViewModel, padding: PaddingValues) {
     var showUiSettings by rememberSaveable { mutableStateOf(false) }
-    var showDatabaseManager by rememberSaveable { mutableStateOf(false) }
+    var showDatabaseGovernance by rememberSaveable { mutableStateOf(false) }
     if (showUiSettings) {
         UiSettingsScreen(
             settings = viewModel.uiSettings,
@@ -86,29 +67,25 @@ fun SettingsScreen(viewModel: MainViewModel, padding: PaddingValues) {
         )
         return
     }
-    if (showDatabaseManager) {
-        DatabaseScreen(
+    if (showDatabaseGovernance) {
+        DatabaseGovernanceScreen(
             viewModel = viewModel,
+            onBack = { showDatabaseGovernance = false },
             padding = padding,
-            onBack = { showDatabaseManager = false },
         )
         return
     }
 
-    var confirmReset by remember { mutableStateOf(false) }
-    var showPublishTokenDialog by rememberSaveable { mutableStateOf(false) }
-    var showPublishAppDialog by rememberSaveable { mutableStateOf(false) }
-    var showPublishDialog by rememberSaveable { mutableStateOf(false) }
     val uriHandler = LocalUriHandler.current
-    val importLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.OpenDocument(),
-    ) { uri ->
-        if (uri != null) viewModel.importDatabase(uri)
+    // 设置页的「数据库」卡需要身份摘要；进入治理页时治理页会再刷新一次。
+    LaunchedEffect(Unit) {
+        if (viewModel.govIdentity == null) viewModel.refreshGovIdentity()
     }
-    val exportLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.CreateDocument("application/vnd.sqlite3"),
-    ) { uri ->
-        if (uri != null) viewModel.exportDatabase(uri)
+    val identity = viewModel.govIdentity
+    val databaseSummary = when {
+        identity == null -> "读取中…"
+        identity.localModified -> "v${identity.dbVersion} · 本地已修改 ${identity.localEdits} 处"
+        else -> "v${identity.dbVersion} · 无本地修改"
     }
 
     val landscape = isLandscapeLayout()
@@ -128,7 +105,7 @@ fun SettingsScreen(viewModel: MainViewModel, padding: PaddingValues) {
             Column(Modifier.fillMaxWidth()) {
                 Text("设置", style = MaterialTheme.typography.headlineMedium)
                 Text(
-                    "显示、数据维护与版本信息",
+                    "显示、数据库治理与版本信息",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -162,12 +139,14 @@ fun SettingsScreen(viewModel: MainViewModel, padding: PaddingValues) {
                 }
             }
         }
-        item { SectionHeader("词典数据库", "更新或导入前均会自动创建本地备份") }
+        item {
+            SectionHeader("数据库", "版本、更新、恢复点、发布与数据来源")
+        }
         item {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { showDatabaseManager = true },
+                    .clickable { showDatabaseGovernance = true },
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
                     contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -180,155 +159,14 @@ fun SettingsScreen(viewModel: MainViewModel, padding: PaddingValues) {
                     Icon(Icons.Outlined.Storage, contentDescription = null)
                     Spacer(Modifier.width(14.dp))
                     Column(Modifier.weight(1f)) {
-                        Text("数据库管理", style = MaterialTheme.typography.titleMedium)
+                        Text("数据库", style = MaterialTheme.typography.titleMedium)
                         Text(
-                            "浏览、搜索和编辑数据库中的数据表",
+                            databaseSummary,
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }
-                    Icon(Icons.Outlined.ChevronRight, contentDescription = "进入数据库管理")
+                    Icon(Icons.Outlined.ChevronRight, contentDescription = "进入数据库治理")
                 }
-            }
-        }
-        item {
-            SettingsCard {
-                DatabaseMetricLine("词头", viewModel.databaseInfo.wordCount.toString())
-                DatabaseMetricLine("歌曲", viewModel.databaseInfo.songCount.toString())
-                DatabaseMetricLine("数据表", viewModel.databaseInfo.tableCount.toString())
-                DatabaseMetricLine("文件大小", formatBytes(viewModel.databaseInfo.size))
-                DatabaseMetricLine("修改时间", viewModel.databaseInfo.modified.ifBlank { "未知" })
-                DatabaseMetricLine(
-                    "SHA-256",
-                    viewModel.databaseInfo.sha256.take(16).ifBlank { "尚未读取" } +
-                        if (viewModel.databaseInfo.sha256.length > 16) "…" else "",
-                )
-            }
-        }
-        item { SectionHeader("数据库更新", "每次启动自动检查 GitHub 上的发布清单") }
-        item {
-            SettingsCard {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f)) {
-                        Text("启动时自动检查", style = MaterialTheme.typography.titleSmall)
-                        Text(
-                            "发现新版本时弹出提示，确认后才下载",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                    Switch(
-                        checked = viewModel.autoDatabaseUpdateCheck,
-                        onCheckedChange = viewModel::updateAutoDatabaseUpdateCheck,
-                    )
-                }
-                DatabaseMetricLine("本地数据库版本", "v" + viewModel.localDatabaseVersion)
-                DatabaseMetricLine("最近检查", formatLastCheck(viewModel.lastDatabaseCheckAt))
-                viewModel.databaseUpdateError?.let { message ->
-                    Text(
-                        message,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error,
-                    )
-                }
-            }
-        }
-        item {
-            Button(
-                onClick = viewModel::checkDatabaseUpdate,
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !viewModel.checkingDatabaseUpdate,
-            ) {
-                Icon(Icons.Outlined.CloudDownload, contentDescription = null)
-                Spacer(Modifier.width(8.dp))
-                Text(if (viewModel.checkingDatabaseUpdate) "正在检查…" else "立即检查数据库更新")
-            }
-        }
-        item {
-            SectionHeader(
-                "手机端发布",
-                "手机写入版本号并用设备密钥签名；CI 只做校验",
-            )
-        }
-        item {
-            PublishSigningCard(
-                ready = viewModel.publishSigningReady,
-                keyId = viewModel.publishSigningKeyId,
-                requiresAuth = viewModel.publishSigningRequiresAuth,
-                deviceIsSecure = viewModel.publishDeviceIsSecure,
-                onCreate = viewModel::createPublishSigningKey,
-                onCopy = viewModel::publishSigningPublicKey,
-                onClear = viewModel::clearPublishSigningKey,
-            )
-        }
-        item {
-            DatabasePublishCard(
-                credential = viewModel.publishCredential,
-                authMode = viewModel.publishAuthMode,
-                onConfigure = { showPublishTokenDialog = true },
-                onAppLogin = { showPublishAppDialog = true },
-                onAppSignOut = viewModel::signOutPublishApp,
-                onClear = viewModel::clearPublishToken,
-                onPublish = {
-                    viewModel.prepareDatabasePublish()
-                    showPublishDialog = true
-                },
-            )
-        }
-        item {
-            SectionHeader(
-                "上游完整数据库",
-                "Meartraep/Alician_dictionary 的全量数据，不含官方日/英译词",
-            )
-        }
-        item {
-            OutlinedButton(
-                onClick = viewModel::checkRemoteUpdate,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Icon(Icons.Outlined.CloudDownload, contentDescription = null)
-                Spacer(Modifier.width(8.dp))
-                Text("检查并导入上游完整数据库")
-            }
-        }
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                OutlinedButton(
-                    onClick = {
-                        importLauncher.launch(
-                            arrayOf(
-                                "application/vnd.sqlite3",
-                                "application/octet-stream",
-                                "*/*",
-                            ),
-                        )
-                    },
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Icon(Icons.Outlined.FolderOpen, contentDescription = null)
-                    Spacer(Modifier.width(6.dp))
-                    Text("导入")
-                }
-                OutlinedButton(
-                    onClick = { exportLauncher.launch("translated.db") },
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Icon(Icons.Outlined.Save, contentDescription = null)
-                    Spacer(Modifier.width(6.dp))
-                    Text("导出")
-                }
-            }
-        }
-        item {
-            OutlinedButton(
-                onClick = { confirmReset = true },
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Icon(Icons.Outlined.RestartAlt, contentDescription = null)
-                Spacer(Modifier.width(8.dp))
-                Text("恢复 APK 内置数据库")
             }
         }
         item {
@@ -371,61 +209,9 @@ fun SettingsScreen(viewModel: MainViewModel, padding: PaddingValues) {
             InfoBanner(
                 "本应用基于 Meartraep/Alician_dictionary 的 Lite 版开发，遵循 " +
                     "CC BY-NC-SA 4.0，限非商业用途。移动端保留词典、歌词上下文、" +
-                    "写作检查、双向翻译、数据库管理和数据更新能力。",
+                    "写作检查、双向翻译、数据库治理与数据更新能力。",
             )
         }
-    }
-
-    if (confirmReset) {
-        ConfirmActionDialog(
-            title = "恢复内置数据库？",
-            message = "当前数据库会先自动备份，然后恢复为此 APK 附带的版本。当前编辑不会丢失，但需要通过备份文件手动恢复。",
-            confirmText = "恢复",
-            destructive = true,
-            onConfirm = {
-                confirmReset = false
-                viewModel.resetDatabase()
-            },
-            onDismiss = { confirmReset = false },
-        )
-    }
-    if (showPublishTokenDialog) {
-        PublishTokenDialog(
-            onSave = { token ->
-                showPublishTokenDialog = false
-                viewModel.savePublishToken(token)
-            },
-            onDismiss = { showPublishTokenDialog = false },
-        )
-    }
-    if (showPublishAppDialog) {
-        PublishAppLoginDialog(
-            clientId = viewModel.publishClientId,
-            code = viewModel.deviceFlowCode,
-            message = viewModel.deviceFlowMessage,
-            running = viewModel.deviceFlowRunning,
-            onStart = viewModel::startDeviceFlowLogin,
-            onDismiss = {
-                showPublishAppDialog = false
-                viewModel.cancelDeviceFlowLogin()
-            },
-        )
-    }
-    if (showPublishDialog) {
-        DatabasePublishDialog(
-            viewModel = viewModel,
-            onDismiss = {
-                showPublishDialog = false
-                viewModel.dismissPublishDialog()
-            },
-        )
-    }
-    viewModel.remoteComparison?.let { comparison ->
-        RemoteUpdateDialog(
-            comparison = comparison,
-            onApply = viewModel::applyRemoteUpdate,
-            onDismiss = viewModel::dismissRemoteComparison,
-        )
     }
 }
 
@@ -588,255 +374,6 @@ internal fun DatabaseMetricLine(label: String, value: String) {
     }
 }
 
-@Composable
-private fun RemoteUpdateDialog(
-    comparison: RemoteComparison,
-    onApply: () -> Unit,
-    onDismiss: () -> Unit,
-) {
-    if (comparison.upToDate) {
-        AlertDialog(
-            onDismissRequest = onDismiss,
-            title = { Text("数据库已是最新") },
-            text = { Text(comparison.message) },
-            confirmButton = {
-                Button(onClick = onDismiss) { Text("完成") }
-            },
-        )
-        return
-    }
-
-    val changedTables = comparison.diff.tables
-    var selectedTable by remember(comparison.remoteSha1) {
-        mutableStateOf(changedTables.firstOrNull()?.table.orEmpty())
-    }
-    val selected = changedTables.firstOrNull { it.table == selectedTable }
-
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false),
-    ) {
-        Surface(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(12.dp),
-            shape = MaterialTheme.shapes.extraLarge,
-            tonalElevation = 6.dp,
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                Text("数据库更新 — 全部差异", style = MaterialTheme.typography.headlineSmall)
-                Text(
-                    comparison.message,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                MetricRow(
-                    "新增行" to comparison.diff.totalAdded.toString(),
-                    "删除行" to comparison.diff.totalRemoved.toString(),
-                )
-                MetricRow(
-                    "修改行" to comparison.diff.totalModified.toString(),
-                    "字段变更" to comparison.diff.totalFieldChanges.toString(),
-                )
-                Text(
-                    "涉及 ${changedTables.size} 张表；选择表后可逐行、逐字段查看。",
-                    style = MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.primary,
-                )
-                if (changedTables.isNotEmpty()) {
-                    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        items(changedTables, key = DatabaseTableDiff::table) { table ->
-                            FilterChip(
-                                selected = selectedTable == table.table,
-                                onClick = { selectedTable = table.table },
-                                label = {
-                                    Text(
-                                        "${table.table}  +${table.added} −${table.removed} " +
-                                            "~${table.modified}",
-                                    )
-                                },
-                            )
-                        }
-                    }
-                }
-                if (selected == null) {
-                    InfoBanner(
-                        "文件内容不同，但没有检测到可显示的逐行数据差异；可能仅有数据库元数据或结构变化。",
-                    )
-                    Spacer(Modifier.weight(1f))
-                } else {
-                    DatabaseTableDiffDetails(
-                        table = selected,
-                        modifier = Modifier.weight(1f),
-                    )
-                }
-                HorizontalDivider()
-                Text(
-                    "采纳更新前会自动备份当前数据库。",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    OutlinedButton(
-                        onClick = onDismiss,
-                        modifier = Modifier.weight(1f),
-                    ) { Text("放弃更新") }
-                    Button(
-                        onClick = onApply,
-                        modifier = Modifier.weight(1f),
-                    ) { Text("备份并更新") }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun DatabaseTableDiffDetails(
-    table: DatabaseTableDiff,
-    modifier: Modifier = Modifier,
-) {
-    LazyColumn(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-    ) {
-        item {
-            Text("表：${table.table}", style = MaterialTheme.typography.titleLarge)
-            Text(
-                "本地 ${table.localRows} 行 → 云端 ${table.remoteRows} 行　" +
-                    "新增 ${table.added} · 删除 ${table.removed} · 修改 ${table.modified} · " +
-                    "字段 ${table.fieldChanges}",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-        if (table.addedRows.isNotEmpty()) {
-            item {
-                SectionHeader(
-                    "新增行",
-                    diffDisplayCount(
-                        shown = table.addedRows.size,
-                        total = table.added,
-                        truncated = table.truncatedAdded,
-                    ),
-                )
-            }
-            itemsIndexed(
-                table.addedRows,
-                key = { index, row -> "added:${row.id}:$index" },
-            ) { _, row ->
-                DatabaseRowDiffCard(
-                    prefix = "+",
-                    row = row,
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                    ),
-                )
-            }
-        }
-        if (table.removedRows.isNotEmpty()) {
-            item {
-                SectionHeader(
-                    "删除行",
-                    diffDisplayCount(
-                        shown = table.removedRows.size,
-                        total = table.removed,
-                        truncated = table.truncatedRemoved,
-                    ),
-                )
-            }
-            itemsIndexed(
-                table.removedRows,
-                key = { index, row -> "removed:${row.id}:$index" },
-            ) { _, row ->
-                DatabaseRowDiffCard(
-                    prefix = "−",
-                    row = row,
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                    ),
-                )
-            }
-        }
-        if (table.fieldDiffs.isNotEmpty()) {
-            item {
-                SectionHeader(
-                    "修改详情",
-                    diffDisplayCount(
-                        shown = table.fieldDiffs.size,
-                        total = table.fieldChanges,
-                        truncated = table.truncatedModified,
-                    ),
-                )
-            }
-            itemsIndexed(
-                table.fieldDiffs,
-                key = { index, field -> "${field.rowId}:${field.column}:$index" },
-            ) { _, field ->
-                Card(
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                    ),
-                ) {
-                    Column(
-                        modifier = Modifier.padding(14.dp),
-                        verticalArrangement = Arrangement.spacedBy(5.dp),
-                    ) {
-                        Text(
-                            "~ 行 ${field.rowId}　[${field.column}]",
-                            style = MaterialTheme.typography.titleSmall,
-                        )
-                        Text("本地：${field.localValue}")
-                        Text("云端：${field.remoteValue}")
-                    }
-                }
-            }
-        }
-        if (
-            table.addedRows.isEmpty() &&
-            table.removedRows.isEmpty() &&
-            table.fieldDiffs.isEmpty()
-        ) {
-            item {
-                InfoBanner("此表有数量差异，但没有可显示的明细。")
-            }
-        }
-    }
-}
-
-@Composable
-private fun DatabaseRowDiffCard(
-    prefix: String,
-    row: DatabaseRowDiff,
-    colors: androidx.compose.material3.CardColors,
-) {
-    Card(colors = colors) {
-        Column(
-            modifier = Modifier.padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(5.dp),
-        ) {
-            Text("$prefix 行 ${row.id}", style = MaterialTheme.typography.titleSmall)
-            row.values.forEach { (field, value) ->
-                Text(field, style = MaterialTheme.typography.labelMedium)
-                Text(value, style = MaterialTheme.typography.bodyMedium)
-            }
-        }
-    }
-}
-
-private fun diffDisplayCount(shown: Int, total: Int, truncated: Boolean): String =
-    if (truncated) "显示 $shown / $total 项（与原版一致，单类最多 2000 项）"
-    else "共 $total 项"
-
 private fun uiSettingsSummary(settings: UiSettings): String {
     val mode = when (settings.themeMode) {
         ThemeMode.SYSTEM -> "跟随系统"
@@ -859,17 +396,4 @@ private fun uiSettingsSummary(settings: UiSettings): String {
         TypographySize.LARGE -> "大号字体"
     }
     return "$mode · $colors · $type"
-}
-
-private fun formatLastCheck(timestamp: Long): String =
-    if (timestamp <= 0L) {
-        "尚未检查"
-    } else {
-        SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date(timestamp))
-    }
-
-private fun formatBytes(size: Long): String = when {
-    size >= 1024 * 1024 -> String.format(Locale.US, "%.1f MB", size / 1024.0 / 1024.0)
-    size >= 1024 -> String.format(Locale.US, "%.1f KB", size / 1024.0)
-    else -> "$size B"
 }

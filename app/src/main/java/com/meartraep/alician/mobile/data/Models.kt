@@ -457,3 +457,32 @@ data class ReplacePreview(
     val replacement: String,
     val matches: List<GlobalMatch>,
 )
+
+/** One recovery point (backup file) shown in the database governance screen. */
+data class BackupEntry(
+    val path: String,
+    val name: String,
+    val dbVersion: Int,
+    val size: Long,
+    val sha1: String,
+    val createdAt: String,
+    val reason: String,
+)
+
+/** Read-only identity of the installed database plus local-edit/backup counters. */
+data class GovIdentity(
+    val dbVersion: Int,
+    val publishedAt: String,
+    val notes: String,
+    val format: String,
+    val sha256: String,
+    val size: Long,
+    val modified: String,
+    val wordCount: Int,
+    val songCount: Int,
+    val tableCount: Int,
+    val localEdits: Int,
+    val localModified: Boolean,
+    val backupCount: Int,
+    val latestBackup: BackupEntry?,
+)

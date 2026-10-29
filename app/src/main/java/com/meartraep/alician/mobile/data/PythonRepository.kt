@@ -656,6 +656,47 @@ class PythonRepository(private val application: Application) {
         )
     }
 
+    // ---- P4 governance -----------------------------------------------------
+
+    /** Read-only identity of the installed database for the governance screen. */
+    suspend fun govIdentity(): GovIdentity {
+        val json = invoke("gov_identity")
+        return GovIdentity(
+            dbVersion = json.optInt("db_version"),
+            publishedAt = json.optString("published_at"),
+            notes = json.optString("notes"),
+            format = json.optString("format"),
+            sha256 = json.optString("sha256"),
+            size = json.optLong("size"),
+            modified = json.optString("modified"),
+            wordCount = json.optInt("word_count"),
+            songCount = json.optInt("song_count"),
+            tableCount = json.optInt("table_count"),
+            localEdits = json.optInt("local_edits"),
+            localModified = json.optBoolean("local_modified"),
+            backupCount = json.optInt("backup_count"),
+            latestBackup = json.optJSONObject("latest_backup")?.toBackupEntry(),
+        )
+    }
+
+    /** Recovery points, newest first (each verified against its sidecar). */
+    suspend fun govBackups(): List<BackupEntry> {
+        val array = invoke("gov_backups").getJSONArray("backups")
+        return List(array.length()) { index ->
+            array.getJSONObject(index).toBackupEntry()
+        }
+    }
+
+    suspend fun govBackupCreate(reason: String = "manual"): String {
+        val json = invoke("gov_backup_create", JSONObject().put("reason", reason))
+        return json.optString("message").ifBlank { "恢复点已创建。" }
+    }
+
+    suspend fun govBackupRestore(path: String): String =
+        invoke("gov_backup_restore", JSONObject().put("path", path))
+            .optString("message")
+            .ifBlank { "已恢复到所选恢复点。" }
+
     suspend fun prepareCsvArchive(): File {
         val output = File(application.cacheDir, "AlicianDictionaryCsv.zip")
         invoke("export_csv_zip", JSONObject().put("path", output.absolutePath))
@@ -988,6 +1029,16 @@ private fun JSONObject?.toIntMap(): Map<String, Int> {
     if (this == null) return emptyMap()
     return keys().asSequence().associateWith { optInt(it) }
 }
+
+private fun JSONObject.toBackupEntry(): BackupEntry = BackupEntry(
+    path = optString("path"),
+    name = optString("name"),
+    dbVersion = optInt("db_version"),
+    size = optLong("size"),
+    sha1 = optString("sha1"),
+    createdAt = optString("created_at"),
+    reason = optString("reason"),
+)
 
 private fun JSONObject.toGlobalMatch(): GlobalMatch = GlobalMatch(
     table = optString("table"),
