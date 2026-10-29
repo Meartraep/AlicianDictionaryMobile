@@ -420,6 +420,7 @@ fun DatabaseGovernanceScreen(
             submitting = backupCreateState.submitting,
             successMessage = backupCreateState.successMessage,
             errorMessage = backupCreateState.errorMessage,
+            notice = "创建后会出现在下方「恢复点」列表。",
             onConfirm = {
                 backupCreateState.begin()
                 viewModel.createGovBackup()
@@ -440,6 +441,7 @@ fun DatabaseGovernanceScreen(
             submitting = backupRestoreState.submitting,
             successMessage = backupRestoreState.successMessage,
             errorMessage = backupRestoreState.errorMessage,
+            notice = null,
             onConfirm = {
                 backupRestoreState.begin()
                 viewModel.restoreGovBackup(restoreBackup.path)
@@ -459,6 +461,7 @@ fun DatabaseGovernanceScreen(
             submitting = false,
             successMessage = null,
             errorMessage = null,
+            notice = null,
             onConfirm = {
                 confirmReset = false
                 viewModel.resetDatabase()

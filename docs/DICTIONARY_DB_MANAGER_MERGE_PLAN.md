@@ -663,3 +663,34 @@ python -m unittest test_database_versioning test_verify_published_database      
 声明式外键防孤儿）、策展词条全生命周期（创建→检索可见→加义项→删义项→删词条）、
 删除自动恢复点、最后义项保护、失败事务不留下半成品数据 —— 全部通过；
 `translated.db` sha256 未变。
+
+### P3 维护动作迁移 —— 已完成（2026-10-29，提交 28df84b / dd40db0 / 691927d）
+
+| 项目 | 结果 |
+|---|---|
+| 唯一正文源 | `update_word_count.py` 从 `raw.lyric_raw` 改读 `songs.lyric`；`raw` 降级为只读存档 |
+| 维护脚本加固 | 去掉 `synchronous=OFF` / `journal_mode=MEMORY`，改 `busy_timeout=5000` + `foreign_keys=ON`；统计写入显式单事务；逐词打印改 verbose-only |
+| 维护恢复点 | bridge `_run_maintenance` 执行前自动创建恢复点，失败拒绝运行；服务重开即刷新翻译缓存 |
+| no_class 收窄 | `DataCore.rebuild_no_class` 只重建 `no_class`（按 class 为空的义项按词去重、单事务、幂等），不再生成 13 张词性表 |
+| 全局替换 | `data_replace_preview` / `data_replace_apply`：仅 6 张可写表、**区分大小写**子串（词库存在 `La`/`la` 变体，刻意如此）、预览门控、apply 前恢复点 |
+| UI | 词典「数据」工作区「维护与导出」入口：重算词频 / 重建 no_class / 全局替换 / 导出 CSV(ZIP) / 导出 SQLite / 数据库诊断；DatabaseScreen 维护项全部迁走 |
+| 验收 | 真库副本探针（a/Finz/Xia/end 词频与独立复算一致、替换 470 处仅 5 表、`raw` 未动）；`test_maintenance.py` 6/6；模拟器实测维护菜单与替换对话框（截图 10-12.png） |
+
+### P4 数据库治理页 —— 已完成（2026-10-29，提交 335e62a / 8a2eab1）
+
+| 项目 | 结果 |
+|---|---|
+| 前置修复 | 5 处 `with sqlite3.connect(...)` 只提交不关闭导致句柄泄漏，使 `atomic_replace_file` 在 Windows 报 WinError 5——恢复点回退与整库导入随机失败；新增 `_connect()` 上下文管理器 + `_close_services` 关闭写作单例连接（测试用 mutation 证明旧实现可复现失败） |
+| `gov_identity` | 一次返回版本/发布时间/格式/sha256/大小/计数/本地修改数/恢复点数/最新恢复点 |
+| 治理页 | `DatabaseGovernanceScreen`（830 行）五节：版本与身份、更新、恢复点与回退（创建/列表/恢复/恢复内置库）、发布（既有卡片与对话框迁入）、数据来源（上游检查/导入/导出） |
+| 设置页 | 875→347 行，只保留一张「数据库」卡（副标题实时显示版本 + 本地修改数），点击进入治理页；启动更新弹窗不变 |
+| 验收 | `test_governance.py` 6/6（含泄漏回归钉子）；全量 pytest 248 passed；模拟器实测五节渲染、创建恢复点成功并出现在列表（14-15.png） |
+
+### P5 收尾 —— 进行中（2026-10-29，提交 88dc61b）
+
+| 项目 | 结果 |
+|---|---|
+| 旧模块删除 | `DatabaseScreen.kt`（312 行）、`dbmanager_service.py`（136 行）、`db_*` 七个桥方法、`_table_page`、`classify_words` 维护分支；VM/Repo 旧面 9 个方法、`DbTablePage` 模型全部移除（净 −714 行） |
+| 验证 | `compileDebugKotlin + testDebugUnitTest` BUILD SUCCESSFUL；六套件合跑 125 tests OK；`git grep` 确认旧符号零残留 |
+| polish | 创建恢复点/恢复/恢复内置库的确认框不再复用通用恢复点提示，改为各自语义文案；三个发布对话框补 `Modifier.imePadding()` |
+| 待办 | 13 张词性表随数据库 bump 清理（改资产库+台账+清单+CI，单独发布流程）；`song_translations` 1 条孤儿同批修；推送/PR 时机由用户决定 |

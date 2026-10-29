@@ -134,6 +134,7 @@ internal fun MaintenanceConfirmDialog(
     errorMessage: String?,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
+    notice: String? = "执行前会自动创建恢复点，可在 设置 → 数据库 中回退。",
 ) {
     val done = successMessage != null
     AlertDialog(
@@ -153,7 +154,7 @@ internal fun MaintenanceConfirmDialog(
                 } else if (errorMessage != null) {
                     InfoBanner(errorMessage, isError = true)
                 }
-                InfoBanner("执行前会自动创建恢复点，可在 设置 → 数据库 中回退。")
+                notice?.let { InfoBanner(it) }
             }
         },
         confirmButton = {

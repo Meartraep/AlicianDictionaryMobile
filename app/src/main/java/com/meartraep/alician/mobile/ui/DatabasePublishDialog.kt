@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
@@ -160,6 +161,7 @@ fun PublishAppLoginDialog(
     var field by rememberSaveable { mutableStateOf(clientId) }
     val uriHandler = LocalUriHandler.current
     AlertDialog(
+        modifier = Modifier.imePadding(),
         onDismissRequest = { if (!running) onDismiss() },
         icon = { Icon(Icons.Outlined.VerifiedUser, contentDescription = null) },
         title = { Text(if (code == null) "用 GitHub App 登录" else "在浏览器中确认") },
@@ -296,6 +298,7 @@ fun PublishSigningCard(
 fun PublishTokenDialog(onSave: (String) -> Unit, onDismiss: () -> Unit) {
     var token by rememberSaveable { mutableStateOf("") }
     AlertDialog(
+        modifier = Modifier.imePadding(),
         onDismissRequest = onDismiss,
         icon = { Icon(Icons.Outlined.Key, contentDescription = null) },
         title = { Text("配置发布令牌") },
@@ -371,6 +374,7 @@ fun DatabasePublishDialog(viewModel: MainViewModel, onDismiss: () -> Unit) {
         progress.stage == PublishStage.OPENING_PULL_REQUEST
 
     AlertDialog(
+        modifier = Modifier.imePadding(),
         onDismissRequest = { if (!uploading) onDismiss() },
         icon = { Icon(Icons.Outlined.CloudUpload, contentDescription = null) },
         title = {
