@@ -90,7 +90,7 @@ fun WritingScreen(
         it.sourceText == text
     }
     val unknownTextColor = MaterialTheme.colorScheme.error
-    val lowStatTextColor = if (MaterialTheme.colorScheme.surface.luminance() < 0.5f) {
+    val uncertainTextColor = if (MaterialTheme.colorScheme.surface.luminance() < 0.5f) {
         Color(0xFF64B5F6)
     } else {
         Color(0xFF1565C0)
@@ -98,13 +98,13 @@ fun WritingScreen(
     val highlightTransformation = remember(
         currentWritingResult,
         unknownTextColor,
-        lowStatTextColor,
+        uncertainTextColor,
     ) {
         currentWritingResult?.let {
             WritingHighlightVisualTransformation(
                 result = it,
                 unknownColor = unknownTextColor,
-                lowStatColor = lowStatTextColor,
+                uncertainColor = uncertainTextColor,
             )
         } ?: VisualTransformation.None
     }
@@ -242,7 +242,7 @@ private fun LazyListScope.writingEditorItems(
         item {
             Text("写作助手", style = MaterialTheme.typography.headlineMedium)
             Text(
-                "未知词直接标红，低频或低泛度词直接标蓝",
+                "未知词直接标红，词义不确定（词典释义含 (?) 标注）的词标蓝",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -318,7 +318,7 @@ private fun LazyListScope.writingResultItems(
             item {
                 MetricRow(
                     "未知词" to result.unknownCount.toString(),
-                    "低频词" to result.issues.count { it.type == "lowstat" }.toString(),
+                    "不确定词" to result.issues.count { it.type == "uncertain" }.toString(),
                     "问题项" to result.issues.size.toString(),
                 )
             }
@@ -330,7 +330,7 @@ private fun LazyListScope.writingResultItems(
                 )
             }
             if (result.issues.isNotEmpty()) {
-                item { SectionHeader("检查结果", "红色为未知词，蓝色为低频或低泛度词") }
+                item { SectionHeader("检查结果", "红色为未知词，蓝色为词义不确定词") }
                 items(result.issues, key = { it.key }) { issue ->
                     WritingIssueCard(
                         issue = issue,
@@ -359,14 +359,14 @@ private fun LazyListScope.writingResultItems(
 internal class WritingHighlightVisualTransformation(
     private val result: WritingResult,
     private val unknownColor: Color,
-    private val lowStatColor: Color,
+    private val uncertainColor: Color,
 ) : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText = TransformedText(
         buildWritingHighlightedText(
             text = text.text,
             result = result,
             unknownColor = unknownColor,
-            lowStatColor = lowStatColor,
+            uncertainColor = uncertainColor,
         ),
         OffsetMapping.Identity,
     )
@@ -376,12 +376,12 @@ internal fun buildWritingHighlightedText(
     text: String,
     result: WritingResult,
     unknownColor: Color,
-    lowStatColor: Color,
+    uncertainColor: Color,
 ): AnnotatedString = buildAnnotatedString {
     append(text)
-    result.lowStatRanges.forEach { range ->
+    result.uncertainRanges.forEach { range ->
         if (range.start in 0..text.length && range.end in range.start..text.length) {
-            addStyle(SpanStyle(color = lowStatColor), range.start, range.end)
+            addStyle(SpanStyle(color = uncertainColor), range.start, range.end)
         }
     }
     // Unknown ranges are applied last, so red remains authoritative if the
@@ -428,7 +428,7 @@ private fun WritingIssueCard(
                     if (isUnknown) {
                         "未知词 · 点按查询相近词"
                     } else {
-                        "词频 ${issue.count} · 泛度 ${issue.variety}"
+                        "词义不确定 · 词典释义含 (?) 标注"
                     },
                     style = MaterialTheme.typography.bodyMedium,
                 )

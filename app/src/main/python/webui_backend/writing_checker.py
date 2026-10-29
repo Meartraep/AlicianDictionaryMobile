@@ -8,7 +8,7 @@ from difflib import SequenceMatcher
 logger = logging.getLogger(__name__)
 
 class WordChecker:
-    """单词检查器，负责单词的检查、高亮逻辑和统计分析"""
+    """单词检查器，负责单词的检查与高亮逻辑"""
     
     # 预编译正则表达式
     WORD_PATTERN = re.compile(r"\b[a-zA-Z]+\b")  # 匹配单词的正则表达式
@@ -68,7 +68,7 @@ class WordChecker:
         self.check_delay = self.root.after(delay_ms, self.check_words)
     
     def check_words(self):
-        """检查文本中的单词并高亮显示未知单词；同时对低统计单词标蓝；并更新侧边栏"""
+        """检查文本中的单词并高亮显示未知单词；同时对词义不确定单词标蓝；并更新侧边栏"""
         text = self.text_area.get("1.0", "end")
         current_hash = hash(text)
         
@@ -136,7 +136,7 @@ class WordChecker:
     def _clear_all_highlights(self):
         """清除所有高亮"""
         self.text_area.tag_remove("unknown", "1.0", "end")
-        self.text_area.tag_remove("lowstat", "1.0", "end")
+        self.text_area.tag_remove("uncertain", "1.0", "end")
     
     def _clear_changed_lines_highlight(self, changed_lines):
         """清除变化行的高亮"""
@@ -144,7 +144,7 @@ class WordChecker:
             start_pos = f"{line_num}.0"
             end_pos = f"{line_num}.end"
             self.text_area.tag_remove("unknown", start_pos, end_pos)
-            self.text_area.tag_remove("lowstat", start_pos, end_pos)
+            self.text_area.tag_remove("uncertain", start_pos, end_pos)
     
     def _full_text_check(self, text):
         """全量检查文本中的所有单词和词组"""
@@ -157,7 +157,7 @@ class WordChecker:
         unknown_count = 0
         
         # 批量处理：先收集所有需要添加的标签
-        tags_to_add = {"unknown": [], "lowstat": []}
+        tags_to_add = {"unknown": [], "uncertain": []}
         
         # 1. 先检查并标记所有词组
         matched_phrases = self._check_phrases(text, tags_to_add)
@@ -194,27 +194,23 @@ class WordChecker:
             # 检查候选词组是否在已知词组中
             if self.config_manager.get("strict_case"):
                 is_known = phrase_candidate in self.highlight_manager.known_phrases
-                key_for_stats = phrase_candidate
+                word_key = phrase_candidate
             else:
                 phrase_lower = phrase_candidate.lower()
                 is_known = phrase_lower in self.highlight_manager.known_phrases
-                key_for_stats = phrase_lower
+                word_key = phrase_lower
             
             if is_known:
                 # 标记词组位置
                 matched_phrases.add((start, end))
-                
-                # 词组被视为已知，无需高亮
-                # 记录词组统计信息
-                stats = self.highlight_manager.phrase_stats.get(key_for_stats)
-                if stats:
-                    c, v = stats
-                    low_reasons = self.highlight_manager.get_low_stat_reasons(c, v)
-                    if low_reasons:
-                        # 低统计词组，添加蓝色高亮
-                        start_pos = self.get_text_index(text, start)
-                        end_pos = self.get_text_index(text, end)
-                        tags_to_add["lowstat"].append((start_pos, end_pos))
+
+                # 只有词义带 (?) 标注的词组才标蓝
+                if self.highlight_manager.handle_known_phrase(
+                    phrase_candidate, start, word_key
+                ):
+                    start_pos = self.get_text_index(text, start)
+                    end_pos = self.get_text_index(text, end)
+                    tags_to_add["uncertain"].append((start_pos, end_pos))
         
         return matched_phrases
     
@@ -246,7 +242,7 @@ class WordChecker:
             end_pos = self.get_text_index(text, end)
             
             # 检查单词状态
-            is_known, key_for_stats, map_key = self.highlight_manager.check_word_status(word)
+            is_known, word_key, map_key = self.highlight_manager.check_word_status(word)
             
             if not is_known:
                 if self._should_ignore_foreign_word(word, text, start, end):
@@ -256,16 +252,11 @@ class WordChecker:
                 self.highlight_manager.handle_unknown_word(word, start, map_key)
                 unknown_count += 1
             else:
-                # 已知单词，检查统计信息
-                self.highlight_manager.handle_known_word(word, start, key_for_stats, map_key)
-                
-                # 检查是否需要低统计高亮
-                stats = self.highlight_manager.word_stats.get(key_for_stats)
-                if stats:
-                    c, v = stats
-                    low_reasons = self.highlight_manager.get_low_stat_reasons(c, v)
-                    if low_reasons:
-                        tags_to_add["lowstat"].append((start_pos, end_pos))
+                # 已知单词：只有词义带 (?) 标注才标蓝
+                if self.highlight_manager.handle_known_word(
+                    word, start, word_key, map_key
+                ):
+                    tags_to_add["uncertain"].append((start_pos, end_pos))
         
         return unknown_count
     
@@ -282,9 +273,9 @@ class WordChecker:
         for start_idx, end_idx in tags_to_add["unknown"]:
             self.text_area.tag_add("unknown", start_idx, end_idx)
         
-        # 再应用lowstat标签（蓝色）
-        for start_idx, end_idx in tags_to_add["lowstat"]:
-            self.text_area.tag_add("lowstat", start_idx, end_idx)
+        # 再应用 uncertain 标签（蓝色）
+        for start_idx, end_idx in tags_to_add["uncertain"]:
+            self.text_area.tag_add("uncertain", start_idx, end_idx)
             
         # 强制进行一次批量UI更新
         self.text_area.update_idletasks()
@@ -322,7 +313,7 @@ class WordChecker:
         line_positions = self._build_line_positions(text_lines)
         
         # 批量操作：先收集所有需要添加的标签
-        tags_to_add = {"unknown": [], "lowstat": []}
+        tags_to_add = {"unknown": [], "uncertain": []}
         
         # 检查每一行
         for line_num in changed_lines:
@@ -389,26 +380,23 @@ class WordChecker:
             # 检查候选词组是否在已知词组中
             if self.config_manager.get("strict_case"):
                 is_known = phrase_candidate in self.highlight_manager.known_phrases
-                key_for_stats = phrase_candidate
+                word_key = phrase_candidate
             else:
                 phrase_lower = phrase_candidate.lower()
                 is_known = phrase_lower in self.highlight_manager.known_phrases
-                key_for_stats = phrase_lower
+                word_key = phrase_lower
             
             if is_known:
                 # 标记词组位置
                 matched_phrases.add((global_start, global_end))
-                
-                # 检查是否需要低统计高亮
-                stats = self.highlight_manager.phrase_stats.get(key_for_stats)
-                if stats:
-                    c, v = stats
-                    low_reasons = self.highlight_manager.get_low_stat_reasons(c, v)
-                    if low_reasons:
-                        # 低统计词组，添加蓝色高亮
-                        start_pos = self.get_text_index(full_text, global_start)
-                        end_pos = self.get_text_index(full_text, global_end)
-                        tags_to_add["lowstat"].append((start_pos, end_pos))
+
+                # 只有词义带 (?) 标注的词组才标蓝
+                if self.highlight_manager.handle_known_phrase(
+                    phrase_candidate, global_start, word_key
+                ):
+                    start_pos = self.get_text_index(full_text, global_start)
+                    end_pos = self.get_text_index(full_text, global_end)
+                    tags_to_add["uncertain"].append((start_pos, end_pos))
         
         return matched_phrases
     
@@ -451,7 +439,7 @@ class WordChecker:
         if word in excluded_words:
             return False  # 排除项中的单词视为已知，不返回未知计数
         
-        is_known, key_for_stats, map_key = self.highlight_manager.check_word_status(word)
+        is_known, word_key, map_key = self.highlight_manager.check_word_status(word)
         
         if not is_known:
             if self._should_ignore_foreign_word(word, full_text, global_start, global_start + len(word)):
@@ -461,20 +449,16 @@ class WordChecker:
             self.highlight_manager.update_highlight_map_unknown(map_key, word, global_start)
             return True
         else:
-            # 已知单词，检查统计信息
-            self._process_known_word(word, key_for_stats, map_key, start_pos, end_pos, global_start, tags_to_add)
+            # 已知单词：只有词义带 (?) 标注才标蓝
+            self._process_known_word(word, word_key, map_key, start_pos, end_pos, global_start, tags_to_add)
             return False
     
-    def _process_known_word(self, word, key_for_stats, map_key, start_pos, end_pos, global_start, tags_to_add):
-        """处理已知单词"""
-        # 检查是否需要低统计高亮
-        stats = self.highlight_manager.word_stats.get(key_for_stats)
-        if stats:
-            c, v = stats
-            low_reasons = self.highlight_manager.get_low_stat_reasons(c, v)
-            if low_reasons:
-                tags_to_add["lowstat"].append((start_pos, end_pos))
-                self.highlight_manager.update_highlight_map_lowstat(map_key, word, global_start, low_reasons)
+    def _process_known_word(self, word, word_key, map_key, start_pos, end_pos, global_start, tags_to_add):
+        """处理已知单词：仅词义不确定（释义含 (?)）时标蓝。"""
+        if self.highlight_manager.handle_known_word(
+            word, global_start, word_key, map_key
+        ):
+            tags_to_add["uncertain"].append((start_pos, end_pos))
 
     def _normalize_word(self, word):
         return str(word or "").lower()
@@ -637,14 +621,14 @@ class WordChecker:
             start_pos = f"{line_num}.0"
             end_pos = f"{line_num}.end"
             self.text_area.tag_remove("unknown", start_pos, end_pos)
-            self.text_area.tag_remove("lowstat", start_pos, end_pos)
+            self.text_area.tag_remove("uncertain", start_pos, end_pos)
         
         # 批量应用标签
         for start_idx, end_idx in tags_to_add["unknown"]:
             self.text_area.tag_add("unknown", start_idx, end_idx)
         
-        for start_idx, end_idx in tags_to_add["lowstat"]:
-            self.text_area.tag_add("lowstat", start_idx, end_idx)
+        for start_idx, end_idx in tags_to_add["uncertain"]:
+            self.text_area.tag_add("uncertain", start_idx, end_idx)
             
         # 强制进行一次批量UI更新
         self.text_area.update_idletasks()

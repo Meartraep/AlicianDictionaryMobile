@@ -16,7 +16,7 @@ class VirtualTextArea:
         self.text = text or ""
         self._tk_text = self.text if self.text.endswith("\n") else self.text + "\n"
         self._line_offsets = self._build_line_offsets(self._tk_text)
-        self.tags: Dict[str, List[Tuple[int, int]]] = {"unknown": [], "lowstat": []}
+        self.tags: Dict[str, List[Tuple[int, int]]] = {"unknown": [], "uncertain": []}
 
     @staticmethod
     def _build_line_offsets(text: str) -> List[int]:
@@ -156,30 +156,26 @@ class WritingAssistantService:
             checker.reset_state()
             unknown_count = checker.check_words() or 0
             unknown_ranges = sorted(area.tags.get("unknown", []), key=lambda item: (item[0], item[1]))
-            lowstat_ranges = sorted(area.tags.get("lowstat", []), key=lambda item: (item[0], item[1]))
-            unknowns, lowstats = self.highlight_manager.categorize_sidebar_items()
-            ordered = self.highlight_manager.sort_sidebar_items(unknowns, lowstats)
+            uncertain_ranges = sorted(area.tags.get("uncertain", []), key=lambda item: (item[0], item[1]))
+            unknowns, uncertains = self.highlight_manager.categorize_sidebar_items()
+            ordered = self.highlight_manager.sort_sidebar_items(unknowns, uncertains)
             sidebar_items = []
             for _, key, info in ordered:
-                display_word = info.get("display", key)
-                stats_key = display_word if self.config_manager.get("strict_case") else str(display_word).lower()
-                count, variety = self.highlight_manager.word_stats.get(stats_key, (0, 0))
                 sidebar_items.append({
-                    "key": key, "display": display_word,
+                    "key": key, "display": info.get("display", key),
                     "type": info.get("type", "unknown"),
                     "pos": int(info.get("pos", 0)),
-                    "reasons": sorted(list(info.get("reasons", set()))),
-                    "count": int(count), "variety": int(variety),
                 })
             strict_label = "严格区分大小写" if self.config_manager.get("strict_case") else "不区分大小写"
             status_text = (
-                f"状态：已检查 - 未知词 {unknown_count} 个 - 已加载 "
+                f"状态：已检查 - 未知词 {unknown_count} 个 - 词义不确定词 {len(uncertains)} 个 - 已加载 "
                 f"{len(self.highlight_manager.known_words)} 个已知词（{strict_label}）"
             )
             return {
                 "ok": True, "source_text": text or "",
                 "unknown_count": int(unknown_count),
-                "unknown_ranges": unknown_ranges, "lowstat_ranges": lowstat_ranges,
+                "uncertain_count": len(uncertains),
+                "unknown_ranges": unknown_ranges, "uncertain_ranges": uncertain_ranges,
                 "sidebar_items": sidebar_items, "status": status_text,
             }
 

@@ -39,6 +39,13 @@ _TRANSLATOR_TABLES = {
     "adverb_position_stats",
     "songs",
 }
+# The writing assistant caches known words and their (?) uncertainty markers;
+# edits to these tables must be reflected on the next check.
+_WRITING_TABLES = {
+    "dictionary",
+    "dictionary_headwords",
+    "phrase",
+}
 
 
 @contextlib.contextmanager
@@ -96,6 +103,7 @@ def _close_services() -> None:
 def _on_data_write(tables: Any) -> None:
     """Invalidate in-memory caches after a committed data-layer write."""
     _reload_translator_if_needed(tables)
+    _reload_writing_if_needed(tables)
 
 
 def _open_services() -> None:
@@ -132,6 +140,24 @@ def _reload_translator_if_needed(table_names: Any) -> None:
     _translator = replacement
     if previous is not None:
         previous.close()
+
+
+def _reload_writing_if_needed(table_names: Any) -> None:
+    """Refresh the writing assistant's cached words and (?) markers after edits."""
+    normalized = {str(name or "") for name in (table_names or [])}
+    if _writing is None or not normalized.intersection(_WRITING_TABLES):
+        return
+    try:
+        _writing.reload_known_words()
+    except Exception:
+        # Keep the previously loaded word set; the next successful reload wins.
+        pass
+
+
+def _reload_after_curated_dictionary_write() -> None:
+    """Curated editor writes commit outside the DataCore sink; refresh both caches."""
+    _reload_translator_if_needed(["dictionary"])
+    _reload_writing_if_needed(["dictionary", "dictionary_headwords"])
 
 
 def initialize(db_path: str, data_dir: str) -> str:
@@ -852,7 +878,7 @@ def invoke(method: str, payload_json: str = "{}") -> str:
                 if result.get("ok"):
                     # The translator keeps the dictionary in memory; a word edit
                     # stays invisible to translate() until that cache is rebuilt.
-                    _reload_translator_if_needed(["dictionary"])
+                    _reload_after_curated_dictionary_write()
                     _data_core.record_local_edit(
                         "dictionary_headwords",
                         payload.get("headword_id"),
@@ -872,7 +898,7 @@ def invoke(method: str, payload_json: str = "{}") -> str:
                     payload.get("senses") or [],
                 )
                 if result.get("ok"):
-                    _reload_translator_if_needed(["dictionary"])
+                    _reload_after_curated_dictionary_write()
                     _data_core.record_local_edit(
                         "dictionary_headwords",
                         result.get("headword_id"),
@@ -889,7 +915,7 @@ def invoke(method: str, payload_json: str = "{}") -> str:
                     str(payload.get("japanese") or ""),
                 )
                 if result.get("ok"):
-                    _reload_translator_if_needed(["dictionary"])
+                    _reload_after_curated_dictionary_write()
                     _data_core.record_local_edit(
                         "dictionary",
                         result.get("sense_id"),
@@ -903,7 +929,7 @@ def invoke(method: str, payload_json: str = "{}") -> str:
                 result = _dictionary.delete_sense_entry(sense_id)
                 if result.get("ok"):
                     result["backup"] = backup
-                    _reload_translator_if_needed(["dictionary"])
+                    _reload_after_curated_dictionary_write()
                     _data_core.record_local_edit(
                         "dictionary", sense_id, "delete", "删除义项", notify=False
                     )
@@ -913,7 +939,7 @@ def invoke(method: str, payload_json: str = "{}") -> str:
                 result = _dictionary.delete_headword_entry(headword_id)
                 if result.get("ok"):
                     result["backup"] = backup
-                    _reload_translator_if_needed(["dictionary"])
+                    _reload_after_curated_dictionary_write()
                     _data_core.record_local_edit(
                         "dictionary_headwords",
                         headword_id,
