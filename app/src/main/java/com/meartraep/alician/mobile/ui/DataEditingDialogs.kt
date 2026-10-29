@@ -59,14 +59,20 @@ internal class DataMutationUiState {
     var errorMessage by mutableStateOf<String?>(null)
         private set
 
+    /** Success text of the last write; maintenance dialogs show it inline. */
+    var successMessage by mutableStateOf<String?>(null)
+        private set
+
     fun begin() {
         submitting = true
         errorMessage = null
+        successMessage = null
     }
 
     fun reset() {
         submitting = false
         errorMessage = null
+        successMessage = null
     }
 
     /** 应用写入结果；返回 true 表示成功、宿主应关闭对应对话框。 */
@@ -74,8 +80,10 @@ internal class DataMutationUiState {
         submitting = false
         if (mutation.ok) {
             errorMessage = null
+            successMessage = mutation.message.ifBlank { "已完成。" }
             return true
         }
+        successMessage = null
         errorMessage = mutation.message.ifBlank { "保存失败，请重试。" }
         return false
     }

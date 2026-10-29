@@ -18,6 +18,7 @@ import com.meartraep.alician.mobile.data.PublishAuth
 import com.meartraep.alician.mobile.data.DatabaseUpdateLogic
 import com.meartraep.alician.mobile.data.DatabaseUpdateManifest
 import com.meartraep.alician.mobile.data.DataDeletePreview
+import com.meartraep.alician.mobile.data.DataDiagnosis
 import com.meartraep.alician.mobile.data.DataFormMeta
 import com.meartraep.alician.mobile.data.DataMutation
 import com.meartraep.alician.mobile.data.DataReferenceOption
@@ -169,6 +170,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var dataMutation by mutableStateOf<DataMutation?>(null)
         private set
     var dictionaryEditEntry by mutableStateOf<DictionaryEntry?>(null)
+        private set
+
+    /** P3b maintenance / diagnosis state. */
+    var dataDiagnosis by mutableStateOf<DataDiagnosis?>(null)
+        private set
+    var replacePreview by mutableStateOf<List<GlobalMatch>>(emptyList())
+        private set
+    var replacePreviewLoaded by mutableStateOf(false)
         private set
 
     private var dataTablesLoaded = false
@@ -964,6 +973,64 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             dbTables = repository.getTables()
             refreshDatabaseInfo()
         }
+    }
+
+    // ---------------------------------------------------------- P3b maintenance
+
+    /** Recomputes count/variety for every word from the single lyric source. */
+    fun recountWordStats() {
+        submitDataMutation(refreshSearch = true) {
+            repository.recountWordStats()
+        }
+    }
+
+    /** Rebuilds the derived no_class table (the only derived table the app reads). */
+    fun rebuildNoClass() {
+        submitDataMutation(refreshSearch = true) {
+            repository.rebuildNoClass()
+        }
+    }
+
+    /** Reads the database integrity report; read-only, so it never writes. */
+    fun loadDiagnosis() {
+        if (!ready) return
+        launchTask("正在检查数据库…") {
+            dataDiagnosis = repository.dataDiagnose()
+        }
+    }
+
+    fun clearDiagnosis() {
+        dataDiagnosis = null
+    }
+
+    /** Previews a global replace; an empty keyword clears the preview. */
+    fun requestReplacePreview(keyword: String, replacement: String) {
+        val trimmed = keyword.trim()
+        if (!ready) return
+        if (trimmed.isEmpty()) {
+            clearReplacePreview()
+            return
+        }
+        replacePreview = emptyList()
+        replacePreviewLoaded = false
+        launchTask("正在查找匹配…") {
+            replacePreview = repository.dataReplacePreview(trimmed, replacement)
+            replacePreviewLoaded = true
+        }
+    }
+
+    /** Applies exactly the previewed matches; the bridge creates a recovery point. */
+    fun applyReplace(keyword: String, replacement: String) {
+        if (replacePreview.isEmpty()) return
+        val matches = replacePreview
+        submitDataMutation(refreshSearch = true) {
+            repository.dataReplaceApply(keyword.trim(), replacement, matches)
+        }
+    }
+
+    fun clearReplacePreview() {
+        replacePreview = emptyList()
+        replacePreviewLoaded = false
     }
 
     fun exportCsv(onReady: (File) -> Unit) {

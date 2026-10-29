@@ -1,11 +1,8 @@
 package com.meartraep.alician.mobile.ui
 
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -24,17 +21,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.ArrowForward
-import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.DataObject
-import androidx.compose.material.icons.outlined.Download
 import androidx.compose.material.icons.outlined.FindInPage
-import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -46,7 +38,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -57,11 +48,10 @@ import androidx.compose.ui.unit.dp
 import com.meartraep.alician.mobile.MainViewModel
 import com.meartraep.alician.mobile.R
 import com.meartraep.alician.mobile.data.DbTablePage
-import java.io.File
 
 /**
- * 数据库管理页：P2 起只做只读浏览、维护动作与导出。
- * 行级编辑/删除已迁移到 词典 → 数据 工作区（统一写守卫 + 恢复点）。
+ * 数据库管理页：只做只读浏览。
+ * 编辑/删除、维护动作与导出都已迁移到 词典 → 数据 工作区（统一写守卫 + 恢复点）。
  */
 @Composable
 fun DatabaseScreen(
@@ -72,24 +62,10 @@ fun DatabaseScreen(
     BackHandler(onBack = onBack)
     var query by rememberSaveable { mutableStateOf("") }
     var exact by rememberSaveable { mutableStateOf(false) }
-    var pendingCsv by remember { mutableStateOf<File?>(null) }
     val alicianFont = if (viewModel.alicianFontEnabled) {
         FontFamily(Font(R.font.alician_regular))
     } else {
         FontFamily.Default
-    }
-
-    val csvLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.CreateDocument("application/zip"),
-    ) { uri ->
-        val file = pendingCsv
-        if (uri != null && file != null) viewModel.savePreparedFile(file, uri)
-        pendingCsv = null
-    }
-    val databaseLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.CreateDocument("application/vnd.sqlite3"),
-    ) { uri ->
-        if (uri != null) viewModel.exportDatabase(uri)
     }
 
     LaunchedEffect(Unit) {
@@ -126,20 +102,9 @@ fun DatabaseScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                DatabaseActionMenu(
-                    onRefresh = { viewModel.loadDatabase() },
-                    onUpdateCounts = viewModel::updateWordCount,
-                    onClassify = viewModel::classifyWords,
-                    onExportCsv = {
-                        viewModel.exportCsv { file ->
-                            pendingCsv = file
-                            csvLauncher.launch("AlicianDictionaryCsv.zip")
-                        }
-                    },
-                    onExportDatabase = {
-                        databaseLauncher.launch("translated.db")
-                    },
-                )
+                IconButton(onClick = { viewModel.loadDatabase() }) {
+                    Icon(Icons.Outlined.Refresh, contentDescription = "刷新当前表")
+                }
             }
         }
 
@@ -262,49 +227,6 @@ fun DatabaseScreen(
                     },
                 )
             }
-        }
-    }
-}
-
-@Composable
-private fun DatabaseActionMenu(
-    onRefresh: () -> Unit,
-    onUpdateCounts: () -> Unit,
-    onClassify: () -> Unit,
-    onExportCsv: () -> Unit,
-    onExportDatabase: () -> Unit,
-) {
-    var expanded by remember { mutableStateOf(false) }
-    Box {
-        IconButton(onClick = { expanded = true }) {
-            Icon(Icons.Outlined.MoreVert, contentDescription = "数据库操作")
-        }
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            DropdownMenuItem(
-                text = { Text("刷新当前表") },
-                leadingIcon = { Icon(Icons.Outlined.Refresh, contentDescription = null) },
-                onClick = { expanded = false; onRefresh() },
-            )
-            DropdownMenuItem(
-                text = { Text("更新词频 / 泛度") },
-                leadingIcon = { Icon(Icons.Outlined.Build, contentDescription = null) },
-                onClick = { expanded = false; onUpdateCounts() },
-            )
-            DropdownMenuItem(
-                text = { Text("更新词性统计") },
-                leadingIcon = { Icon(Icons.Outlined.Build, contentDescription = null) },
-                onClick = { expanded = false; onClassify() },
-            )
-            DropdownMenuItem(
-                text = { Text("导出全部 CSV（ZIP）") },
-                leadingIcon = { Icon(Icons.Outlined.Download, contentDescription = null) },
-                onClick = { expanded = false; onExportCsv() },
-            )
-            DropdownMenuItem(
-                text = { Text("导出 SQLite 数据库") },
-                leadingIcon = { Icon(Icons.Outlined.Download, contentDescription = null) },
-                onClick = { expanded = false; onExportDatabase() },
-            )
         }
     }
 }

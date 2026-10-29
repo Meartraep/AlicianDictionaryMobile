@@ -1,5 +1,7 @@
 package com.meartraep.alician.mobile.ui
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -86,6 +88,7 @@ import com.meartraep.alician.mobile.data.DictionarySense
 import com.meartraep.alician.mobile.data.ExampleResult
 import com.meartraep.alician.mobile.data.LyricExample
 import com.meartraep.alician.mobile.data.LyricLineTranslation
+import java.io.File
 
 private val positionOptions = listOf(
     "any" to "任意位置",
@@ -117,6 +120,31 @@ fun DictionaryScreen(viewModel: MainViewModel, padding: PaddingValues) {
     var deleteKey by rememberSaveable { mutableStateOf(-1L) }
     var senseToDelete by remember { mutableStateOf<DictionarySense?>(null) }
     var entrySaveSnapshot by remember { mutableStateOf<DictionaryEntry?>(null) }
+
+    // P3b 维护/导出/诊断状态。
+    var maintenanceConfirm by rememberSaveable { mutableStateOf("") } // "recount" | "no_class"
+    var replaceOpen by rememberSaveable { mutableStateOf(false) }
+    var diagnosisOpen by rememberSaveable { mutableStateOf(false) }
+    var replaceKeyword by rememberSaveable { mutableStateOf("") }
+    var replaceReplacement by rememberSaveable { mutableStateOf("") }
+    var pendingCsv by remember { mutableStateOf<File?>(null) }
+    val recountState = remember { DataMutationUiState() }
+    val noClassState = remember { DataMutationUiState() }
+    val replaceState = remember { DataMutationUiState() }
+
+    // 维护/导出沿用既有 SAF 流程（原先在数据库管理页）。
+    val csvLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("application/zip"),
+    ) { uri ->
+        val file = pendingCsv
+        if (uri != null && file != null) viewModel.savePreparedFile(file, uri)
+        pendingCsv = null
+    }
+    val databaseLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("application/vnd.sqlite3"),
+    ) { uri ->
+        if (uri != null) viewModel.exportDatabase(uri)
+    }
 
     // 每个写入对话框独立实现 DataMutation 协议（成功关闭、失败保留输入并内联报错）。
     val createWordState = remember { DataMutationUiState() }
@@ -243,6 +271,38 @@ fun DictionaryScreen(viewModel: MainViewModel, padding: PaddingValues) {
         viewModel.loadDataForm(table)
     }
 
+    // ---- P3b 维护入口：维护动作与导出都从数据工作区的「维护」菜单进入 ----
+    val onMaintenanceAction: (MaintenanceAction) -> Unit = { action ->
+        when (action) {
+            MaintenanceAction.RECOUNT_WORDS -> {
+                recountState.reset()
+                maintenanceConfirm = "recount"
+            }
+            MaintenanceAction.REBUILD_NO_CLASS -> {
+                noClassState.reset()
+                maintenanceConfirm = "no_class"
+            }
+            MaintenanceAction.GLOBAL_REPLACE -> {
+                replaceState.reset()
+                replaceKeyword = ""
+                replaceReplacement = ""
+                viewModel.clearReplacePreview()
+                replaceOpen = true
+            }
+            MaintenanceAction.EXPORT_CSV -> viewModel.exportCsv { file ->
+                pendingCsv = file
+                csvLauncher.launch("AlicianDictionaryCsv.zip")
+            }
+            MaintenanceAction.EXPORT_SQLITE -> {
+                databaseLauncher.launch("translated.db")
+            }
+            MaintenanceAction.DIAGNOSE -> {
+                viewModel.clearDiagnosis()
+                diagnosisOpen = true
+            }
+        }
+    }
+
     // DataMutation 协议：成功才关闭对应对话框；失败保留输入并内联显示原因。
     DataMutationEffect(viewModel.dataMutation, createWordState, viewModel::consumeDataMutation) {
         showCreateWordDialog = false
@@ -278,6 +338,29 @@ fun DictionaryScreen(viewModel: MainViewModel, padding: PaddingValues) {
         deleteTable = ""
         deleteKey = -1L
         viewModel.cancelDataDeletePreview()
+    }
+    // P3b 维护动作：成功后对话框保持打开显示结果，由用户点「完成」关闭。
+    DataMutationEffect(
+        mutation = viewModel.dataMutation,
+        state = recountState,
+        onConsume = viewModel::consumeDataMutation,
+        onSuccess = { viewModel.refreshStudyOverview() },
+    )
+    DataMutationEffect(
+        mutation = viewModel.dataMutation,
+        state = noClassState,
+        onConsume = viewModel::consumeDataMutation,
+        onSuccess = {},
+    )
+    DataMutationEffect(
+        mutation = viewModel.dataMutation,
+        state = replaceState,
+        onConsume = viewModel::consumeDataMutation,
+        onSuccess = { viewModel.clearReplacePreview() },
+    )
+    // 诊断对话框打开时读取一次；「重新检查」按钮直接调用 loadDiagnosis。
+    LaunchedEffect(diagnosisOpen) {
+        if (diagnosisOpen) viewModel.loadDiagnosis()
     }
 
     // 进入数据工作区才读取表清单（ViewModel 侧带缓存，重复进入不会重复查库）。
@@ -357,6 +440,7 @@ fun DictionaryScreen(viewModel: MainViewModel, padding: PaddingValues) {
                             onExactChanged = { dataExact = it },
                             onSearch = onDataSearch,
                             onCreateRow = openCreateForm,
+                            onMaintenanceAction = onMaintenanceAction,
                         )
                     }
                 }
@@ -461,6 +545,7 @@ fun DictionaryScreen(viewModel: MainViewModel, padding: PaddingValues) {
                             onExactChanged = { dataExact = it },
                             onSearch = onDataSearch,
                             onCreateRow = openCreateForm,
+                            onMaintenanceAction = onMaintenanceAction,
                         )
                         dataRowsItems(
                             page = viewModel.dataTablePage,
@@ -661,6 +746,81 @@ fun DictionaryScreen(viewModel: MainViewModel, padding: PaddingValues) {
                 deleteTable = ""
                 deleteKey = -1L
                 deleteState.reset()
+            },
+        )
+    }
+
+    if (maintenanceConfirm.isNotEmpty()) {
+        val isRecount = maintenanceConfirm == "recount"
+        val state = if (isRecount) recountState else noClassState
+        MaintenanceConfirmDialog(
+            title = if (isRecount) "重算词频与泛度？" else "重建 no_class？",
+            message = if (isRecount) {
+                "将按 songs.lyric 唯一正文源重新统计每个词的词频（count）与泛度（variety），" +
+                    "并同步 dictionary 表中的统计值；不会删除任何行。"
+            } else {
+                "将清空并重建 no_class 表（翻译器仍会读取它），只收录没有词性的义项、" +
+                    "按词去重；其余 12 张词性派生表不再生成。"
+            },
+            submitting = state.submitting,
+            successMessage = state.successMessage,
+            errorMessage = state.errorMessage,
+            onConfirm = {
+                state.begin()
+                if (isRecount) {
+                    viewModel.recountWordStats()
+                } else {
+                    viewModel.rebuildNoClass()
+                }
+            },
+            onDismiss = {
+                state.reset()
+                maintenanceConfirm = ""
+            },
+        )
+    }
+
+    if (replaceOpen) {
+        ReplaceDialog(
+            keyword = replaceKeyword,
+            replacement = replaceReplacement,
+            matches = viewModel.replacePreview,
+            previewLoaded = viewModel.replacePreviewLoaded,
+            submitting = replaceState.submitting,
+            successMessage = replaceState.successMessage,
+            errorMessage = replaceState.errorMessage,
+            onKeywordChange = {
+                if (it != replaceKeyword) {
+                    replaceKeyword = it
+                    viewModel.clearReplacePreview()
+                }
+            },
+            onReplacementChange = { replaceReplacement = it },
+            onPreview = {
+                viewModel.requestReplacePreview(replaceKeyword, replaceReplacement)
+            },
+            onApply = {
+                replaceState.begin()
+                viewModel.applyReplace(replaceKeyword, replaceReplacement)
+            },
+            onDismiss = {
+                replaceState.reset()
+                viewModel.clearReplacePreview()
+                replaceOpen = false
+            },
+        )
+    }
+
+    if (diagnosisOpen) {
+        DiagnosisDialog(
+            diagnosis = viewModel.dataDiagnosis,
+            onRefresh = {
+                viewModel.clearDiagnosis()
+                viewModel.loadDiagnosis()
+            },
+            onDismiss = {
+                viewModel.clearDiagnosis()
+                diagnosisOpen = false
             },
         )
     }
@@ -897,6 +1057,7 @@ private fun LazyListScope.dataControlsItems(
     onExactChanged: (Boolean) -> Unit,
     onSearch: () -> Unit,
     onCreateRow: (String) -> Unit,
+    onMaintenanceAction: (MaintenanceAction) -> Unit,
 ) {
     item { SectionHeader("数据表", "按数据组浏览；系统与遗留表只读") }
 
@@ -981,6 +1142,22 @@ private fun LazyListScope.dataControlsItems(
             "页码" to pageLabel,
             "每页" to dataPageLimit.toString(),
         )
+    }
+
+    // 维护与导出：全局动作，不依赖当前表。
+    item {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                "维护与导出",
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            MaintenanceMenu(onAction = onMaintenanceAction)
+        }
     }
 }
 

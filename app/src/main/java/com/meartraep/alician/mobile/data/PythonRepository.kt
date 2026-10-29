@@ -573,6 +573,89 @@ class PythonRepository(private val application: Application) {
 
     suspend fun classifyWords(): String = invoke("classify_words").optString("message")
 
+    // ---- P3b maintenance ---------------------------------------------------
+
+    /** Rebuilds the derived no_class table from senses without a word class. */
+    suspend fun rebuildNoClass(): String =
+        invoke("maintenance_no_class").optString("message")
+
+    /** Recounts count/variety for every word from the single lyric source. */
+    suspend fun recountWordStats(): String =
+        invoke("update_word_count").optString("message")
+
+    /** Reads the replacement preview; only editable tables are returned. */
+    suspend fun dataReplacePreview(
+        keyword: String,
+        replacement: String,
+    ): List<GlobalMatch> {
+        val array = invoke(
+            "data_replace_preview",
+            JSONObject().put("keyword", keyword).put("replacement", replacement),
+        ).getJSONArray("matches")
+        return List(array.length()) { index ->
+            array.getJSONObject(index).toGlobalMatch()
+        }
+    }
+
+    /** Applies exactly the previewed matches; the bridge creates a recovery point. */
+    suspend fun dataReplaceApply(
+        keyword: String,
+        replacement: String,
+        matches: List<GlobalMatch>,
+    ): String {
+        val jsonMatches = JSONArray().apply {
+            matches.forEach {
+                put(
+                    JSONObject()
+                        .put("table", it.table)
+                        .put("id", it.id)
+                        .put("field", it.field)
+                        .put("value", it.value),
+                )
+            }
+        }
+        return invoke(
+            "data_replace_apply",
+            JSONObject()
+                .put("keyword", keyword)
+                .put("replacement", replacement)
+                .put("matches", jsonMatches),
+        ).optString("message")
+    }
+
+    /** Reads the read-only integrity/orphan/pragma report. */
+    suspend fun dataDiagnose(): DataDiagnosis {
+        val json = invoke("data_diagnose")
+        val orphansJson = json.optJSONArray("orphans") ?: JSONArray()
+        val tablesJson = json.optJSONArray("tables") ?: JSONArray()
+        val pragmasJson = json.optJSONObject("pragmas") ?: JSONObject()
+        return DataDiagnosis(
+            integrity = json.optString("integrity"),
+            foreignKeyViolations = json.optInt("foreign_key_violations", -1),
+            orphans = List(orphansJson.length()) { index ->
+                orphansJson.getJSONObject(index).let {
+                    DataOrphan(
+                        table = it.optString("table"),
+                        label = it.optString("label"),
+                        count = it.optInt("count"),
+                    )
+                }
+            },
+            tables = List(tablesJson.length()) { index ->
+                tablesJson.getJSONObject(index).let {
+                    DataDiagnosisTable(
+                        name = it.optString("name"),
+                        rows = it.optInt("rows"),
+                        group = it.optString("group"),
+                    )
+                }
+            },
+            localEdits = json.optInt("local_edits"),
+            pragmas = pragmasJson.keys().asSequence()
+                .associateWith { column -> pragmasJson.optValue(column) },
+        )
+    }
+
     suspend fun prepareCsvArchive(): File {
         val output = File(application.cacheDir, "AlicianDictionaryCsv.zip")
         invoke("export_csv_zip", JSONObject().put("path", output.absolutePath))
@@ -905,6 +988,13 @@ private fun JSONObject?.toIntMap(): Map<String, Int> {
     if (this == null) return emptyMap()
     return keys().asSequence().associateWith { optInt(it) }
 }
+
+private fun JSONObject.toGlobalMatch(): GlobalMatch = GlobalMatch(
+    table = optString("table"),
+    id = optLong("id"),
+    field = optString("field"),
+    value = optValue("value"),
+)
 
 private fun JSONObject.optValue(key: String): String {
     val value = opt(key)

@@ -18,6 +18,7 @@ on:
       - "app/src/test/python/test_data_guard.py"
       - "app/src/test/python/test_backup_restore.py"
       - "app/src/test/python/test_data_editing.py"
+      - "app/src/test/python/test_maintenance.py"
       - "app/src/main/python/**"
       - "app/src/main/java/**"
       - "scripts/verify_published_database.py"
@@ -90,6 +91,13 @@ jobs:
         run: |
           set -euo pipefail
           python -m unittest test_data_editing
+
+      - name: Maintenance tests
+        env:
+          PYTHONPATH: app/src/main/python:app/src/test/python
+        run: |
+          set -euo pipefail
+          python -m unittest test_maintenance
 
       - name: Dictionary feature tests
         env:

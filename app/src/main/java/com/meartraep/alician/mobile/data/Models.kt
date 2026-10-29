@@ -426,3 +426,34 @@ data class DatabaseFieldDiff(
     val localValue: String,
     val remoteValue: String,
 )
+
+/** One orphan-row check reported by the read-only database diagnosis. */
+data class DataOrphan(
+    val table: String,
+    val label: String,
+    val count: Int,
+)
+
+/** Row count of one table in the database diagnosis. */
+data class DataDiagnosisTable(
+    val name: String,
+    val rows: Int,
+    val group: String,
+)
+
+/** Full integrity report behind 维护 → 数据库诊断 (read-only). */
+data class DataDiagnosis(
+    val integrity: String,
+    val foreignKeyViolations: Int,
+    val orphans: List<DataOrphan>,
+    val tables: List<DataDiagnosisTable>,
+    val localEdits: Int,
+    val pragmas: Map<String, String>,
+)
+
+/** Preview payload of one global replace (editable tables only). */
+data class ReplacePreview(
+    val keyword: String,
+    val replacement: String,
+    val matches: List<GlobalMatch>,
+)
