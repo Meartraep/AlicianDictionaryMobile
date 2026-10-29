@@ -288,6 +288,83 @@ data class GlobalMatch(
     val value: String,
 )
 
+/** Reference (foreign-key) target shown next to an editable field. */
+data class DataReference(
+    val table: String,
+    val label: String,
+    val column: String,
+)
+
+/** One column of a curated editor form. */
+data class DataFieldMeta(
+    val name: String,
+    val label: String,
+    val type: String = "",
+    val notnull: Boolean = false,
+    val maxLength: Int = 0,
+    val required: Boolean = false,
+    val primaryKey: Boolean = false,
+    val multiline: Boolean = false,
+    val hasDefault: Boolean = false,
+    val defaultValue: String = "",
+    val reference: DataReference? = null,
+)
+
+/** A child table that is removed together with the edited row. */
+data class DataCascadeInfo(
+    val table: String,
+    val label: String,
+    val column: String,
+)
+
+/** Server-described form for one table; the UI never hard-codes table rules. */
+data class DataFormMeta(
+    val table: String,
+    val label: String,
+    val group: String,
+    val note: String,
+    val editable: Boolean,
+    val keyColumn: String,
+    val display: List<String>,
+    val fields: List<DataFieldMeta>,
+    val cascade: List<DataCascadeInfo>,
+) {
+    fun field(name: String): DataFieldMeta? = fields.firstOrNull { it.name == name }
+}
+
+/** One table affected by a delete (the deleted table itself excluded). */
+data class DataDeleteChild(
+    val table: String,
+    val label: String,
+    val group: String,
+    val count: Int,
+)
+
+/** Exact impact of one delete, computed by the backend. */
+data class DataDeletePreview(
+    val table: String,
+    val label: String,
+    val key: Long,
+    val summary: String,
+    val deletedSelf: Int,
+    val children: List<DataDeleteChild>,
+    val totalRemoved: Int,
+)
+
+/** Candidate value for a reference field. */
+data class DataReferenceOption(
+    val value: String,
+    val label: String,
+)
+
+/** Result of a write, consumed by the dialog that triggered it. */
+data class DataMutation(
+    val token: Long,
+    val ok: Boolean,
+    val message: String,
+    val key: Long? = null,
+)
+
 data class RemoteComparison(
     val upToDate: Boolean,
     val message: String,

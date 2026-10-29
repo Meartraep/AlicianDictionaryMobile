@@ -348,6 +348,91 @@ class DictionaryService:
                 "word": (new_word or "").strip(),
             }
 
+    def create_word_entry(
+        self,
+        word: str,
+        display_explanation: str,
+        display_class: str,
+        senses: List[Dict[str, Any]],
+    ) -> Dict[str, Any]:
+        """Create one headword with its senses (curated editing entry point)."""
+        with self._lock:
+            self._ensure_connection()
+            headword_id = self.db_handler.create_word_entry(
+                word, display_explanation, display_class, senses,
+            )
+            if headword_id is None:
+                return {
+                    "ok": False,
+                    "message": self.db_handler.last_error or "词条保存失败。",
+                }
+            return {
+                "ok": True,
+                "message": "词条已创建。",
+                "headword_id": int(headword_id),
+                "word": (word or "").strip(),
+                "senses_count": len(senses or []),
+            }
+
+    def add_sense_entry(
+        self,
+        headword_id: int,
+        explanation: str,
+        word_class: str,
+        english: str,
+        japanese: str,
+    ) -> Dict[str, Any]:
+        with self._lock:
+            self._ensure_connection()
+            sense_id = self.db_handler.add_sense(
+                headword_id, explanation, word_class, english, japanese,
+            )
+            if sense_id is None:
+                return {
+                    "ok": False,
+                    "message": self.db_handler.last_error or "义项保存失败。",
+                }
+            return {
+                "ok": True,
+                "message": "义项已添加。",
+                "sense_id": int(sense_id),
+                "headword_id": int(headword_id),
+            }
+
+    def delete_sense_entry(self, sense_id: int) -> Dict[str, Any]:
+        with self._lock:
+            self._ensure_connection()
+            success = self.db_handler.delete_sense(sense_id)
+            return {
+                "ok": bool(success),
+                "message": "义项已删除。" if success else (
+                    self.db_handler.last_error or "义项删除失败。"
+                ),
+                "sense_id": sense_id,
+                "deleted": int(self.db_handler.last_deleted_count),
+            }
+
+    def delete_headword_entry(self, headword_id: int) -> Dict[str, Any]:
+        with self._lock:
+            self._ensure_connection()
+            success = self.db_handler.delete_headword(headword_id)
+            return {
+                "ok": bool(success),
+                "message": "词条已删除。" if success else (
+                    self.db_handler.last_error or "词条删除失败。"
+                ),
+                "headword_id": headword_id,
+                "deleted": int(self.db_handler.last_deleted_count),
+            }
+
+    def get_headword_entry(self, headword_id: int) -> Dict[str, Any]:
+        with self._lock:
+            self._ensure_connection()
+            entry = self.db_handler.get_headword_entry(headword_id)
+            if entry is None:
+                return {"ok": False, "message": "未找到该词条。"}
+            return {"ok": True, "entry": entry}
+
     def get_song_lyrics(self, title: str, album: str = "") -> Dict[str, Any]:
         """Return one whole song in the shape consumed by the lyric viewer."""
         normalized_title = (title or "").strip()

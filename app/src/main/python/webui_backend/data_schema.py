@@ -42,6 +42,80 @@ GROUPS: Dict[str, Dict[str, str]] = {
     GROUP_LEGACY: {"title": "遗留表（只读）", "note": "导入期存档与旧版派生表"},
 }
 
+#: Chinese labels for the columns an editor can show.  Unknown columns fall back to
+#: their raw name, so a future schema stays usable without touching this table.
+FIELD_LABELS: Dict[str, str] = {
+    "id": "编号",
+    "words": "词形",
+    "display_explanation": "展示释义",
+    "display_class": "词性（展示）",
+    "headword_id": "词头编号",
+    "explanation": "释义",
+    "class": "词性",
+    "sense_order": "义项序号",
+    "count": "词频",
+    "variety": "泛度",
+    "time": "时间",
+    "english_gloss": "英文",
+    "japanese_gloss": "日文",
+    "PHRASE": "词组",
+    "title": "歌名",
+    "Album": "专辑",
+    "lyric": "歌词",
+    "song_id": "歌曲编号",
+    "song_title": "歌曲",
+    "alician_sentence": "爱丽丝语句",
+    "chinese_translation": "中文",
+    "alignment_status": "对齐状态",
+    "match_score": "匹配分",
+    "match_method": "匹配方式",
+    "source_file": "来源文件",
+    "notes": "备注",
+    "song_sentence_order": "句序",
+    "txt_sentence_order": "原句序",
+    "txt_alician_sentence": "文本爱丽丝语",
+    "word_glosses_text": "词注",
+    "word_glosses_json": "词注（JSON）",
+    "sentence": "原句",
+    "english": "英文",
+    "japanese": "日文",
+    "korean": "韩文",
+    "sense_id": "义项编号",
+    "alias": "别名",
+    "similarity": "相似度",
+    "rank": "排名",
+    "key": "键",
+    "value": "值",
+    "db_version": "版本",
+    "published_at": "发布时间",
+    "format": "格式",
+}
+
+#: Columns whose long values should be edited in a multi-line field.
+MULTILINE_FIELDS = frozenset(
+    {
+        "lyric",
+        "explanation",
+        "display_explanation",
+        "chinese_translation",
+        "alician_sentence",
+        "txt_alician_sentence",
+        "word_glosses_text",
+        "word_glosses_json",
+        "sentence",
+        "english",
+        "japanese",
+        "korean",
+        "notes",
+    }
+)
+
+
+def field_label(name: str) -> str:
+    """Chinese label for a column, falling back to the raw column name."""
+    return FIELD_LABELS.get(str(name), str(name))
+
+
 
 @dataclass(frozen=True)
 class TableSpec:
@@ -59,6 +133,9 @@ class TableSpec:
     max_length: Tuple[Tuple[str, int], ...] = ()
     #: (child_table, child_foreign_key_column, parent_column) removed with the parent
     cascade: Tuple[Tuple[str, str, str], ...] = ()
+    #: (column, parent_table, parent_column) that must resolve to an existing row.
+    #: Declared here because some historical tables never got a real FOREIGN KEY.
+    references: Tuple[Tuple[str, str, str], ...] = ()
     #: columns shown in the compact UI summary
     display: Tuple[str, ...] = ()
     #: free-form note shown in the UI
@@ -86,6 +163,7 @@ def _spec(
     unique: Tuple[Tuple[str, ...], ...] = (),
     max_length: Tuple[Tuple[str, int], ...] = (),
     cascade: Tuple[Tuple[str, str, str], ...] = (),
+    references: Tuple[Tuple[str, str, str], ...] = (),
     display: Tuple[str, ...] = (),
     note: str = "",
 ) -> TableSpec:
@@ -98,6 +176,7 @@ def _spec(
         unique=unique,
         max_length=max_length,
         cascade=cascade,
+        references=references,
         display=display,
         note=note,
     )
@@ -140,6 +219,7 @@ TABLES: Dict[str, TableSpec] = {
         editable=True,
         required=("headword_id", "words", "explanation", "sense_order"),
         max_length=(("words", 64), ("explanation", 500)),
+        references=(("headword_id", "dictionary_headwords", "id"),),
         display=("words", "explanation"),
         note="每条记录是一个义项，headword_id 必须指向已存在的词头",
     ),
@@ -173,6 +253,10 @@ TABLES: Dict[str, TableSpec] = {
         editable=True,
         required=("song_id", "song_title", "alician_sentence"),
         max_length=(("alician_sentence", 2000), ("chinese_translation", 2000)),
+        references=(
+            ("song_id", "songs", "id"),
+            ("song_title", "songs", "title"),
+        ),
         display=("alician_sentence", "chinese_translation"),
         note="song_id 必须指向已存在的歌曲",
     ),
@@ -184,6 +268,7 @@ TABLES: Dict[str, TableSpec] = {
         required=("song_title", "sentence"),
         unique=(("song_title", "sentence"),),
         max_length=(("song_title", 200), ("sentence", 2000), ("english", 2000), ("japanese", 2000), ("korean", 2000)),
+        references=(("song_title", "songs", "title"),),
         display=("song_title", "sentence"),
         note="song_title 必须指向已存在的歌曲",
     ),

@@ -17,9 +17,14 @@ import com.meartraep.alician.mobile.data.GitHubDeviceFlow
 import com.meartraep.alician.mobile.data.PublishAuth
 import com.meartraep.alician.mobile.data.DatabaseUpdateLogic
 import com.meartraep.alician.mobile.data.DatabaseUpdateManifest
+import com.meartraep.alician.mobile.data.DataDeletePreview
+import com.meartraep.alician.mobile.data.DataFormMeta
+import com.meartraep.alician.mobile.data.DataMutation
+import com.meartraep.alician.mobile.data.DataReferenceOption
 import com.meartraep.alician.mobile.data.DataTableGroup
 import com.meartraep.alician.mobile.data.DataTablePage
 import com.meartraep.alician.mobile.data.DbTablePage
+import com.meartraep.alician.mobile.data.DictionaryEntry
 import com.meartraep.alician.mobile.data.DictionaryResult
 import com.meartraep.alician.mobile.data.DictionarySense
 import com.meartraep.alician.mobile.data.ExampleResult
@@ -153,7 +158,22 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         private set
     var dataTablePage by mutableStateOf<DataTablePage?>(null)
         private set
+
+    /** Curated editor state (P2). */
+    var dataForm by mutableStateOf<DataFormMeta?>(null)
+        private set
+    var dataDeletePreview by mutableStateOf<DataDeletePreview?>(null)
+        private set
+    var dataReferenceOptions by mutableStateOf<Map<String, List<DataReferenceOption>>>(emptyMap())
+        private set
+    var dataMutation by mutableStateOf<DataMutation?>(null)
+        private set
+    var dictionaryEditEntry by mutableStateOf<DictionaryEntry?>(null)
+        private set
+
     private var dataTablesLoaded = false
+    private var dataQuery: DataQuery? = null
+    private var mutationSerial = 0L
 
     var databaseInfo by mutableStateOf(DatabaseInfo())
         private set
@@ -672,8 +692,216 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         limit: Int = 50,
     ) {
         if (!ready || table.isBlank()) return
+        dataQuery = DataQuery(table, keyword, exact, offset, limit)
         launchTask("正在读取数据表…") {
             dataTablePage = repository.dataPage(table, keyword, exact, offset, limit)
+        }
+    }
+
+    // ---------------------------------------------------------------- P2 editing
+
+    /** Reads the server-described form for one table. */
+    fun loadDataForm(table: String) {
+        if (!ready || table.isBlank()) return
+        launchTask("正在读取表结构…") {
+            dataForm = repository.dataForm(table)
+        }
+    }
+
+    fun clearDataForm() {
+        dataForm = null
+        dataReferenceOptions = emptyMap()
+    }
+
+    /** Candidate values for a reference (foreign key) field of the open form. */
+    fun loadDataReferenceOptions(column: String, keyword: String = "") {
+        val form = dataForm ?: return
+        val reference = form.field(column)?.reference ?: return
+        if (!ready) return
+        launchTask("正在读取可选值…") {
+            val options = repository.dataReferenceOptions(
+                reference.table, reference.column, keyword,
+            )
+            dataReferenceOptions = dataReferenceOptions + (column to options)
+        }
+    }
+
+    /** Reads the exact delete impact before asking the user to confirm. */
+    fun requestDataDeletePreview(table: String, key: Long) {
+        if (!ready) return
+        launchTask("正在检查删除影响…") {
+            dataDeletePreview = repository.dataDeletePreview(table, key)
+        }
+    }
+
+    fun cancelDataDeletePreview() {
+        dataDeletePreview = null
+    }
+
+    /** Loads one headword (with senses) for the curated dictionary editor. */
+    fun openDictionaryEntry(headwordId: Long) {
+        if (!ready || headwordId <= 0L) return
+        launchTask("正在读取词条…") {
+            dictionaryEditEntry = repository.dictionaryEntry(headwordId)
+        }
+    }
+
+    fun closeDictionaryEntry() {
+        dictionaryEditEntry = null
+    }
+
+    fun consumeDataMutation() {
+        dataMutation = null
+    }
+
+    /**
+     * Runs one write and publishes the outcome to the dialog that triggered it.
+     *
+     * A failure stays inside [dataMutation] instead of the global snackbar so the
+     * dialog can keep the user's input and show the reason inline.
+     *
+     * @param refreshSearch re-runs the last dictionary search after the write
+     *   (used by word/sense edits so the result list reflects the new data).
+     */
+    fun submitDataMutation(
+        refreshSearch: Boolean = false,
+        refreshHeadwordId: Long? = null,
+        clearEntry: Boolean = false,
+        block: suspend () -> String,
+    ) {
+        if (!ready) return
+        dataMutation = null
+        launchTask("正在保存…") {
+            val token = ++mutationSerial
+            try {
+                val message = block()
+                dataMutation = DataMutation(token, ok = true, message = message.ifBlank { "已保存。" })
+                when {
+                    clearEntry -> dictionaryEditEntry = null
+                    refreshHeadwordId != null -> {
+                        dictionaryEditEntry = runCatching {
+                            repository.dictionaryEntry(refreshHeadwordId!!)
+                        }.getOrNull()
+                    }
+                }
+                if (refreshSearch) refreshDictionaryAfterEdit() else refreshDataWorkspace()
+            } catch (throwable: Throwable) {
+                dataMutation = DataMutation(
+                    token,
+                    ok = false,
+                    message = throwable.message ?: "保存失败，请重试。",
+                )
+            }
+        }
+    }
+
+    private suspend fun refreshDictionaryAfterEdit() {
+        val params = dictionarySearchParams
+        if (params != null) {
+            val (query, exactMatch, position) = params
+            dictionaryResult = repository.dictionarySearch(
+                query = query,
+                exact = exactMatch,
+                position = position,
+                recordHistory = false,
+            )
+            history = dictionaryResult?.history ?: history
+        }
+        refreshDataWorkspace()
+    }
+
+    private suspend fun refreshDataWorkspace() {
+        val query = dataQuery
+        if (query != null) {
+            runCatching {
+                repository.dataPage(
+                    query.table, query.keyword, query.exact, query.offset, query.limit,
+                )
+            }.onSuccess { dataTablePage = it }
+        }
+        if (query != null && affectsDictionaryDeck(query.table)) {
+            refreshStudyAfterDeckChanged()
+        }
+        refreshDatabaseInfo()
+        invalidateTranslation()
+    }
+
+    private fun affectsDictionaryDeck(table: String): Boolean =
+        table == "dictionary_headwords" || table == "dictionary" || table == "phrase"
+
+    fun createDictionaryWord(
+        word: String,
+        displayExplanation: String,
+        displayClass: String,
+        senses: List<DictionarySense>,
+    ) {
+        submitDataMutation(refreshSearch = true) {
+            repository.dictionaryCreateWord(word, displayExplanation, displayClass, senses)
+            "词条已创建。"
+        }
+    }
+
+    fun addDictionarySense(
+        headwordId: Long,
+        explanation: String,
+        wordClass: String,
+        english: String,
+        japanese: String,
+    ) {
+        submitDataMutation(refreshSearch = true, refreshHeadwordId = headwordId) {
+            repository.dictionaryAddSense(headwordId, explanation, wordClass, english, japanese)
+            "义项已添加。"
+        }
+    }
+
+    fun deleteDictionarySense(senseId: Long, headwordId: Long) {
+        submitDataMutation(refreshSearch = true, refreshHeadwordId = headwordId) {
+            repository.dictionaryDeleteSense(senseId)
+        }
+    }
+
+    fun deleteDictionaryHeadword(headwordId: Long, word: String) {
+        submitDataMutation(refreshSearch = true, clearEntry = true) {
+            repository.dictionaryDeleteHeadword(headwordId, word)
+        }
+    }
+
+    /** Saves the curated word editor (headword + submitted senses). */
+    fun saveDictionaryEntry(
+        headwordId: Long,
+        originalWord: String,
+        word: String,
+        displayExplanation: String,
+        senses: List<DictionarySense>,
+    ) {
+        submitDataMutation(refreshSearch = true, refreshHeadwordId = headwordId) {
+            repository.updateDictionaryEntry(
+                headwordId = headwordId.toInt(),
+                originalWord = originalWord,
+                word = word,
+                displayExplanation = displayExplanation,
+                senses = senses,
+            )
+        }
+    }
+
+    /** Creates one row of the current data table through the write guard. */
+    fun createDataRow(table: String, values: Map<String, String>) {
+        submitDataMutation {
+            repository.dataCreate(table, values)
+            "记录已新增。"
+        }
+    }
+
+    fun updateDataRow(table: String, key: Long, values: Map<String, String>) {
+        submitDataMutation {
+            repository.dataUpdate(table, key, values)
+        }
+    }
+
+    fun deleteDataRow(table: String, key: Long) {
+        submitDataMutation {
+            repository.dataDelete(table, key)
         }
     }
 
@@ -1261,8 +1489,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         dataTablesLoaded = false
         dataTableGroups = emptyList()
         dataTablePage = null
+        dataForm = null
+        dataDeletePreview = null
+        dataReferenceOptions = emptyMap()
+        dataMutation = null
+        dictionaryEditEntry = null
+        dataQuery = null
         dbTables = repository.getTables()
         dbPage = null
         refreshDatabaseInfo()
     }
 }
+
+/** Last executed data-workspace page request, replayed after a write. */
+private data class DataQuery(
+    val table: String,
+    val keyword: String,
+    val exact: Boolean,
+    val offset: Int,
+    val limit: Int,
+)

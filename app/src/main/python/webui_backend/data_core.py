@@ -560,16 +560,23 @@ class DataCore:
 
     def _check_foreign_keys(self, table: str, normalized: Dict[str, Any]) -> None:
         connection = self._require_connection()
+        checks: List[Tuple[str, str, str]] = []
         try:
             references = connection.execute(
                 f"PRAGMA foreign_key_list({_quote(table)})"
             ).fetchall()
+            for reference in references:
+                checks.append(
+                    (str(reference[3]), str(reference[2]), str(reference[4] or "id"))
+                )
         except sqlite3.Error:
-            return
-        for reference in references:
-            parent_table = str(reference[2])
-            from_column = str(reference[3])
-            to_column = str(reference[4] or "id")
+            pass
+        # Historical tables sometimes never got a real FOREIGN KEY; the declarative
+        # references in data_schema cover those so the guard still rejects orphans.
+        for from_column, parent_table, to_column in data_schema.spec_for(table).references:
+            if (from_column, parent_table, to_column) not in checks:
+                checks.append((from_column, parent_table, to_column))
+        for from_column, parent_table, to_column in checks:
             if from_column not in normalized:
                 continue
             value = normalized[from_column]
@@ -584,6 +591,24 @@ class DataCore:
                 raise DataError(
                     f"关联的「{data_schema.spec_for(parent_table).label}」不存在。"
                 )
+
+    def _touched_tables(self, table: str) -> Set[str]:
+        """Tables whose content changes when a write touches ``table``.
+
+        Used for cache invalidation: a headword edit also rewrites
+        ``dictionary.words`` (invariant), and deleting a parent removes cascade
+        children, so a listener that only sees the parent name would keep stale
+        translations.
+        """
+        touched: Set[str] = {str(table)}
+        spec = data_schema.spec_for(table)
+        for child_table, _, _ in spec.cascade:
+            touched.add(child_table)
+        if table == "dictionary_headwords":
+            touched.add("dictionary")
+        if table == "dictionary":
+            touched.add("dictionary_semantic_aliases")
+        return touched
 
     def _apply_invariants(
         self, connection: sqlite3.Connection, table: str, key: Any, normalized: Dict[str, Any]
@@ -686,7 +711,7 @@ class DataCore:
                 )
                 return {"ok": True, "key": int(new_key), "table": name}
 
-            return self._guard_write({name}, action)
+            return self._guard_write(self._touched_tables(name), action)
 
     def update(self, table: str, key: Any, values: Dict[str, Any]) -> Dict[str, Any]:
         with self._lock:
@@ -715,7 +740,43 @@ class DataCore:
                 )
                 return {"ok": True, "key": key, "table": name}
 
-            return self._guard_write({name}, action)
+            return self._guard_write(self._touched_tables(name), action)
+
+    @staticmethod
+    def _delete_rows(
+        connection: sqlite3.Connection,
+        table: str,
+        spec: data_schema.TableSpec,
+        fields: Sequence[Dict[str, Any]],
+        key_column: str,
+        keys: Sequence[Any],
+    ) -> List[Tuple[Any, Dict[str, Any]]]:
+        """Delete rows plus their cascade children, returning the removed parents."""
+        column_names = [str(field["name"]) for field in fields]
+        removed: List[Tuple[Any, Dict[str, Any]]] = []
+        for key in keys:
+            parent = connection.execute(
+                f"SELECT * FROM {_quote(table)} WHERE {_quote(key_column)} = ?",
+                (key,),
+            ).fetchone()
+            if parent is None:
+                continue
+            parent_row = dict(zip(column_names, parent))
+            for child_table, child_column, parent_column in spec.cascade:
+                parent_value = parent_row.get(parent_column)
+                if parent_value in (None, ""):
+                    continue
+                connection.execute(
+                    f"DELETE FROM {_quote(child_table)} "
+                    f"WHERE {_quote(child_column)} = ?",
+                    (parent_value,),
+                )
+            connection.execute(
+                f"DELETE FROM {_quote(table)} WHERE {_quote(key_column)} = ?",
+                (key,),
+            )
+            removed.append((key, parent_row))
+        return removed
 
     def delete(self, table: str, keys: List[Any]) -> Dict[str, Any]:
         with self._lock:
@@ -730,31 +791,12 @@ class DataCore:
             key_column = self._key_column(fields)
 
             def action(connection: sqlite3.Connection) -> Dict[str, Any]:
-                removed = 0
-                for key in key_list:
-                    parent = connection.execute(
-                        f"SELECT * FROM {_quote(name)} WHERE {_quote(key_column)} = ?",
-                        (key,),
-                    ).fetchone()
-                    if parent is None:
-                        continue
-                    parent_row = dict(
-                        zip([str(field["name"]) for field in fields], parent)
-                    )
-                    for child_table, child_column, parent_column in spec.cascade:
-                        parent_value = parent_row.get(parent_column)
-                        if parent_value in (None, ""):
-                            continue
-                        connection.execute(
-                            f"DELETE FROM {_quote(child_table)} "
-                            f"WHERE {_quote(child_column)} = ?",
-                            (parent_value,),
-                        )
-                    connection.execute(
-                        f"DELETE FROM {_quote(name)} WHERE {_quote(key_column)} = ?",
-                        (key,),
-                    )
-                    removed += 1
+                removed = self._delete_rows(
+                    connection, name, spec, fields, key_column, key_list
+                )
+                if not removed:
+                    raise DataError("未找到要删除的记录。")
+                for key, parent_row in removed:
                     self._record_local_edit(
                         connection,
                         name,
@@ -762,11 +804,202 @@ class DataCore:
                         "delete",
                         self._summary(name, parent_row),
                     )
-                if removed == 0:
-                    raise DataError("未找到要删除的记录。")
-                return {"ok": True, "deleted": removed, "table": name}
+                return {"ok": True, "deleted": len(removed), "table": name}
 
-            return self._guard_write({name}, action)
+            return self._guard_write(self._touched_tables(name), action)
+
+    def delete_preview(self, table: str, key: Any) -> Dict[str, Any]:
+        """Rows that a delete would remove.
+
+        The preview is exact because it performs the delete inside a transaction
+        and rolls it back, so foreign-key cascades and the declarative cascade
+        rules are both accounted for.
+        """
+        with self._lock:
+            connection = self._require_connection()
+            name = self._require_table(table)
+            spec = data_schema.spec_for(name)
+            if not spec.editable:
+                raise DataError(f"「{spec.label}」为只读表，不能删除记录。")
+            fields = self.table_fields(name)
+            key_column = self._key_column(fields)
+            existing = self.row(name, key)
+            if existing is None:
+                raise DataError("未找到要删除的记录。")
+
+            def counts() -> Dict[str, int]:
+                return {
+                    item: int(
+                        connection.execute(
+                            f"SELECT COUNT(*) FROM {_quote(item)}"
+                        ).fetchone()[0]
+                    )
+                    for item in self.table_names()
+                }
+
+            if connection.in_transaction:
+                connection.rollback()
+            before = counts()
+            connection.execute("BEGIN IMMEDIATE")
+            after: Dict[str, int] = {}
+            try:
+                self._delete_rows(connection, name, spec, fields, key_column, [key])
+                after = counts()
+            finally:
+                try:
+                    connection.rollback()
+                except sqlite3.Error:
+                    pass
+            removed = {
+                item: before[item] - after.get(item, before[item])
+                for item in before
+                if before[item] - after.get(item, before[item]) > 0
+            }
+            deleted_self = int(removed.pop(name, 0))
+            children = [
+                {
+                    "table": item,
+                    "label": data_schema.spec_for(item).label,
+                    "group": data_schema.spec_for(item).group,
+                    "count": int(count),
+                }
+                for item, count in sorted(removed.items())
+            ]
+            return {
+                "ok": True,
+                "table": name,
+                "label": spec.label,
+                "key": key,
+                "summary": self._summary(name, existing),
+                "deleted_self": deleted_self,
+                "children": children,
+                "total_removed": deleted_self + sum(
+                    int(child["count"]) for child in children
+                ),
+            }
+
+    def form_meta(self, table: str) -> Dict[str, Any]:
+        """Schema-driven description of one table for the curated editor UI."""
+        with self._lock:
+            connection = self._require_connection()
+            name = self._require_table(table)
+            spec = data_schema.spec_for(name)
+            fields = self.table_fields(name)
+            reference_map: Dict[str, Tuple[str, str]] = {}
+            try:
+                for reference in connection.execute(
+                    f"PRAGMA foreign_key_list({_quote(name)})"
+                ).fetchall():
+                    reference_map.setdefault(
+                        str(reference[3]), (str(reference[2]), str(reference[4] or "id"))
+                    )
+            except sqlite3.Error:
+                pass
+            for column, parent, parent_column in spec.references:
+                reference_map.setdefault(str(column), (str(parent), str(parent_column)))
+            field_metas = []
+            for field in fields:
+                column = str(field["name"])
+                required = column in spec.required or (
+                    bool(field.get("notnull"))
+                    and field.get("default") is None
+                    and not bool(field.get("pk"))
+                )
+                reference = reference_map.get(column)
+                field_metas.append(
+                    {
+                        "name": column,
+                        "label": data_schema.field_label(column),
+                        "type": str(field.get("type") or ""),
+                        "notnull": bool(field.get("notnull")),
+                        "default": field.get("default"),
+                        "max_length": spec.max_length_of(column),
+                        "required": required,
+                        "primary_key": bool(field.get("pk")),
+                        "multiline": column in data_schema.MULTILINE_FIELDS,
+                        "reference": (
+                            {
+                                "table": reference[0],
+                                "label": data_schema.spec_for(reference[0]).label,
+                                "column": reference[1],
+                            }
+                            if reference
+                            else None
+                        ),
+                    }
+                )
+            return {
+                "ok": True,
+                "table": name,
+                "label": spec.label,
+                "group": spec.group,
+                "note": spec.note,
+                "editable": bool(spec.editable),
+                "key_column": self._key_column(fields),
+                "display": list(spec.display),
+                "fields": field_metas,
+                "cascade": [
+                    {
+                        "table": child,
+                        "label": data_schema.spec_for(child).label,
+                        "column": column,
+                    }
+                    for child, column, _ in spec.cascade
+                ],
+            }
+
+    def reference_options(
+        self, table: str, column: str, keyword: str = "", limit: int = 200
+    ) -> Dict[str, Any]:
+        """Candidate values for a reference (foreign key) field."""
+        with self._lock:
+            connection = self._require_connection()
+            name = self._require_table(table)
+            spec = data_schema.spec_for(name)
+            reference = next(
+                (
+                    item
+                    for item in spec.references
+                    if str(item[0]) == str(column)
+                ),
+                None,
+            )
+            if reference is None:
+                raise DataError("该字段不是关联字段。")
+            _, parent_table, parent_column = reference
+            parent_spec = data_schema.spec_for(parent_table)
+            label_column = (
+                parent_spec.display[0]
+                if parent_spec.display and parent_spec.display[0] in self._columns(parent_table)
+                else parent_column
+            )
+            limit = max(1, min(500, int(limit or 200)))
+            text = str(keyword or "").strip()
+            where = ""
+            params: List[Any] = []
+            if text:
+                where = f" WHERE LOWER(CAST({_quote(label_column)} AS TEXT)) LIKE LOWER(?)"
+                params.append(f"%{text}%")
+            rows = connection.execute(
+                f"SELECT {_quote(parent_column)}, {_quote(label_column)} "
+                f"FROM {_quote(parent_table)}{where} "
+                f"ORDER BY {_quote(label_column)} LIMIT ?",
+                [*params, limit],
+            ).fetchall()
+            return {
+                "ok": True,
+                "table": name,
+                "column": column,
+                "parent": parent_table,
+                "options": [
+                    {"value": "" if row[0] is None else str(row[0]),
+                     "label": "" if row[1] is None else str(row[1])}
+                    for row in rows
+                ],
+            }
+
+    def _columns(self, table: str) -> List[str]:
+        return [str(field["name"]) for field in self.table_fields(table)]
 
     def batch_update(self, table: str, edits: List[Dict[str, Any]]) -> Dict[str, Any]:
         with self._lock:
@@ -804,7 +1037,7 @@ class DataCore:
                     )
                 return {"ok": True, "committed": len(prepared), "table": name}
 
-            return self._guard_write({name}, action)
+            return self._guard_write(self._touched_tables(name), action)
 
     # -------------------------------------------------------- global search
 

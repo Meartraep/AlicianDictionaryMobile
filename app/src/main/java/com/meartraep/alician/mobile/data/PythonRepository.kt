@@ -314,17 +314,7 @@ class PythonRepository(private val application: Application) {
         displayExplanation: String,
         senses: List<DictionarySense>,
     ): String {
-        val sensesJson = JSONArray().apply {
-            senses.forEach { sense ->
-                put(
-                    JSONObject()
-                        .put("id", sense.id)
-                        .put("explanation", sense.explanation)
-                        .put("english", sense.englishGloss)
-                        .put("japanese", sense.japaneseGloss),
-                )
-            }
-        }
+        val sensesJson = dictionarySensesJson(senses, includeId = true)
         return invoke(
             "dictionary_update_word",
             JSONObject()
@@ -431,6 +421,92 @@ class PythonRepository(private val application: Application) {
             .put("offset", offset)
             .put("limit", limit),
     ).toDataTablePage()
+
+    suspend fun dataForm(table: String): DataFormMeta =
+        invoke("data_form", JSONObject().put("table", table)).toDataFormMeta()
+
+    suspend fun dataCreate(table: String, values: Map<String, String>): Long? {
+        val json = invoke(
+            "data_create",
+            JSONObject().put("table", table).put("values", JSONObject(values)),
+        )
+        return if (json.has("key")) json.optLong("key") else null
+    }
+
+    suspend fun dataUpdate(table: String, key: Long, values: Map<String, String>): String =
+        invoke(
+            "data_update",
+            JSONObject().put("table", table).put("key", key).put("values", JSONObject(values)),
+        ).optString("message")
+
+    suspend fun dataDelete(table: String, key: Long): String =
+        invoke("data_delete", JSONObject().put("table", table).put("key", key))
+            .optString("message")
+
+    suspend fun dataDeletePreview(table: String, key: Long): DataDeletePreview =
+        invoke("data_delete_preview", JSONObject().put("table", table).put("key", key))
+            .toDataDeletePreview()
+
+    suspend fun dataReferenceOptions(
+        table: String,
+        column: String,
+        keyword: String = "",
+    ): List<DataReferenceOption> {
+        val array = invoke(
+            "data_reference_options",
+            JSONObject().put("table", table).put("column", column).put("keyword", keyword),
+        ).getJSONArray("options")
+        return List(array.length()) { index ->
+            array.getJSONObject(index).let {
+                DataReferenceOption(value = it.optValue("value"), label = it.optValue("label"))
+            }
+        }
+    }
+
+    suspend fun dictionaryEntry(headwordId: Long): DictionaryEntry =
+        invoke("dictionary_entry", JSONObject().put("headword_id", headwordId))
+            .getJSONObject("entry")
+            .toDictionaryEntry()
+
+    suspend fun dictionaryCreateWord(
+        word: String,
+        displayExplanation: String,
+        displayClass: String,
+        senses: List<DictionarySense>,
+    ): Long = invoke(
+        "dictionary_create_word",
+        JSONObject()
+            .put("word", word)
+            .put("display_explanation", displayExplanation)
+            .put("display_class", displayClass)
+            .put("senses", dictionarySensesJson(senses, includeId = false)),
+    ).optLong("headword_id")
+
+    suspend fun dictionaryAddSense(
+        headwordId: Long,
+        explanation: String,
+        wordClass: String,
+        english: String,
+        japanese: String,
+    ): Long = invoke(
+        "dictionary_add_sense",
+        JSONObject()
+            .put("headword_id", headwordId)
+            .put("explanation", explanation)
+            .put("class", wordClass)
+            .put("english", english)
+            .put("japanese", japanese),
+    ).optLong("sense_id")
+
+    suspend fun dictionaryDeleteSense(senseId: Long): String =
+        invoke("dictionary_delete_sense", JSONObject().put("sense_id", senseId))
+            .optString("message")
+
+    suspend fun dictionaryDeleteHeadword(headwordId: Long, word: String): String =
+        invoke(
+            "dictionary_delete_headword",
+            JSONObject().put("headword_id", headwordId).put("word", word),
+        ).optString("message")
 
     suspend fun addRecord(table: String, values: Map<String, String>): String =
         invoke(
@@ -1083,6 +1159,105 @@ private fun JSONObject.toTranslationResult(): TranslationResult {
         message = optString("message"),
     )
 }
+
+private fun dictionarySensesJson(
+    senses: List<DictionarySense>,
+    includeId: Boolean,
+): JSONArray = JSONArray().apply {
+    senses.forEach { sense ->
+        put(
+            JSONObject()
+                .apply { if (includeId) put("id", sense.id) }
+                .put("explanation", sense.explanation)
+                .put("class", sense.wordClass)
+                .put("english", sense.englishGloss)
+                .put("japanese", sense.japaneseGloss),
+        )
+    }
+}
+
+private fun JSONObject.toDataFormMeta(): DataFormMeta {
+    val fieldsJson = optJSONArray("fields") ?: JSONArray()
+    val cascadeJson = optJSONArray("cascade") ?: JSONArray()
+    return DataFormMeta(
+        table = optString("table"),
+        label = optString("label"),
+        group = optString("group"),
+        note = optString("note"),
+        editable = optBoolean("editable"),
+        keyColumn = optString("key_column", "id"),
+        display = (optJSONArray("display") ?: JSONArray()).stringList(),
+        fields = List(fieldsJson.length()) { index ->
+            fieldsJson.getJSONObject(index).let { field ->
+                DataFieldMeta(
+                    name = field.optString("name"),
+                    label = field.optString("label"),
+                    type = field.optString("type"),
+                    notnull = field.optBoolean("notnull"),
+                    maxLength = field.optInt("max_length"),
+                    required = field.optBoolean("required"),
+                    primaryKey = field.optBoolean("primary_key"),
+                    multiline = field.optBoolean("multiline"),
+                    hasDefault = field.has("default") && !field.isNull("default"),
+                    defaultValue = if (field.isNull("default")) "" else field.optValue("default"),
+                    reference = field.optJSONObject("reference")?.let { reference ->
+                        DataReference(
+                            table = reference.optString("table"),
+                            label = reference.optString("label"),
+                            column = reference.optString("column"),
+                        )
+                    },
+                )
+            }
+        },
+        cascade = List(cascadeJson.length()) { index ->
+            cascadeJson.getJSONObject(index).let {
+                DataCascadeInfo(
+                    table = it.optString("table"),
+                    label = it.optString("label"),
+                    column = it.optString("column"),
+                )
+            }
+        },
+    )
+}
+
+private fun JSONObject.toDataDeletePreview(): DataDeletePreview {
+    val childrenJson = optJSONArray("children") ?: JSONArray()
+    return DataDeletePreview(
+        table = optString("table"),
+        label = optString("label"),
+        key = optLong("key"),
+        summary = optString("summary"),
+        deletedSelf = optInt("deleted_self"),
+        children = List(childrenJson.length()) { index ->
+            childrenJson.getJSONObject(index).let {
+                DataDeleteChild(
+                    table = it.optString("table"),
+                    label = it.optString("label"),
+                    group = it.optString("group"),
+                    count = it.optInt("count"),
+                )
+            }
+        },
+        totalRemoved = optInt("total_removed"),
+    )
+}
+
+private fun JSONObject.toDictionaryEntry(): DictionaryEntry = DictionaryEntry(
+    word = optValue("word"),
+    explanation = optValue("explanation"),
+    wordClass = optString("word_class"),
+    kind = optString("kind", "alice"),
+    count = optInt("count"),
+    variety = optInt("variety"),
+    englishGloss = optString("english_gloss"),
+    japaneseGloss = optString("japanese_gloss"),
+    headwordId = optInt("headword_id"),
+    album = optString("album"),
+    songTitle = optString("song_title"),
+    senses = toDictionarySenses(),
+)
 
 private fun JSONObject.toDataTablePage(): DataTablePage {
     val fields = (optJSONArray("fields") ?: JSONArray()).stringList()

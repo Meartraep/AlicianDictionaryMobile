@@ -623,3 +623,43 @@ python -m unittest test_dictionary_search                       # 14 OK
 
 `data_page` 实测：词头 50 行 = 6.8 KB；`sentence_alignments` 默认 50 行 = 62 KB、
 上限 200 行 = 250 KB；未知表被拒；旧 `db_table_page` 返回形状不变（旧 DatabaseScreen 不受影响）。
+
+### P2 数据写入（策展编辑）—— 已完成（2026-10-29）
+
+落地内容：
+
+| 层 | 变化 |
+|---|---|
+| `data_schema.py` | 字段中文名 `FIELD_LABELS` / `field_label()`、长文本集合 `MULTILINE_FIELDS`、声明式外键 `TableSpec.references`（历史表没有真 FK 时也能拦住孤儿） |
+| `data_core.py` | `form_meta()`（schema 驱动的表单描述：必填/长度/类型/多行/引用）、`delete_preview()`（事务内真删+回滚，精确到 FK 级联）、`reference_options()`（引用字段候选值）；删除逻辑抽成 `_delete_rows`；写触发集合 `_touched_tables` 扩展（词头编辑连带 `dictionary`，修复 P0 时代翻译缓存漏刷新的缺口） |
+| `dictionary_core.py` / `dictionary_service.py` | 策展写入：`create_word_entry`（词头+多义项，单事务）、`add_sense`、`delete_sense`（**保护最后一个义项**）、`delete_headword`（连带义项与语义别名）、`get_headword_entry` |
+| `mobile_bridge.py` | 新增 `data_form` / `data_create` / `data_update` / `data_delete`（**删除前自动创建恢复点**，删除失败不产生备份语义）/ `data_delete_preview` / `data_reference_options` / `dictionary_create_word` / `dictionary_add_sense` / `dictionary_delete_sense` / `dictionary_delete_headword` / `dictionary_entry`；写入成功统一重载翻译缓存并记本地修改台账 |
+| `Models.kt` / `PythonRepository.kt` | `DataFieldMeta` / `DataReference` / `DataCascadeInfo` / `DataFormMeta` / `DataDeletePreview` / `DataDeleteChild` / `DataReferenceOption` / `DataMutation` + 对应 repository 方法 |
+| `MainViewModel.kt` | 表单/删除预览/引用候选/写入结果/编辑中词条状态；`submitDataMutation`（成功刷新检索与数据页、失败只进对话框）；新增/编辑/删除词条与行的封装 |
+| `DataEditingDialogs.kt`（新） | `DataMutationEffect` 写入协议（成功关闭、失败保留输入并内联报错）、`DataFormDialog`（引用下拉、必填/长度校验）、`DataDeleteDialog`（影响预览+恢复点提示）、`DictionaryCreateWordDialog`、`SenseEditorCard`、`SenseAddDialog` |
+| `DictionaryScreen.kt` | 检索区「+ 新增词条」；词条编辑统一走 VM（`dictionaryEditEntry`），支持保存/新增义项/删除义项/删除词条；数据行卡片按可写性显示「编辑/删除」（词头走策展编辑器，其余走 schema 表单 + 删除预览）；最后一个义项不可删（UI+后端双保险） |
+| `DatabaseScreen.kt` | 旧写入口下线：移除新增/编辑/删除与全局搜索替换，保留浏览、维护动作、导出与分页；副标题改为「只读浏览 · 编辑已迁移到 词典 → 数据」 |
+| 测试 | `test_data_editing.py` 22 条（DataCore / 策展服务 / bridge 三层 + 资产守卫）；CI 增加 `P2 data editing tests` 步骤 |
+
+设计要点：
+
+- **删除预览用「真删 + 回滚」计算**：预览在事务内执行同一条删除路径再 `ROLLBACK`，
+  因此 FK 级联与声明式级联都被精确计入，且预览本身不改变数据库。
+- **所有写入走 P0 的同一套守则**：只读表拒绝、字段/类型/长度/必填/唯一/引用校验、
+  单事务、失败回滚、台账、成功后事件（翻译缓存）。
+- 创建 `sentence_alignments` 时 `song_id`/`song_title` 是引用字段，表单通过
+  `data_reference_options` 拉候选（最多 500 条），不再要求用户手输 id。
+
+验收记录：
+
+```pwsh
+.\gradlew.bat :app:compileDebugKotlin :app:testDebugUnitTest    # BUILD SUCCESSFUL
+cd app/src/test/python; $env:PYTHONPATH = '<repo>/app/src/main/python'
+python -m unittest test_data_editing test_data_guard test_backup_restore test_dictionary_search  # 113 OK
+python -m unittest test_database_versioning test_verify_published_database                       # 27 OK
+```
+
+端到端探针（真库副本）：表单元数据/删除预览/引用候选、通用增删改（只读拒绝、重复拒绝、
+声明式外键防孤儿）、策展词条全生命周期（创建→检索可见→加义项→删义项→删词条）、
+删除自动恢复点、最后义项保护、失败事务不留下半成品数据 —— 全部通过；
+`translated.db` sha256 未变。

@@ -720,6 +720,29 @@ def _data_page(payload: Dict[str, Any]) -> Dict[str, Any]:
     )
 
 
+def _data_call(action: Any) -> Dict[str, Any]:
+    """Run a data-layer action, turning DataError into a clean user-facing failure."""
+    from webui_backend.data_core import DataError
+
+    try:
+        return action()
+    except DataError as error:
+        return {"ok": False, "message": str(error)}
+
+
+def _create_recovery_point(reason: str) -> str:
+    """Snapshot the database before a destructive action.
+
+    A destructive write must not proceed when the recovery point cannot be made:
+    losing a word without a way back is worse than refusing the operation.
+    """
+    try:
+        snapshot = _data_core.backup_create(reason)
+    except Exception as error:  # noqa: BLE001 - report a Chinese reason instead
+        raise RuntimeError(f"无法创建恢复点，已取消操作：{error}") from error
+    return str(snapshot.get("path") or "")
+
+
 def _restore_backup(payload: Dict[str, Any]) -> Dict[str, Any]:
     """Restore a recovery point: validate, snapshot the current state, replace atomically."""
     from webui_backend.data_core import (
@@ -806,6 +829,67 @@ def invoke(method: str, payload_json: str = "{}") -> str:
                         str(result.get("word") or ""),
                         notify=False,
                     )
+            elif method == "dictionary_entry":
+                result = _dictionary.get_headword_entry(
+                    int(payload.get("headword_id") or 0)
+                )
+            elif method == "dictionary_create_word":
+                result = _dictionary.create_word_entry(
+                    str(payload.get("word") or ""),
+                    str(payload.get("display_explanation") or ""),
+                    str(payload.get("display_class") or ""),
+                    payload.get("senses") or [],
+                )
+                if result.get("ok"):
+                    _reload_translator_if_needed(["dictionary"])
+                    _data_core.record_local_edit(
+                        "dictionary_headwords",
+                        result.get("headword_id"),
+                        "insert",
+                        str(result.get("word") or ""),
+                        notify=False,
+                    )
+            elif method == "dictionary_add_sense":
+                result = _dictionary.add_sense_entry(
+                    int(payload.get("headword_id") or 0),
+                    str(payload.get("explanation") or ""),
+                    str(payload.get("class") or ""),
+                    str(payload.get("english") or ""),
+                    str(payload.get("japanese") or ""),
+                )
+                if result.get("ok"):
+                    _reload_translator_if_needed(["dictionary"])
+                    _data_core.record_local_edit(
+                        "dictionary",
+                        result.get("sense_id"),
+                        "insert",
+                        str(payload.get("explanation") or ""),
+                        notify=False,
+                    )
+            elif method == "dictionary_delete_sense":
+                sense_id = int(payload.get("sense_id") or 0)
+                backup = _create_recovery_point("before_delete_sense")
+                result = _dictionary.delete_sense_entry(sense_id)
+                if result.get("ok"):
+                    result["backup"] = backup
+                    _reload_translator_if_needed(["dictionary"])
+                    _data_core.record_local_edit(
+                        "dictionary", sense_id, "delete", "删除义项", notify=False
+                    )
+            elif method == "dictionary_delete_headword":
+                headword_id = int(payload.get("headword_id") or 0)
+                backup = _create_recovery_point("before_delete_word")
+                result = _dictionary.delete_headword_entry(headword_id)
+                if result.get("ok"):
+                    result["backup"] = backup
+                    _reload_translator_if_needed(["dictionary"])
+                    _data_core.record_local_edit(
+                        "dictionary_headwords",
+                        headword_id,
+                        "delete",
+                        str(payload.get("word") or ""),
+                        notify=False,
+                    )
             elif method == "lyric_translations":
                 result = _dictionary.get_lyric_translations(
                     str(payload.get("title") or ""),
@@ -884,6 +968,44 @@ def invoke(method: str, payload_json: str = "{}") -> str:
                 result = _data_core.diagnose()
             elif method == "data_page":
                 result = _data_page(payload)
+            elif method == "data_form":
+                table = str(payload.get("table") or "")
+                result = _data_call(lambda: _data_core.form_meta(table))
+            elif method == "data_create":
+                table = str(payload.get("table") or "")
+                values = payload.get("values") or {}
+                outcome = _data_call(lambda: _data_core.create(table, values))
+                if outcome.get("ok"):
+                    outcome["message"] = "记录已新增。"
+                result = outcome
+            elif method == "data_update":
+                table = str(payload.get("table") or "")
+                key = payload.get("key")
+                values = payload.get("values") or {}
+                outcome = _data_call(lambda: _data_core.update(table, key, values))
+                if outcome.get("ok"):
+                    outcome["message"] = "记录已保存。"
+                result = outcome
+            elif method == "data_delete":
+                table = str(payload.get("table") or "")
+                key = payload.get("key")
+                backup = _create_recovery_point("before_delete")
+                outcome = _data_call(lambda: _data_core.delete(table, [key]))
+                if outcome.get("ok"):
+                    outcome["message"] = f"已删除 {outcome.get('deleted', 0)} 条记录。"
+                    outcome["backup"] = backup
+                result = outcome
+            elif method == "data_delete_preview":
+                table = str(payload.get("table") or "")
+                key = payload.get("key")
+                result = _data_call(lambda: _data_core.delete_preview(table, key))
+            elif method == "data_reference_options":
+                table = str(payload.get("table") or "")
+                column = str(payload.get("column") or "")
+                keyword = str(payload.get("keyword") or "")
+                result = _data_call(
+                    lambda: _data_core.reference_options(table, column, keyword)
+                )
             elif method == "gov_backups":
                 backups = _data_core.backup_list()
                 result = _ok(backups=backups, count=len(backups))
