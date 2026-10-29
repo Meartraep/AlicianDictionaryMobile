@@ -15,3 +15,6 @@ build-run*.log
 gpg-private-backup.asc
 search_history.json
 backups/
+
+# long-horizon 记忆（DSH longtask-memory 插件注入的接力棒，不属于源码）
+.longtask/
