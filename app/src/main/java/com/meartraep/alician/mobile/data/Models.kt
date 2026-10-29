@@ -154,9 +154,6 @@ data class WritingIssue(
     val display: String,
     val type: String,
     val position: Int,
-    val reasons: List<String>,
-    val count: Int,
-    val variety: Int,
 )
 
 data class TextRange(val start: Int, val end: Int)
@@ -165,7 +162,7 @@ data class WritingResult(
     val sourceText: String,
     val unknownCount: Int,
     val unknownRanges: List<TextRange>,
-    val lowStatRanges: List<TextRange>,
+    val uncertainRanges: List<TextRange>,
     val issues: List<WritingIssue>,
     val status: String,
 )

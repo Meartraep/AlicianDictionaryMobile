@@ -1113,7 +1113,7 @@ private fun JSONObject.toWritingResult(): WritingResult {
         sourceText = optString("source_text"),
         unknownCount = optInt("unknown_count"),
         unknownRanges = (optJSONArray("unknown_ranges") ?: JSONArray()).ranges(),
-        lowStatRanges = (optJSONArray("lowstat_ranges") ?: JSONArray()).ranges(),
+        uncertainRanges = (optJSONArray("uncertain_ranges") ?: JSONArray()).ranges(),
         issues = List(issuesJson.length()) { index ->
             issuesJson.getJSONObject(index).let {
                 WritingIssue(
@@ -1121,9 +1121,6 @@ private fun JSONObject.toWritingResult(): WritingResult {
                     display = it.optString("display"),
                     type = it.optString("type"),
                     position = it.optInt("pos"),
-                    reasons = (it.optJSONArray("reasons") ?: JSONArray()).stringList(),
-                    count = it.optInt("count"),
-                    variety = it.optInt("variety"),
                 )
             }
         },
