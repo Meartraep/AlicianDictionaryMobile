@@ -246,19 +246,26 @@ def _export_csv_zip(path: str) -> Dict[str, Any]:
 
 
 def _run_maintenance(kind: str) -> Dict[str, Any]:
+    """Run one bulk maintenance task behind a recovery point.
+
+    The task itself opens its own connection and rewrites statistics, so the
+    bridge services are closed first; reopening them also refreshes the
+    translator cache, which means no stale counts are left behind.
+    """
+    backup = _create_recovery_point(f"before_maintenance_{kind}")
     _close_services()
     try:
         if kind == "word_count":
             from update_word_count import main
             main(verbose=False)
-            message = "词频与泛度已更新。"
+            message = "词频与泛度已按 songs.lyric 重新统计。"
         else:
             from classify_words import classify_words
             classify_words()
             message = "词性统计表已更新。"
     finally:
         _open_services()
-    return _ok(message=message, database=_database_info())
+    return _ok(message=message, backup=backup, database=_database_info())
 
 
 def _validate_database(path: Path) -> None:
