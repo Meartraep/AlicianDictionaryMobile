@@ -968,7 +968,7 @@ class AttestedGrammarTests(unittest.TestCase):
                 "loosya", str(row["sentence"]).casefold(),
                 f"offid={row['id']} 含副助词すら但缺 Loosya",
             )
-        self.assertEqual(len(particle_lines), 3)
+        self.assertEqual(len(particle_lines), 2)  # v2 dropped the empty-sentence orphan row
         # 2) Loosya always precedes the noun phrase whose head is the noun
         #    that すら/も attaches to (631 has an attributive adjective first).
         expected_host = {236: "Enebis", 631: "Liiquip", 865: "Selti"}

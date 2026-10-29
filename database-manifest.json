@@ -1,9 +1,9 @@
 {
-  "db_version": 1,
-  "published_at": "2026-10-14",
-  "notes": "官方日/英译逐句对齐：修复同一段落 A/B 两句互相包含整段译文的问题",
+  "db_version": 2,
+  "published_at": "2026-10-29",
+  "notes": "清理无读者的 12 张词性表、遗留 test/Album1-3/Single/All_words/Unknown 表，删除 1 条无对应歌曲的译文孤儿行并 VACUUM（2854912→约 2.69MB）；业务表 32→13。",
   "format": "alician-lite",
-  "size": 2854912,
-  "sha1": "5f5cb1389bae746327ce385b2f5b7d6c010aff82",
+  "size": 2596864,
+  "sha1": "81d9a5762cc8910b6b58cca9ed21793efa5fce6a",
   "url": "https://raw.githubusercontent.com/Meartraep/AlicianDictionaryMobile/main/app/src/main/assets/translated.db"
 }

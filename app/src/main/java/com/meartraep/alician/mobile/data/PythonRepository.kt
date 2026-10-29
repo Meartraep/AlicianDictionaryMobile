@@ -282,10 +282,15 @@ class PythonRepository(private val application: Application) {
         query: String,
         exact: Boolean,
         position: String,
+        recordHistory: Boolean = true,
     ): DictionaryResult {
         val json = invoke(
             "dictionary_search",
-            JSONObject().put("query", query).put("exact", exact).put("position", position),
+            JSONObject()
+                .put("query", query)
+                .put("exact", exact)
+                .put("position", position)
+                .put("record_history", recordHistory),
         )
         return json.toDictionaryResult()
     }
@@ -296,6 +301,29 @@ class PythonRepository(private val application: Application) {
             JSONObject().put("word", word).put("position", position),
         )
         return json.toExampleResult()
+    }
+
+    suspend fun dictionarySongLyrics(title: String, album: String): ExampleResult =
+        invoke("dictionary_song_lyrics", JSONObject().put("title", title).put("album", album))
+            .toExampleResult()
+
+    suspend fun updateDictionaryEntry(
+        headwordId: Int,
+        originalWord: String,
+        word: String,
+        displayExplanation: String,
+        senses: List<DictionarySense>,
+    ): String {
+        val sensesJson = dictionarySensesJson(senses, includeId = true)
+        return invoke(
+            "dictionary_update_word",
+            JSONObject()
+                .put("headword_id", headwordId)
+                .put("original_word", originalWord)
+                .put("word", word)
+                .put("display_explanation", displayExplanation)
+                .put("senses", sensesJson),
+        ).optString("message")
     }
 
     suspend fun updateLyric(title: String, album: String, lyric: String): String =
@@ -335,67 +363,164 @@ class PythonRepository(private val application: Application) {
                 .put("use_semantic_expansions", useSemanticExpansions),
         ).toTranslationResult()
 
-    suspend fun getTables(): List<String> =
-        invoke("db_tables").getJSONArray("tables").stringList()
+    suspend fun dataTables(): List<DataTableGroup> =
+        invoke("data_tables").let { json ->
+            val groupsJson = json.optJSONArray("groups") ?: JSONArray()
+            List(groupsJson.length()) { index ->
+                val group = groupsJson.getJSONObject(index)
+                val tablesJson = group.optJSONArray("tables") ?: JSONArray()
+                DataTableGroup(
+                    group = group.optString("group"),
+                    title = group.optString("title"),
+                    note = group.optString("note"),
+                    tables = List(tablesJson.length()) { tableIndex ->
+                        val table = tablesJson.getJSONObject(tableIndex)
+                        DataTableInfo(
+                            name = table.optString("name"),
+                            label = table.optString("label"),
+                            editable = table.optBoolean("editable"),
+                            note = table.optString("note"),
+                            display = (table.optJSONArray("display") ?: JSONArray()).stringList(),
+                        )
+                    },
+                )
+            }
+        }
 
-    suspend fun getTablePage(
+    suspend fun dataPage(
         table: String,
         keyword: String,
         exact: Boolean,
         offset: Int,
         limit: Int = 50,
-    ): DbTablePage = invoke(
-        "db_table_page",
+    ): DataTablePage = invoke(
+        "data_page",
         JSONObject()
             .put("table", table)
             .put("keyword", keyword)
             .put("exact", exact)
             .put("offset", offset)
             .put("limit", limit),
-    ).toDbTablePage()
+    ).toDataTablePage()
 
-    suspend fun addRecord(table: String, values: Map<String, String>): String =
-        invoke(
-            "db_add",
+    suspend fun dataForm(table: String): DataFormMeta =
+        invoke("data_form", JSONObject().put("table", table)).toDataFormMeta()
+
+    suspend fun dataCreate(table: String, values: Map<String, String>): Long? {
+        val json = invoke(
+            "data_create",
             JSONObject().put("table", table).put("values", JSONObject(values)),
-        ).optString("message")
+        )
+        return if (json.has("key")) json.optLong("key") else null
+    }
 
-    suspend fun updateRecord(table: String, id: Long, values: Map<String, String>): String =
+    suspend fun dataUpdate(table: String, key: Long, values: Map<String, String>): String =
         invoke(
-            "db_update",
-            JSONObject().put("table", table).put("id", id).put("values", JSONObject(values)),
+            "data_update",
+            JSONObject().put("table", table).put("key", key).put("values", JSONObject(values)),
         ).optString("message")
 
-    suspend fun deleteRecord(table: String, id: Long): String =
-        invoke(
-            "db_delete",
-            JSONObject().put("table", table).put("ids", JSONArray(listOf(id))),
-        ).optString("message")
+    suspend fun dataDelete(table: String, key: Long): String =
+        invoke("data_delete", JSONObject().put("table", table).put("key", key))
+            .optString("message")
 
-    suspend fun globalSearch(keyword: String, exact: Boolean): List<GlobalMatch> {
+    suspend fun dataDeletePreview(table: String, key: Long): DataDeletePreview =
+        invoke("data_delete_preview", JSONObject().put("table", table).put("key", key))
+            .toDataDeletePreview()
+
+    suspend fun dataReferenceOptions(
+        table: String,
+        column: String,
+        keyword: String = "",
+    ): List<DataReferenceOption> {
         val array = invoke(
-            "db_global_search",
-            JSONObject().put("keyword", keyword).put("exact", exact),
-        ).getJSONArray("results")
+            "data_reference_options",
+            JSONObject().put("table", table).put("column", column).put("keyword", keyword),
+        ).getJSONArray("options")
         return List(array.length()) { index ->
             array.getJSONObject(index).let {
-                GlobalMatch(
-                    table = it.optString("table"),
-                    id = it.optLong("id"),
-                    field = it.optString("field"),
-                    value = it.optValue("value"),
-                )
+                DataReferenceOption(value = it.optValue("value"), label = it.optValue("label"))
             }
         }
     }
 
-    suspend fun globalReplace(
+    suspend fun dictionaryEntry(headwordId: Long): DictionaryEntry =
+        invoke("dictionary_entry", JSONObject().put("headword_id", headwordId))
+            .getJSONObject("entry")
+            .toDictionaryEntry()
+
+    suspend fun dictionaryCreateWord(
+        word: String,
+        displayExplanation: String,
+        displayClass: String,
+        senses: List<DictionarySense>,
+    ): Long = invoke(
+        "dictionary_create_word",
+        JSONObject()
+            .put("word", word)
+            .put("display_explanation", displayExplanation)
+            .put("display_class", displayClass)
+            .put("senses", dictionarySensesJson(senses, includeId = false)),
+    ).optLong("headword_id")
+
+    suspend fun dictionaryAddSense(
+        headwordId: Long,
+        explanation: String,
+        wordClass: String,
+        english: String,
+        japanese: String,
+    ): Long = invoke(
+        "dictionary_add_sense",
+        JSONObject()
+            .put("headword_id", headwordId)
+            .put("explanation", explanation)
+            .put("class", wordClass)
+            .put("english", english)
+            .put("japanese", japanese),
+    ).optLong("sense_id")
+
+    suspend fun dictionaryDeleteSense(senseId: Long): String =
+        invoke("dictionary_delete_sense", JSONObject().put("sense_id", senseId))
+            .optString("message")
+
+    suspend fun dictionaryDeleteHeadword(headwordId: Long, word: String): String =
+        invoke(
+            "dictionary_delete_headword",
+            JSONObject().put("headword_id", headwordId).put("word", word),
+        ).optString("message")
+
+    // ---- P3b maintenance ---------------------------------------------------
+
+    /** Rebuilds the derived no_class table from senses without a word class. */
+    suspend fun rebuildNoClass(): String =
+        invoke("maintenance_no_class").optString("message")
+
+    /** Recounts count/variety for every word from the single lyric source. */
+    suspend fun recountWordStats(): String =
+        invoke("update_word_count").optString("message")
+
+    /** Reads the replacement preview; only editable tables are returned. */
+    suspend fun dataReplacePreview(
         keyword: String,
         replacement: String,
-        records: List<GlobalMatch>,
+    ): List<GlobalMatch> {
+        val array = invoke(
+            "data_replace_preview",
+            JSONObject().put("keyword", keyword).put("replacement", replacement),
+        ).getJSONArray("matches")
+        return List(array.length()) { index ->
+            array.getJSONObject(index).toGlobalMatch()
+        }
+    }
+
+    /** Applies exactly the previewed matches; the bridge creates a recovery point. */
+    suspend fun dataReplaceApply(
+        keyword: String,
+        replacement: String,
+        matches: List<GlobalMatch>,
     ): String {
-        val jsonRecords = JSONArray().apply {
-            records.forEach {
+        val jsonMatches = JSONArray().apply {
+            matches.forEach {
                 put(
                     JSONObject()
                         .put("table", it.table)
@@ -405,19 +530,88 @@ class PythonRepository(private val application: Application) {
                 )
             }
         }
-        val result = invoke(
-            "db_global_replace",
+        return invoke(
+            "data_replace_apply",
             JSONObject()
                 .put("keyword", keyword)
                 .put("replacement", replacement)
-                .put("records", jsonRecords),
-        )
-        return "已替换 ${result.optInt("replaced_count")} 个字段。"
+                .put("matches", jsonMatches),
+        ).optString("message")
     }
 
-    suspend fun updateWordCount(): String = invoke("update_word_count").optString("message")
+    /** Reads the read-only integrity/orphan/pragma report. */
+    suspend fun dataDiagnose(): DataDiagnosis {
+        val json = invoke("data_diagnose")
+        val orphansJson = json.optJSONArray("orphans") ?: JSONArray()
+        val tablesJson = json.optJSONArray("tables") ?: JSONArray()
+        val pragmasJson = json.optJSONObject("pragmas") ?: JSONObject()
+        return DataDiagnosis(
+            integrity = json.optString("integrity"),
+            foreignKeyViolations = json.optInt("foreign_key_violations", -1),
+            orphans = List(orphansJson.length()) { index ->
+                orphansJson.getJSONObject(index).let {
+                    DataOrphan(
+                        table = it.optString("table"),
+                        label = it.optString("label"),
+                        count = it.optInt("count"),
+                    )
+                }
+            },
+            tables = List(tablesJson.length()) { index ->
+                tablesJson.getJSONObject(index).let {
+                    DataDiagnosisTable(
+                        name = it.optString("name"),
+                        rows = it.optInt("rows"),
+                        group = it.optString("group"),
+                    )
+                }
+            },
+            localEdits = json.optInt("local_edits"),
+            pragmas = pragmasJson.keys().asSequence()
+                .associateWith { column -> pragmasJson.optValue(column) },
+        )
+    }
 
-    suspend fun classifyWords(): String = invoke("classify_words").optString("message")
+    // ---- P4 governance -----------------------------------------------------
+
+    /** Read-only identity of the installed database for the governance screen. */
+    suspend fun govIdentity(): GovIdentity {
+        val json = invoke("gov_identity")
+        return GovIdentity(
+            dbVersion = json.optInt("db_version"),
+            publishedAt = json.optString("published_at"),
+            notes = json.optString("notes"),
+            format = json.optString("format"),
+            sha256 = json.optString("sha256"),
+            size = json.optLong("size"),
+            modified = json.optString("modified"),
+            wordCount = json.optInt("word_count"),
+            songCount = json.optInt("song_count"),
+            tableCount = json.optInt("table_count"),
+            localEdits = json.optInt("local_edits"),
+            localModified = json.optBoolean("local_modified"),
+            backupCount = json.optInt("backup_count"),
+            latestBackup = json.optJSONObject("latest_backup")?.toBackupEntry(),
+        )
+    }
+
+    /** Recovery points, newest first (each verified against its sidecar). */
+    suspend fun govBackups(): List<BackupEntry> {
+        val array = invoke("gov_backups").getJSONArray("backups")
+        return List(array.length()) { index ->
+            array.getJSONObject(index).toBackupEntry()
+        }
+    }
+
+    suspend fun govBackupCreate(reason: String = "manual"): String {
+        val json = invoke("gov_backup_create", JSONObject().put("reason", reason))
+        return json.optString("message").ifBlank { "恢复点已创建。" }
+    }
+
+    suspend fun govBackupRestore(path: String): String =
+        invoke("gov_backup_restore", JSONObject().put("path", path))
+            .optString("message")
+            .ifBlank { "已恢复到所选恢复点。" }
 
     suspend fun prepareCsvArchive(): File {
         val output = File(application.cacheDir, "AlicianDictionaryCsv.zip")
@@ -752,6 +946,23 @@ private fun JSONObject?.toIntMap(): Map<String, Int> {
     return keys().asSequence().associateWith { optInt(it) }
 }
 
+private fun JSONObject.toBackupEntry(): BackupEntry = BackupEntry(
+    path = optString("path"),
+    name = optString("name"),
+    dbVersion = optInt("db_version"),
+    size = optLong("size"),
+    sha1 = optString("sha1"),
+    createdAt = optString("created_at"),
+    reason = optString("reason"),
+)
+
+private fun JSONObject.toGlobalMatch(): GlobalMatch = GlobalMatch(
+    table = optString("table"),
+    id = optLong("id"),
+    field = optString("field"),
+    value = optValue("value"),
+)
+
 private fun JSONObject.optValue(key: String): String {
     val value = opt(key)
     return if (value == null || value === JSONObject.NULL) "" else value.toString()
@@ -794,6 +1005,10 @@ private fun JSONObject.toDictionaryResult(): DictionaryResult {
                         variety = it.optInt("variety"),
                         englishGloss = it.optString("english_gloss"),
                         japaneseGloss = it.optString("japanese_gloss"),
+                        headwordId = it.optInt("headword_id"),
+                        album = it.optString("album"),
+                        songTitle = it.optString("song_title"),
+                        senses = it.toDictionarySenses(),
                     )
                 }
             },
@@ -821,6 +1036,21 @@ private fun JSONObject.toDictionaryResult(): DictionaryResult {
         history = (optJSONArray("history") ?: JSONArray()).stringList(),
         message = optString("message"),
     )
+}
+
+private fun JSONObject.toDictionarySenses(): List<DictionarySense> {
+    val sensesJson = optJSONArray("senses") ?: JSONArray()
+    return List(sensesJson.length()) { index ->
+        sensesJson.getJSONObject(index).let { sense ->
+            DictionarySense(
+                id = sense.optInt("id"),
+                explanation = sense.optString("explanation"),
+                wordClass = sense.optString("class"),
+                englishGloss = sense.optString("english_gloss"),
+                japaneseGloss = sense.optString("japanese_gloss"),
+            )
+        }
+    }
 }
 
 private fun JSONObject.toExampleResult(): ExampleResult {
@@ -987,11 +1217,114 @@ private fun JSONObject.toTranslationResult(): TranslationResult {
     )
 }
 
-private fun JSONObject.toDbTablePage(): DbTablePage {
-    val fields = (optJSONArray("fields") ?: JSONArray()).stringList()
-    val rowsJson = optJSONArray("data") ?: JSONArray()
-    return DbTablePage(
+private fun dictionarySensesJson(
+    senses: List<DictionarySense>,
+    includeId: Boolean,
+): JSONArray = JSONArray().apply {
+    senses.forEach { sense ->
+        put(
+            JSONObject()
+                .apply { if (includeId) put("id", sense.id) }
+                .put("explanation", sense.explanation)
+                .put("class", sense.wordClass)
+                .put("english", sense.englishGloss)
+                .put("japanese", sense.japaneseGloss),
+        )
+    }
+}
+
+private fun JSONObject.toDataFormMeta(): DataFormMeta {
+    val fieldsJson = optJSONArray("fields") ?: JSONArray()
+    val cascadeJson = optJSONArray("cascade") ?: JSONArray()
+    return DataFormMeta(
         table = optString("table"),
+        label = optString("label"),
+        group = optString("group"),
+        note = optString("note"),
+        editable = optBoolean("editable"),
+        keyColumn = optString("key_column", "id"),
+        display = (optJSONArray("display") ?: JSONArray()).stringList(),
+        fields = List(fieldsJson.length()) { index ->
+            fieldsJson.getJSONObject(index).let { field ->
+                DataFieldMeta(
+                    name = field.optString("name"),
+                    label = field.optString("label"),
+                    type = field.optString("type"),
+                    notnull = field.optBoolean("notnull"),
+                    maxLength = field.optInt("max_length"),
+                    required = field.optBoolean("required"),
+                    primaryKey = field.optBoolean("primary_key"),
+                    multiline = field.optBoolean("multiline"),
+                    hasDefault = field.has("default") && !field.isNull("default"),
+                    defaultValue = if (field.isNull("default")) "" else field.optValue("default"),
+                    reference = field.optJSONObject("reference")?.let { reference ->
+                        DataReference(
+                            table = reference.optString("table"),
+                            label = reference.optString("label"),
+                            column = reference.optString("column"),
+                        )
+                    },
+                )
+            }
+        },
+        cascade = List(cascadeJson.length()) { index ->
+            cascadeJson.getJSONObject(index).let {
+                DataCascadeInfo(
+                    table = it.optString("table"),
+                    label = it.optString("label"),
+                    column = it.optString("column"),
+                )
+            }
+        },
+    )
+}
+
+private fun JSONObject.toDataDeletePreview(): DataDeletePreview {
+    val childrenJson = optJSONArray("children") ?: JSONArray()
+    return DataDeletePreview(
+        table = optString("table"),
+        label = optString("label"),
+        key = optLong("key"),
+        summary = optString("summary"),
+        deletedSelf = optInt("deleted_self"),
+        children = List(childrenJson.length()) { index ->
+            childrenJson.getJSONObject(index).let {
+                DataDeleteChild(
+                    table = it.optString("table"),
+                    label = it.optString("label"),
+                    group = it.optString("group"),
+                    count = it.optInt("count"),
+                )
+            }
+        },
+        totalRemoved = optInt("total_removed"),
+    )
+}
+
+private fun JSONObject.toDictionaryEntry(): DictionaryEntry = DictionaryEntry(
+    word = optValue("word"),
+    explanation = optValue("explanation"),
+    wordClass = optString("word_class"),
+    kind = optString("kind", "alice"),
+    count = optInt("count"),
+    variety = optInt("variety"),
+    englishGloss = optString("english_gloss"),
+    japaneseGloss = optString("japanese_gloss"),
+    headwordId = optInt("headword_id"),
+    album = optString("album"),
+    songTitle = optString("song_title"),
+    senses = toDictionarySenses(),
+)
+
+private fun JSONObject.toDataTablePage(): DataTablePage {
+    val fields = (optJSONArray("fields") ?: JSONArray()).stringList()
+    val rowsJson = optJSONArray("rows") ?: JSONArray()
+    return DataTablePage(
+        table = optString("table"),
+        label = optString("label"),
+        group = optString("group"),
+        editable = optBoolean("editable"),
+        display = (optJSONArray("display") ?: JSONArray()).stringList(),
         fields = fields,
         rows = List(rowsJson.length()) { index ->
             rowsJson.getJSONObject(index).let { row ->

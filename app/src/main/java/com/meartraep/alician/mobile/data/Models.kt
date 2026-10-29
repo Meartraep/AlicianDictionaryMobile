@@ -63,6 +63,14 @@ data class UiSettings(
     val alicianFont: Boolean = false,
 )
 
+data class DictionarySense(
+    val id: Int,
+    val explanation: String,
+    val wordClass: String,
+    val englishGloss: String,
+    val japaneseGloss: String,
+)
+
 data class DictionaryEntry(
     val word: String,
     val explanation: String,
@@ -72,6 +80,10 @@ data class DictionaryEntry(
     val variety: Int,
     val englishGloss: String = "",
     val japaneseGloss: String = "",
+    val headwordId: Int = 0,
+    val album: String = "",
+    val songTitle: String = "",
+    val senses: List<DictionarySense> = emptyList(),
 )
 
 data class DictionarySection(
@@ -224,20 +236,124 @@ data class TranslationResult(
     val message: String,
 )
 
-data class DbTablePage(
+/** One table shown in the dictionary's data workspace. */
+data class DataTableInfo(
+    val name: String,
+    val label: String,
+    val editable: Boolean = false,
+    val note: String = "",
+    val display: List<String> = emptyList(),
+)
+
+/** Curated table group (core / lyric / semantic / system / legacy). */
+data class DataTableGroup(
+    val group: String,
+    val title: String,
+    val note: String = "",
+    val tables: List<DataTableInfo> = emptyList(),
+)
+
+/** One server-side page of a table plus the metadata the UI needs. */
+data class DataTablePage(
     val table: String,
+    val label: String,
+    val group: String,
+    val editable: Boolean,
+    val display: List<String>,
     val fields: List<String>,
     val rows: List<Map<String, String>>,
     val total: Int,
     val offset: Int,
     val limit: Int,
-)
+) {
+    val pageIndex: Int get() = if (limit <= 0) 0 else offset / limit
+    val pageCount: Int get() = if (limit <= 0) 0 else (total + limit - 1) / limit
+    val canGoPrevious: Boolean get() = offset > 0
+    val canGoNext: Boolean get() = offset + limit < total
+}
 
 data class GlobalMatch(
     val table: String,
     val id: Long,
     val field: String,
     val value: String,
+)
+
+/** Reference (foreign-key) target shown next to an editable field. */
+data class DataReference(
+    val table: String,
+    val label: String,
+    val column: String,
+)
+
+/** One column of a curated editor form. */
+data class DataFieldMeta(
+    val name: String,
+    val label: String,
+    val type: String = "",
+    val notnull: Boolean = false,
+    val maxLength: Int = 0,
+    val required: Boolean = false,
+    val primaryKey: Boolean = false,
+    val multiline: Boolean = false,
+    val hasDefault: Boolean = false,
+    val defaultValue: String = "",
+    val reference: DataReference? = null,
+)
+
+/** A child table that is removed together with the edited row. */
+data class DataCascadeInfo(
+    val table: String,
+    val label: String,
+    val column: String,
+)
+
+/** Server-described form for one table; the UI never hard-codes table rules. */
+data class DataFormMeta(
+    val table: String,
+    val label: String,
+    val group: String,
+    val note: String,
+    val editable: Boolean,
+    val keyColumn: String,
+    val display: List<String>,
+    val fields: List<DataFieldMeta>,
+    val cascade: List<DataCascadeInfo>,
+) {
+    fun field(name: String): DataFieldMeta? = fields.firstOrNull { it.name == name }
+}
+
+/** One table affected by a delete (the deleted table itself excluded). */
+data class DataDeleteChild(
+    val table: String,
+    val label: String,
+    val group: String,
+    val count: Int,
+)
+
+/** Exact impact of one delete, computed by the backend. */
+data class DataDeletePreview(
+    val table: String,
+    val label: String,
+    val key: Long,
+    val summary: String,
+    val deletedSelf: Int,
+    val children: List<DataDeleteChild>,
+    val totalRemoved: Int,
+)
+
+/** Candidate value for a reference field. */
+data class DataReferenceOption(
+    val value: String,
+    val label: String,
+)
+
+/** Result of a write, consumed by the dialog that triggered it. */
+data class DataMutation(
+    val token: Long,
+    val ok: Boolean,
+    val message: String,
+    val key: Long? = null,
 )
 
 data class RemoteComparison(
@@ -300,4 +416,64 @@ data class DatabaseFieldDiff(
     val column: String,
     val localValue: String,
     val remoteValue: String,
+)
+
+/** One orphan-row check reported by the read-only database diagnosis. */
+data class DataOrphan(
+    val table: String,
+    val label: String,
+    val count: Int,
+)
+
+/** Row count of one table in the database diagnosis. */
+data class DataDiagnosisTable(
+    val name: String,
+    val rows: Int,
+    val group: String,
+)
+
+/** Full integrity report behind 维护 → 数据库诊断 (read-only). */
+data class DataDiagnosis(
+    val integrity: String,
+    val foreignKeyViolations: Int,
+    val orphans: List<DataOrphan>,
+    val tables: List<DataDiagnosisTable>,
+    val localEdits: Int,
+    val pragmas: Map<String, String>,
+)
+
+/** Preview payload of one global replace (editable tables only). */
+data class ReplacePreview(
+    val keyword: String,
+    val replacement: String,
+    val matches: List<GlobalMatch>,
+)
+
+/** One recovery point (backup file) shown in the database governance screen. */
+data class BackupEntry(
+    val path: String,
+    val name: String,
+    val dbVersion: Int,
+    val size: Long,
+    val sha1: String,
+    val createdAt: String,
+    val reason: String,
+)
+
+/** Read-only identity of the installed database plus local-edit/backup counters. */
+data class GovIdentity(
+    val dbVersion: Int,
+    val publishedAt: String,
+    val notes: String,
+    val format: String,
+    val sha256: String,
+    val size: Long,
+    val modified: String,
+    val wordCount: Int,
+    val songCount: Int,
+    val tableCount: Int,
+    val localEdits: Int,
+    val localModified: Boolean,
+    val backupCount: Int,
+    val latestBackup: BackupEntry?,
 )

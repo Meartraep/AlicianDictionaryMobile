@@ -11,6 +11,13 @@ from webui_backend.dictionary_core import DatabaseHandler, DictionaryConfig, His
 
 logger = logging.getLogger(__name__)
 
+# A lyric line is not attributable to a song unless the song identity travels
+# with it, and a 100-row wall of cross-language noise is worse than no result.
+TRANSLATION_RESULT_LIMIT = 20
+SONG_RESULT_LIMIT = 20
+TRANSLATION_MIN_QUERY_LENGTH = 3
+SONG_MIN_QUERY_LENGTH = 2
+
 try:
     from Levenshtein import distance as _lev_distance
     from Levenshtein import ratio as _lev_ratio
@@ -35,12 +42,19 @@ except Exception:
 
 
 class DictionaryService:
-    def __init__(self, enable_semantic: bool | None = None) -> None:
+    def __init__(
+        self, enable_semantic: bool | None = None, core: Any | None = None
+    ) -> None:
         self._lock = threading.RLock()
         self.enable_fuzzy = True
         self.enable_semantic = (not is_lite_build()) if enable_semantic is None else bool(enable_semantic)
         self.db_handler = DatabaseHandler(DictionaryConfig.CURRENT_DB)
-        if not self.db_handler.connect():
+        if core is not None:
+            # Single-writer mode: reuse the DataCore connection so the app never
+            # has two independent writers on the same file.
+            if not self.db_handler.attach(core):
+                raise RuntimeError("无法复用数据库连接。")
+        elif not self.db_handler.connect():
             raise RuntimeError(f"Failed to connect to dictionary database: {DictionaryConfig.CURRENT_DB}")
         self.history_manager = HistoryManager()
         self.similarity_matcher = self._create_similarity_matcher() if self.enable_semantic else None
@@ -121,6 +135,7 @@ class DictionaryService:
 
     def search(
         self, query: str, exact_match: bool = False, position_filter: str = "any",
+        record_history: bool = True,
     ) -> Dict[str, Any]:
         normalized_query = (query or "").strip()
         if not normalized_query:
@@ -149,29 +164,86 @@ class DictionaryService:
                     })
             else:
                 alice_rows, chinese_rows = self.db_handler.search_words(normalized_query, effective_exact)
+                headword_ids = [
+                    int(row[0])
+                    for row in list(alice_rows) + list(chinese_rows)
+                    if row and row[0] is not None
+                ]
+                senses_by_headword = self.db_handler.get_headword_senses(headword_ids)
                 alice_entries = []
-                for word, explanation, word_class in alice_rows:
+                for headword_id, word, explanation, word_class in alice_rows:
                     stats = self.db_handler.get_word_stats(word, effective_exact) or (0, 0)
                     en_gloss, jp_gloss = self.db_handler.get_word_glosses(word)
                     alice_entries.append({
                         "word": word, "explanation": explanation, "word_class": word_class,
                         "kind": "alice", "count": stats[0], "variety": stats[1],
                         "english_gloss": en_gloss, "japanese_gloss": jp_gloss,
+                        "headword_id": int(headword_id),
+                        "senses": self._serialize_senses(senses_by_headword.get(int(headword_id), [])),
                     })
                 chinese_entries = []
-                for word, explanation, word_class in chinese_rows:
+                for headword_id, word, explanation, word_class in chinese_rows:
                     stats = self.db_handler.get_word_stats(word, effective_exact) or (0, 0)
                     en_gloss, jp_gloss = self.db_handler.get_word_glosses(word)
                     chinese_entries.append({
                         "word": word, "explanation": explanation, "word_class": word_class,
                         "kind": "chinese", "count": stats[0], "variety": stats[1],
                         "english_gloss": en_gloss, "japanese_gloss": jp_gloss,
+                        "headword_id": int(headword_id),
+                        "senses": self._serialize_senses(senses_by_headword.get(int(headword_id), [])),
                     })
                 if alice_entries:
                     sections.append({"title": "爱丽丝语 -> 中文", "kind": "alice", "entries": alice_entries})
                 if chinese_entries:
                     sections.append({"title": "中文 -> 爱丽丝语", "kind": "chinese", "entries": chinese_entries})
-            self.history_manager.add_record(normalized_query)
+            if effective_exact or len(normalized_query) >= TRANSLATION_MIN_QUERY_LENGTH:
+                translated_entries = [
+                    {
+                        "word": sentence,
+                        "explanation": chinese or "（暂无中文译文）",
+                        "word_class": "歌词句子",
+                        "kind": "translation",
+                        "count": 0,
+                        "variety": 0,
+                        "english_gloss": english,
+                        "japanese_gloss": japanese,
+                        "song_title": song_title,
+                        "album": album,
+                    }
+                    for sentence, chinese, english, japanese, song_title, album
+                    in self.db_handler.search_song_translations(
+                        normalized_query, effective_exact, limit=TRANSLATION_RESULT_LIMIT,
+                    )
+                ]
+                if translated_entries:
+                    sections.append({
+                        "title": "歌词英/日译命中",
+                        "kind": "translation",
+                        "entries": translated_entries,
+                    })
+            if effective_exact or len(normalized_query) >= SONG_MIN_QUERY_LENGTH:
+                song_entries = [
+                    {
+                        "word": title,
+                        "explanation": album,
+                        "word_class": "歌曲",
+                        "kind": "song",
+                        "count": 0,
+                        "variety": 0,
+                        "album": album,
+                    }
+                    for title, album in self.db_handler.search_songs(
+                        normalized_query, effective_exact, limit=SONG_RESULT_LIMIT,
+                    )
+                ]
+                if song_entries:
+                    sections.append({
+                        "title": "歌曲标题",
+                        "kind": "song",
+                        "entries": song_entries,
+                    })
+            if record_history:
+                self.history_manager.add_record(normalized_query)
             context_examples: Dict[str, Any] | None = None
             suggestions: List[Dict[str, Any]] = []
             if self.enable_fuzzy and not sections and not is_phrase:
@@ -236,6 +308,180 @@ class DictionaryService:
                 "title": (title or "").strip(),
                 "album": (album or "").strip(),
                 "lines": lines,
+            }
+
+    @staticmethod
+    def _serialize_senses(
+        senses: List[Tuple[int, str, str, str, str]],
+    ) -> List[Dict[str, Any]]:
+        return [
+            {
+                "id": int(sense_id),
+                "explanation": explanation,
+                "class": word_class,
+                "english_gloss": english,
+                "japanese_gloss": japanese,
+            }
+            for sense_id, explanation, word_class, english, japanese in senses
+        ]
+
+    def update_word_entry(
+        self,
+        headword_id: int,
+        original_word: str,
+        new_word: str,
+        display_explanation: str,
+        senses: List[Dict[str, Any]],
+    ) -> Dict[str, Any]:
+        """Persist a headword edit, one row per sense, as a single transaction."""
+        with self._lock:
+            self._ensure_connection()
+            success = self.db_handler.update_word_entry(
+                headword_id, original_word, new_word, display_explanation, senses,
+            )
+            return {
+                "ok": bool(success),
+                "message": "词条已保存。" if success else (
+                    self.db_handler.last_error or "词条保存失败。"
+                ),
+                "headword_id": headword_id,
+                "word": (new_word or "").strip(),
+            }
+
+    def create_word_entry(
+        self,
+        word: str,
+        display_explanation: str,
+        display_class: str,
+        senses: List[Dict[str, Any]],
+    ) -> Dict[str, Any]:
+        """Create one headword with its senses (curated editing entry point)."""
+        with self._lock:
+            self._ensure_connection()
+            headword_id = self.db_handler.create_word_entry(
+                word, display_explanation, display_class, senses,
+            )
+            if headword_id is None:
+                return {
+                    "ok": False,
+                    "message": self.db_handler.last_error or "词条保存失败。",
+                }
+            return {
+                "ok": True,
+                "message": "词条已创建。",
+                "headword_id": int(headword_id),
+                "word": (word or "").strip(),
+                "senses_count": len(senses or []),
+            }
+
+    def add_sense_entry(
+        self,
+        headword_id: int,
+        explanation: str,
+        word_class: str,
+        english: str,
+        japanese: str,
+    ) -> Dict[str, Any]:
+        with self._lock:
+            self._ensure_connection()
+            sense_id = self.db_handler.add_sense(
+                headword_id, explanation, word_class, english, japanese,
+            )
+            if sense_id is None:
+                return {
+                    "ok": False,
+                    "message": self.db_handler.last_error or "义项保存失败。",
+                }
+            return {
+                "ok": True,
+                "message": "义项已添加。",
+                "sense_id": int(sense_id),
+                "headword_id": int(headword_id),
+            }
+
+    def delete_sense_entry(self, sense_id: int) -> Dict[str, Any]:
+        with self._lock:
+            self._ensure_connection()
+            success = self.db_handler.delete_sense(sense_id)
+            return {
+                "ok": bool(success),
+                "message": "义项已删除。" if success else (
+                    self.db_handler.last_error or "义项删除失败。"
+                ),
+                "sense_id": sense_id,
+                "deleted": int(self.db_handler.last_deleted_count),
+            }
+
+    def delete_headword_entry(self, headword_id: int) -> Dict[str, Any]:
+        with self._lock:
+            self._ensure_connection()
+            success = self.db_handler.delete_headword(headword_id)
+            return {
+                "ok": bool(success),
+                "message": "词条已删除。" if success else (
+                    self.db_handler.last_error or "词条删除失败。"
+                ),
+                "headword_id": headword_id,
+                "deleted": int(self.db_handler.last_deleted_count),
+            }
+
+    def get_headword_entry(self, headword_id: int) -> Dict[str, Any]:
+        with self._lock:
+            self._ensure_connection()
+            entry = self.db_handler.get_headword_entry(headword_id)
+            if entry is None:
+                return {"ok": False, "message": "未找到该词条。"}
+            return {"ok": True, "entry": entry}
+
+    def get_song_lyrics(self, title: str, album: str = "") -> Dict[str, Any]:
+        """Return one whole song in the shape consumed by the lyric viewer."""
+        normalized_title = (title or "").strip()
+        normalized_album = (album or "").strip()
+        with self._lock:
+            self._ensure_connection()
+            song = self.db_handler.get_song_lyric(normalized_title, normalized_album)
+            if song is None:
+                return {
+                    "ok": False,
+                    "word": normalized_title,
+                    "examples": [],
+                    "song_stats": [],
+                    "total_before": 0,
+                    "total_after": 0,
+                    "deduplication_rate": 0,
+                    "position_filter": "any",
+                    "message": "未找到这首歌。",
+                }
+            song_title, lyric, song_album = song
+            lines = self._load_song_translations(song_title, song_album)
+            return {
+                "ok": True,
+                "word": song_title,
+                "examples": [{
+                    "id": 0,
+                    "paragraph": lyric,
+                    "title": song_title,
+                    "album": song_album,
+                    "lyric": lyric,
+                    "start": 0,
+                    "end": len(lyric),
+                    "poetic_translation": "",
+                    "english_translation": "",
+                    "japanese_translation": "",
+                    "korean_translation": "",
+                    "lyric_translations": lines,
+                }],
+                "song_stats": [{
+                    "album": song_album,
+                    "title": song_title,
+                    "before": 1,
+                    "after": 1,
+                }],
+                "total_before": 1,
+                "total_after": 1,
+                "deduplication_rate": 0,
+                "position_filter": "any",
+                "message": "",
             }
 
     def _load_song_translations(self, title: str, album: str) -> List[Dict[str, str]]:

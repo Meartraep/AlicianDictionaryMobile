@@ -76,10 +76,10 @@ def main(verbose=False):
         # 连接数据库并优化参数（针对低配电脑，减少磁盘IO）
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
-        # 关闭磁盘同步（牺牲部分安全性，换取写入速度）
-        cursor.execute("PRAGMA synchronous = OFF")
-        # 日志模式改为内存（减少磁盘操作）
-        cursor.execute("PRAGMA journal_mode = MEMORY")
+        # 保持默认的持久化语义：维护任务同样不能以牺牲数据安全换速度。
+        cursor.execute("PRAGMA busy_timeout = 5000")
+        # 单写者连接会设置 foreign_keys=ON；这里保持一致。
+        cursor.execute("PRAGMA foreign_keys = ON")
         # 限制缓存大小（避免占用过多内存，单位：页，1页=4KB）
         cursor.execute("PRAGMA cache_size = -5000")  # 缓存20MB（可根据内存调整）
         
@@ -94,9 +94,10 @@ def main(verbose=False):
             logger.error(error_msg)
             return
         
-        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='raw'")
+        # 唯一正文源是 songs.lyric；raw 只是导入期存档，不再参与统计。
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='songs'")
         if not cursor.fetchone():
-            error_msg = "错误：raw表不存在！"
+            error_msg = "错误：songs表不存在！"
             print(error_msg)
             logger.error(error_msg)
             return
@@ -151,11 +152,11 @@ def main(verbose=False):
         total_counts = defaultdict(int)  # 单词总出现次数
         variety_counts = defaultdict(int)  # 单词出现的歌词记录数
         
-        # 3. 分批读取歌词（避免一次性加载大量数据）
+        # 3. 分批读取歌词（songs.lyric 是唯一正文源；raw 已降级为只读存档）
         batch_size = 50  # 每批处理50条（低配电脑可再减小至20-30）
         cursor.execute("""
-            SELECT id, lyric_raw FROM raw 
-            WHERE lyric_raw IS NOT NULL AND lyric_raw != ''
+            SELECT id, lyric FROM songs
+            WHERE lyric IS NOT NULL AND lyric != ''
         """)
         
         processed_lyrics = 0
@@ -215,10 +216,12 @@ def main(verbose=False):
                 logger.info(log_msg)
             
             # 简化输出，只打印关键统计
-            print(f"单词 '{word}'：总计 {new_count} 次，出现于 {new_variety} 条记录")
+            if verbose:
+                print(f"单词 '{word}'：总计 {new_count} 次，出现于 {new_variety} 条记录")
         
-        # 执行批量更新
+        # 执行批量更新（单事务：词头统计与义项统计要么一起生效，要么一起回滚）
         if update_data:
+            conn.execute("BEGIN IMMEDIATE")
             cursor.executemany("""
                 UPDATE dictionary_headwords
                 SET count = ?, variety = ? 

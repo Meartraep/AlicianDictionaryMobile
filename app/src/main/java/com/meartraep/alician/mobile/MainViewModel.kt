@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.meartraep.alician.mobile.data.AppUpdateInfo
+import com.meartraep.alician.mobile.data.BackupEntry
 import com.meartraep.alician.mobile.data.DatabaseInfo
 import com.meartraep.alician.mobile.data.DatabasePublisher
 import com.meartraep.alician.mobile.data.DeviceCode
@@ -17,10 +18,19 @@ import com.meartraep.alician.mobile.data.GitHubDeviceFlow
 import com.meartraep.alician.mobile.data.PublishAuth
 import com.meartraep.alician.mobile.data.DatabaseUpdateLogic
 import com.meartraep.alician.mobile.data.DatabaseUpdateManifest
-import com.meartraep.alician.mobile.data.DbTablePage
+import com.meartraep.alician.mobile.data.DataDeletePreview
+import com.meartraep.alician.mobile.data.DataDiagnosis
+import com.meartraep.alician.mobile.data.DataFormMeta
+import com.meartraep.alician.mobile.data.DataMutation
+import com.meartraep.alician.mobile.data.DataReferenceOption
+import com.meartraep.alician.mobile.data.DataTableGroup
+import com.meartraep.alician.mobile.data.DataTablePage
+import com.meartraep.alician.mobile.data.DictionaryEntry
 import com.meartraep.alician.mobile.data.DictionaryResult
+import com.meartraep.alician.mobile.data.DictionarySense
 import com.meartraep.alician.mobile.data.ExampleResult
 import com.meartraep.alician.mobile.data.GlobalMatch
+import com.meartraep.alician.mobile.data.GovIdentity
 import com.meartraep.alician.mobile.data.LookupResult
 import com.meartraep.alician.mobile.data.PublishCredential
 import com.meartraep.alician.mobile.data.PublishCredentialStore
@@ -113,8 +123,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         private set
     var dictionaryExamples by mutableStateOf<ExampleResult?>(null)
         private set
+
+    /** True while [dictionaryExamples] shows a whole song instead of sentence hits. */
+    var dictionaryExamplesFullLyric by mutableStateOf(false)
+        private set
     var history by mutableStateOf<List<String>>(emptyList())
         private set
+
+    /** Song currently shown as a whole lyric (title to album), null outside full-lyric mode. */
+    private var songLyricContext: Pair<String, String>? = null
+
+    /** Last executed dictionary search (query, exact, position), replayed after a sense edit. */
+    private var dictionarySearchParams: Triple<String, Boolean, String>? = null
 
     var writingResult by mutableStateOf<WritingResult?>(null)
         private set
@@ -128,14 +148,43 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var translationResultRevision by mutableStateOf(0L)
         private set
 
-    var dbTables by mutableStateOf<List<String>>(emptyList())
+    /** Curated table registry for the dictionary data workspace (P1). */
+    var dataTableGroups by mutableStateOf<List<DataTableGroup>>(emptyList())
         private set
-    var dbPage by mutableStateOf<DbTablePage?>(null)
-        private set
-    var globalMatches by mutableStateOf<List<GlobalMatch>>(emptyList())
+    var dataTablePage by mutableStateOf<DataTablePage?>(null)
         private set
 
+    /** Curated editor state (P2). */
+    var dataForm by mutableStateOf<DataFormMeta?>(null)
+        private set
+    var dataDeletePreview by mutableStateOf<DataDeletePreview?>(null)
+        private set
+    var dataReferenceOptions by mutableStateOf<Map<String, List<DataReferenceOption>>>(emptyMap())
+        private set
+    var dataMutation by mutableStateOf<DataMutation?>(null)
+        private set
+    var dictionaryEditEntry by mutableStateOf<DictionaryEntry?>(null)
+        private set
+
+    /** P3b maintenance / diagnosis state. */
+    var dataDiagnosis by mutableStateOf<DataDiagnosis?>(null)
+        private set
+    var replacePreview by mutableStateOf<List<GlobalMatch>>(emptyList())
+        private set
+    var replacePreviewLoaded by mutableStateOf(false)
+        private set
+
+    private var dataTablesLoaded = false
+    private var dataQuery: DataQuery? = null
+    private var mutationSerial = 0L
+
     var databaseInfo by mutableStateOf(DatabaseInfo())
+        private set
+
+    /** P4 governance state: installed-database identity and recovery points. */
+    var govIdentity by mutableStateOf<GovIdentity?>(null)
+        private set
+    var govBackups by mutableStateOf<List<BackupEntry>>(emptyList())
         private set
     var remoteComparison by mutableStateOf<RemoteComparison?>(null)
         private set
@@ -439,27 +488,110 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun searchDictionary(query: String, exact: Boolean, position: String) {
         if (query.isBlank()) return
+        val trimmed = query.trim()
+        dictionarySearchParams = Triple(trimmed, exact, position)
         launchTask("正在查询…") {
-            dictionaryResult = repository.dictionarySearch(query.trim(), exact, position)
+            dictionaryResult = repository.dictionarySearch(trimmed, exact, position)
             history = dictionaryResult?.history ?: history
         }
     }
 
     fun loadExamples(word: String, position: String) {
+        dictionaryExamplesFullLyric = false
+        songLyricContext = null
         launchTask("正在查找歌词例句…") {
             dictionaryExamples = repository.dictionaryExamples(word, position)
         }
     }
 
+    /**
+     * Shows a whole song. The full-lyric flag and the song context are kept for the
+     * whole lifetime of the dialog so editing the lyric keeps addressing that song.
+     * On failure both are reset so the error can be shown normally.
+     */
+    fun loadSongLyrics(title: String, album: String) {
+        dictionaryExamplesFullLyric = true
+        songLyricContext = title to album
+        dictionaryExamples = null
+        launchTask("正在读取整首歌词…") {
+            try {
+                dictionaryExamples = repository.dictionarySongLyrics(title, album)
+            } catch (throwable: Throwable) {
+                dictionaryExamplesFullLyric = false
+                songLyricContext = null
+                throw throwable
+            }
+        }
+    }
+
     fun closeExamples() {
         dictionaryExamples = null
+        dictionaryExamplesFullLyric = false
+        songLyricContext = null
     }
 
     fun updateLyric(title: String, album: String, lyric: String) {
         launchTask("正在保存歌词…") {
-            noticeMessage = repository.updateLyric(title, album, lyric)
-            dictionaryExamples = dictionaryExamples?.let {
-                repository.dictionaryExamples(it.word, it.positionFilter)
+            val context = songLyricContext
+            noticeMessage = if (context != null && dictionaryExamplesFullLyric) {
+                repository.updateLyric(context.first, context.second, lyric)
+            } else {
+                repository.updateLyric(title, album, lyric)
+            }
+            // A failed refresh must not hide the successful save: only drop the sheet.
+            runCatching {
+                if (context != null && dictionaryExamplesFullLyric) {
+                    repository.dictionarySongLyrics(context.first, context.second)
+                } else {
+                    dictionaryExamples?.let {
+                        repository.dictionaryExamples(it.word, it.positionFilter)
+                    }
+                }
+            }.onSuccess { refreshed ->
+                if (refreshed != null) dictionaryExamples = refreshed
+            }.onFailure {
+                dictionaryExamples = null
+            }
+            refreshDatabaseInfo()
+        }
+    }
+
+    /**
+     * Saves one headword and its edited senses, then replays the last search with the
+     * same filters (without polluting the query history) so the result list is fresh.
+     */
+    fun updateDictionaryEntry(
+        headwordId: Int,
+        originalWord: String,
+        word: String,
+        displayExplanation: String,
+        senses: List<DictionarySense>,
+    ) {
+        launchTask("正在保存词条…") {
+            noticeMessage = repository.updateDictionaryEntry(
+                headwordId = headwordId,
+                originalWord = originalWord,
+                word = word,
+                displayExplanation = displayExplanation,
+                senses = senses,
+            )
+            val params = dictionarySearchParams
+            if (params != null) {
+                val (query, exact, position) = params
+                val currentQuery = dictionaryResult?.query.orEmpty().ifBlank { query }
+                val nextQuery = if (currentQuery.equals(originalWord, ignoreCase = true)) {
+                    word
+                } else {
+                    currentQuery
+                }
+                val result = repository.dictionarySearch(
+                    query = nextQuery,
+                    exact = exact,
+                    position = position,
+                    recordHistory = false,
+                )
+                dictionaryResult = result
+                history = result.history
             }
             refreshDatabaseInfo()
         }
@@ -536,74 +668,299 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         translationResult = null
     }
 
-    fun loadDatabase(table: String? = null, keyword: String = "", exact: Boolean = false, offset: Int = 0) {
-        launchTask("正在读取数据库…") {
-            if (dbTables.isEmpty()) dbTables = repository.getTables()
-            val selected = table ?: dbPage?.table ?: dbTables.firstOrNull()
-            if (selected != null) {
-                dbPage = repository.getTablePage(selected, keyword, exact, offset)
+    /**
+     * Loads the curated table registry (core / lyric / semantic / system / legacy).
+     * Cached until [force] or a database replacement, because it only changes with
+     * the database schema.
+     */
+    fun loadDataTables(force: Boolean = false) {
+        if (!ready) return
+        if (dataTablesLoaded && !force) return
+        launchTask("正在读取数据表…") {
+            dataTableGroups = repository.dataTables()
+            dataTablesLoaded = true
+        }
+    }
+
+    /** Loads one server-side page of a curated table. */
+    fun loadDataTablePage(
+        table: String,
+        keyword: String,
+        exact: Boolean,
+        offset: Int,
+        limit: Int = 50,
+    ) {
+        if (!ready || table.isBlank()) return
+        dataQuery = DataQuery(table, keyword, exact, offset, limit)
+        launchTask("正在读取数据表…") {
+            dataTablePage = repository.dataPage(table, keyword, exact, offset, limit)
+        }
+    }
+
+    // ---------------------------------------------------------------- P2 editing
+
+    /** Reads the server-described form for one table. */
+    fun loadDataForm(table: String) {
+        if (!ready || table.isBlank()) return
+        launchTask("正在读取表结构…") {
+            dataForm = repository.dataForm(table)
+        }
+    }
+
+    fun clearDataForm() {
+        dataForm = null
+        dataReferenceOptions = emptyMap()
+    }
+
+    /** Candidate values for a reference (foreign key) field of the open form. */
+    fun loadDataReferenceOptions(column: String, keyword: String = "") {
+        val form = dataForm ?: return
+        val reference = form.field(column)?.reference ?: return
+        if (!ready) return
+        launchTask("正在读取可选值…") {
+            val options = repository.dataReferenceOptions(
+                reference.table, reference.column, keyword,
+            )
+            dataReferenceOptions = dataReferenceOptions + (column to options)
+        }
+    }
+
+    /** Reads the exact delete impact before asking the user to confirm. */
+    fun requestDataDeletePreview(table: String, key: Long) {
+        if (!ready) return
+        launchTask("正在检查删除影响…") {
+            dataDeletePreview = repository.dataDeletePreview(table, key)
+        }
+    }
+
+    fun cancelDataDeletePreview() {
+        dataDeletePreview = null
+    }
+
+    /** Loads one headword (with senses) for the curated dictionary editor. */
+    fun openDictionaryEntry(headwordId: Long) {
+        if (!ready || headwordId <= 0L) return
+        launchTask("正在读取词条…") {
+            dictionaryEditEntry = repository.dictionaryEntry(headwordId)
+        }
+    }
+
+    fun closeDictionaryEntry() {
+        dictionaryEditEntry = null
+    }
+
+    fun consumeDataMutation() {
+        dataMutation = null
+    }
+
+    /**
+     * Runs one write and publishes the outcome to the dialog that triggered it.
+     *
+     * A failure stays inside [dataMutation] instead of the global snackbar so the
+     * dialog can keep the user's input and show the reason inline.
+     *
+     * @param refreshSearch re-runs the last dictionary search after the write
+     *   (used by word/sense edits so the result list reflects the new data).
+     */
+    fun submitDataMutation(
+        refreshSearch: Boolean = false,
+        refreshHeadwordId: Long? = null,
+        clearEntry: Boolean = false,
+        block: suspend () -> String,
+    ) {
+        if (!ready) return
+        dataMutation = null
+        launchTask("正在保存…") {
+            val token = ++mutationSerial
+            try {
+                val message = block()
+                dataMutation = DataMutation(token, ok = true, message = message.ifBlank { "已保存。" })
+                when {
+                    clearEntry -> dictionaryEditEntry = null
+                    refreshHeadwordId != null -> {
+                        val headwordId = refreshHeadwordId
+                        dictionaryEditEntry = runCatching {
+                            repository.dictionaryEntry(headwordId)
+                        }.getOrNull()
+                    }
+                }
+                if (refreshSearch) refreshDictionaryAfterEdit() else refreshDataWorkspace()
+            } catch (throwable: Throwable) {
+                dataMutation = DataMutation(
+                    token,
+                    ok = false,
+                    message = throwable.message ?: "保存失败，请重试。",
+                )
             }
         }
     }
 
-    fun addRecord(table: String, values: Map<String, String>) {
-        launchTask("正在新增记录…") {
-            noticeMessage = repository.addRecord(table, values)
-            if (affectsStudyDeck(table)) refreshStudyAfterDeckChanged()
-            dbPage = repository.getTablePage(table, "", false, dbPage?.offset ?: 0)
-            refreshDatabaseInfo()
+    private suspend fun refreshDictionaryAfterEdit() {
+        val params = dictionarySearchParams
+        if (params != null) {
+            val (query, exactMatch, position) = params
+            dictionaryResult = repository.dictionarySearch(
+                query = query,
+                exact = exactMatch,
+                position = position,
+                recordHistory = false,
+            )
+            history = dictionaryResult?.history ?: history
         }
+        refreshDataWorkspace()
     }
 
-    fun updateRecord(table: String, id: Long, values: Map<String, String>) {
-        launchTask("正在保存记录…") {
-            noticeMessage = repository.updateRecord(table, id, values)
-            if (affectsStudyDeck(table)) refreshStudyAfterDeckChanged()
-            dbPage = repository.getTablePage(table, "", false, dbPage?.offset ?: 0)
-            refreshDatabaseInfo()
+    private suspend fun refreshDataWorkspace() {
+        val query = dataQuery
+        if (query != null) {
+            runCatching {
+                repository.dataPage(
+                    query.table, query.keyword, query.exact, query.offset, query.limit,
+                )
+            }.onSuccess { dataTablePage = it }
         }
-    }
-
-    fun deleteRecord(table: String, id: Long) {
-        launchTask("正在删除记录…") {
-            noticeMessage = repository.deleteRecord(table, id)
-            if (affectsStudyDeck(table)) refreshStudyAfterDeckChanged()
-            dbPage = repository.getTablePage(table, "", false, dbPage?.offset ?: 0)
-            refreshDatabaseInfo()
-        }
-    }
-
-    fun globalSearch(keyword: String, exact: Boolean) {
-        if (keyword.isBlank()) return
-        launchTask("正在跨表搜索…") {
-            globalMatches = repository.globalSearch(keyword, exact)
-        }
-    }
-
-    fun globalReplace(keyword: String, replacement: String, selected: List<GlobalMatch>) {
-        launchTask("正在批量替换…") {
-            val studyDeckChanged = selected.any { affectsStudyDeck(it.table) }
-            noticeMessage = repository.globalReplace(keyword, replacement, selected)
-            if (studyDeckChanged) refreshStudyAfterDeckChanged()
-            globalMatches = repository.globalSearch(keyword, false)
-            loadDatabase()
-        }
-    }
-
-    fun updateWordCount() {
-        launchTask("正在更新词频与泛度，可能需要片刻…") {
-            noticeMessage = repository.updateWordCount()
+        if (query != null && affectsDictionaryDeck(query.table)) {
             refreshStudyAfterDeckChanged()
-            refreshDatabaseInfo()
+        }
+        refreshDatabaseInfo()
+        invalidateTranslation()
+    }
+
+    private fun affectsDictionaryDeck(table: String): Boolean =
+        table == "dictionary_headwords" || table == "dictionary" || table == "phrase"
+
+    fun createDictionaryWord(
+        word: String,
+        displayExplanation: String,
+        displayClass: String,
+        senses: List<DictionarySense>,
+    ) {
+        submitDataMutation(refreshSearch = true) {
+            repository.dictionaryCreateWord(word, displayExplanation, displayClass, senses)
+            "词条已创建。"
         }
     }
 
-    fun classifyWords() {
-        launchTask("正在更新词性统计表…") {
-            noticeMessage = repository.classifyWords()
-            dbTables = repository.getTables()
-            refreshDatabaseInfo()
+    fun addDictionarySense(
+        headwordId: Long,
+        explanation: String,
+        wordClass: String,
+        english: String,
+        japanese: String,
+    ) {
+        submitDataMutation(refreshSearch = true, refreshHeadwordId = headwordId) {
+            repository.dictionaryAddSense(headwordId, explanation, wordClass, english, japanese)
+            "义项已添加。"
         }
+    }
+
+    fun deleteDictionarySense(senseId: Long, headwordId: Long) {
+        submitDataMutation(refreshSearch = true, refreshHeadwordId = headwordId) {
+            repository.dictionaryDeleteSense(senseId)
+        }
+    }
+
+    fun deleteDictionaryHeadword(headwordId: Long, word: String) {
+        submitDataMutation(refreshSearch = true, clearEntry = true) {
+            repository.dictionaryDeleteHeadword(headwordId, word)
+        }
+    }
+
+    /** Saves the curated word editor (headword + submitted senses). */
+    fun saveDictionaryEntry(
+        headwordId: Long,
+        originalWord: String,
+        word: String,
+        displayExplanation: String,
+        senses: List<DictionarySense>,
+    ) {
+        submitDataMutation(refreshSearch = true, refreshHeadwordId = headwordId) {
+            repository.updateDictionaryEntry(
+                headwordId = headwordId.toInt(),
+                originalWord = originalWord,
+                word = word,
+                displayExplanation = displayExplanation,
+                senses = senses,
+            )
+        }
+    }
+
+    /** Creates one row of the current data table through the write guard. */
+    fun createDataRow(table: String, values: Map<String, String>) {
+        submitDataMutation {
+            repository.dataCreate(table, values)
+            "记录已新增。"
+        }
+    }
+
+    fun updateDataRow(table: String, key: Long, values: Map<String, String>) {
+        submitDataMutation {
+            repository.dataUpdate(table, key, values)
+        }
+    }
+
+    fun deleteDataRow(table: String, key: Long) {
+        submitDataMutation {
+            repository.dataDelete(table, key)
+        }
+    }
+
+    // ---------------------------------------------------------- P3b maintenance
+
+    /** Recomputes count/variety for every word from the single lyric source. */
+    fun recountWordStats() {
+        submitDataMutation(refreshSearch = true) {
+            repository.recountWordStats()
+        }
+    }
+
+    /** Rebuilds the derived no_class table (the only derived table the app reads). */
+    fun rebuildNoClass() {
+        submitDataMutation(refreshSearch = true) {
+            repository.rebuildNoClass()
+        }
+    }
+
+    /** Reads the database integrity report; read-only, so it never writes. */
+    fun loadDiagnosis() {
+        if (!ready) return
+        launchTask("正在检查数据库…") {
+            dataDiagnosis = repository.dataDiagnose()
+        }
+    }
+
+    fun clearDiagnosis() {
+        dataDiagnosis = null
+    }
+
+    /** Previews a global replace; an empty keyword clears the preview. */
+    fun requestReplacePreview(keyword: String, replacement: String) {
+        val trimmed = keyword.trim()
+        if (!ready) return
+        if (trimmed.isEmpty()) {
+            clearReplacePreview()
+            return
+        }
+        replacePreview = emptyList()
+        replacePreviewLoaded = false
+        launchTask("正在查找匹配…") {
+            replacePreview = repository.dataReplacePreview(trimmed, replacement)
+            replacePreviewLoaded = true
+        }
+    }
+
+    /** Applies exactly the previewed matches; the bridge creates a recovery point. */
+    fun applyReplace(keyword: String, replacement: String) {
+        if (replacePreview.isEmpty()) return
+        val matches = replacePreview
+        submitDataMutation(refreshSearch = true) {
+            repository.dataReplaceApply(keyword.trim(), replacement, matches)
+        }
+    }
+
+    fun clearReplacePreview() {
+        replacePreview = emptyList()
+        replacePreviewLoaded = false
     }
 
     fun exportCsv(onReady: (File) -> Unit) {
@@ -656,6 +1013,54 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun dismissRemoteComparison() {
         remoteComparison = null
+    }
+
+    // ---------------------------------------------------------- P4 governance
+
+    /** Reads the installed-database identity plus local-edit/backup counters. */
+    fun refreshGovIdentity() {
+        if (!ready) return
+        launchTask("正在读取数据库信息…") {
+            govIdentity = repository.govIdentity()
+        }
+    }
+
+    /** Reads the recovery-point list (newest first). */
+    fun refreshGovBackups() {
+        if (!ready) return
+        launchTask("正在读取恢复点…") {
+            govBackups = repository.govBackups()
+        }
+    }
+
+    /** Creates one manual recovery point, then refreshes the governance counters. */
+    fun createGovBackup() {
+        submitDataMutation {
+            val message = repository.govBackupCreate("manual")
+            refreshGovernanceState()
+            message
+        }
+    }
+
+    /**
+     * Restores one recovery point. The bridge snapshots the current database first;
+     * after the swap the in-memory caches must be rebuilt like any database replacement.
+     */
+    fun restoreGovBackup(path: String) {
+        if (path.isBlank()) return
+        submitDataMutation {
+            val message = repository.govBackupRestore(path)
+            runCatching { afterDatabaseChanged() }
+            refreshGovernanceState()
+            message
+        }
+    }
+
+    /** Best-effort re-read of everything the governance screen shows. */
+    private suspend fun refreshGovernanceState() {
+        runCatching { repository.govIdentity() }.onSuccess { govIdentity = it }
+        runCatching { repository.govBackups() }.onSuccess { govBackups = it }
+        runCatching { repository.databaseInfo() }.onSuccess { databaseInfo = it }
     }
 
     /** Manual "check now" from the settings screen; always reports the outcome. */
@@ -1122,11 +1527,28 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         refreshStudyAfterDeckChanged()
         dictionaryResult = null
         dictionaryExamples = null
+        dictionaryExamplesFullLyric = false
+        songLyricContext = null
         writingResult = null
         invalidateTranslation()
-        globalMatches = emptyList()
-        dbTables = repository.getTables()
-        dbPage = null
+        dataTablesLoaded = false
+        dataTableGroups = emptyList()
+        dataTablePage = null
+        dataForm = null
+        dataDeletePreview = null
+        dataReferenceOptions = emptyMap()
+        dataMutation = null
+        dictionaryEditEntry = null
+        dataQuery = null
         refreshDatabaseInfo()
     }
 }
+
+/** Last executed data-workspace page request, replayed after a write. */
+private data class DataQuery(
+    val table: String,
+    val keyword: String,
+    val exact: Boolean,
+    val offset: Int,
+    val limit: Int,
+)

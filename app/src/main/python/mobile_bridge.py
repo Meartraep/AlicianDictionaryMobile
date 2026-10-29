@@ -7,6 +7,7 @@ small and every result can be logged and regression-tested independently.
 from __future__ import annotations
 
 import csv
+import contextlib
 import hashlib
 import json
 import os
@@ -27,7 +28,7 @@ _data_dir = ""
 _dictionary = None
 _writing = None
 _translator = None
-_dbmanager = None
+_data_core = None
 _remote_candidate = ""
 _MAX_DIFF_DETAILS = 2000
 _TRANSLATOR_TABLES = {
@@ -38,6 +39,20 @@ _TRANSLATOR_TABLES = {
     "adverb_position_stats",
     "songs",
 }
+
+
+@contextlib.contextmanager
+def _connect(path: Any):
+    """sqlite3's own context manager commits but never closes; this one closes.
+
+    A leaked connection keeps the database file locked on Windows, which makes
+    the atomic replace used by backup restore / database import fail.
+    """
+    connection = sqlite3.connect(str(path))
+    try:
+        yield connection
+    finally:
+        connection.close()
 
 
 def _json_default(value: Any) -> Any:
@@ -57,32 +72,52 @@ def _ok(**kwargs: Any) -> Dict[str, Any]:
 
 
 def _close_services() -> None:
-    global _dictionary, _writing, _translator, _dbmanager
-    for service in (_dictionary, _writing, _translator, _dbmanager):
+    global _dictionary, _writing, _translator, _data_core
+    # The dictionary handler shares DataCore's connection, so DataCore closes last.
+    for service in (_dictionary, _writing, _translator, _data_core):
         if service is not None:
             try:
                 service.close()
             except Exception:
                 pass
-    _dictionary = _writing = _translator = _dbmanager = None
+    # The writing assistant owns a process-wide SQLite singleton that survives
+    # service.close().  On Windows an open handle makes the file replace used by
+    # backup restore / database import fail with "替换数据库文件失败。", so it must
+    # be released here as well.
+    try:
+        from webui_backend.writing_database import DatabaseManager
+
+        DatabaseManager().close_connection()
+    except Exception:
+        pass
+    _dictionary = _writing = _translator = _data_core = None
+
+
+def _on_data_write(tables: Any) -> None:
+    """Invalidate in-memory caches after a committed data-layer write."""
+    _reload_translator_if_needed(tables)
 
 
 def _open_services() -> None:
-    global _dictionary, _writing, _translator, _dbmanager
+    global _dictionary, _writing, _translator, _data_core
     from webui_backend.dictionary_core import DictionaryConfig
     from webui_backend.dictionary_service import DictionaryService
+    from webui_backend.data_core import DataCore
     from webui_backend.writing_database import DatabaseManager
     from webui_backend.writing_service import WritingAssistantService
     from webui_backend.translation_service import TranslationService
-    from webui_backend.dbmanager_service import DatabaseManagerService
 
     DictionaryConfig.DB_NAME = _db_path
     DictionaryConfig.CURRENT_DB = _db_path
     DatabaseManager().close_connection()
-    _dictionary = DictionaryService(enable_semantic=False)
+    # Single writer: one connection, one set of PRAGMAs, one set of write rules.
+    _data_core = DataCore(_db_path, backups_dir=str(Path(_data_dir) / "backups"))
+    if not _data_core.connect():
+        raise RuntimeError(f"无法打开数据库：{_db_path}")
+    _data_core.set_event_sink(_on_data_write)
+    _dictionary = DictionaryService(enable_semantic=False, core=_data_core)
     _writing = WritingAssistantService()
     _translator = TranslationService(_db_path, enable_fallback_matching=False)
-    _dbmanager = DatabaseManagerService(_db_path)
 
 
 def _reload_translator_if_needed(table_names: Any) -> None:
@@ -127,7 +162,7 @@ def initialize(db_path: str, data_dir: str) -> str:
 
 
 def _ensure_ready() -> None:
-    if not all((_dictionary, _writing, _translator, _dbmanager)):
+    if not all((_dictionary, _writing, _translator, _data_core)):
         raise RuntimeError("移动端服务尚未初始化。")
 
 
@@ -138,7 +173,7 @@ def _database_info() -> Dict[str, Any]:
     word_count = 0
     song_count = 0
     if path.is_file():
-        with sqlite3.connect(path) as conn:
+        with _connect(path) as conn:
             table_count = conn.execute(
                 "SELECT COUNT(*) FROM sqlite_master WHERE type='table' "
                 "AND name NOT LIKE 'sqlite_%'"
@@ -181,45 +216,34 @@ def _database_metadata() -> Dict[str, Any]:
     return _ok(database_version=version, metadata=values)
 
 
-def _table_page(payload: Dict[str, Any]) -> Dict[str, Any]:
-    table = str(payload.get("table") or "")
-    keyword = str(payload.get("keyword") or "")
-    exact = bool(payload.get("exact", False))
-    offset = max(0, int(payload.get("offset", 0)))
-    limit = max(1, min(200, int(payload.get("limit", 50))))
-    fields = _dbmanager.get_fields(table)
-    if not fields:
-        return _ok(table=table, fields=[], data=[], total=0, offset=offset, limit=limit)
-    quoted_table = '"' + table.replace('"', '""') + '"'
-    quoted = lambda value: '"' + str(value).replace('"', '""') + '"'
-    selected_fields = fields if "id" in fields else ["rowid", *fields]
-    columns = ", ".join(quoted(field) if field != "rowid" else "rowid" for field in selected_fields)
-    params = []
-    where = ""
-    if keyword:
-        operator = "=" if exact else "LIKE"
-        where = " WHERE " + " OR ".join(
-            f"CAST({quoted(field)} AS TEXT) {operator} ?" for field in fields
-        )
-        value = keyword if exact else f"%{keyword}%"
-        params = [value] * len(fields)
-    with _dbmanager._lock:
-        cursor = _dbmanager.conn.cursor()
-        total = cursor.execute(
-            f"SELECT COUNT(*) FROM {quoted_table}{where}", params
-        ).fetchone()[0]
-        rows = cursor.execute(
-            f"SELECT {columns} FROM {quoted_table}{where} "
-            f"ORDER BY {'id' if 'id' in fields else 'rowid'} LIMIT ? OFFSET ?",
-            [*params, limit, offset],
-        ).fetchall()
+def _gov_identity() -> Dict[str, Any]:
+    """Everything the database-governance screen needs in one read-only call."""
+    info = _database_info()
+    metadata = _database_metadata()
+    values = metadata.get("metadata", {})
+    local_edits = 0
+    backups: list = []
+    try:
+        local_edits = int(_data_core.local_edits_count())
+        backups = _data_core.backup_list()
+    except Exception:  # noqa: BLE001 - identity must still render without a ledger
+        local_edits = local_edits or 0
+        backups = backups or []
     return _ok(
-        table=table,
-        fields=selected_fields,
-        data=[dict(zip(selected_fields, row)) for row in rows],
-        total=total,
-        offset=offset,
-        limit=limit,
+        db_version=int(metadata.get("database_version", 0)),
+        published_at=str(values.get("published_at", "")),
+        notes=str(values.get("notes", "")),
+        format=str(values.get("format", "")),
+        sha256=str(info.get("sha256", "")),
+        size=int(info.get("size", 0)),
+        modified=str(info.get("modified", "")),
+        word_count=int(info.get("word_count", 0)),
+        song_count=int(info.get("song_count", 0)),
+        table_count=int(info.get("table_count", 0)),
+        local_edits=local_edits,
+        local_modified=local_edits > 0,
+        backup_count=len(backups),
+        latest_backup=(backups[0] if backups else None),
     )
 
 
@@ -228,7 +252,7 @@ def _export_csv_zip(path: str) -> Dict[str, Any]:
     output.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(dir=_data_dir) as temp_dir:
         temp_root = Path(temp_dir)
-        with sqlite3.connect(_db_path) as conn:
+        with _connect(_db_path) as conn:
             tables = [
                 row[0] for row in conn.execute(
                     "SELECT name FROM sqlite_master WHERE type='table' "
@@ -251,24 +275,26 @@ def _export_csv_zip(path: str) -> Dict[str, Any]:
 
 
 def _run_maintenance(kind: str) -> Dict[str, Any]:
+    """Run one bulk maintenance task behind a recovery point.
+
+    The task itself opens its own connection and rewrites statistics, so the
+    bridge services are closed first; reopening them also refreshes the
+    translator cache, which means no stale counts are left behind.
+    """
+    backup = _create_recovery_point(f"before_maintenance_{kind}")
     _close_services()
     try:
-        if kind == "word_count":
-            from update_word_count import main
-            main(verbose=False)
-            message = "词频与泛度已更新。"
-        else:
-            from classify_words import classify_words
-            classify_words()
-            message = "词性统计表已更新。"
+        from update_word_count import main
+        main(verbose=False)
+        message = "词频与泛度已按 songs.lyric 重新统计。"
     finally:
         _open_services()
-    return _ok(message=message, database=_database_info())
+    return _ok(message=message, backup=backup, database=_database_info())
 
 
 def _validate_database(path: Path) -> None:
     required = {"dictionary", "dictionary_headwords", "songs", "phrase", "raw"}
-    with sqlite3.connect(path) as conn:
+    with _connect(path) as conn:
         present = {
             row[0] for row in conn.execute(
                 "SELECT name FROM sqlite_master WHERE type='table'"
@@ -283,7 +309,7 @@ def _validate_database(path: Path) -> None:
 def _compare_database_counts(remote_path: Path) -> Dict[str, Any]:
     summary = {}
     for label, path in (("local", Path(_db_path)), ("remote", remote_path)):
-        with sqlite3.connect(path) as conn:
+        with _connect(path) as conn:
             summary[label] = {
                 "words": conn.execute("SELECT COUNT(*) FROM dictionary_headwords").fetchone()[0],
                 "senses": conn.execute("SELECT COUNT(*) FROM dictionary").fetchone()[0],
@@ -361,7 +387,7 @@ def _build_database_diff(local_path: Path, remote_path: Path) -> Dict[str, Any]:
         "total_field_changes": 0,
         "tables": [],
     }
-    with sqlite3.connect(local_path) as local_conn, sqlite3.connect(remote_path) as remote_conn:
+    with _connect(local_path) as local_conn, _connect(remote_path) as remote_conn:
         local_tables = _database_tables(local_conn)
         remote_tables = _database_tables(remote_conn)
         for table in sorted(local_tables | remote_tables):
@@ -478,14 +504,31 @@ def _check_remote_update() -> Dict[str, Any]:
         with remote.open("wb") as handle:
             shutil.copyfileobj(response, handle)
     _validate_database(remote)
-    local_sha = hashlib.sha1(Path(_db_path).read_bytes()).hexdigest()
+    local_path = Path(_db_path)
+    local_sha = hashlib.sha1(local_path.read_bytes()).hexdigest()
     remote_sha = hashlib.sha1(remote.read_bytes()).hexdigest()
-    up_to_date = local_sha == remote_sha
+    local_version = _read_database_version(local_path)
+    remote_version = _read_database_version(remote)
+    if local_version > 0 and remote_version > 0:
+        # The version marker is the database identity; the byte hash additionally
+        # changes whenever the user edits a word locally, and comparing hashes
+        # alone used to make the app report "update available" forever.
+        up_to_date = local_version >= remote_version
+    else:
+        up_to_date = local_sha == remote_sha
+    local_modified = up_to_date and local_sha != remote_sha
     _remote_candidate = str(remote)
+    if up_to_date:
+        message = "本地词条有手工修改，云端数据库为同一版本。" if local_modified else "已是最新数据库。"
+    else:
+        message = "发现新的云端数据库。"
     return _ok(
         up_to_date=up_to_date,
+        local_modified=local_modified,
         local_sha1=local_sha,
         remote_sha1=remote_sha,
+        local_db_version=local_version,
+        remote_db_version=remote_version,
         comparison=_compare_database_counts(remote),
         diff=(
             {
@@ -495,9 +538,9 @@ def _check_remote_update() -> Dict[str, Any]:
                 "total_field_changes": 0,
                 "tables": [],
             }
-            if up_to_date else _build_database_diff(Path(_db_path), remote)
+            if up_to_date else _build_database_diff(local_path, remote)
         ),
-        message="已是最新数据库。" if up_to_date else "发现新的云端数据库。",
+        message=message,
     )
 
 
@@ -677,6 +720,93 @@ def _replace_database(source_path: str, expected_db_version: Optional[int] = Non
     )
 
 
+def _data_page(payload: Dict[str, Any]) -> Dict[str, Any]:
+    """Server-side paginated table page with the table's UI metadata."""
+    from webui_backend import data_schema
+    from webui_backend.data_core import DataError
+
+    table = str(payload.get("table") or "")
+    keyword = str(payload.get("keyword") or "")
+    exact = bool(payload.get("exact", False))
+    offset = max(0, int(payload.get("offset", 0)))
+    limit = max(1, min(200, int(payload.get("limit", 50))))
+    try:
+        page = _data_core.page(
+            table, keyword=keyword, exact=exact, offset=offset, limit=limit
+        )
+    except DataError as error:
+        return {"ok": False, "message": str(error)}
+    spec = data_schema.spec_for(page["table"])
+    return _ok(
+        table=page["table"],
+        label=spec.label,
+        group=spec.group,
+        editable=bool(spec.editable),
+        display=list(spec.display),
+        fields=page["fields"],
+        rows=page["rows"],
+        total=page["total"],
+        offset=page["offset"],
+        limit=page["limit"],
+    )
+
+
+def _data_call(action: Any) -> Dict[str, Any]:
+    """Run a data-layer action, turning DataError into a clean user-facing failure."""
+    from webui_backend.data_core import DataError
+
+    try:
+        return action()
+    except DataError as error:
+        return {"ok": False, "message": str(error)}
+
+
+def _create_recovery_point(reason: str) -> str:
+    """Snapshot the database before a destructive action.
+
+    A destructive write must not proceed when the recovery point cannot be made:
+    losing a word without a way back is worse than refusing the operation.
+    """
+    try:
+        snapshot = _data_core.backup_create(reason)
+    except Exception as error:  # noqa: BLE001 - report a Chinese reason instead
+        raise RuntimeError(f"无法创建恢复点，已取消操作：{error}") from error
+    return str(snapshot.get("path") or "")
+
+
+def _restore_backup(payload: Dict[str, Any]) -> Dict[str, Any]:
+    """Restore a recovery point: validate, snapshot the current state, replace atomically."""
+    from webui_backend.data_core import (
+        DataError,
+        atomic_replace_file,
+        validate_database_file,
+    )
+
+    source = Path(str(payload.get("path") or ""))
+    try:
+        restored = validate_database_file(source)
+    except DataError as error:
+        return {"ok": False, "message": str(error)}
+    safety: Dict[str, Any] = {}
+    try:
+        safety = _data_core.backup_create("before_restore")
+    except Exception:  # noqa: BLE001 - a failed safety snapshot must not stop the restore
+        safety = {}
+    _close_services()
+    try:
+        atomic_replace_file(source, Path(_db_path))
+    except DataError as error:
+        _open_services()
+        return {"ok": False, "message": str(error)}
+    _open_services()
+    return _ok(
+        message="已恢复到所选恢复点。",
+        restored=restored,
+        safety_backup=str(safety.get("path") or ""),
+        database=_database_info(),
+    )
+
+
 def invoke(method: str, payload_json: str = "{}") -> str:
     try:
         payload = json.loads(payload_json or "{}")
@@ -699,12 +829,98 @@ def invoke(method: str, payload_json: str = "{}") -> str:
                     str(payload.get("query") or ""),
                     bool(payload.get("exact", False)),
                     str(payload.get("position") or "any"),
+                    record_history=bool(payload.get("record_history", True)),
                 )
             elif method == "dictionary_examples":
                 result = _dictionary.get_examples(
                     str(payload.get("word") or ""),
                     str(payload.get("position") or "any"),
                 )
+            elif method == "dictionary_song_lyrics":
+                result = _dictionary.get_song_lyrics(
+                    str(payload.get("title") or ""),
+                    str(payload.get("album") or ""),
+                )
+            elif method == "dictionary_update_word":
+                result = _dictionary.update_word_entry(
+                    payload.get("headword_id"),
+                    str(payload.get("original_word") or ""),
+                    str(payload.get("word") or ""),
+                    str(payload.get("display_explanation") or ""),
+                    payload.get("senses") or [],
+                )
+                if result.get("ok"):
+                    # The translator keeps the dictionary in memory; a word edit
+                    # stays invisible to translate() until that cache is rebuilt.
+                    _reload_translator_if_needed(["dictionary"])
+                    _data_core.record_local_edit(
+                        "dictionary_headwords",
+                        payload.get("headword_id"),
+                        "update",
+                        str(result.get("word") or ""),
+                        notify=False,
+                    )
+            elif method == "dictionary_entry":
+                result = _dictionary.get_headword_entry(
+                    int(payload.get("headword_id") or 0)
+                )
+            elif method == "dictionary_create_word":
+                result = _dictionary.create_word_entry(
+                    str(payload.get("word") or ""),
+                    str(payload.get("display_explanation") or ""),
+                    str(payload.get("display_class") or ""),
+                    payload.get("senses") or [],
+                )
+                if result.get("ok"):
+                    _reload_translator_if_needed(["dictionary"])
+                    _data_core.record_local_edit(
+                        "dictionary_headwords",
+                        result.get("headword_id"),
+                        "insert",
+                        str(result.get("word") or ""),
+                        notify=False,
+                    )
+            elif method == "dictionary_add_sense":
+                result = _dictionary.add_sense_entry(
+                    int(payload.get("headword_id") or 0),
+                    str(payload.get("explanation") or ""),
+                    str(payload.get("class") or ""),
+                    str(payload.get("english") or ""),
+                    str(payload.get("japanese") or ""),
+                )
+                if result.get("ok"):
+                    _reload_translator_if_needed(["dictionary"])
+                    _data_core.record_local_edit(
+                        "dictionary",
+                        result.get("sense_id"),
+                        "insert",
+                        str(payload.get("explanation") or ""),
+                        notify=False,
+                    )
+            elif method == "dictionary_delete_sense":
+                sense_id = int(payload.get("sense_id") or 0)
+                backup = _create_recovery_point("before_delete_sense")
+                result = _dictionary.delete_sense_entry(sense_id)
+                if result.get("ok"):
+                    result["backup"] = backup
+                    _reload_translator_if_needed(["dictionary"])
+                    _data_core.record_local_edit(
+                        "dictionary", sense_id, "delete", "删除义项", notify=False
+                    )
+            elif method == "dictionary_delete_headword":
+                headword_id = int(payload.get("headword_id") or 0)
+                backup = _create_recovery_point("before_delete_word")
+                result = _dictionary.delete_headword_entry(headword_id)
+                if result.get("ok"):
+                    result["backup"] = backup
+                    _reload_translator_if_needed(["dictionary"])
+                    _data_core.record_local_edit(
+                        "dictionary_headwords",
+                        headword_id,
+                        "delete",
+                        str(payload.get("word") or ""),
+                        notify=False,
+                    )
             elif method == "lyric_translations":
                 result = _dictionary.get_lyric_translations(
                     str(payload.get("title") or ""),
@@ -718,6 +934,13 @@ def invoke(method: str, payload_json: str = "{}") -> str:
                 )
                 if result.get("ok"):
                     _reload_translator_if_needed(["songs"])
+                    _data_core.record_local_edit(
+                        "songs",
+                        str(payload.get("title") or ""),
+                        "update",
+                        str(payload.get("title") or ""),
+                        notify=False,
+                    )
             elif method == "writing_check":
                 result = _writing.check_text(str(payload.get("text") or ""))
             elif method == "writing_lookup":
@@ -732,53 +955,99 @@ def invoke(method: str, payload_json: str = "{}") -> str:
                     str(payload.get("direction") or "auto"),
                     bool(payload.get("use_semantic_expansions", False)),
                 )
-            elif method == "db_tables":
-                result = _ok(tables=_dbmanager.get_tables())
-            elif method == "db_table_page":
-                result = _table_page(payload)
-            elif method == "db_add":
+            elif method == "data_tables":
+                from webui_backend import data_schema
+
+                result = _ok(
+                    groups=data_schema.grouped_tables(),
+                    editable=data_schema.editable_table_names(),
+                )
+            elif method == "data_diagnose":
+                result = _data_core.diagnose()
+            elif method == "data_page":
+                result = _data_page(payload)
+            elif method == "data_form":
                 table = str(payload.get("table") or "")
-                result = _dbmanager.add_record(
-                    table, payload.get("values") or {}
-                )
-                if result.get("ok"):
-                    _reload_translator_if_needed([table])
-            elif method == "db_update":
+                result = _data_call(lambda: _data_core.form_meta(table))
+            elif method == "data_create":
                 table = str(payload.get("table") or "")
-                result = _dbmanager.update_record(
-                    table,
-                    int(payload.get("id") or 0),
-                    payload.get("values") or {},
-                )
-                if result.get("ok"):
-                    _reload_translator_if_needed([table])
-            elif method == "db_delete":
+                values = payload.get("values") or {}
+                outcome = _data_call(lambda: _data_core.create(table, values))
+                if outcome.get("ok"):
+                    outcome["message"] = "记录已新增。"
+                result = outcome
+            elif method == "data_update":
                 table = str(payload.get("table") or "")
-                result = _dbmanager.delete_records(
-                    table, payload.get("ids") or []
+                key = payload.get("key")
+                values = payload.get("values") or {}
+                outcome = _data_call(lambda: _data_core.update(table, key, values))
+                if outcome.get("ok"):
+                    outcome["message"] = "记录已保存。"
+                result = outcome
+            elif method == "data_delete":
+                table = str(payload.get("table") or "")
+                key = payload.get("key")
+                backup = _create_recovery_point("before_delete")
+                outcome = _data_call(lambda: _data_core.delete(table, [key]))
+                if outcome.get("ok"):
+                    outcome["message"] = f"已删除 {outcome.get('deleted', 0)} 条记录。"
+                    outcome["backup"] = backup
+                result = outcome
+            elif method == "data_delete_preview":
+                table = str(payload.get("table") or "")
+                key = payload.get("key")
+                result = _data_call(lambda: _data_core.delete_preview(table, key))
+            elif method == "data_reference_options":
+                table = str(payload.get("table") or "")
+                column = str(payload.get("column") or "")
+                keyword = str(payload.get("keyword") or "")
+                result = _data_call(
+                    lambda: _data_core.reference_options(table, column, keyword)
                 )
-                if result.get("ok"):
-                    _reload_translator_if_needed([table])
-            elif method == "db_global_search":
-                result = _dbmanager.global_search(
-                    str(payload.get("keyword") or ""),
-                    bool(payload.get("exact", False)),
+            elif method == "data_replace_preview":
+                keyword = str(payload.get("keyword") or "")
+                replacement = str(payload.get("replacement") or "")
+                result = _data_call(
+                    lambda: _ok(matches=_data_core.replace_preview(keyword, replacement))
                 )
-            elif method == "db_global_replace":
-                records = payload.get("records") or []
-                result = _dbmanager.global_replace(
-                    str(payload.get("keyword") or ""),
-                    str(payload.get("replacement") or ""),
-                    records,
+            elif method == "data_replace_apply":
+                keyword = str(payload.get("keyword") or "")
+                replacement = str(payload.get("replacement") or "")
+                matches = payload.get("matches") or []
+                backup = _create_recovery_point("before_replace")
+                outcome = _data_call(
+                    lambda: _data_core.replace_apply(keyword, replacement, matches)
                 )
-                if result.get("ok"):
-                    _reload_translator_if_needed(
-                        [record.get("table") for record in records]
+                if outcome.get("ok"):
+                    outcome["message"] = f"已替换 {outcome.get('replaced', 0)} 处。"
+                    outcome["backup"] = backup
+                result = outcome
+            elif method == "maintenance_no_class":
+                backup = _create_recovery_point("before_maintenance_no_class")
+                outcome = _data_call(lambda: _data_core.rebuild_no_class())
+                if outcome.get("ok"):
+                    outcome["message"] = (
+                        f"no_class 已重建（{outcome.get('inserted', 0)} 条，"
+                        f"源义项 {outcome.get('source_rows', 0)} 条）。"
                     )
+                    outcome["backup"] = backup
+                result = outcome
+            elif method == "gov_identity":
+                result = _gov_identity()
+            elif method == "gov_backups":
+                backups = _data_core.backup_list()
+                result = _ok(backups=backups, count=len(backups))
+            elif method == "gov_backup_create":
+                try:
+                    result = _data_core.backup_create(
+                        str(payload.get("reason") or "manual")
+                    )
+                except Exception as error:  # noqa: BLE001 - surface a Chinese message
+                    result = {"ok": False, "message": str(error)}
+            elif method == "gov_backup_restore":
+                result = _restore_backup(payload)
             elif method == "update_word_count":
                 result = _run_maintenance("word_count")
-            elif method == "classify_words":
-                result = _run_maintenance("classify")
             elif method == "export_csv_zip":
                 result = _export_csv_zip(str(payload.get("path") or ""))
             elif method == "database_info":

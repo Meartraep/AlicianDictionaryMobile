@@ -1,12 +1,19 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 import re
 import sqlite3
 import sys
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
+
+logger = logging.getLogger(__name__)
+
+# Latin tokens that can safely take the whole-word GLOB path: GLOB has no escape
+# syntax, so wildcard characters in user input must not reach it.
+_LATIN_WORD_PATTERN = re.compile(r"[a-z]+(?:'[a-z]+)?")
 
 
 def _get_default_db_path() -> str:
@@ -90,6 +97,23 @@ class DatabaseHandler:
         self.conn: Optional[sqlite3.Connection] = None
         self.cursor: Optional[sqlite3.Cursor] = None
         self.last_error = ""
+        #: id produced by the last curated insert (headword or sense)
+        self.last_inserted_id = 0
+        #: rows removed by the last curated delete (the headword itself included)
+        self.last_deleted_count = 0
+        # False when the connection is shared with a DataCore owner (single-writer
+        # mode): closing this handler must not close somebody else's connection.
+        self._owns_connection = True
+
+    def attach(self, core: Any) -> bool:
+        """Share an existing :class:`DataCore` connection (single-writer mode)."""
+        if getattr(core, "conn", None) is None:
+            return False
+        self.conn = core.conn
+        self.cursor = self.conn.cursor()
+        self._owns_connection = False
+        self.db_name = str(getattr(core, "db_path", self.db_name))
+        return True
 
     def connect(self) -> bool:
         try:
@@ -106,6 +130,7 @@ class DatabaseHandler:
 
             self.close()
             self.conn = sqlite3.connect(self.db_name, check_same_thread=False)
+            self._owns_connection = True
             self.conn.execute("PRAGMA cache_size = -1000")
             self.conn.execute("PRAGMA synchronous = OFF")
             self.cursor = self.conn.cursor()
@@ -155,32 +180,62 @@ class DatabaseHandler:
             return [], []
         if is_exact:
             self.cursor.execute(
-                "SELECT words, display_explanation, display_class FROM dictionary_headwords WHERE words = ? LIMIT 20",
+                "SELECT id, words, display_explanation, display_class FROM dictionary_headwords "
+                "WHERE words = ? ORDER BY id LIMIT 20",
                 (query,),
             )
             alice_res = self.cursor.fetchall()
             self.cursor.execute(
-                "SELECT DISTINCT h.words, h.display_explanation, h.display_class "
+                "SELECT DISTINCT h.id, h.words, h.display_explanation, h.display_class "
                 "FROM dictionary d JOIN dictionary_headwords h ON h.id = d.headword_id "
-                "WHERE d.explanation = ? LIMIT 20",
+                "WHERE d.explanation = ? ORDER BY h.id LIMIT 20",
                 (query,),
             )
             chinese_res = self.cursor.fetchall()
         else:
             self.cursor.execute(
-                "SELECT words, display_explanation, display_class FROM dictionary_headwords "
-                "WHERE LOWER(words) LIKE LOWER(?) LIMIT 20",
+                "SELECT id, words, display_explanation, display_class FROM dictionary_headwords "
+                "WHERE LOWER(words) LIKE LOWER(?) ORDER BY id LIMIT 20",
                 (f"%{query}%",),
             )
             alice_res = self.cursor.fetchall()
             self.cursor.execute(
-                "SELECT DISTINCT h.words, h.display_explanation, h.display_class "
+                "SELECT DISTINCT h.id, h.words, h.display_explanation, h.display_class "
                 "FROM dictionary d JOIN dictionary_headwords h ON h.id = d.headword_id "
-                "WHERE LOWER(d.explanation) LIKE LOWER(?) LIMIT 20",
+                "WHERE LOWER(d.explanation) LIKE LOWER(?) ORDER BY h.id LIMIT 20",
                 (f"%{query}%",),
             )
             chinese_res = self.cursor.fetchall()
         return alice_res, chinese_res
+
+    def get_headword_senses(
+        self, headword_ids: List[int],
+    ) -> Dict[int, List[Tuple[int, str, str, str, str]]]:
+        """Return {headword_id: [(sense_id, explanation, class, english, japanese), ...]}.
+
+        The edit dialog needs one row per sense so a save can never flatten the
+        curated per-sense meanings into the headword summary.
+        """
+        ordered = sorted({int(hid) for hid in headword_ids if hid is not None})
+        if not self.cursor or not ordered:
+            return {}
+        placeholders = ",".join("?" for _ in ordered)
+        self.cursor.execute(
+            "SELECT headword_id, id, explanation, class, english_gloss, japanese_gloss "
+            f"FROM dictionary WHERE headword_id IN ({placeholders}) "
+            "ORDER BY headword_id, sense_order, id",
+            tuple(ordered),
+        )
+        senses: Dict[int, List[Tuple[int, str, str, str, str]]] = {}
+        for headword_id, sense_id, explanation, word_class, english, japanese in self.cursor.fetchall():
+            senses.setdefault(int(headword_id), []).append((
+                int(sense_id),
+                explanation or "",
+                word_class or "",
+                english or "",
+                japanese or "",
+            ))
+        return senses
 
     def search_phrases(self, query: str, is_exact: bool) -> List[Tuple[str, str]]:
         if not self.cursor:
@@ -280,10 +335,640 @@ class DatabaseHandler:
             if self.cursor.rowcount > 0:
                 self.conn.commit()
                 return True
+            # Leaving an open implicit transaction behind used to make the next
+            # write fail with "cannot start a transaction within a transaction".
+            self.conn.rollback()
             return False
         except sqlite3.Error as exc:
             self.last_error = f"数据库更新错误: {exc}"
+            try:
+                self.conn.rollback()
+            except sqlite3.Error:
+                pass
             return False
+
+    def search_song_translations(
+        self, query: str, is_exact: bool = False, limit: int = 20,
+    ) -> List[Tuple[str, str, str, str, str, str]]:
+        """Search the official English/Japanese lyric translations.
+
+        Returns (alician_sentence, chinese_translation, english, japanese,
+        song_title, album).  The song identity is carried through because a
+        lyric line is not attributable to a song otherwise.
+        """
+        stripped = (query or "").strip()
+        if not self.cursor or not stripped:
+            return []
+        base_columns = (
+            "SELECT sa.alician_sentence, MAX(sa.chinese_translation), "
+            "st.english, st.japanese, MIN(sa.song_title), MIN(sa.album) "
+            "FROM sentence_alignments sa "
+            "JOIN song_translations st ON st.song_title = sa.song_title "
+            "AND st.sentence = sa.alician_sentence "
+        )
+        group_order = (
+            " AND TRIM(sa.alician_sentence) <> '' "
+            "GROUP BY sa.alician_sentence, st.english, st.japanese "
+            "ORDER BY MIN(sa.song_title), MIN(sa.song_sentence_order) LIMIT ?"
+        )
+        try:
+            if is_exact:
+                self.cursor.execute(
+                    base_columns
+                    + "WHERE (LOWER(st.english) = LOWER(?) OR LOWER(st.japanese) = LOWER(?))"
+                    + group_order,
+                    (stripped, stripped, int(limit)),
+                )
+            elif _LATIN_WORD_PATTERN.fullmatch(stripped.lower()):
+                # Whole-word match: "love" must not match "loveless"/"glove".
+                # GLOB has no escape syntax, so only metacharacter-free latin
+                # tokens take this branch; everything else falls back to LIKE.
+                pattern = "*[^a-z]" + stripped.lower() + "[^a-z]*"
+                self.cursor.execute(
+                    base_columns
+                    + "WHERE ((' ' || LOWER(st.english) || ' ') GLOB ? "
+                    "OR (' ' || LOWER(st.japanese) || ' ') GLOB ?)"
+                    + group_order,
+                    (pattern, pattern, int(limit)),
+                )
+            else:
+                pattern = f"%{stripped}%"
+                self.cursor.execute(
+                    base_columns
+                    + "WHERE (LOWER(st.english) LIKE LOWER(?) OR LOWER(st.japanese) LIKE LOWER(?))"
+                    + group_order,
+                    (pattern, pattern, int(limit)),
+                )
+            return [
+                (
+                    row[0] or "",
+                    row[1] or "",
+                    row[2] or "",
+                    row[3] or "",
+                    row[4] or "",
+                    row[5] or "",
+                )
+                for row in self.cursor.fetchall()
+            ]
+        except sqlite3.Error:
+            # Older databases predate the official translation tables.
+            self.last_error = "当前数据库缺少歌词译文表，已跳过英/日译检索。"
+            return []
+
+    def search_songs(self, query: str, is_exact: bool, limit: int = 20) -> List[Tuple[str, str]]:
+        """Return (title, album) rows whose title matches the query."""
+        stripped = (query or "").strip()
+        if not self.cursor or not stripped:
+            return []
+        if is_exact:
+            self.cursor.execute(
+                "SELECT title, COALESCE(Album, '') FROM songs "
+                "WHERE LOWER(title) = LOWER(?) ORDER BY title LIMIT ?",
+                (stripped, int(limit)),
+            )
+        else:
+            self.cursor.execute(
+                "SELECT title, COALESCE(Album, '') FROM songs "
+                "WHERE LOWER(title) LIKE LOWER(?) ORDER BY title LIMIT ?",
+                (f"%{stripped}%", int(limit)),
+            )
+        return [(row[0] or "", row[1] or "") for row in self.cursor.fetchall()]
+
+    def get_song_lyric(self, title: str, album: str = "") -> Optional[Tuple[str, str, str]]:
+        """Return (title, lyric, album) for one song, tolerating an empty album."""
+        stripped_title = (title or "").strip()
+        stripped_album = (album or "").strip()
+        if not self.cursor or not stripped_title:
+            return None
+        self.cursor.execute(
+            "SELECT title, COALESCE(lyric, ''), COALESCE(Album, '') FROM songs "
+            "WHERE title = ? AND (? = '' OR COALESCE(Album, '') = ?) LIMIT 1",
+            (stripped_title, stripped_album, stripped_album),
+        )
+        row = self.cursor.fetchone()
+        return (row[0] or "", row[1] or "", row[2] or "") if row else None
+
+    @staticmethod
+    def _optional_gloss(item: Dict[str, Any], key: str, alias: str) -> Optional[str]:
+        """Read an optional gloss, returning None when the caller omitted it."""
+        if key in item:
+            return str(item.get(key) or "").strip()
+        if alias in item:
+            return str(item.get(alias) or "").strip()
+        return None
+
+    def update_word_entry(
+        self,
+        headword_id: int,
+        original_word: str,
+        new_word: str,
+        display_explanation: str,
+        senses: List[Dict[str, Any]],
+    ) -> bool:
+        """Update one headword and its individual senses as a single transaction.
+
+        Every sense is addressed by its own ``dictionary.id``; senses that are
+        not part of ``senses`` are left untouched.  This is the whole point of
+        the feature: the previous implementation wrote the headword summary into
+        *every* sense, destroying the curated per-sense meanings.
+        """
+        if not self.conn or not self.cursor:
+            self.last_error = "数据库未连接。"
+            return False
+        try:
+            parsed_headword_id = int(headword_id)
+        except (TypeError, ValueError):
+            self.last_error = "未找到要修改的词条。"
+            return False
+
+        word = (new_word or "").strip()
+        if not word:
+            self.last_error = "原文不能为空。"
+            return False
+        if len(word) > 64:
+            self.last_error = "原文过长。"
+            return False
+        if "\n" in word or "\r" in word:
+            self.last_error = "原文不能包含换行。"
+            return False
+
+        display = (display_explanation or "").strip()
+        if not display:
+            self.last_error = "展示释义不能为空。"
+            return False
+        if len(display) > 500:
+            self.last_error = "展示释义过长。"
+            return False
+
+        normalized_senses: List[Tuple[int, str, Optional[str], Optional[str]]] = []
+        seen_sense_ids = set()
+        for item in senses or []:
+            if not isinstance(item, dict):
+                self.last_error = "义项数据不一致，请刷新后重试。"
+                return False
+            try:
+                sense_id = int(item.get("id"))
+            except (TypeError, ValueError):
+                self.last_error = "义项数据不一致，请刷新后重试。"
+                return False
+            if sense_id in seen_sense_ids:
+                continue
+            seen_sense_ids.add(sense_id)
+            explanation = str(item.get("explanation") or "").strip()
+            # A missing gloss key means "keep the stored value"; only an explicit
+            # empty string clears it.  Otherwise a caller using the search-payload
+            # key names (english_gloss) would silently wipe every gloss.
+            english = self._optional_gloss(item, "english", "english_gloss")
+            japanese = self._optional_gloss(item, "japanese", "japanese_gloss")
+            if not explanation:
+                self.last_error = "义项释义不能为空。"
+                return False
+            if len(explanation) > 500:
+                self.last_error = "义项释义过长。"
+                return False
+            if english is not None and len(english) > 500:
+                self.last_error = "义项译文过长。"
+                return False
+            if japanese is not None and len(japanese) > 500:
+                self.last_error = "义项译文过长。"
+                return False
+            normalized_senses.append((sense_id, explanation, english, japanese))
+
+        try:
+            # A previous failed write must never leave the shared connection in a
+            # transaction: "BEGIN IMMEDIATE" would then raise and the user would
+            # see a raw SQLite message.
+            if self.conn.in_transaction:
+                self.conn.rollback()
+
+            row = self.cursor.execute(
+                "SELECT words FROM dictionary_headwords WHERE id = ?",
+                (parsed_headword_id,),
+            ).fetchone()
+            if row is None:
+                self.last_error = "未找到要修改的词条。"
+                return False
+            current_word = str(row[0] or "")
+            if word.casefold() != current_word.casefold():
+                duplicate = self.cursor.execute(
+                    "SELECT id FROM dictionary_headwords "
+                    "WHERE LOWER(words) = LOWER(?) AND id <> ? LIMIT 1",
+                    (word, parsed_headword_id),
+                ).fetchone()
+                if duplicate is not None:
+                    self.last_error = "已存在同名词条，请改用不同的原文。"
+                    return False
+
+            if normalized_senses:
+                placeholders = ",".join("?" for _ in normalized_senses)
+                owned_rows = self.cursor.execute(
+                    "SELECT id FROM dictionary WHERE headword_id = ? AND id IN ("
+                    + placeholders + ")",
+                    (parsed_headword_id,) + tuple(sense_id for sense_id, *_ in normalized_senses),
+                ).fetchall()
+                owned = {int(entry[0]) for entry in owned_rows}
+                if any(sense_id not in owned for sense_id, *_ in normalized_senses):
+                    self.last_error = "义项数据不一致，请刷新后重试。"
+                    return False
+
+            self.conn.execute("BEGIN IMMEDIATE")
+            self.cursor.execute(
+                "UPDATE dictionary_headwords SET words = ?, display_explanation = ? WHERE id = ?",
+                (word, display, parsed_headword_id),
+            )
+            # The headword spelling is shared by every sense.
+            self.cursor.execute(
+                "UPDATE dictionary SET words = ? WHERE headword_id = ?",
+                (word, parsed_headword_id),
+            )
+            for sense_id, explanation, english, japanese in normalized_senses:
+                if english is None and japanese is None:
+                    self.cursor.execute(
+                        "UPDATE dictionary SET explanation = ? WHERE id = ? AND headword_id = ?",
+                        (explanation, sense_id, parsed_headword_id),
+                    )
+                elif english is None:
+                    self.cursor.execute(
+                        "UPDATE dictionary SET explanation = ?, japanese_gloss = ? "
+                        "WHERE id = ? AND headword_id = ?",
+                        (explanation, japanese, sense_id, parsed_headword_id),
+                    )
+                elif japanese is None:
+                    self.cursor.execute(
+                        "UPDATE dictionary SET explanation = ?, english_gloss = ? "
+                        "WHERE id = ? AND headword_id = ?",
+                        (explanation, english, sense_id, parsed_headword_id),
+                    )
+                else:
+                    self.cursor.execute(
+                        "UPDATE dictionary SET explanation = ?, english_gloss = ?, "
+                        "japanese_gloss = ? WHERE id = ? AND headword_id = ?",
+                        (explanation, english, japanese, sense_id, parsed_headword_id),
+                    )
+            self.conn.commit()
+            self.last_error = ""
+            return True
+        except sqlite3.Error as exc:
+            try:
+                self.conn.rollback()
+            except sqlite3.Error:
+                pass
+            self.last_error = "保存失败，请稍后重试。"
+            logger.error("update_word_entry failed: %s", exc, exc_info=True)
+            return False
+
+    # ---- P2 curated writes: create / add / delete words and senses --------
+
+    @staticmethod
+    def _clean_sense_payload(
+        item: Dict[str, Any],
+    ) -> Tuple[str, str, str, str]:
+        """Normalize one sense payload into (explanation, class, english, japanese)."""
+        explanation = str(item.get("explanation") or "").strip()
+        word_class = str(item.get("class") or item.get("word_class") or "").strip()
+        english = str(item.get("english", item.get("english_gloss")) or "").strip()
+        japanese = str(item.get("japanese", item.get("japanese_gloss")) or "").strip()
+        return explanation, word_class, english, japanese
+
+    def _begin_write(self) -> bool:
+        if not self.conn or not self.cursor:
+            self.last_error = "数据库未连接。"
+            return False
+        if self.conn.in_transaction:
+            self.conn.rollback()
+        self.conn.execute("BEGIN IMMEDIATE")
+        return True
+
+    def create_word_entry(
+        self,
+        word: str,
+        display_explanation: str,
+        display_class: str,
+        senses: List[Dict[str, Any]],
+    ) -> Optional[int]:
+        """Insert one headword together with its senses in a single transaction."""
+        if not self.conn or not self.cursor:
+            self.last_error = "数据库未连接。"
+            return None
+        normalized_word = (word or "").strip()
+        display = (display_explanation or "").strip()
+        if not normalized_word:
+            self.last_error = "原文不能为空。"
+            return None
+        if len(normalized_word) > 64:
+            self.last_error = "原文过长。"
+            return None
+        if "\n" in normalized_word or "\r" in normalized_word:
+            self.last_error = "原文不能包含换行。"
+            return None
+        if not display:
+            self.last_error = "展示释义不能为空。"
+            return None
+        if len(display) > 500:
+            self.last_error = "展示释义过长。"
+            return None
+        word_class = str(display_class or "").strip()
+        if len(word_class) > 32:
+            self.last_error = "词性过长。"
+            return None
+
+        prepared: List[Tuple[str, str, str, str]] = []
+        for item in senses or []:
+            if not isinstance(item, dict):
+                self.last_error = "义项数据不一致，请刷新后重试。"
+                return None
+            explanation, sense_class, english, japanese = self._clean_sense_payload(item)
+            if not explanation:
+                self.last_error = "义项释义不能为空。"
+                return None
+            if len(explanation) > 500:
+                self.last_error = "义项释义过长。"
+                return None
+            if len(english) > 500 or len(japanese) > 500:
+                self.last_error = "义项译文过长。"
+                return None
+            if len(sense_class) > 32:
+                self.last_error = "词性过长。"
+                return None
+            prepared.append((explanation, sense_class, english, japanese))
+        if not prepared:
+            self.last_error = "至少需要一个义项。"
+            return None
+
+        try:
+            duplicate = self.cursor.execute(
+                "SELECT id FROM dictionary_headwords WHERE LOWER(words) = LOWER(?) LIMIT 1",
+                (normalized_word,),
+            ).fetchone()
+            if duplicate is not None:
+                self.last_error = "已存在同名词条，请改用不同的原文。"
+                return None
+            if not self._begin_write():
+                return None
+            self.cursor.execute(
+                "INSERT INTO dictionary_headwords "
+                "(words, display_explanation, display_class, count, variety) "
+                "VALUES (?, ?, ?, 0, 0)",
+                (normalized_word, display, word_class),
+            )
+            headword_id = int(
+                self.cursor.execute("SELECT last_insert_rowid()").fetchone()[0]
+            )
+            for order, (explanation, sense_class, english, japanese) in enumerate(
+                prepared, start=1
+            ):
+                self.cursor.execute(
+                    "INSERT INTO dictionary "
+                    "(headword_id, words, explanation, class, sense_order, "
+                    "english_gloss, japanese_gloss) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    (
+                        headword_id,
+                        normalized_word,
+                        explanation,
+                        sense_class,
+                        order,
+                        english,
+                        japanese,
+                    ),
+                )
+            self.conn.commit()
+            self.last_inserted_id = headword_id
+            self.last_error = ""
+            return headword_id
+        except sqlite3.Error as exc:
+            try:
+                self.conn.rollback()
+            except sqlite3.Error:
+                pass
+            self.last_error = "保存失败，请稍后重试。"
+            logger.error("create_word_entry failed: %s", exc, exc_info=True)
+            return None
+
+    def add_sense(
+        self,
+        headword_id: Any,
+        explanation: str,
+        word_class: str,
+        english: str,
+        japanese: str,
+    ) -> Optional[int]:
+        """Append one sense to an existing headword."""
+        if not self.conn or not self.cursor:
+            self.last_error = "数据库未连接。"
+            return None
+        try:
+            parsed_headword_id = int(headword_id)
+        except (TypeError, ValueError):
+            self.last_error = "未找到要修改的词条。"
+            return None
+        normalized_explanation = (explanation or "").strip()
+        normalized_class = (word_class or "").strip()
+        normalized_english = (english or "").strip()
+        normalized_japanese = (japanese or "").strip()
+        if not normalized_explanation:
+            self.last_error = "义项释义不能为空。"
+            return None
+        if len(normalized_explanation) > 500:
+            self.last_error = "义项释义过长。"
+            return None
+        if len(normalized_english) > 500 or len(normalized_japanese) > 500:
+            self.last_error = "义项译文过长。"
+            return None
+        if len(normalized_class) > 32:
+            self.last_error = "词性过长。"
+            return None
+        try:
+            row = self.cursor.execute(
+                "SELECT words FROM dictionary_headwords WHERE id = ?",
+                (parsed_headword_id,),
+            ).fetchone()
+            if row is None:
+                self.last_error = "未找到要修改的词条。"
+                return None
+            headword_word = str(row[0] or "")
+            if not self._begin_write():
+                return None
+            next_order = int(
+                self.cursor.execute(
+                    "SELECT COALESCE(MAX(sense_order), 0) + 1 FROM dictionary "
+                    "WHERE headword_id = ?",
+                    (parsed_headword_id,),
+                ).fetchone()[0]
+            )
+            self.cursor.execute(
+                "INSERT INTO dictionary "
+                "(headword_id, words, explanation, class, sense_order, "
+                "english_gloss, japanese_gloss) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (
+                    parsed_headword_id,
+                    headword_word,
+                    normalized_explanation,
+                    normalized_class,
+                    next_order,
+                    normalized_english,
+                    normalized_japanese,
+                ),
+            )
+            sense_id = int(
+                self.cursor.execute("SELECT last_insert_rowid()").fetchone()[0]
+            )
+            self.conn.commit()
+            self.last_inserted_id = sense_id
+            self.last_error = ""
+            return sense_id
+        except sqlite3.Error as exc:
+            try:
+                self.conn.rollback()
+            except sqlite3.Error:
+                pass
+            self.last_error = "保存失败，请稍后重试。"
+            logger.error("add_sense failed: %s", exc, exc_info=True)
+            return None
+
+    def delete_sense(self, sense_id: Any) -> bool:
+        """Remove one sense (and its semantic aliases) as one transaction."""
+        if not self.conn or not self.cursor:
+            self.last_error = "数据库未连接。"
+            return False
+        try:
+            parsed_sense_id = int(sense_id)
+        except (TypeError, ValueError):
+            self.last_error = "未找到要删除的义项。"
+            return False
+        try:
+            row = self.cursor.execute(
+                "SELECT headword_id, explanation FROM dictionary WHERE id = ?",
+                (parsed_sense_id,),
+            ).fetchone()
+            if row is None:
+                self.last_error = "未找到要删除的义项。"
+                return False
+            headword_id = int(row[0])
+            remaining = int(
+                self.cursor.execute(
+                    "SELECT COUNT(*) FROM dictionary WHERE headword_id = ?",
+                    (headword_id,),
+                ).fetchone()[0]
+            )
+            if remaining <= 1:
+                # A headword with no senses is not usable by search, translation or
+                # study; deleting the whole word is the explicit way to remove it.
+                self.last_error = "至少保留一个义项；如需删除整个词条，请使用「删除词条」。"
+                return False
+            if not self._begin_write():
+                return False
+            if self._is_table_exists("dictionary_semantic_aliases"):
+                self.cursor.execute(
+                    "DELETE FROM dictionary_semantic_aliases WHERE sense_id = ?",
+                    (parsed_sense_id,),
+                )
+            self.cursor.execute("DELETE FROM dictionary WHERE id = ?", (parsed_sense_id,))
+            self.conn.commit()
+            self.last_deleted_count = 1
+            self.last_error = ""
+            return True
+        except sqlite3.Error as exc:
+            try:
+                self.conn.rollback()
+            except sqlite3.Error:
+                pass
+            self.last_error = "删除失败，请稍后重试。"
+            logger.error("delete_sense failed: %s", exc, exc_info=True)
+            return False
+
+    def delete_headword(self, headword_id: Any) -> bool:
+        """Remove one headword with all of its senses in a single transaction."""
+        if not self.conn or not self.cursor:
+            self.last_error = "数据库未连接。"
+            return False
+        try:
+            parsed_headword_id = int(headword_id)
+        except (TypeError, ValueError):
+            self.last_error = "未找到要删除的词条。"
+            return False
+        try:
+            row = self.cursor.execute(
+                "SELECT words FROM dictionary_headwords WHERE id = ?",
+                (parsed_headword_id,),
+            ).fetchone()
+            if row is None:
+                self.last_error = "未找到要删除的词条。"
+                return False
+            sense_ids = [
+                int(item[0])
+                for item in self.cursor.execute(
+                    "SELECT id FROM dictionary WHERE headword_id = ?",
+                    (parsed_headword_id,),
+                ).fetchall()
+            ]
+            if not self._begin_write():
+                return False
+            if sense_ids and self._is_table_exists("dictionary_semantic_aliases"):
+                placeholders = ",".join("?" for _ in sense_ids)
+                self.cursor.execute(
+                    "DELETE FROM dictionary_semantic_aliases WHERE sense_id IN ("
+                    + placeholders
+                    + ")",
+                    tuple(sense_ids),
+                )
+            self.cursor.execute(
+                "DELETE FROM dictionary WHERE headword_id = ?", (parsed_headword_id,)
+            )
+            self.cursor.execute(
+                "DELETE FROM dictionary_headwords WHERE id = ?", (parsed_headword_id,)
+            )
+            self.conn.commit()
+            self.last_deleted_count = len(sense_ids) + 1
+            self.last_error = ""
+            return True
+        except sqlite3.Error as exc:
+            try:
+                self.conn.rollback()
+            except sqlite3.Error:
+                pass
+            self.last_error = "删除失败，请稍后重试。"
+            logger.error("delete_headword failed: %s", exc, exc_info=True)
+            return False
+
+    def get_headword_entry(self, headword_id: Any) -> Optional[Dict[str, Any]]:
+        """One headword in the same shape as a curated search entry."""
+        if not self.cursor:
+            self.last_error = "数据库未连接。"
+            return None
+        try:
+            parsed_headword_id = int(headword_id)
+        except (TypeError, ValueError):
+            return None
+        row = self.cursor.execute(
+            "SELECT id, words, display_explanation, display_class "
+            "FROM dictionary_headwords WHERE id = ?",
+            (parsed_headword_id,),
+        ).fetchone()
+        if row is None:
+            return None
+        senses = [
+            {
+                "id": int(item[0]),
+                "explanation": item[1] or "",
+                "class": item[2] or "",
+                "english_gloss": item[3] or "",
+                "japanese_gloss": item[4] or "",
+            }
+            for item in self.cursor.execute(
+                "SELECT id, explanation, class, english_gloss, japanese_gloss "
+                "FROM dictionary WHERE headword_id = ? "
+                "ORDER BY sense_order, id",
+                (parsed_headword_id,),
+            ).fetchall()
+        ]
+        return {
+            "word": row[1] or "",
+            "explanation": row[2] or "",
+            "word_class": row[3] or "",
+            "kind": "alice",
+            "headword_id": int(row[0]),
+            "senses": senses,
+        }
 
     def get_word_stats(self, word: str, is_exact: bool = True) -> Optional[Tuple[int, int]]:
         if not self.cursor or not word:
@@ -312,10 +997,10 @@ class DatabaseHandler:
         return result if result else None
 
     def close(self) -> None:
-        if self.conn:
+        if self.conn is not None and self._owns_connection:
             self.conn.close()
-            self.conn = None
-            self.cursor = None
+        self.conn = None
+        self.cursor = None
 
 
 class TextProcessor:
