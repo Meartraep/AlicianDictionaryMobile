@@ -1013,6 +1013,34 @@ def invoke(method: str, payload_json: str = "{}") -> str:
                 result = _data_call(
                     lambda: _data_core.reference_options(table, column, keyword)
                 )
+            elif method == "data_replace_preview":
+                keyword = str(payload.get("keyword") or "")
+                replacement = str(payload.get("replacement") or "")
+                result = _data_call(
+                    lambda: _ok(matches=_data_core.replace_preview(keyword, replacement))
+                )
+            elif method == "data_replace_apply":
+                keyword = str(payload.get("keyword") or "")
+                replacement = str(payload.get("replacement") or "")
+                matches = payload.get("matches") or []
+                backup = _create_recovery_point("before_replace")
+                outcome = _data_call(
+                    lambda: _data_core.replace_apply(keyword, replacement, matches)
+                )
+                if outcome.get("ok"):
+                    outcome["message"] = f"已替换 {outcome.get('replaced', 0)} 处。"
+                    outcome["backup"] = backup
+                result = outcome
+            elif method == "maintenance_no_class":
+                backup = _create_recovery_point("before_maintenance_no_class")
+                outcome = _data_call(lambda: _data_core.rebuild_no_class())
+                if outcome.get("ok"):
+                    outcome["message"] = (
+                        f"no_class 已重建（{outcome.get('inserted', 0)} 条，"
+                        f"源义项 {outcome.get('source_rows', 0)} 条）。"
+                    )
+                    outcome["backup"] = backup
+                result = outcome
             elif method == "gov_backups":
                 backups = _data_core.backup_list()
                 result = _ok(backups=backups, count=len(backups))

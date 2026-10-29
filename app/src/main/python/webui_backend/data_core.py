@@ -1146,6 +1146,43 @@ class DataCore:
 
         return self._guard_write(tables, action)
 
+    # --------------------------------------------------- maintenance actions
+
+    def rebuild_no_class(self) -> Dict[str, Any]:
+        """Rebuild the ``no_class`` table from senses that carry no word class.
+
+        ``no_class`` is the only derived table the app still reads (the translator
+        uses it), so it is rebuilt on demand instead of keeping the 13 legacy
+        part-of-speech tables in sync.
+        """
+        insert_sql = (
+            "INSERT INTO no_class (words, translation, count, variety) "
+            "SELECT d.words, d.explanation, d.count, d.variety FROM dictionary d "
+            "WHERE (d.class IS NULL OR d.class = '') "
+            "AND d.id = (SELECT MIN(d2.id) FROM dictionary d2 "
+            "WHERE d2.words = d.words AND (d2.class IS NULL OR d2.class = ''))"
+        )
+
+        def action(connection: sqlite3.Connection) -> Dict[str, Any]:
+            connection.execute(
+                "CREATE TABLE IF NOT EXISTS no_class "
+                "(words TEXT, translation TEXT, count INTEGER, variety INTEGER)"
+            )
+            connection.execute("DELETE FROM no_class")
+            cursor = connection.execute(insert_sql)
+            source = connection.execute(
+                "SELECT COUNT(*) FROM dictionary "
+                "WHERE class IS NULL OR class = ''"
+            ).fetchone()[0]
+            inserted = int(cursor.rowcount if cursor.rowcount and cursor.rowcount > 0 else 0)
+            return {
+                "ok": True,
+                "inserted": inserted,
+                "source_rows": int(source),
+            }
+
+        return self._guard_write({"dictionary", "no_class"}, action)
+
     # ------------------------------------------------------------- diagnose
 
     def diagnose(self) -> Dict[str, Any]:
