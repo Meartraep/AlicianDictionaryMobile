@@ -3,6 +3,66 @@
 > Chinese release notes are shown on the GitHub Releases page. This document is
 > the dedicated English version for readers who prefer English.
 
+## v1.12.0 (2026-10-30)
+
+### Highlights
+
+- **The database manager is now part of the dictionary.** The dictionary's first
+  tab gains a "Data" workspace for day-to-day content work, while the old
+  standalone manager becomes a rarely-needed governance screen under Settings.
+- **The bundled database is upgraded to v2.** 19 unread legacy tables and one
+  orphan translation row were removed and the file was vacuumed. Business tables
+  drop from 32 to 13 and the asset shrinks from 2,854,912 to 2,596,864 bytes;
+  the 1,339 headwords and 53 songs are unchanged.
+- **The writing assistant now highlights uncertain senses instead of rare
+  words.** Blue marks dictionary senses annotated with a `(?)` uncertainty
+  marker; low frequency or low variety no longer affects the writing assistant.
+
+### Detailed changes
+
+- The dictionary gains a "Data" workspace: paged browsing of the 13 business
+  tables, exact search, curated per-table editing (create words and senses,
+  delete previews, schema validation), reference candidates and CSV / SQLite
+  export.
+- One writer for all edits: a single SQLite connection, write guard,
+  declarative schema checks, automatic recovery points and a local-edit ledger.
+  Destructive actions require preview, a recovery point and a second
+  confirmation.
+- Maintenance actions now live in the dictionary: recount frequency/variety,
+  rebuild `no_class`, allow-listed global replace (case-sensitive,
+  preview-gated) and database diagnostics.
+- Settings now has a single "Database" card plus a governance screen: version
+  and identity, update checks, recovery-point rollback, on-device publishing,
+  whole-database import/export, restore-bundled-database and the upstream
+  full-dictionary source.
+- Fixed SQLite connection leaks that blocked recovery-point rollback and
+  whole-database import; lyric maintenance now reads the single `songs.lyric`
+  source.
+- Writing assistant blue highlights now come from dictionary senses annotated
+  with a `(?)` uncertainty marker (any sense, or the headword display
+  explanation). Half/full-width parentheses and question marks are accepted; a
+  plain question mark is not. Unknown words still take the red highlight, and
+  the page, metric card and issue list now say "uncertain meaning".
+- Frequency/variety no longer drive or appear in the writing assistant, but
+  remain in the study ordering, dictionary details, translation scoring and
+  maintenance recount.
+- Editing a `(?)` marker in the dictionary editor or data manager refreshes
+  the writing assistant immediately. 184 of the 1,339 headwords currently
+  carry the marker.
+
+### Technical details
+
+- Version: 1.12.0 (versionCode 16)
+- ABIs: arm64-v8a and x86_64, one signed APK each
+- Database: db_version 2 (2026-10-29), first shipped with this release
+
+### Release assets
+
+- `AlicianDictionary-v1.12.0-arm64-v8a.apk`: signed APK for Android devices
+- `AlicianDictionary-v1.12.0-x86_64.apk`: signed APK for emulators / x86 Chromebooks
+- `AlicianDictionary-v1.12.0.intoto.jsonl`: SLSA build provenance covering both APKs
+- `SHA256SUMS.txt`: asset checksums
+
 ## v1.11.0 (2026-10-21)
 
 ### Highlights
