@@ -779,8 +779,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 when {
                     clearEntry -> dictionaryEditEntry = null
                     refreshHeadwordId != null -> {
+                        val headwordId = refreshHeadwordId
                         dictionaryEditEntry = runCatching {
-                            repository.dictionaryEntry(refreshHeadwordId!!)
+                            repository.dictionaryEntry(headwordId)
                         }.getOrNull()
                     }
                 }
