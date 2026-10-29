@@ -989,11 +989,11 @@ private fun LazyListScope.dictionaryResultItems(
                         entry = entry,
                         alicianFont = alicianFont,
                         onClick = {
-                            onQueryChanged(entry.word)
-                            if (entry.kind == "song") {
-                                viewModel.loadSongLyrics(entry.word, entry.album)
-                            } else {
-                                viewModel.loadExamples(entry.word, position)
+                            // 查看类操作不改写搜索框：歌词译文命中的 word 是整句
+                            // 爱丽丝语，塞进搜索框后用户还得先删掉才能继续搜。
+                            when (entry.kind) {
+                                "song" -> viewModel.loadSongLyrics(entry.word, entry.album)
+                                else -> viewModel.loadExamples(entry.word, position)
                             }
                         },
                         onEdit = onEditEntry,
@@ -1598,11 +1598,22 @@ private fun ExamplesSheet(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 item {
+                    // 译文命中时 word 是整句：标题不能把整句当标题铺满屏幕。
+                    val longWord = result.word.length > 24
                     Text(
-                        "${result.word} 的歌词例句",
+                        if (longWord) "歌词上下文" else "${result.word} 的歌词例句",
                         style = MaterialTheme.typography.headlineSmall,
                         fontFamily = alicianFont,
                     )
+                    if (longWord) {
+                        Text(
+                            result.word,
+                            modifier = Modifier.fillMaxWidth(),
+                            style = MaterialTheme.typography.bodyMedium,
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                    }
                     Text(
                         "歌曲 ${result.songStats.size} 首 · 去重前 ${result.totalBefore} · " +
                             "去重后 ${result.totalAfter} · 去重率 " +
