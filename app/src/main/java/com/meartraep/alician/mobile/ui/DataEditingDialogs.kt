@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -203,6 +204,7 @@ internal fun DataFormDialog(
     }
     AlertDialog(
         onDismissRequest = { if (!submitting) onDismiss() },
+        modifier = Modifier.imePadding(),
         title = {
             Text(if (existing == null) "新增${form.label}" else "编辑${form.label}")
         },
@@ -358,6 +360,7 @@ internal fun DataDeleteDialog(
 ) {
     AlertDialog(
         onDismissRequest = { if (!submitting) onDismiss() },
+        modifier = Modifier.imePadding(),
         title = { Text("删除${tableLabel}？") },
         text = {
             Column(
@@ -445,6 +448,7 @@ internal fun DictionaryCreateWordDialog(
         senses.all { it.explanation.isNotBlank() }
     AlertDialog(
         onDismissRequest = { if (!submitting) onDismiss() },
+        modifier = Modifier.imePadding(),
         title = { Text("新增词条") },
         text = {
             Column(
@@ -554,6 +558,7 @@ internal fun SenseAddDialog(
     var japanese by remember { mutableStateOf("") }
     AlertDialog(
         onDismissRequest = { if (!submitting) onDismiss() },
+        modifier = Modifier.imePadding(),
         title = { Text("新增义项") },
         text = {
             Column(

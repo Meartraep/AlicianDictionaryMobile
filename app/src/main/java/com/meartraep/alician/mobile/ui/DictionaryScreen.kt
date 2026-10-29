@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -123,6 +124,10 @@ fun DictionaryScreen(viewModel: MainViewModel, padding: PaddingValues) {
     val senseAddState = remember { DataMutationUiState() }
     val formState = remember { DataMutationUiState() }
     val deleteState = remember { DataMutationUiState() }
+    val createWordAction: () -> Unit = {
+        createWordState.reset()
+        showCreateWordDialog = true
+    }
 
     val focusManager = LocalFocusManager.current
     val alicianFont = if (viewModel.alicianFontEnabled) {
@@ -313,7 +318,9 @@ fun DictionaryScreen(viewModel: MainViewModel, padding: PaddingValues) {
                 ) {
                     item {
                         Column(modifier = Modifier.fillMaxWidth()) {
-                            DictionaryHeader()
+                            DictionaryHeader(
+                                onCreateWord = if (workspace == "search") createWordAction else null,
+                            )
                             Spacer(Modifier.height(10.dp))
                             WorkspaceSwitcher(
                                 workspace = workspace,
@@ -334,10 +341,6 @@ fun DictionaryScreen(viewModel: MainViewModel, padding: PaddingValues) {
                             onSearch = {
                                 focusManager.clearFocus()
                                 viewModel.searchDictionary(it, exact, position)
-                            },
-                            onCreateWord = {
-                                createWordState.reset()
-                                showCreateWordDialog = true
                             },
                         )
                     } else {
@@ -399,6 +402,7 @@ fun DictionaryScreen(viewModel: MainViewModel, padding: PaddingValues) {
                     end = 16.dp,
                     top = padding.calculateTopPadding() + 18.dp,
                 ),
+                onCreateWord = if (workspace == "search") createWordAction else null,
             )
             WorkspaceSwitcher(
                 workspace = workspace,
@@ -424,10 +428,6 @@ fun DictionaryScreen(viewModel: MainViewModel, padding: PaddingValues) {
                             onSearch = {
                                 focusManager.clearFocus()
                                 viewModel.searchDictionary(it, exact, position)
-                            },
-                            onCreateWord = {
-                                createWordState.reset()
-                                showCreateWordDialog = true
                             },
                         )
                         dictionaryResultItems(
@@ -668,14 +668,25 @@ fun DictionaryScreen(viewModel: MainViewModel, padding: PaddingValues) {
 
 /** 词典标题（检索/数据工作区共用）；标题只在这里渲染。 */
 @Composable
-private fun DictionaryHeader(modifier: Modifier = Modifier) {
-    Column(modifier = modifier.fillMaxWidth()) {
-        Text("爱丽丝语词典", style = MaterialTheme.typography.headlineMedium)
-        Text(
-            "Lite 本地词典 · 支持中文反查、拼写建议和歌词上下文",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+private fun DictionaryHeader(
+    modifier: Modifier = Modifier,
+    onCreateWord: (() -> Unit)? = null,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text("爱丽丝语词典", style = MaterialTheme.typography.headlineMedium)
+            Text(
+                "Lite 本地词典 · 支持中文反查、拼写建议和歌词上下文",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        if (onCreateWord != null) {
+            TextButton(onClick = onCreateWord) { Text("+ 新增词条") }
+        }
     }
 }
 
@@ -689,7 +700,6 @@ private fun LazyListScope.dictionarySearchItems(
     viewModel: MainViewModel,
     alicianFont: FontFamily,
     onSearch: (String) -> Unit,
-    onCreateWord: () -> Unit,
 ) {
         item {
             OutlinedTextField(
@@ -737,7 +747,6 @@ private fun LazyListScope.dictionarySearchItems(
                         label = { Text(option.second) },
                     )
                 }
-                TextButton(onClick = onCreateWord) { Text("+ 新增词条") }
             }
         }
         if (viewModel.history.isNotEmpty()) {
@@ -1305,6 +1314,7 @@ private fun DictionaryEntryEditDialog(
     var senses by remember(entry) { mutableStateOf(entry.senses) }
     AlertDialog(
         onDismissRequest = { if (!submitting) onDismiss() },
+        modifier = Modifier.imePadding(),
         title = { Text("修改词条") },
         text = {
             Column(
@@ -1553,6 +1563,7 @@ private fun ExamplesSheet(
         var lyric by remember(example) { mutableStateOf(example.lyric) }
         AlertDialog(
             onDismissRequest = { editingIndex = -1 },
+            modifier = Modifier.imePadding(),
             title = { Text(example.title) },
             text = {
                 OutlinedTextField(
