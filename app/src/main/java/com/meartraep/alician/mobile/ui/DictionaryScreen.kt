@@ -60,6 +60,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -114,7 +115,7 @@ fun DictionaryScreen(viewModel: MainViewModel, padding: PaddingValues) {
     var showCreateWordDialog by rememberSaveable { mutableStateOf(false) }
     var senseAddOpen by rememberSaveable { mutableStateOf(false) }
     var formTable by rememberSaveable { mutableStateOf("") }
-    var formKey by rememberSaveable { mutableStateOf(-1L) }
+    var formKey by rememberSaveable { mutableLongStateOf(-1L) }
     var formExisting by remember { mutableStateOf<Map<String, String>?>(null) }
     var deleteTable by rememberSaveable { mutableStateOf("") }
     var deleteKey by rememberSaveable { mutableStateOf(-1L) }
@@ -1117,9 +1118,8 @@ private fun LazyListScope.dataControlsItems(
                 label = { Text("精确") },
             )
             Button(onClick = onSearch) { Text("搜索") }
-            val creatableTable = currentTable
-            if (creatableTable != null && creatableTable.editable) {
-                OutlinedButton(onClick = { onCreateRow(creatableTable.name) }) {
+            if (currentTable != null && currentTable.editable) {
+                OutlinedButton(onClick = { onCreateRow(currentTable.name) }) {
                     Text("+ 新增")
                 }
             }
