@@ -22,6 +22,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.LinearProgressIndicator
@@ -231,9 +232,8 @@ internal fun DataFormDialog(
                     )
                 }
                 if (existing != null) {
-                    val keyField = primaryKeyField
-                    val keyValue = keyField?.let { existing[it.name] }
-                    if (keyField != null && keyValue != null) {
+                    val keyValue = primaryKeyField?.let { existing[it.name] }
+                    if (primaryKeyField != null && keyValue != null) {
                         Text(
                             "编号 $keyValue",
                             style = MaterialTheme.typography.bodySmall,
@@ -330,7 +330,7 @@ private fun ReferenceFormField(
             label = { Text(field.label) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
-                .menuAnchor()
+                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, enabled = true)
                 .fillMaxWidth(),
         )
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {

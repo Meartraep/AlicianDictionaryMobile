@@ -342,7 +342,7 @@ internal fun DiagnosisDialog(
                     InfoBanner(
                         if (healthy) {
                             "完整性检查通过（${diagnosis.integrity}），外键违规 " +
-                                "${diagnosis.foreignKeyViolations}。"
+                                "${0}。"
                         } else {
                             "发现问题：完整性 ${diagnosis.integrity}，外键违规 " +
                                 "${diagnosis.foreignKeyViolations}。"
