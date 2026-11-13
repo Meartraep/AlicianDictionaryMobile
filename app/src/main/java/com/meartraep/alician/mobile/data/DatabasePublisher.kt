@@ -22,7 +22,7 @@ class DatabasePublisher(
     private val baseBranch: String = DEFAULT_BASE_BRANCH,
 ) {
     suspend fun verify(token: String): PublishCredential = withContext(Dispatchers.IO) {
-        val json = request(token, "GET", "/repos/" + repository)
+        val json = request(token, "GET", "/repos/$repository")
         val permissions = json.optJSONObject("permissions")
         val canPush = permissions?.optBoolean("push") ?: false
         PublishCredential(
@@ -79,26 +79,26 @@ class DatabasePublisher(
             throw IllegalStateException(credential.message)
         }
 
-        val baseSha = request(token, "GET", "/repos/" + repository + "/git/ref/heads/" + baseBranch)
+        val baseSha = request(token, "GET", "/repos/$repository/git/ref/heads/$baseBranch")
             .getJSONObject("object").getString("sha")
-        val baseTree = request(token, "GET", "/repos/" + repository + "/git/commits/" + baseSha)
+        val baseTree = request(token, "GET", "/repos/$repository/git/commits/$baseSha")
             .getJSONObject("tree").getString("sha")
 
         onProgress(PublishProgress(PublishStage.UPLOADING, "正在上传（" +
             PublishLogic.formatMegabytes(databaseSize) + "）…"))
         val tree = JSONArray()
-        for (file in files) {
+        for ((path, bytes) in files) {
             val blobSha = request(
                 token,
                 "POST",
-                "/repos/" + repository + "/git/blobs",
+                "/repos/$repository/git/blobs",
                 JSONObject()
-                    .put("content", Base64.encodeToString(file.bytes, Base64.NO_WRAP))
+                    .put("content", Base64.encodeToString(bytes, Base64.NO_WRAP))
                     .put("encoding", "base64"),
             ).getString("sha")
             tree.put(
                 JSONObject()
-                    .put("path", file.path)
+                    .put("path", path)
                     .put("mode", "100644")
                     .put("type", "blob")
                     .put("sha", blobSha),
@@ -107,14 +107,14 @@ class DatabasePublisher(
         val treeSha = request(
             token,
             "POST",
-            "/repos/" + repository + "/git/trees",
+            "/repos/$repository/git/trees",
             JSONObject().put("base_tree", baseTree).put("tree", tree),
         ).getString("sha")
 
         val commitSha = request(
             token,
             "POST",
-            "/repos/" + repository + "/git/commits",
+            "/repos/$repository/git/commits",
             JSONObject()
                 .put("message", COMMIT_MESSAGE)
                 .put("tree", treeSha)
@@ -124,15 +124,15 @@ class DatabasePublisher(
         request(
             token,
             "POST",
-            "/repos/" + repository + "/git/refs",
-            JSONObject().put("ref", "refs/heads/" + branch).put("sha", commitSha),
+            "/repos/$repository/git/refs",
+            JSONObject().put("ref", "refs/heads/$branch").put("sha", commitSha),
         )
 
         onProgress(PublishProgress(PublishStage.OPENING_PULL_REQUEST, "正在创建合并请求…"))
         val pullRequest = request(
             token,
             "POST",
-            "/repos/" + repository + "/pulls",
+            "/repos/$repository/pulls",
             JSONObject()
                 .put("title", "数据库发布：" + PublishLogic.formatMegabytes(databaseSize))
                 .put("head", branch)
@@ -141,13 +141,13 @@ class DatabasePublisher(
         )
         val number = pullRequest.optInt("number", 0)
         val url = pullRequest.optString("html_url")
-        onProgress(PublishProgress(PublishStage.DONE, "已创建合并请求 #" + number))
+        onProgress(PublishProgress(PublishStage.DONE, "已创建合并请求 #$number"))
         PublishOutcome(branch, number, url)
     }
 
     suspend fun pullRequestState(token: String, number: Int): PullRequestState =
         withContext(Dispatchers.IO) {
-            val json = request(token, "GET", "/repos/" + repository + "/pulls/" + number)
+            val json = request(token, "GET", "/repos/$repository/pulls/$number")
             PullRequestState(
                 number = json.optInt("number", number),
                 state = json.optString("state"),
@@ -161,7 +161,7 @@ class DatabasePublisher(
         val json = request(
             token,
             "PUT",
-            "/repos/" + repository + "/pulls/" + number + "/merge",
+            "/repos/$repository/pulls/$number/merge",
             JSONObject().put("merge_method", "squash"),
         )
         if (json.optBoolean("merged")) {
@@ -181,7 +181,7 @@ class DatabasePublisher(
         connection.requestMethod = method
         connection.connectTimeout = 15_000
         connection.readTimeout = 120_000
-        connection.setRequestProperty("Authorization", "Bearer " + token)
+        connection.setRequestProperty("Authorization", "Bearer $token")
         connection.setRequestProperty("Accept", "application/vnd.github+json")
         connection.setRequestProperty("X-GitHub-Api-Version", "2022-11-28")
         connection.setRequestProperty("User-Agent", "AlicianDictionaryMobile")
@@ -214,14 +214,14 @@ class DatabasePublisher(
             403 -> "令牌权限不足或触发了 GitHub 限流。"
             404 -> "找不到仓库或分支：令牌可能没有该仓库的权限。"
             422 -> "GitHub 拒绝了请求（分支或合并请求可能已存在）。"
-            else -> "GitHub 返回 HTTP " + code + "。"
+            else -> "GitHub 返回 HTTP $code。"
         }
-        return if (detail.isBlank()) hint else hint + "（" + detail + "）"
+        return if (detail.isBlank()) hint else "$hint（$detail）"
     }
 
     /** Where the ledger lives for the configured repository and branch. */
     fun ledgerUrl(): String =
-        RAW_ROOT + repository + "/" + baseBranch + "/" + LEDGER_PATH
+        "$RAW_ROOT$repository/$baseBranch/$LEDGER_PATH"
 
     /** Paths of the files a publication commit carries. */
     object Paths {

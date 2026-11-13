@@ -13,7 +13,6 @@ class PublishAuth(
     private val flowFactory: (String) -> GitHubDeviceFlow = { clientId -> GitHubDeviceFlow(clientId) },
     private val now: () -> Long = { System.currentTimeMillis() },
 ) {
-    val usesApp: Boolean get() = store.hasAppCredential
 
     val hasCredential: Boolean get() = store.hasAppCredential || store.hasCredential
 
