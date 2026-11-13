@@ -56,6 +56,7 @@ import com.meartraep.alician.mobile.data.studyEntryFor
 import kotlinx.coroutines.delay
 import java.util.Calendar
 import kotlin.math.roundToInt
+import kotlin.time.Duration.Companion.milliseconds
 
 private val studyDailyLimits = listOf(5, 10, 20, 30)
 
@@ -93,14 +94,14 @@ fun StudyScreen(viewModel: MainViewModel, padding: PaddingValues) {
         !showingAlphabet
     LaunchedEffect(showingStudyOverview) {
         while (showingStudyOverview) {
-            delay(millisecondsUntilNextLocalDay(System.currentTimeMillis()) + 250L)
+            delay((millisecondsUntilNextLocalDay(System.currentTimeMillis()) + 250L).milliseconds)
             viewModel.refreshStudyOverview()
         }
     }
     LaunchedEffect(showingStudyOverview, viewModel.studyOverview.nextDueAtEpochMillis) {
         val dueAt = viewModel.studyOverview.nextDueAtEpochMillis
         if (showingStudyOverview && dueAt != null) {
-            delay((dueAt - System.currentTimeMillis()).coerceAtLeast(0L) + 250L)
+            delay(((dueAt - System.currentTimeMillis()).coerceAtLeast(0L) + 250L).milliseconds)
             viewModel.refreshStudyOverview()
         }
     }
