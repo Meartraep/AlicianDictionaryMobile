@@ -1,6 +1,5 @@
 package com.meartraep.alician.mobile.ui
 
-import android.content.Context
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable

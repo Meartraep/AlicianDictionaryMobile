@@ -10,10 +10,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.EmojiEvents
 import androidx.compose.material.icons.outlined.FontDownload
@@ -23,7 +23,6 @@ import androidx.compose.material.icons.outlined.School
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
@@ -43,7 +42,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.meartraep.alician.mobile.MainViewModel
@@ -60,6 +58,23 @@ import java.util.Calendar
 import kotlin.math.roundToInt
 
 private val studyDailyLimits = listOf(5, 10, 20, 30)
+
+private val scriptOptions = listOf(
+    StudyScript.ALICIAN to "原字体",
+    StudyScript.LATIN to "拉丁转写",
+)
+
+private val contentOptions = listOf(
+    StudyContent.ALL to "全部",
+    StudyContent.WORDS to "单词",
+    StudyContent.PHRASES to "词组",
+)
+
+private val orderOptions = listOf(
+    StudyOrder.FREQUENCY to "高词频 / 泛度优先",
+    StudyOrder.ALPHABETICAL to "字母顺序",
+    StudyOrder.RANDOM to "乱序",
+)
 
 @Composable
 fun StudyScreen(viewModel: MainViewModel, padding: PaddingValues) {
@@ -132,7 +147,6 @@ fun StudyScreen(viewModel: MainViewModel, padding: PaddingValues) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun StudyOverview(
     settings: StudySettings,
@@ -279,7 +293,7 @@ private fun StudyOverview(
             }
         }
 
-        item {
+        item(span = { GridItemSpan(maxLineSpan) }) {
             SectionHeader(
                 "学习方式",
                 if (settings.leadsWithAlicianGlyphs) {
@@ -289,18 +303,15 @@ private fun StudyOverview(
                 },
             )
         }
-        item {
+        item(span = { GridItemSpan(maxLineSpan) }) {
             SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                listOf(
-                    StudyScript.ALICIAN to "原字体",
-                    StudyScript.LATIN to "拉丁转写",
-                ).forEachIndexed { index, option ->
+                scriptOptions.forEachIndexed { index, option ->
                     SegmentedButton(
                         selected = settings.script == option.first,
                         onClick = {
                             onSettingsChanged(settings.copy(script = option.first))
                         },
-                        shape = SegmentedButtonDefaults.itemShape(index, 2),
+                        shape = SegmentedButtonDefaults.itemShape(index, scriptOptions.size),
                         modifier = Modifier
                             .weight(1f)
                             .testTag("study_script_option_${option.first.name}"),
@@ -310,20 +321,18 @@ private fun StudyOverview(
             }
         }
 
-        item { SectionHeader("牌组范围", "词组会和单词使用同一套复习计划") }
-        item {
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            SectionHeader("牌组范围", "词组会和单词使用同一套复习计划")
+        }
+        item(span = { GridItemSpan(maxLineSpan) }) {
             SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                listOf(
-                    StudyContent.ALL to "全部",
-                    StudyContent.WORDS to "单词",
-                    StudyContent.PHRASES to "词组",
-                ).forEachIndexed { index, option ->
+                contentOptions.forEachIndexed { index, option ->
                     SegmentedButton(
                         selected = settings.content == option.first,
                         onClick = {
                             onSettingsChanged(settings.copy(content = option.first))
                         },
-                        shape = SegmentedButtonDefaults.itemShape(index, 3),
+                        shape = SegmentedButtonDefaults.itemShape(index, contentOptions.size),
                         modifier = Modifier.weight(1f),
                         label = { Text(option.second) },
                     )
@@ -331,19 +340,17 @@ private fun StudyOverview(
             }
         }
 
-        item { SectionHeader("新卡顺序", "到期复习始终优先；这里仅控制尚未学过的卡片") }
-        item {
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            SectionHeader("新卡顺序", "到期复习始终优先；这里仅控制尚未学过的卡片")
+        }
+        item(span = { GridItemSpan(maxLineSpan) }) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                listOf(
-                    StudyOrder.FREQUENCY to "高词频 / 泛度优先",
-                    StudyOrder.ALPHABETICAL to "字母顺序",
-                    StudyOrder.RANDOM to "乱序",
-                ).forEach { option ->
+                orderOptions.forEach { option ->
                     FilterChip(
                         selected = settings.order == option.first,
                         onClick = {
@@ -355,8 +362,10 @@ private fun StudyOverview(
             }
         }
 
-        item { SectionHeader("每日新卡", "稳步增加比一次塞入大量生词更利于长期记忆") }
-        item {
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            SectionHeader("每日新卡", "稳步增加比一次塞入大量生词更利于长期记忆")
+        }
+        item(span = { GridItemSpan(maxLineSpan) }) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -374,14 +383,14 @@ private fun StudyOverview(
             }
         }
 
-        item {
+        item(span = { GridItemSpan(maxLineSpan) }) {
             InfoBanner(
                 "先回忆再翻面，并按真实难度评分。新卡会在数分钟内加固，" +
                     "稳定记住后间隔逐步扩展；遗忘卡会自动进入重学。",
             )
         }
 
-        item {
+        item(span = { GridItemSpan(maxLineSpan) }) {
             OutlinedButton(
                 onClick = onOpenAlphabet,
                 modifier = Modifier
@@ -399,7 +408,7 @@ private fun StudyOverview(
                 )
             }
         }
-        item {
+        item(span = { GridItemSpan(maxLineSpan) }) {
             TextButton(
                 onClick = { confirmReset = true },
                 enabled = !loading,
