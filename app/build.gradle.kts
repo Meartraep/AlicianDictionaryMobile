@@ -20,9 +20,9 @@ val signingProperties = Properties().apply {
     }
 }
 val ciSigningStoreFile = System.getenv("ANDROID_KEYSTORE_PATH")?.let(::File)
-val ciSigningStorePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
-val ciSigningKeyAlias = System.getenv("ANDROID_KEY_ALIAS")
-val ciSigningKeyPassword = System.getenv("ANDROID_KEY_PASSWORD")
+val ciSigningStorePassword: String? = System.getenv("ANDROID_KEYSTORE_PASSWORD")
+val ciSigningKeyAlias: String? = System.getenv("ANDROID_KEY_ALIAS")
+val ciSigningKeyPassword: String? = System.getenv("ANDROID_KEY_PASSWORD")
 val hasCiSigningConfig = ciSigningStoreFile?.isFile == true &&
     !ciSigningStorePassword.isNullOrBlank() &&
     !ciSigningKeyAlias.isNullOrBlank() &&
@@ -58,9 +58,7 @@ val githubRunnerPython = System.getenv("RUNNER_TOOL_CACHE")
 android {
     namespace = "com.meartraep.alician.mobile"
     compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
+        version = release(37)
     }
 
     defaultConfig {
@@ -153,15 +151,17 @@ chaquopy {
 }
 
 dependencies {
+    // The BOM must be applied to androidTest too: debugAndroidTestRuntimeClasspath
+    // does not inherit platform constraints from `implementation`.
     val composeBom = platform("androidx.compose:compose-bom:2026.06.00")
     implementation(composeBom)
     androidTestImplementation(composeBom)
 
-    implementation("androidx.core:core-ktx:1.17.0")
+    implementation("androidx.core:core-ktx:1.19.1")
     implementation("androidx.activity:activity-compose:1.13.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.10.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.10.0")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.11.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.11.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.11.0")
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.foundation:foundation")
@@ -179,7 +179,9 @@ dependencies {
 
 // Chaquopy registers this generated ProGuard file even when the app has no
 // static Python proxies. Ensure the empty input exists before R8 snapshots it.
-val ensureChaquopyProguardRules by tasks.registering {
+val ensureChaquopyProguardRules = tasks.register("ensureChaquopyProguardRules") {
+    description = "Creates the empty Chaquopy ProGuard rules file expected by R8 and lint."
+    group = "build setup"
     val rulesFile = layout.buildDirectory.file("python/proguard-rules.pro")
     outputs.file(rulesFile)
     doLast {
@@ -281,10 +283,7 @@ fun trimUnusedJiebaModules(archive: File) {
 }
 
 fun hasUnusedJiebaModules(archive: File): Boolean {
-    if (!archive.isFile) {
-        return false
-    }
-    return ZipFile(archive).use { zip ->
+    return archive.isFile && ZipFile(archive).use { zip ->
         Collections.list(zip.entries()).any { entry ->
             unusedJiebaModulePrefixes.any { prefix -> entry.name.startsWith(prefix) }
         }
