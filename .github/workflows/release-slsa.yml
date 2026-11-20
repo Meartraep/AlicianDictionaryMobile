@@ -42,6 +42,16 @@ jobs:
         with:
           python-version: "3.14"
 
+      - name: Verify release tag matches app versionName
+        shell: bash
+        run: |
+          set -euo pipefail
+          # A release tag whose APK still embeds an older versionName makes the
+          # in-app update checker prompt users to update to the tag they just installed.
+          python scripts/verify_release_apk.py \
+            --check-gradle app/build.gradle.kts \
+            --expected-version "$GITHUB_REF_NAME"
+
       - name: Verify database release metadata
         shell: bash
         run: |
@@ -122,11 +132,19 @@ jobs:
             echo "::error::apksigner was not found in the Android SDK"
             exit 1
           fi
+          aapt2="$({ find "$ANDROID_HOME/build-tools" -type f -name aapt2 -print0 || true; } | xargs -0 -r ls -1v | tail -n 1)"
+          if [[ -z "$aapt2" ]]; then
+            echo "::error::aapt2 was not found in the Android SDK"
+            exit 1
+          fi
           for abi in $expected_abis; do
             apk="dist/AlicianDictionary-${safe_tag}-${abi}.apk"
             "$apksigner" verify --verbose --print-certs "$apk"
-            # Guards the ABI split, the trimmed jieba archive and the size budget.
-            python scripts/verify_release_apk.py "$apk" --abi "$abi"
+            # Guards the ABI split, the trimmed jieba archive, size budget, and versionName.
+            python scripts/verify_release_apk.py "$apk" \
+              --abi "$abi" \
+              --expected-version "$GITHUB_REF_NAME" \
+              --aapt2 "$aapt2"
           done
 
           (

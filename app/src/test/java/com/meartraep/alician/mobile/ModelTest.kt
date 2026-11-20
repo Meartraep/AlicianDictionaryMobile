@@ -47,6 +47,10 @@ class ModelTest {
     fun releaseVersionComparisonHandlesPrefixesAndDebugSuffixes() {
         assertTrue(isVersionNewer("v1.1.0", "1.0.9-debug"))
         assertEquals(false, isVersionNewer("v1.0.0", "1.0.0-debug"))
+        assertEquals(false, isVersionNewer("v1.12.1", "1.12.1"))
+        assertEquals(false, isVersionNewer("v1.12.2", "1.12.2"))
+        assertTrue(isVersionNewer("v1.12.2", "1.12.1"))
+        assertTrue(isVersionNewer("v1.12.1", "1.12.0"))
         assertEquals(false, isVersionNewer("not-a-version", "1.0.0"))
     }
 
